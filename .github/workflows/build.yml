@@ -88,10 +88,10 @@ jobs:
             os: ubuntu-24.04
             target: powerpc64le-unknown-linux-gnu
             binary_suffix: ""
-          - build: x86_64-windows
-            os: windows-latest
-            target: x86_64-pc-windows-msvc
-            binary_suffix: ".exe"
+          #- build: x86_64-windows
+          #  os: windows-latest
+          #  target: x86_64-pc-windows-msvc
+          #  binary_suffix: ".exe"
 
     steps:
       - name: Checkout sources

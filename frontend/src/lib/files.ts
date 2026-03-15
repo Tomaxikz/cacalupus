@@ -1,5 +1,6 @@
 import { z } from 'zod';
 import { serverDirectoryEntrySchema } from '@/lib/schemas/server/files.ts';
+import { getGlobalStore } from '@/stores/global.ts';
 
 export function isArchiveType(file: z.infer<typeof serverDirectoryEntrySchema>) {
   return (
@@ -31,10 +32,18 @@ export function isViewableArchive(file: z.infer<typeof serverDirectoryEntrySchem
 }
 
 export function isViewableImage(file: z.infer<typeof serverDirectoryEntrySchema>) {
-  return file.mime.startsWith('image/') && file.mime !== 'image/svg+xml';
+  if (file.size > getGlobalStore().settings.server.maxFileManagerViewSize) {
+    return false;
+  }
+
+  return file.mime.startsWith('image/') && /^image\/(?!svg\+xml)/.test(file.mime);
 }
 
 export function isEditableFile(file: z.infer<typeof serverDirectoryEntrySchema>) {
+  if (file.size > getGlobalStore().settings.server.maxFileManagerViewSize) {
+    return false;
+  }
+
   const matches = [
     'application/jar',
     'application/octet-stream',
@@ -45,7 +54,7 @@ export function isEditableFile(file: z.infer<typeof serverDirectoryEntrySchema>)
 
   if (isArchiveType(file)) return false;
 
-  return matches.every((m) => !file.mime.match(m));
+  return file.editable && matches.every((m) => !file.mime.match(m));
 }
 
 export function permissionStringToNumber(mode: string) {

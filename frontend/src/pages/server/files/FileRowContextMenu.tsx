@@ -29,7 +29,6 @@ import { useWindows } from '@/providers/contexts/windowContext.ts';
 import { useFileManager } from '@/providers/FileManagerProvider.tsx';
 import { useTranslations } from '@/providers/TranslationProvider.tsx';
 import RouterRoutes from '@/RouterRoutes.tsx';
-import { useGlobalStore } from '@/stores/global.ts';
 import { useServerStore } from '@/stores/server.ts';
 
 interface FileRowContextMenuProps {
@@ -41,7 +40,6 @@ export default function FileRowContextMenu({ file, children }: FileRowContextMen
   const { t } = useTranslations();
   const { addToast } = useToast();
   const { addWindow } = useWindows();
-  const { settings } = useGlobalStore();
   const { server } = useServerStore();
   const {
     browsingBackup,
@@ -79,11 +77,7 @@ export default function FileRowContextMenu({ file, children }: FileRowContextMen
           label: t('pages.server.files.button.openInNewWindow', {}),
           hidden:
             !matchMedia('(pointer: fine)').matches ||
-            !(
-              ((isEditableFile(file) || isViewableImage(file)) &&
-                file.size <= settings.server.maxFileManagerViewSize) ||
-              file.directory
-            ),
+            !(isEditableFile(file) || isViewableImage(file) || file.directory),
           onClick: () =>
             addWindow(
               file.file ? faFile : faFolder,

@@ -82,14 +82,14 @@ pub enum CompressionLevel {
     BestCompression,
 }
 
+fn true_fn() -> bool {
+    true
+}
+
 nestify::nest! {
     #[derive(Debug, ToSchema, Deserialize, Serialize, Clone)] pub struct DirectoryEntry {
         #[schema(inline)]
         pub name: compact_str::CompactString,
-        #[schema(inline)]
-        pub created: chrono::DateTime<chrono::Utc>,
-        #[schema(inline)]
-        pub modified: chrono::DateTime<chrono::Utc>,
         #[schema(inline)]
         pub mode: compact_str::CompactString,
         #[schema(inline)]
@@ -97,8 +97,10 @@ nestify::nest! {
         #[schema(inline)]
         pub size: u64,
         #[schema(inline)]
-        #[serde(default)]
         pub size_physical: u64,
+        #[schema(inline)]
+        #[serde(default = "true_fn")]
+        pub editable: bool,
         #[schema(inline)]
         pub directory: bool,
         #[schema(inline)]
@@ -107,6 +109,10 @@ nestify::nest! {
         pub symlink: bool,
         #[schema(inline)]
         pub mime: compact_str::CompactString,
+        #[schema(inline)]
+        pub created: chrono::DateTime<chrono::Utc>,
+        #[schema(inline)]
+        pub modified: chrono::DateTime<chrono::Utc>,
     }
 }
 

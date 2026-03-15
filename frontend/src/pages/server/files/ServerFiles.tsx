@@ -93,7 +93,8 @@ function ServerFilesComponent() {
   const handleOpen = useCallback(
     (file: z.infer<typeof serverDirectoryEntrySchema>) => {
       if (
-        ((isEditableFile(file) || isViewableImage(file)) && file.size <= settings.server.maxFileManagerViewSize) ||
+        isEditableFile(file) ||
+        isViewableImage(file) ||
         file.directory ||
         (isViewableArchive(file) && browsingFastDirectory)
       ) {

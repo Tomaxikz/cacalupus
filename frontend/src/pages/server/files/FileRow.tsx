@@ -10,7 +10,6 @@ import { bytesToString } from '@/lib/size.ts';
 import FileRowContextMenu from '@/pages/server/files/FileRowContextMenu.tsx';
 import { useServerCan } from '@/plugins/usePermissions.ts';
 import { useFileManager } from '@/providers/FileManagerProvider.tsx';
-import { useGlobalStore } from '@/stores/global.ts';
 import FileRowIcon from './FileRowIcon.tsx';
 
 interface FileRowProps {
@@ -28,7 +27,6 @@ const FileRow = forwardRef<HTMLTableRowElement, FileRowProps>(function FileRow(
   const canOpenActionBar = useServerCan(['files.read-content', 'files.archive', 'files.update', 'files.delete'], true);
   const { browsingFastDirectory, doSelectFiles, addSelectedFile, removeSelectedFile, clickOnce, preferPhysicalSize } =
     useFileManager();
-  const { settings } = useGlobalStore();
   const canOpenFile = useServerCan('files.read-content');
 
   const toggleSelected = () => (isSelected ? removeSelectedFile(file) : addSelectedFile(file));
@@ -85,7 +83,8 @@ const FileRow = forwardRef<HTMLTableRowElement, FileRowProps>(function FileRow(
           className={
             clickOnce &&
             canOpenFile &&
-            (((isEditableFile(file) || isViewableImage(file)) && file.size <= settings.server.maxFileManagerViewSize) ||
+            (isEditableFile(file) ||
+              isViewableImage(file) ||
               file.directory ||
               (isViewableArchive(file) && browsingFastDirectory))
               ? 'cursor-pointer select-none'

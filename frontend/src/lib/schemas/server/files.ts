@@ -111,16 +111,17 @@ export const serverFileOperationSchema = z.discriminatedUnion('type', [
 
 export const serverDirectoryEntrySchema = z.object({
   name: z.string(),
-  created: z.date(),
-  modified: z.date(),
   mode: z.string(),
   modeBits: z.string(),
   size: z.number(),
   sizePhysical: z.number(),
+  editable: z.boolean(),
   directory: z.boolean(),
   file: z.boolean(),
   symlink: z.boolean(),
   mime: z.string(),
+  modified: z.date(),
+  created: z.date(),
 });
 
 export const serverFilesPullQueryResultSchema = z.object({
