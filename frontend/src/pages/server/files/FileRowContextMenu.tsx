@@ -10,6 +10,7 @@ import {
   faFingerprint,
   faFolder,
   faInfoCircle,
+  faListDots,
   faTrash,
   faWindowRestore,
 } from '@fortawesome/free-solid-svg-icons';
@@ -102,20 +103,6 @@ export default function FileRowContextMenu({ file, children }: FileRowContextMen
           canAccess: useServerCan('files.read-content'),
         },
         {
-          icon: faInfoCircle,
-          label: t('pages.server.files.button.details', {}),
-          onClick: () => doOpenModal('details', [file]),
-          color: 'gray',
-        },
-        {
-          icon: faFingerprint,
-          label: t('pages.server.files.button.fingerprint', {}),
-          hidden: !file.file,
-          onClick: () => doOpenModal('fingerprint', [file]),
-          color: 'gray',
-          canAccess: useServerCan('files.read-content'),
-        },
-        {
           icon: faFilePen,
           label: t('pages.server.files.button.rename', {}),
           hidden: !!browsingBackup || !browsingWritableDirectory,
@@ -135,13 +122,6 @@ export default function FileRowContextMenu({ file, children }: FileRowContextMen
           label: t('pages.server.files.button.move', {}),
           hidden: !!browsingBackup || !browsingWritableDirectory,
           onClick: () => doActFiles('move', [file]),
-          color: 'gray',
-          canAccess: useServerCan('files.update'),
-        },
-        {
-          icon: faFileShield,
-          label: t('pages.server.files.button.permissions', {}),
-          onClick: () => doOpenModal('permissions', [file]),
           color: 'gray',
           canAccess: useServerCan('files.update'),
         },
@@ -176,6 +156,35 @@ export default function FileRowContextMenu({ file, children }: FileRowContextMen
               }))
             : [],
           canAccess: useServerCan('files.read-content'),
+        },
+        {
+          icon: faListDots,
+          label: t('pages.server.files.button.more', {}),
+          onClick: () => null,
+          color: 'gray',
+          items: [
+            {
+              icon: faInfoCircle,
+              label: t('pages.server.files.button.details', {}),
+              onClick: () => doOpenModal('details', [file]),
+              color: 'gray',
+            },
+            {
+              icon: faFingerprint,
+              label: t('pages.server.files.button.fingerprint', {}),
+              hidden: !file.file,
+              onClick: () => doOpenModal('fingerprint', [file]),
+              color: 'gray',
+              canAccess: useServerCan('files.read-content'),
+            },
+            {
+              icon: faFileShield,
+              label: t('pages.server.files.button.permissions', {}),
+              onClick: () => doOpenModal('permissions', [file]),
+              color: 'gray',
+              canAccess: useServerCan('files.update'),
+            },
+          ],
         },
         {
           icon: faTrash,

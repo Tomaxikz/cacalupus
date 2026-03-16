@@ -186,8 +186,8 @@ pub struct CreateUserCommandSnippetOptions {
     #[garde(skip)]
     pub user_uuid: uuid::Uuid,
 
-    #[garde(length(chars, min = 2, max = 31))]
-    #[schema(min_length = 2, max_length = 31)]
+    #[garde(length(chars, min = 1, max = 31))]
+    #[schema(min_length = 1, max_length = 31)]
     pub name: compact_str::CompactString,
 
     #[garde(length(max = 100))]
@@ -243,8 +243,8 @@ impl CreatableModel for UserCommandSnippet {
 
 #[derive(ToSchema, Serialize, Deserialize, Validate, Default)]
 pub struct UpdateUserCommandSnippetOptions {
-    #[garde(length(chars, min = 2, max = 31))]
-    #[schema(min_length = 2, max_length = 31, value_type = String)]
+    #[garde(length(chars, min = 1, max = 31))]
+    #[schema(min_length = 1, max_length = 31, value_type = String)]
     pub name: Option<compact_str::CompactString>,
 
     #[garde(length(max = 100))]

@@ -92,8 +92,8 @@ mod post {
 
     #[derive(ToSchema, Validate, Deserialize)]
     pub struct Payload {
-        #[garde(length(chars, min = 2, max = 31))]
-        #[schema(min_length = 2, max_length = 31)]
+        #[garde(length(chars, min = 1, max = 31))]
+        #[schema(min_length = 1, max_length = 31)]
         name: compact_str::CompactString,
 
         #[garde(length(max = 100))]

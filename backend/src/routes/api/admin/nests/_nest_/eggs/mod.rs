@@ -5,6 +5,7 @@ mod _egg_;
 mod delete;
 mod import;
 mod r#move;
+mod update;
 
 mod get {
     use crate::routes::api::admin::nests::_nest_::GetNest;
@@ -246,6 +247,7 @@ pub fn router(state: &State) -> OpenApiRouter<State> {
         .routes(routes!(get::route))
         .routes(routes!(post::route))
         .nest("/import", import::router(state))
+        .nest("/update", update::router(state))
         .nest("/move", r#move::router(state))
         .nest("/delete", delete::router(state))
         .nest("/{egg}", _egg_::router(state))

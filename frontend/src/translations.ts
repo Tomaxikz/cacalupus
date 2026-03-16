@@ -914,6 +914,7 @@ const baseTranslations = defineTranslations({
             permissions: 'Permissions',
             unarchive: 'Unarchive',
             archive: 'Archive',
+            more: 'More',
             remoteCopy: 'Remote Copy',
             search: 'Search',
             exitBackup: 'Exit Backup',
