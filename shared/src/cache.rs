@@ -44,12 +44,13 @@ impl moka::Expiry<compact_str::CompactString, DataEntry> for DataExpiry {
 }
 
 pub struct Cache {
-    pub client: Arc<Client>,
+    client: Option<Arc<Client>>,
     use_internal_cache: bool,
     local: moka::future::Cache<compact_str::CompactString, DataEntry>,
     local_task: tokio::task::JoinHandle<()>,
     local_locks: moka::future::Cache<compact_str::CompactString, LockEntry>,
     local_locks_task: tokio::task::JoinHandle<()>,
+    local_ratelimits: moka::future::Cache<compact_str::CompactString, (u64, u64)>,
 
     cache_calls: AtomicU64,
     cache_latency_ns_total: AtomicU64,
@@ -61,21 +62,29 @@ impl Cache {
     pub async fn new(env: &crate::env::Env) -> Arc<Self> {
         let start = std::time::Instant::now();
 
-        let client = Arc::new(match &env.redis_mode {
-            RedisMode::Redis { redis_url } => Client::connect(redis_url.clone()).await.unwrap(),
+        let client = match &env.redis_mode {
+            RedisMode::Redis { redis_url } => {
+                if let Some(redis_url) = redis_url {
+                    Some(Arc::new(Client::connect(redis_url.clone()).await.unwrap()))
+                } else {
+                    None
+                }
+            }
             RedisMode::Sentinel {
                 cluster_name,
                 redis_sentinels,
-            } => Client::connect(
-                format!(
-                    "redis-sentinel://{}/{cluster_name}/0",
-                    redis_sentinels.join(",")
+            } => Some(Arc::new(
+                Client::connect(
+                    format!(
+                        "redis-sentinel://{}/{cluster_name}/0",
+                        redis_sentinels.join(",")
+                    )
+                    .as_str(),
                 )
-                .as_str(),
-            )
-            .await
-            .unwrap(),
-        });
+                .await
+                .unwrap(),
+            )),
+        };
 
         let local = moka::future::Cache::builder()
             .max_capacity(16384)
@@ -106,6 +115,8 @@ impl Cache {
             }
         });
 
+        let local_ratelimits = moka::future::Cache::builder().max_capacity(16384).build();
+
         let instance = Arc::new(Self {
             client,
             use_internal_cache: env.app_use_internal_cache,
@@ -113,6 +124,7 @@ impl Cache {
             local_task,
             local_locks,
             local_locks_task,
+            local_ratelimits,
             cache_calls: AtomicU64::new(0),
             cache_latency_ns_total: AtomicU64::new(0),
             cache_latency_ns_max: AtomicU64::new(0),
@@ -140,7 +152,11 @@ impl Cache {
     }
 
     pub async fn version(&self) -> Result<compact_str::CompactString, rustis::Error> {
-        let version: String = self.client.info([InfoSection::Server]).await?;
+        let Some(client) = &self.client else {
+            return Ok("memory-only".into());
+        };
+
+        let version: String = client.info([InfoSection::Server]).await?;
         let version = version
             .lines()
             .find(|line| line.starts_with("redis_version:"))
@@ -167,24 +183,51 @@ impl Cache {
         );
 
         let now = chrono::Utc::now().timestamp();
-        let expiry = self.client.expiretime(&key).await.unwrap_or_default();
-        let expire_unix: u64 = if expiry > now + 2 {
-            expiry as u64
+
+        if let Some(redis_client) = &self.client {
+            let expiry = redis_client.expiretime(&key).await.unwrap_or_default();
+            let expire_unix: u64 = if expiry > now + 2 {
+                expiry as u64
+            } else {
+                now as u64 + limit_window
+            };
+
+            let limit_used = redis_client.get::<u64>(&key).await.unwrap_or_default() + 1;
+            redis_client
+                .set_with_options(key, limit_used, None, SetExpiration::Exat(expire_unix))
+                .await?;
+
+            if limit_used >= limit {
+                return Err(ApiResponse::error(format!(
+                    "you are ratelimited, retry in {}s",
+                    expiry - now
+                ))
+                .with_status(StatusCode::TOO_MANY_REQUESTS));
+            }
         } else {
-            now as u64 + limit_window
-        };
+            // Memory Fallback
+            let mut current_count = 0;
+            let mut expire_unix = now as u64 + limit_window;
 
-        let limit_used = self.client.get::<u64>(&key).await.unwrap_or_default() + 1;
-        self.client
-            .set_with_options(key, limit_used, None, SetExpiration::Exat(expire_unix))
-            .await?;
+            if let Some((count, exp)) = self.local_ratelimits.get(&key).await
+                && exp > now as u64 + 2
+            {
+                current_count = count;
+                expire_unix = exp;
+            }
 
-        if limit_used >= limit {
-            return Err(ApiResponse::error(format!(
-                "you are ratelimited, retry in {}s",
-                expiry - now
-            ))
-            .with_status(StatusCode::TOO_MANY_REQUESTS));
+            let limit_used = current_count + 1;
+            self.local_ratelimits
+                .insert(key, (limit_used, expire_unix))
+                .await;
+
+            if limit_used >= limit {
+                return Err(ApiResponse::error(format!(
+                    "you are ratelimited, retry in {}s",
+                    expire_unix.saturating_sub(now as u64)
+                ))
+                .with_status(StatusCode::TOO_MANY_REQUESTS));
+            }
         }
 
         Ok(())
@@ -230,27 +273,34 @@ impl Cache {
                 .map_err(|_| anyhow::anyhow!("semaphore closed for lock `{}`", lock_id))?,
         };
 
-        match self
-            .try_acquire_redis_lock(&redis_key, ttl_secs, deadline)
-            .await?
-        {
-            true => {
-                tracing::debug!("acquired cache lock");
-                Ok(CacheLock::new(lock_id, self.client.clone(), permit, ttl))
+        if let Some(redis_client) = &self.client {
+            match Self::try_acquire_redis_lock(redis_client, &redis_key, ttl_secs, deadline).await?
+            {
+                true => {
+                    tracing::debug!("acquired redis cache lock");
+                    Ok(CacheLock::new(
+                        lock_id,
+                        Some(redis_client.clone()),
+                        permit,
+                        ttl,
+                    ))
+                }
+                false => anyhow::bail!("timed out acquiring redis lock `{}`", lock_id),
             }
-            false => anyhow::bail!("timed out acquiring redis lock `{}`", lock_id),
+        } else {
+            tracing::debug!("acquired memory cache lock");
+            Ok(CacheLock::new(lock_id, None, permit, ttl))
         }
     }
 
     async fn try_acquire_redis_lock(
-        &self,
+        client: &Arc<Client>,
         redis_key: &compact_str::CompactString,
         ttl_secs: u64,
         deadline: Option<Instant>,
     ) -> Result<bool, anyhow::Error> {
         loop {
-            let acquired = self
-                .client
+            let acquired = client
                 .set_with_options(
                     redis_key.as_str(),
                     "1",
@@ -294,7 +344,7 @@ impl Cache {
             Duration::from_millis(50)
         };
 
-        let client = self.client.clone();
+        let client_opt = self.client.clone();
 
         self.cache_calls.fetch_add(1, Ordering::Relaxed);
         let start_time = Instant::now();
@@ -307,23 +357,25 @@ impl Cache {
         let entry = self
             .local
             .try_get_with(key.to_compact_string(), async move {
-                tracing::debug!("checking redis cache");
-                let cached_value: Option<BulkString> = client
-                    .get(key)
-                    .await
-                    .map_err(|err| {
-                        tracing::error!("redis get error: {:?}", err);
-                        err
-                    })
-                    .ok()
-                    .flatten();
+                if let Some(client) = &client_opt {
+                    tracing::debug!("checking redis cache");
+                    let cached_value: Option<BulkString> = client
+                        .get(key)
+                        .await
+                        .map_err(|err| {
+                            tracing::error!("redis get error: {:?}", err);
+                            err
+                        })
+                        .ok()
+                        .flatten();
 
-                if let Some(value) = cached_value {
-                    tracing::debug!("found in redis cache");
-                    return Ok(DataEntry {
-                        data: Arc::new(value.to_vec()),
-                        intended_ttl: effective_moka_ttl,
-                    });
+                    if let Some(value) = cached_value {
+                        tracing::debug!("found in redis cache");
+                        return Ok(DataEntry {
+                            data: Arc::new(value.to_vec()),
+                            intended_ttl: effective_moka_ttl,
+                        });
+                    }
                 }
 
                 self.cache_misses.fetch_add(1, Ordering::Relaxed);
@@ -335,9 +387,16 @@ impl Cache {
                 let serialized = rmp_serde::to_vec(&result)?;
                 let serialized_arc = Arc::new(serialized);
 
-                let _ = client
-                    .set_with_options(key, serialized_arc.as_slice(), None, SetExpiration::Ex(ttl))
-                    .await;
+                if let Some(client) = &client_opt {
+                    let _ = client
+                        .set_with_options(
+                            key,
+                            serialized_arc.as_slice(),
+                            None,
+                            SetExpiration::Ex(ttl),
+                        )
+                        .await;
+                }
 
                 Ok::<_, anyhow::Error>(DataEntry {
                     data: serialized_arc,
@@ -368,9 +427,65 @@ impl Cache {
         }
     }
 
+    pub async fn get<T: DeserializeOwned>(&self, key: &str) -> Result<Option<T>, anyhow::Error> {
+        if let Some(entry) = self.local.get(key).await {
+            tracing::debug!("get: found in moka cache");
+            return Ok(Some(rmp_serde::from_slice::<T>(&entry.data)?));
+        }
+
+        if let Some(client) = &self.client {
+            tracing::debug!("get: checking redis cache");
+            let cached_value: Option<BulkString> = client.get(key).await?;
+
+            if let Some(value) = cached_value {
+                tracing::debug!("get: found in redis cache");
+                let data = Arc::new(value.to_vec());
+                return Ok(Some(rmp_serde::from_slice::<T>(&data)?));
+            }
+        }
+
+        Ok(None)
+    }
+
+    pub async fn set<T: Serialize + Send + Sync>(
+        &self,
+        key: &str,
+        ttl: u64,
+        value: &T,
+    ) -> Result<(), anyhow::Error> {
+        let serialized = rmp_serde::to_vec(value)?;
+        let serialized_arc = Arc::new(serialized);
+
+        let effective_moka_ttl = if self.use_internal_cache {
+            Duration::from_secs(ttl)
+        } else {
+            Duration::from_millis(50)
+        };
+
+        self.local
+            .insert(
+                key.to_compact_string(),
+                DataEntry {
+                    data: serialized_arc.clone(),
+                    intended_ttl: effective_moka_ttl,
+                },
+            )
+            .await;
+
+        if let Some(client) = &self.client {
+            client
+                .set_with_options(key, serialized_arc.as_slice(), None, SetExpiration::Ex(ttl))
+                .await?;
+        }
+
+        Ok(())
+    }
+
     pub async fn invalidate(&self, key: &str) -> Result<(), anyhow::Error> {
         self.local.invalidate(key).await;
-        self.client.del(key).await?;
+        if let Some(client) = &self.client {
+            client.del(key).await?;
+        }
 
         Ok(())
     }
@@ -405,7 +520,7 @@ impl Drop for Cache {
 
 pub struct CacheLock {
     lock_id: Option<compact_str::CompactString>,
-    redis_client: Arc<Client>,
+    redis_client: Option<Arc<Client>>,
     permit: Option<tokio::sync::OwnedSemaphorePermit>,
     ttl_guard: Option<tokio::task::JoinHandle<()>>,
 }
@@ -413,19 +528,19 @@ pub struct CacheLock {
 impl CacheLock {
     fn new(
         lock_id: compact_str::CompactString,
-        redis_client: Arc<Client>,
+        redis_client: Option<Arc<Client>>,
         permit: tokio::sync::OwnedSemaphorePermit,
         ttl: Option<u64>,
     ) -> Self {
-        let ttl_guard = ttl.map(|secs| {
-            let lock_id = lock_id.clone();
-            let redis_client = redis_client.clone();
-
-            tokio::spawn(async move {
-                tokio::time::sleep(Duration::from_secs(secs)).await;
-                tracing::warn!(%lock_id, "cache lock TTL expired; force-releasing");
-                let redis_key = compact_str::format_compact!("lock::{}", lock_id);
-                let _ = redis_client.del(&redis_key).await;
+        let ttl_guard = ttl.and_then(|secs| {
+            let lock_id_clone = lock_id.clone();
+            redis_client.clone().map(|client| {
+                tokio::spawn(async move {
+                    tokio::time::sleep(Duration::from_secs(secs)).await;
+                    tracing::warn!(%lock_id_clone, "cache lock TTL expired; force-releasing");
+                    let redis_key = compact_str::format_compact!("lock::{}", lock_id_clone);
+                    let _ = client.del(&redis_key).await;
+                })
             })
         });
 
@@ -451,12 +566,12 @@ impl Drop for CacheLock {
 
         self.permit.take();
 
-        if let Some(lock_id) = self.lock_id.take() {
-            let redis_client = self.redis_client.clone();
-
+        if let Some(lock_id) = self.lock_id.take()
+            && let Some(client) = self.redis_client.take()
+        {
             tokio::spawn(async move {
                 let redis_key = compact_str::format_compact!("lock::{}", lock_id);
-                let _ = redis_client.del(&redis_key).await;
+                let _ = client.del(&redis_key).await;
             });
         }
     }

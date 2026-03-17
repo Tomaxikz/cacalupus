@@ -1,0 +1,35 @@
+services:
+  web:
+    image: ghcr.io/calagopus/panel:latest
+    restart: unless-stopped
+    environment:
+      - TZ=Europe/Berlin
+      - DATABASE_URL=postgresql://panel:panel@db/panel
+      - DATABASE_MIGRATE=true
+      - PORT=8000
+      - APP_DEBUG=false
+      - APP_LOG_DIRECTORY=/var/log/calagopus
+      - APP_PRIMARY=true # sets whether this panel instance is responsible for running background tasks (e.g. cleanup)
+      - APP_ENCRYPTION_KEY=CHANGEME
+      - APP_USE_DECRYPTION_CACHE=true # caches decrypted values in memory to improve performance, can be considered less secure
+      - APP_USE_INTERNAL_CACHE=true # if you disable this without redis, there will essentially be no caching at all which will significantly degrade performance
+    volumes:
+      - ./data:/var/lib/calagopus
+      - ./logs:/var/log/calagopus
+    ports:
+      - 8000:8000
+    depends_on:
+      - db
+      - cache
+
+  db:
+    image: ghcr.io/calagopus/pgautoupgrade:18-alpine
+    restart: unless-stopped
+    environment:
+      - TZ=Europe/Berlin
+      - POSTGRES_USER=panel
+      - POSTGRES_PASSWORD=panel
+      - POSTGRES_DB=panel
+      - PGDATA=/data
+    volumes:
+      - ./postgres:/data

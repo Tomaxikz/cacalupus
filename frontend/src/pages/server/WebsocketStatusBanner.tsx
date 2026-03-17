@@ -2,7 +2,7 @@ import { faExclamationTriangle, faTimesCircle } from '@fortawesome/free-solid-sv
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { useEffect, useState } from 'react';
 import Alert from '@/elements/Alert.tsx';
-import { formatMiliseconds } from '@/lib/time.ts';
+import { formatMilliseconds } from '@/lib/time.ts';
 import { SocketErrorType } from '@/plugins/Websocket.ts';
 import { useTranslations } from '@/providers/TranslationProvider.tsx';
 import { useServerStore } from '@/stores/server.ts';
@@ -56,7 +56,11 @@ export default function WebsocketStatusBanner() {
 
         const parts = [socketError.message];
         if (countdown !== null && countdown > 0) {
-          parts.push(t('elements.serverWebsocket.banner.retrying', { countdown: formatMiliseconds(countdown * 1000) }));
+          parts.push(
+            t('elements.serverWebsocket.banner.retrying', {
+              countdown: formatMilliseconds(countdown * 1000),
+            }),
+          );
         }
         return parts.join(' ');
       }

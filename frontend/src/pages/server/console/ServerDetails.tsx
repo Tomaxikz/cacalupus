@@ -11,7 +11,7 @@ import { useEffect, useRef, useState } from 'react';
 import Checkbox from '@/elements/input/Checkbox.tsx';
 import { formatAllocation } from '@/lib/server.ts';
 import { bytesToString, mbToBytes } from '@/lib/size.ts';
-import { formatMiliseconds } from '@/lib/time.ts';
+import { formatMilliseconds } from '@/lib/time.ts';
 import { useTranslations } from '@/providers/TranslationProvider.tsx';
 import { useServerStore } from '@/stores/server.ts';
 import StatCard from './StatCard.tsx';
@@ -78,7 +78,7 @@ export default function ServerDetails() {
         icon={faClock}
         label={t('pages.server.console.details.uptime', {})}
         order={30}
-        value={state === 'offline' ? t('common.enum.serverState.offline', {}) : formatMiliseconds(stats?.uptime || 0)}
+        value={state === 'offline' ? t('common.enum.serverState.offline', {}) : formatMilliseconds(stats?.uptime || 0)}
       />
       <StatCard
         icon={faMicrochip}

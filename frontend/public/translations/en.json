@@ -292,7 +292,7 @@
                 "failed": "Failed to copy {files}:\n{error}"
               },
               "copyingRemote": {
-                "completedFrom": "Copied {files} from remote server  in {time}.",
+                "completedFrom": "Copied {files} from remote server in {time}.",
                 "completedTo": "Copied {files} to remote server in {time}.",
                 "failedFrom": "Failed to copy {files} from remote server:\n{error}",
                 "failedTo": "Failed to copy {files} to remote server:\n{error}"

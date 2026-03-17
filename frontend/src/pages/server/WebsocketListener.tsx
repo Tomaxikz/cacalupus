@@ -3,7 +3,7 @@ import { useEffect } from 'react';
 import { z } from 'zod';
 import { serverFileOperationSchema } from '@/lib/schemas/server/files.ts';
 import { serverImagePullProgressSchema, serverResourceUsageSchema } from '@/lib/schemas/server/server.ts';
-import { formatMiliseconds } from '@/lib/time.ts';
+import { formatMilliseconds } from '@/lib/time.ts';
 import { transformKeysToCamelCase } from '@/lib/transformers.ts';
 import useWebsocketEvent, { SocketEvent, SocketRequest } from '@/plugins/useWebsocketEvent.ts';
 import { useToast } from '@/providers/ToastProvider.tsx';
@@ -154,7 +154,11 @@ export default function WebsocketListener() {
   });
 
   useWebsocketEvent(SocketEvent.TRANSFER_PROGRESS, (data) => {
-    let wsData: { archive_progress: number; network_progress: number; total: number };
+    let wsData: {
+      archive_progress: number;
+      network_progress: number;
+      total: number;
+    };
     try {
       wsData = JSON.parse(data);
     } catch {
@@ -213,7 +217,7 @@ export default function WebsocketListener() {
     const fileOperation = fileOperations.get(uuid);
     if (!fileOperation) return;
 
-    const totalTime = formatMiliseconds(Date.now() - new Date(fileOperation.startTime).getTime());
+    const totalTime = formatMilliseconds(Date.now() - new Date(fileOperation.startTime).getTime());
 
     switch (fileOperation.type) {
       case 'compress':

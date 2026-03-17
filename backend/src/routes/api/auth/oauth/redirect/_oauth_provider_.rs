@@ -4,7 +4,6 @@ use utoipa_axum::{router::OpenApiRouter, routes};
 mod get {
     use axum::{body::Body, extract::Path, http::StatusCode};
     use oauth2::{AuthUrl, ClientId, CsrfToken, RedirectUrl, Scope, basic::BasicClient};
-    use rustis::commands::{SetExpiration, StringCommands};
     use shared::{
         ApiError, GetState,
         models::{ByUuid, oauth_provider::OAuthProvider},
@@ -67,12 +66,10 @@ mod get {
 
         state
             .cache
-            .client
-            .set_with_options(
-                format!("oauth_state::{}", csrf_state.secret()),
-                0,
-                None,
-                SetExpiration::Ex(10 * 60),
+            .set(
+                &format!("oauth_state::{}", csrf_state.secret()),
+                10 * 60,
+                &0u16,
             )
             .await?;
 

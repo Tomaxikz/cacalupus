@@ -2,7 +2,7 @@
 
 import classNames from 'classnames';
 import { memo, useEffect, useRef, useState } from 'react';
-import { formatDateTime, formatMiliseconds } from '@/lib/time.ts';
+import { formatDateTime, formatMilliseconds } from '@/lib/time.ts';
 import { useTranslations } from '@/providers/TranslationProvider.tsx';
 import Tooltip from '../Tooltip.tsx';
 
@@ -73,7 +73,9 @@ function EstimatedTimeArrival({ progress, total, className, autoUpdate = true }:
 
   const displayDuration =
     hasStartedProgress.current && isFinite(remainingMs)
-      ? t('elements.estimatedTimeArrival.calculated', { time: formatMiliseconds(remainingMs) })
+      ? t('elements.estimatedTimeArrival.calculated', {
+          time: formatMilliseconds(remainingMs),
+        })
       : t('elements.estimatedTimeArrival.calculating', {});
 
   let tooltipLabel = t('elements.estimatedTimeArrival.tooltip.estimating', {});

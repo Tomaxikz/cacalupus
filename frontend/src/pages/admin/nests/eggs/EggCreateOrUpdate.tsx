@@ -225,9 +225,10 @@ export default function EggCreateOrUpdate({
 
     setLoading(true);
 
-    const text = await file.text().then((t) => t.trim());
     let data: object;
     try {
+      const text = await file.text().then((t) => t.trim());
+
       if (text.startsWith('{')) {
         data = JSON.parse(text);
       } else {

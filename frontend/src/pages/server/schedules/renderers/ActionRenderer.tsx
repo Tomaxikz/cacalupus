@@ -2,7 +2,7 @@ import { Stack, Text } from '@mantine/core';
 import { z } from 'zod';
 import Code from '@/elements/Code.tsx';
 import { serverScheduleStepActionSchema } from '@/lib/schemas/server/schedules.ts';
-import { formatMiliseconds } from '@/lib/time.ts';
+import { formatMilliseconds } from '@/lib/time.ts';
 import ScheduleDynamicParameterRenderer from '../ScheduleDynamicParameterRenderer.tsx';
 
 type ActionRendererMode = 'compact' | 'detailed';
@@ -79,7 +79,7 @@ rendererMap.addRenderer(
   'wait_for_console_line',
   (a) => (
     <span>
-      Wait {formatMiliseconds(a.timeout)} for console line containing{' '}
+      Wait {formatMilliseconds(a.timeout)} for console line containing{' '}
       <ScheduleDynamicParameterRenderer value={a.contains} />
     </span>
   ),

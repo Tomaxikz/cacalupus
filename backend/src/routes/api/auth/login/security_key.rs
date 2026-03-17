@@ -3,7 +3,6 @@ use utoipa_axum::{router::OpenApiRouter, routes};
 
 mod get {
     use axum::extract::Query;
-    use rustis::commands::{SetExpiration, StringCommands};
     use serde::{Deserialize, Serialize};
     use shared::{
         ApiError, GetState,
@@ -63,12 +62,10 @@ mod get {
 
         state
             .cache
-            .client
-            .set_with_options(
-                format!("security_key_authentication::{uuid}"),
-                serde_json::to_string(&authentication)?,
-                None,
-                SetExpiration::Ex(options.public_key.timeout.unwrap_or(300000) as u64 / 1000),
+            .set(
+                &format!("security_key_authentication::{uuid}"),
+                options.public_key.timeout.unwrap_or(300000) as u64 / 1000,
+                &authentication,
             )
             .await?;
 
@@ -78,7 +75,6 @@ mod get {
 
 mod post {
     use axum::http::StatusCode;
-    use rustis::commands::{GenericCommands, StringCommands};
     use serde::{Deserialize, Serialize};
     use shared::{
         ApiError, GetState,
@@ -123,20 +119,18 @@ mod post {
 
         let authentication: PasskeyAuthentication = match state
             .cache
-            .client
-            .get::<String>(format!("security_key_authentication::{}", data.uuid))
+            .get(&format!("security_key_authentication::{}", data.uuid))
             .await
         {
-            Ok(authentication) => {
+            Ok(Some(authentication)) => {
                 state
                     .cache
-                    .client
-                    .del(format!("security_key_authentication::{}", data.uuid))
+                    .invalidate(&format!("security_key_authentication::{}", data.uuid))
                     .await?;
 
-                serde_json::from_str(&authentication)?
+                authentication
             }
-            Err(_) => {
+            _ => {
                 return ApiResponse::error("invalid or expired challenge")
                     .with_status(StatusCode::BAD_REQUEST)
                     .ok();

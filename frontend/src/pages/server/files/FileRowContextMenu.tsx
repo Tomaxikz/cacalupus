@@ -42,14 +42,8 @@ export default function FileRowContextMenu({ file, children }: FileRowContextMen
   const { addToast } = useToast();
   const { addWindow } = useWindows();
   const { server } = useServerStore();
-  const {
-    browsingBackup,
-    browsingDirectory,
-    browsingWritableDirectory,
-    browsingFastDirectory,
-    doOpenModal,
-    doActFiles,
-  } = useFileManager();
+  const { browsingDirectory, browsingWritableDirectory, browsingFastDirectory, doOpenModal, doActFiles } =
+    useFileManager();
   const canCreate = useServerCan('files.create');
   const canArchive = useServerCan('files.archive');
 
@@ -105,14 +99,14 @@ export default function FileRowContextMenu({ file, children }: FileRowContextMen
         {
           icon: faFilePen,
           label: t('pages.server.files.button.rename', {}),
-          hidden: !!browsingBackup || !browsingWritableDirectory,
+          hidden: !browsingWritableDirectory,
           onClick: () => doOpenModal('rename', [file]),
           canAccess: useServerCan('files.update'),
         },
         {
           icon: faCopy,
           label: t('pages.server.files.button.copy', {}),
-          hidden: !!browsingBackup || !browsingWritableDirectory || (!file.file && !file.directory),
+          hidden: !browsingWritableDirectory || (!file.file && !file.directory),
           onClick: () => doOpenModal('copy', [file]),
           color: 'gray',
           canAccess: canCreate,
@@ -120,16 +114,16 @@ export default function FileRowContextMenu({ file, children }: FileRowContextMen
         {
           icon: faAnglesUp,
           label: t('pages.server.files.button.move', {}),
-          hidden: !!browsingBackup || !browsingWritableDirectory,
+          hidden: !browsingWritableDirectory,
           onClick: () => doActFiles('move', [file]),
           color: 'gray',
           canAccess: useServerCan('files.update'),
         },
-        isArchiveType(file) && !browsingBackup
+        isArchiveType(file)
           ? {
               icon: faEnvelopesBulk,
               label: t('pages.server.files.button.unarchive', {}),
-              hidden: !!browsingBackup || !browsingWritableDirectory,
+              hidden: !browsingWritableDirectory,
               onClick: doUnarchive,
               color: 'gray',
               canAccess: canCreate,
@@ -137,7 +131,7 @@ export default function FileRowContextMenu({ file, children }: FileRowContextMen
           : {
               icon: faFileZipper,
               label: t('pages.server.files.button.archive', {}),
-              hidden: !!browsingBackup || !browsingWritableDirectory,
+              hidden: !browsingWritableDirectory,
               onClick: () => doOpenModal('archive', [file]),
               color: 'gray',
               canAccess: canArchive,
@@ -189,7 +183,7 @@ export default function FileRowContextMenu({ file, children }: FileRowContextMen
         {
           icon: faTrash,
           label: t('common.button.delete', {}),
-          hidden: !!browsingBackup || !browsingWritableDirectory,
+          hidden: !browsingWritableDirectory,
           onClick: () => doOpenModal('delete', [file]),
           color: 'red',
           canAccess: useServerCan('files.delete'),

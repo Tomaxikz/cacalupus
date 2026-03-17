@@ -31,7 +31,7 @@ pub async fn auth(
 ) -> Result<Response, StatusCode> {
     if let Err(err) = state
         .cache
-        .ratelimit("client", 720, 60, ip.to_string())
+        .ratelimit("client", 360, 60, ip.to_string())
         .await
     {
         return Ok(err.into_response());

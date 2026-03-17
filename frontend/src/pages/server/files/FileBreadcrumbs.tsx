@@ -112,7 +112,7 @@ export default function FileBreadcrumbs({ path, inFileEditor }: { path: string; 
           {t('pages.server.files.button.exitBackup', {})}
         </Button>
       </NavLink>
-      <span hidden={!!browsingBackup || inFileEditor}>
+      <span hidden={inFileEditor}>
         <Button variant='light' leftSection={<FontAwesomeIcon icon={faSearch} />} onClick={() => doOpenModal('search')}>
           {t('pages.server.files.button.search', {})}
         </Button>

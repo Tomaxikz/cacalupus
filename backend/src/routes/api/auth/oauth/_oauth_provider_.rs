@@ -10,7 +10,6 @@ use oauth2::{
     AuthUrl, AuthorizationCode, ClientId, ClientSecret, HttpRequest, HttpResponse, RedirectUrl,
     TokenResponse, TokenUrl, basic::BasicClient,
 };
-use rustis::commands::StringCommands;
 use serde::Deserialize;
 use shared::{
     GetState,
@@ -60,8 +59,7 @@ pub fn router(state: &State) -> OpenApiRouter<State> {
 
             if state
                 .cache
-                .client
-                .get::<u16>(format!("oauth_state::{}", params.state))
+                .get::<u16>(&format!("oauth_state::{}", params.state))
                 .await
                 .is_err()
             {
