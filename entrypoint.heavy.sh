@@ -105,8 +105,8 @@ execute_build() {
 
 		# create directory for new binary
 		mkdir -p "/app/binaries/$PANEL_VERSION/$EXT_HASH"
-		# move new binary to binaries directory
-		mv "/app/repo/target/$PROFILE_PATH/panel-rs" "$BINARY_PATH"
+		# copy new binary to binaries directory
+		cp "/app/repo/target/$PROFILE_PATH/panel-rs" "$BINARY_PATH"
 
 		# restart panel with new binary
 		echo "Restarting panel-rs with new binary."
