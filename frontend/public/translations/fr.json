@@ -1,7 +1,1220 @@
 {
   "items": {
     "user": {
-      "zero": "{count} Utilisateurs"
+      "zero": "{count} Utilisateurs",
+      "one": "{count} Utilisateur",
+      "two": "{count} Utilisateurs",
+      "few": "{count} Utilisateurs",
+      "many": "{count} Utilisateurs",
+      "other": "{count} Utilisateurs"
+    },
+    "file": {
+      "zero": "{count} Fichiers",
+      "one": "{count} Fichier",
+      "two": "{count} Fichiers",
+      "few": "{count} Fichiers",
+      "many": "{count} Fichiers",
+      "other": "{count} Fichiers"
+    },
+    "server": {
+      "zero": "{count} Serveurs",
+      "one": "{count} Serveur",
+      "two": "{count} Serveurs",
+      "few": "{count} Serveurs",
+      "many": "{count} Serveurs",
+      "other": "{count} Serveurs"
+    },
+    "sshKey": {
+      "zero": "{count} Clés SSH",
+      "one": "{count} Clé SSH",
+      "two": "{count} Clés SSH",
+      "few": "{count} Clés SSH",
+      "many": "{count} Clés SSH",
+      "other": "{count} Clés SSH"
+    }
+  },
+  "translations": {
+    "common": {
+      "button": {
+        "create": "Créer",
+        "add": "Ajouter",
+        "save": "Sauvegarder",
+        "saveAndStay": "Sauvegarder & Rester",
+        "edit": "Modifier",
+        "delete": "Supprimer",
+        "remove": "Retirer",
+        "enable": "Activer",
+        "disable": "Désactiver",
+        "update": "Mettre à jour",
+        "close": "Fermer",
+        "cancel": "Annuler",
+        "continue": "Continuer",
+        "skip": "Passer",
+        "back": "Retour",
+        "next": "Suivant",
+        "install": "Installer",
+        "selectAll": "Sélectionner Tout",
+        "deselectAll": "Désélectionner Tout",
+        "download": "Télécharger",
+        "downloadAs": "Télécharger en {format}"
+      },
+      "input": {
+        "search": "Chercher..."
+      },
+      "form": {
+        "name": "Nom",
+        "description": "Description",
+        "password": "Mot de passe",
+        "host": "Hôte",
+        "username": "Nom d'utilisateur",
+        "server": "Serveur",
+        "truncateDirectory": "Souhaitez-vous supprimer tous les fichiers de ce serveur avant d'effectuer cette action ? Ceci n'est pas réversible."
+      },
+      "table": {
+        "pagination": {
+          "results": "Affiche {start} à {end} de {total} résultats.",
+          "empty": "Pas d'éléments trouvés, c'est comme s'ils se cachaient."
+        },
+        "columns": {
+          "name": "Nom",
+          "description": "Description",
+          "username": "Nom d'utilisateur",
+          "size": "Taille",
+          "lastUsed": "Dernière utilisation",
+          "created": "Créé",
+          "actor": "Acteur",
+          "event": "Événement",
+          "ip": "IP",
+          "when": "Quand",
+          "command": "Commande"
+        }
+      },
+      "server": {
+        "noAllocation": "Pas d'allocation",
+        "state": {
+          "suspended": "Suspendu",
+          "restoringBackup": "Restauration de la sauvegarde",
+          "installing": "Installation"
+        }
+      },
+      "enum": {
+        "userToastPosition": {
+          "topLeft": "Haut Gauche",
+          "topCenter": "Haut Centre",
+          "topRight": "Haut Droite",
+          "bottomLeft": "Bas Gauche",
+          "bottomCenter": "Bas Centre",
+          "bottomRight": "Bas Droite"
+        },
+        "serverState": {
+          "unknown": "Inconnu",
+          "offline": "Hors-ligne",
+          "running": "Allumé",
+          "starting": "Démarrage",
+          "stopping": "Arrêt"
+        },
+        "connectionStatus": {
+          "connected": "Connecté",
+          "offline": "Déconnecté"
+        },
+        "serverAutoStartBehavior": {
+          "always": "Toujours",
+          "unlessStopped": "Sauf si arrêté",
+          "never": "Jamais"
+        },
+        "bulkActionServerAction": {
+          "started": "Démarré",
+          "stopped": "Arrêté",
+          "restarted": "Redémarré",
+          "killed": "Tué"
+        }
+      },
+      "unlimited": "Illimité",
+      "readOnly": "Lecture-seule",
+      "na": "N/A",
+      "yes": "Oui",
+      "no": "Non",
+      "web": "Web",
+      "api": "API",
+      "system": "Système",
+      "schedule": "Planification",
+      "impersonatedBy": "Usurpé par {username}"
+    },
+    "elements": {
+      "errorBoundary": {
+        "message": "Une erreur a été rencontrée par l'application lors du rendu de cette page. Essayez de recharger la page.",
+        "hideDetails": "Cacher détails",
+        "showDetails": "Afficher détails",
+        "errorMessage": "Message d'erreur :",
+        "stackTrace": "Trace de pile :",
+        "componentStack": "Pile de composants :"
+      },
+      "copyOnClick": {
+        "toast": {
+          "copied": "Copié vers le presse-papier.",
+          "failed": "Copie vers le presse-papier échouée.",
+          "copyManual": "Copier vers le presse-papier : Ctrl+C ou Command+C, Entrée"
+        }
+      },
+      "container": {
+        "alert": {
+          "impersonating": "Vous usurpez un utilisateur. Vos actions peuvent affecter le compte de la personne usurpée. Pour quitter le mode usurpation, cliquez le bouton \"Arrêter l'usurpation\" dans le coin bas gauche."
+        }
+      },
+      "sidebar": {
+        "button": {
+          "logout": "Se déconnecter",
+          "stopImpersonating": "Arrêter l'usurpation"
+        }
+      },
+      "permissionSelector": {
+        "selectedPermissions": "Permissions sélectionnées ({count})",
+        "noPermissions": "Pas de permissions sélectionnées."
+      },
+      "can": {
+        "tooltip": {
+          "cantSave": "Vous n'avez pas la permission d'enregistrer.",
+          "cantDelete": "Vous n'avez pas la permission de supprimer."
+        }
+      },
+      "activityInfoButton": {
+        "modal": {
+          "info": {
+            "title": "Détails de l'activité"
+          }
+        }
+      }
+    },
+    "pages": {
+      "oobe": {
+        "welcome": {
+          "title": "Bienvenue sur Calagopus",
+          "subtitle": "Mettons en marche votre système de gestion de serveurs de jeux !",
+          "wizardIntro": "Cet assistant de configuration va vous guider pour :",
+          "steps": {
+            "account": "Créer votre compte administrateur",
+            "settings": "Configurer les paramètres système essentiels",
+            "location": "Configurer votre emplacement/groupe de serveurs",
+            "node": "Ajouter votre premier nœud",
+            "server": "Déployer votre premier serveur de jeu"
+          },
+          "button": {
+            "start": "Commencer"
+          }
+        },
+        "register": {
+          "title": "Créer le compte administrateur",
+          "alert": {
+            "title": "Notice de sécurité",
+            "description": "Choisissez un mot de passe fort. Ce compte aura un accès administratif complet à tous les serveurs et paramètres."
+          },
+          "form": {
+            "username": "Nom d'utilisateur",
+            "usernamePlaceholder": "admin",
+            "email": "Adresse e-mail",
+            "emailPlaceholder": "admin@exemple.com",
+            "firstName": "Prénom",
+            "firstNamePlaceholder": "Alan",
+            "lastName": "Nom de famille",
+            "lastNamePlaceholder": "Turing",
+            "password": "Mot de passe",
+            "passwordPlaceholder": "Entrez un mot de passe fort",
+            "confirmPassword": "Confirmer le mot de passe",
+            "confirmPasswordPlaceholder": "Entrez à nouveau votre mot de passe"
+          },
+          "button": {
+            "create": "Créer compte & continuer"
+          }
+        },
+        "login": {
+          "title": "Se reconnecter",
+          "alert": "Vous vous êtes fait déconnecté durant le processus de configuration. Veuillez vous reconnecter pour continuer de là où vous vous êtes arrêté.",
+          "form": {
+            "username": "Nom d'utilisateur",
+            "usernamePlaceholder": "admin",
+            "password": "Mot de passe",
+            "passwordPlaceholder": "Entrez un mot de passe fort"
+          },
+          "button": {
+            "login": "Se connecter & continuer"
+          }
+        },
+        "location": {
+          "title": "Configuration de l'emplacement",
+          "form": {
+            "locationName": "Nom de l'emplacement",
+            "locationNamePlaceholder": "Ma maison",
+            "backupName": "Nom de la configuration de sauvegarde",
+            "backupNamePlaceholder": "Baguette Cloud",
+            "backupDisk": "Disque de sauvegarde",
+            "backupDiskPlaceholder": "Disque de sauvegarde"
+          },
+          "button": {
+            "create": "Créer & continuer"
+          }
+        },
+        "node": {
+          "title": "Configuration du nœud",
+          "form": {
+            "name": "Nom",
+            "namePlaceholder": "Mon serveur",
+            "url": "URL",
+            "urlPlaceholder": "URL",
+            "urlDescription": "utilisé pour la communication interne avec le nœud",
+            "publicUrl": "URL publique",
+            "publicUrlPlaceholder": "URL",
+            "publicUrlDescription": "utilisé pour websocket/téléchargements",
+            "sftpHost": "Hôte SFTP",
+            "sftpHostPlaceholder": "Hôte SFTP",
+            "sftpPort": "Port SFTP",
+            "sftpPortPlaceholder": "Port SFTP",
+            "memory": "Mémoire",
+            "disk": "Disque"
+          },
+          "error": {
+            "noLocations": "Quelque chose s'est mal placé. Pas d'emplacements trouvés."
+          },
+          "button": {
+            "create": "Créer & continuer"
+          }
+        },
+        "configuration": {
+          "title": "Paramètres d'application",
+          "form": {
+            "applicationName": "Nom d'application",
+            "applicationNamePlaceholder": "Calagopus",
+            "language": "Langue",
+            "languagePlaceholder": "Langue",
+            "applicationUrl": "URL d'application",
+            "applicationUrlPlaceholder": "https://calagop.us",
+            "telemetry": "Activer la télémetrie",
+            "telemetryDescription": "Autoriser Calagopus à collecter des données d'utilisation limitées et anonymes pour aider à améliorer l'application.",
+            "registration": "Activer l'inscription",
+            "registrationDescription": "Autoriser de nouveaux utilisateurs à créer leur propre compte."
+          },
+          "button": {
+            "submit": "Mettre à jour les paramètres & continuer"
+          }
+        },
+        "finished": {
+          "title": "Configuration terminée !",
+          "subtitle": "Votre panel Calagopus est prêt à l'emploi",
+          "setupTitle": "Ce que nous avons configuré",
+          "items": {
+            "account": "Compte administrateur",
+            "configuration": {
+              "title": "Configuration système",
+              "subtitle": "Paramètres et préférences du panel configurés"
+            },
+            "location": "Emplacement",
+            "node": "Nœud"
+          },
+          "badge": {
+            "skipped": "Passé"
+          },
+          "button": "Aller au tableau de bord"
+        }
+      },
+      "account": {
+        "home": {
+          "title": "Serveurs",
+          "tooltip": {
+            "removeFromGroup": "Retirer du groupe",
+            "addToGroup": "Ajouter au groupe",
+            "noGroups": "Pas de groupes disponibles auxquels ajouter le serveur",
+            "noGroup": "Ce serveur n'est dans aucun groupe"
+          },
+          "tabs": {
+            "groupedServers": {
+              "title": "Serveurs groupés",
+              "page": {
+                "button": {
+                  "createGroup": "Créer groupe"
+                },
+                "modal": {
+                  "createServerGroup": {
+                    "title": "Créer groupe de serveur",
+                    "toast": {
+                      "created": "Groupe de serveur créé."
+                    }
+                  },
+                  "editServerGroup": {
+                    "title": "Modifier le groupe de serveur",
+                    "toast": {
+                      "updated": "Groupe de serveur mis à jour."
+                    }
+                  },
+                  "deleteServerGroup": {
+                    "title": "Confirmer la suppression du groupe de serveur",
+                    "content": "Êtes-vous sûr de vouloir supprimer **{group}** de votre compte ?",
+                    "toast": {
+                      "deleted": "Groupe de serveur supprimé."
+                    }
+                  },
+                  "addServerToGroup": {
+                    "title": "Ajouter un serveur à {group}",
+                    "noServers": "Tous les serveurs sont déjà dans ce groupe.",
+                    "toast": {
+                      "added": "Serveur ajouté au groupe."
+                    }
+                  }
+                },
+                "noGroups": "Pas de groupes trouvés, créez-en un."
+              }
+            },
+            "allServers": {
+              "title": "Tous les serveurs",
+              "page": {
+                "input": {
+                  "showOtherUsersServers": "Afficher les serveurs d'autres utilisateurs"
+                },
+                "modal": {
+                  "addToServerGroup": {
+                    "title": "Ajouter {serveur} au groupe de serveur",
+                    "form": {
+                      "serverGroup": "Groupe de serveur"
+                    }
+                  }
+                }
+              }
+            }
+          },
+          "bulkActions": {
+            "selectionMode": "Mode de sélection",
+            "select": "Sélectionner serveur",
+            "deselect": "Désélectionner serveur",
+            "success": "{action} {servers} avec succès.",
+            "partial": "{action} {successfulServers} avec succès. {failedServers} ont échoué.",
+            "groupActions": "Actions de groupe"
+          },
+          "noServers": "Pas de serveurs trouvés, est-il temps d'en ajouter un ?"
+        },
+        "admin": {
+          "title": "Admin"
+        },
+        "account": {
+          "title": "Compte",
+          "alert": {
+            "requireTwoFactor": {
+              "title": "Authentification à deux facteurs requise",
+              "description": "L'authentification à deux facteurs est requise pour votre compte. Veuillez la mettre en place ci-dessus pour continuer à utiliser le panel."
+            }
+          },
+          "containers": {
+            "password": {
+              "title": "Mot de passe",
+              "toast": {
+                "updated": "Mot de passe mis à jour avec succès."
+              },
+              "form": {
+                "currentPassword": "Mot de passe actuel",
+                "newPassword": "Nouveau mot de passe",
+                "confirmNewPassword": "Confirmer le nouveau mot de passe"
+              }
+            },
+            "email": {
+              "title": "E-mail",
+              "toast": {
+                "updated": "E-mail mise à jour avec succès."
+              },
+              "form": {
+                "newEmail": "Nouvelle e-mail",
+                "currentPassword": "Mot de passe actuel"
+              }
+            },
+            "twoFactor": {
+              "title": "Authentification à double facteurs",
+              "toast": {
+                "disabled": "Authentification à double facteurs désactivée avec succès.",
+                "enabled": "Authentification à double facteurs activée avec succès. Veuillez copier vos codes de récupération."
+              },
+              "modal": {
+                "disableTwoFactor": {
+                  "title": "Désactiver l'authentification à double facteurs",
+                  "description": "Désactiver l'authentification à double facteurs rendra votre compte moins sécurisé.",
+                  "form": {
+                    "code": "Code d'authentification"
+                  }
+                },
+                "setupTwoFactor": {
+                  "title": "Configurer l'authentification à double facteurs",
+                  "description": "Protégez votre compte des accès non-autorisés. Un code de vérification vous sera demandé à chaque connexion.",
+                  "descriptionQR": "Scannez le QR code ci-dessus en utilisant l'application à double facteurs de votre choix. Ensuite, entrez le code à 6 chiffres généré dans le champ ci-dessous.",
+                  "form": {
+                    "code": "Code d'authentification"
+                  }
+                },
+                "recoveryCodes": {
+                  "title": "Codes de récupération",
+                  "description": "Ci-dessous sont vos codes de récupération. Gardez-les dans un endroit sûr. Si vous perdez accès à votre dispositif d'authentification, vous pourrez utiliser ces codes pour regagner accès à votre compte."
+                }
+              },
+              "button": {
+                "disableTwoFactor": "Désactiver le deuxième facteur",
+                "setupTwoFactor": "Configurer le deuxième facteur"
+              },
+              "twoFactorEnabled": "La vérification du double facteur est actuellement activée.",
+              "twoFactorDisabled": "La vérification double facteur n'est pas activée pour votre compte. Cliquez le bouton ci-dessous pour commencer à la configurer.",
+              "twoFactorLastUsed": "Dernière utilisation : **{date}**"
+            },
+            "account": {
+              "title": "Détails du compte",
+              "toast": {
+                "updated": "Détails du compte mis à jour avec succès."
+              },
+              "form": {
+                "nameFirst": "Prénom",
+                "nameLast": "Nom de famille",
+                "username": "Nom d'utilisateur",
+                "language": "Langue",
+                "toastPosition": "Position du toast",
+                "startOnGroupedServers": "Commencer sur la page des serveurs groupés"
+              }
+            },
+            "avatar": {
+              "title": "Avatar",
+              "toast": {
+                "updated": "Avatar mis à jour avec succès.",
+                "removed": "Avatar supprimé avec succès."
+              },
+              "form": {
+                "avatar": "Avatar"
+              }
+            }
+          }
+        },
+        "securityKeys": {
+          "title": "Clés de sécurité",
+          "modal": {
+            "createSecurityKey": {
+              "title": "Créer une clé de sécurité",
+              "toast": {
+                "created": "Clé de sécurité créée avec succès.",
+                "aborted": "Création de la clé de sécurité annulée."
+              }
+            },
+            "editSecurityKey": {
+              "title": "Modifier la clé de sécurité",
+              "toast": {
+                "updated": "Clé de sécurité mise à jour avec succès."
+              }
+            },
+            "deleteSecurityKey": {
+              "title": "Confirmer la suppression de la clé de sécurité",
+              "content": "Êtes-vous sur de vouloir supprimer **{key}** de votre compte ?",
+              "toast": {
+                "deleted": "Clé de sécurité supprimée avec succès."
+              }
+            }
+          }
+        },
+        "sessions": {
+          "title": "Sessions",
+          "table": {
+            "columns": {
+              "ip": "IP",
+              "thisDevice": "Cet appareil ?",
+              "userAgent": "Agent utilisateur"
+            }
+          },
+          "modal": {
+            "deleteSession": {
+              "title": "Confirmer la suppression de la session",
+              "content": "Êtes-vous sûr de vouloir supprimer la session **{ip}** de votre compte ?",
+              "toast": {
+                "deleted": "Session supprimée."
+              }
+            }
+          }
+        },
+        "shortcuts": {
+          "title": "Raccourcis clavier",
+          "description": "Utilisez ces raccourcis clavier pour naviguer et interagir avec le panel plus efficacement.",
+          "detectedMac": "macOS détecté",
+          "detectedWindows": "Windows/Linux détecté",
+          "fileManager": {
+            "title": "Gestionnaire de fichiers",
+            "selectAll": "Sélectionner tous les fichiers",
+            "cutFiles": "Couper les fichiers sélectionnées",
+            "copyFiles": "Copier les fichiers sélectionnés",
+            "duplicateFile": "Dupliquer le fichier sélectionné",
+            "pasteFiles": "Coller fichiers",
+            "searchFiles": "Chercher fichiers",
+            "moveUpDirectory": "Déplacer vers répertoire parent",
+            "moveUpSelection": "Déplacer la sélection vers le haut",
+            "moveDownSelection": "Déplacer la sélection vers le bas",
+            "renameFile": "Renommer le fichier",
+            "deselectAll": "Désélectionner tous les fichiers",
+            "deleteFiles": "Supprimer les fichiers sélectionner"
+          },
+          "table": {
+            "title": "Navigation des tables",
+            "previousPage": "Page précédente",
+            "nextPage": "Page suivante",
+            "firstPage": "Première page",
+            "lastPage": "Dernière page"
+          },
+          "console": {
+            "title": "Console du serveur",
+            "searchContent": "Rechercher dans la sortie console",
+            "previousCommand": "Commande précédente dans l'historique",
+            "nextCommand": "Commande suivante dans l'historique"
+          },
+          "serverList": {
+            "title": "Liste des serveurs",
+            "selectServer": "Gardez appuyé S et cliquez pour (dé)sélectionner serveur"
+          }
+        },
+        "sshKeys": {
+          "title": "Clés SSH",
+          "button": {
+            "import": "Importer"
+          },
+          "table": {
+            "columns": {
+              "fingerprint": "Empreinte"
+            }
+          },
+          "modal": {
+            "createSshKey": {
+              "title": "Créer clé SSH",
+              "toast": {
+                "created": "Clé SSH créée."
+              },
+              "button": {
+                "uploadKeyFile": "Téléverser le fichier de clé"
+              },
+              "form": {
+                "publicKey": "Clé publique"
+              }
+            },
+            "editSshKey": {
+              "title": "Modifier la clé SSH",
+              "toast": {
+                "updated": "Clé SSH modifiée."
+              }
+            },
+            "importSshKeys": {
+              "title": "Importer des clés SSH",
+              "toast": {
+                "created": "{sshKeys} créées."
+              },
+              "form": {
+                "provider": "Fournisseur",
+                "username": "Nom d'utilisateur"
+              }
+            },
+            "deleteSshKey": {
+              "title": "Confirmer la suppression de la clé SSH",
+              "content": "Êtes-vous sûr de vouloir supprimer **{name}** de votre compte ?",
+              "toast": {
+                "removed": "Clé SSH supprimée."
+              }
+            }
+          }
+        },
+        "oauthLinks": {
+          "title": "Liens OAuth",
+          "button": {
+            "connect": "Connecter",
+            "connectTo": "Connecter {provider}"
+          },
+          "table": {
+            "columns": {
+              "providerName": "Nom du fournisseur",
+              "identifier": "Identifiant"
+            }
+          },
+          "modal": {
+            "deleteOAuthLink": {
+              "title": "Confirmer la suppression du lien OAuth",
+              "content": "Êtes-vous sûr de vouloir supprimer la connexion **{provider}** de votre compte ?",
+              "toast": {
+                "removed": "Lien OAuth supprimé."
+              }
+            }
+          }
+        },
+        "apiKeys": {
+          "title": "Clés API",
+          "button": {
+            "apiDocumentation": "Documentation API"
+          },
+          "table": {
+            "columns": {
+              "key": "Clé",
+              "permissions": "Permissions Utilisateur / Serveur / Admin",
+              "expires": "Expiration"
+            }
+          },
+          "modal": {
+            "createApiKey": {
+              "title": "Créer une clé API",
+              "toast": {
+                "created": "Clé API créée."
+              }
+            },
+            "updateApiKey": {
+              "title": "Mettre à jour clé API",
+              "toast": {
+                "updated": "Clé API mise à jour."
+              }
+            },
+            "deleteApiKey": {
+              "title": "Confirmer la suppression de la clé API",
+              "content": "Êtes-vous sûr de vouloir supprimer **{name}** de votre compte ?",
+              "toast": {
+                "removed": "Clé API supprimée."
+              }
+            }
+          },
+          "form": {
+            "allowedIps": "IPs autorisées",
+            "allowedIpsPlaceholder": "ex. 192.168.1.1, 2001:db8::1",
+            "userPermissions": "Permissions utilisateur",
+            "serverPermissions": "Permissions serveur",
+            "adminPermissions": "Permissions admin"
+          }
+        },
+        "activity": {
+          "title": "Activité"
+        }
+      },
+      "server": {
+        "viewAdmin": {
+          "title": "Voir admin"
+        },
+        "console": {
+          "title": "Console",
+          "input": {
+            "placeholder": "Entrez une commande...",
+            "ariaLabel": "Entrée commande console."
+          },
+          "toast": {
+            "installCancelled": "Installation du serveur annulée."
+          },
+          "notification": {
+            "restoringBackup": "Votre serveur est actuellement en train d'être restauré depuis une sauvegarde. Veuillez patienter...",
+            "installing": "Votre serveur est en train d'être installé. Veuillez patienter..."
+          },
+          "message": {
+            "serverMarkedAs": "Serveur marqué comme {state}...",
+            "transferFailed": "Le transfert a échoué.",
+            "pullingImage": "Votre serveur est entrain de récupérer son image Docker. Veuillez patienter...",
+            "pulling": "Récupération",
+            "extracting": "Extraction",
+            "layer": "Couche"
+          },
+          "tooltip": {
+            "search": "Rechercher",
+            "commandHistory": "Historique de commande",
+            "decreaseFontSize": "Réduire taille de texte",
+            "increaseFontSize": "Augmenter taille de texte"
+          },
+          "drawer": {
+            "commandHistory": {
+              "title": "Historique de commande",
+              "detailTitle": "Détails de la commande",
+              "noCommands": "Pas de commandes trouvées.",
+              "copyButton": "Copier la commande",
+              "sendButton": "Envoyer commande",
+              "commandSent": "Commande envoyée avec succès."
+            }
+          },
+          "feature": {
+            "eula": {
+              "title": "Accord Minecraft EULA",
+              "content": "Le serveur Minecraft vous requiert d'accepter [l'Accord de Licence d'Utilisateur Final de Minecraft](https://minecraft.net/eula) avant qu'il ne puisse démarrer.",
+              "contentDetails": "En cliquant \"Accepter EULA\", vous êtes en accord avec les termes de l'EULA Minecraft et le fichier **eula.txt** sera mis à jour pour **eula=true**.",
+              "toast": {
+                "accepted": "EULA acceptée avec succès."
+              },
+              "button": {
+                "accept": "Accepter EULA"
+              }
+            }
+          },
+          "details": {
+            "address": "Adresse",
+            "port": "Port",
+            "uptime": "Temps de fonctionnement",
+            "cpuLoad": "Charge CPU",
+            "memoryLoad": "Charge mémoire",
+            "diskUsage": "Utilisation du disque",
+            "networkIn": "Réseau (entrant)",
+            "networkOut": "Réseau (sortant)",
+            "normalizeCpuLoad": "Normaliser la charge CPU (max 100%)"
+          },
+          "power": {
+            "start": "Démarrer",
+            "stop": "Arrêter",
+            "restart": "Redémarrer",
+            "kill": "Tuer",
+            "modal": {
+              "forceStop": {
+                "title": "Stopper le processus de force",
+                "content": "Arrêter de force un serveur peut mener à de la corruption de données."
+              }
+            }
+          },
+          "stats": {
+            "cpuLoad": "Charge CPU",
+            "memoryLoad": "Charge mémoire",
+            "network": "Réseau",
+            "inbound": "Entrant",
+            "outbound": "Sortant"
+          },
+          "socketConnected": "Connecté (ping {ping}ms)",
+          "socketDisconnected": "Déconnecté"
+        },
+        "files": {
+          "title": "Fichiers",
+          "titleEditorViewing": "Affichage de {file}",
+          "titleEditorEditing": "Modification de {file}",
+          "titleEditorNew": "Nouveau fichier",
+          "table": {
+            "columns": {
+              "modified": "Modifié"
+            }
+          },
+          "button": {
+            "new": "Nouveau",
+            "sftpDetails": "Détails SFTP",
+            "openInNewWindow": "Ouvrir dans une nouvelle fenêtre",
+            "rename": "Renommer",
+            "copy": "Copier",
+            "move": "Déplacer",
+            "permissions": "Permissions",
+            "unarchive": "Désarchiver",
+            "archive": "Archiver",
+            "remoteCopy": "Copie distante",
+            "search": "Rechercher",
+            "exitBackup": "Quitter la sauvegarde",
+            "fileFromEditor": "Fichier de l'éditeur",
+            "directory": "Répertoire",
+            "fileFromPull": "Fichier depuis récupération",
+            "fileFromUpload": "Fichier depuis téléversement",
+            "directoryFromUpload": "Répertoire depuis téléversement"
+          },
+          "actionBar": {
+            "copyHere": "Copier {files} ici",
+            "moveHere": "Déplacer {files} ici"
+          },
+          "searchBanner": {
+            "resultsTitle": "Résultats de recherche ({files} trouvés)",
+            "query": "Requête :",
+            "excluded": "Exclu :",
+            "content": "Contenu :",
+            "size": "Taille :",
+            "min": "Min :",
+            "max": "Max :"
+          },
+          "operations": {
+            "uploadingFolder": "Téléversement du dossier : {folder} ({current}/{total} fichiers)",
+            "waiting": "En attente : ",
+            "uploading": "Téléversement : ",
+            "compressing": "Compression de {files} de {path}",
+            "decompressing": "Décompression de {path}",
+            "pulling": "Récupération de {path}",
+            "copying": "Copie de {path} vers {destination}",
+            "copyingMany": "Copie de {files}",
+            "receivingRemote": "Réception de {files} depuis serveur distant",
+            "sendingRemote": "Envoi de {files} vers serveur distant"
+          },
+          "settings": {
+            "clickOnce": "Cliquez une fois pour ouvrir fichier ou dossier",
+            "editorMinimap": "Afficher la minicarte de fichier",
+            "editorLineOverflow": "Saut de ligne en débordement",
+            "imageViewerSmoothing": "Adoucir l'image (anti-aliasing)"
+          },
+          "toast": {
+            "operationCancelled": "Opération annulée",
+            "copyingStarted": "Copie de {files} commencée.",
+            "filesCouldNotBeMoved": "Les fichiers n'ont pas pu être déplacées.",
+            "filesMoved": "{files} déplacés.",
+            "downloadStarted": "Téléchargement démarré.",
+            "filesDeleted": "Les fichiers ont été supprimés.",
+            "archiveCreationStarted": "La création de l'archive a commencé.",
+            "fileCopyingStarted": "La copie de fichier a commencée.",
+            "fileInfoRetrieved": "Informations du fichier récupérées avec succès.",
+            "filePullingStarted": "La récupération du fichier a commencée.",
+            "fileRenamed": "Le fichier a été renommé.",
+            "fileCouldNotBeRenamed": "Le fichier n'a pas pu être renommé.",
+            "permissionsUpdated": "Les permissions ont été mises à jour.",
+            "fileSaved": "Le fichier a été sauvegardé."
+          },
+          "modal": {
+            "activeUploads": {
+              "title": "Téléversements actifs",
+              "content": "Êtes-vous sûr de vouloir quitter la page ? Vous avez {files} téléversements de fichier actifs. Si vous quittez la page, les téléversements seront annulés.",
+              "button": {
+                "leave": "Quitter la page"
+              }
+            },
+            "unsavedChanges": {
+              "title": "Changements non sauvegardées",
+              "content": "Vous avez des changements non sauvegardés dans l'éditeur de fichiers. Êtes-vous sûr de vouloir quitter cette page ? Si vous quittez, vos changements seront perdus.",
+              "button": {
+                "leave": "Quitter la page"
+              }
+            },
+            "createArchive": {
+              "title": "Créer archive",
+              "form": {
+                "archiveName": "Nom de l'archive",
+                "format": "Format"
+              },
+              "createdAs": "Cette archive sera créée en tant que "
+            },
+            "createDirectory": {
+              "title": "Créer répertoire",
+              "form": {
+                "directoryName": "Nom du répertoire"
+              },
+              "createdAs": "Ce répertoire sera créé en tant que "
+            },
+            "copyFile": {
+              "title": "Copier fichier",
+              "form": {
+                "fileName": "Nom du fichier"
+              },
+              "createdAs": "Ce fichier sera créé en tant que "
+            },
+            "copyRemote": {
+              "title": "Copier des fichiers à distance",
+              "form": {
+                "server": "Serveur",
+                "destination": "Destination"
+              },
+              "createdAs": "Ces fichiers seront créés sur le serveur distant en tant que "
+            },
+            "deleteFile": {
+              "title": "Supprimer fichier",
+              "singleFileWarning": "Vous ne pourrez plus récupérer le contenu de {file} une fois supprimé.",
+              "multipleFilesWarning": "Vous ne serez plus en mesure de récupérer le contenu des fichiers suivants une fois supprimés."
+            },
+            "createFile": {
+              "title": "Créer fichier",
+              "form": {
+                "fileName": "Nom du fichier"
+              }
+            },
+            "filePermissions": {
+              "title": "Permissions du fichier",
+              "symbolic": "Symbolique :",
+              "octal": "Octal :",
+              "owner": "Propriétaire",
+              "group": "Groupe",
+              "other": "Autre",
+              "breakdown": "Résumé de permission",
+              "readPermission": "Permission lecture (4)",
+              "writePermission": "Permission écriture (2)",
+              "executePermission": "Permission exécution (1)"
+            },
+            "renameFile": {
+              "title": "Renommer fichier",
+              "form": {
+                "fileName": "Nom du fichier"
+              }
+            },
+            "searchFiles": {
+              "title": "Rechercher fichiers",
+              "placeholder": "Chercher des fichiers...",
+              "advancedFilters": "Filtres avancés",
+              "pathPatterns": "Patternes de chemins",
+              "include": "Inclure",
+              "exclude": "Exclure",
+              "caseInsensitive": "Insensible à la casse",
+              "fileContent": "Contenu du fichier",
+              "searchText": "Chercher texte",
+              "maxFileSize": "Taille de fichier maximale",
+              "includeOversized": "Inclure fichiers surdimensionnés",
+              "includeOversizedDescription": "Inclure les fichiers qui correspondent aux autres filtres mais qui sont trop grands pour être cherchés",
+              "fileSize": "Taille de fichier",
+              "minimum": "Minimum",
+              "maximum": "Maximum"
+            },
+            "pullFile": {
+              "title": "Récupérer fichier",
+              "form": {
+                "fileUrl": "URL du fichier",
+                "query": "Tester",
+                "fileName": "Nom du fichier"
+              },
+              "createdAs": "Ce fichier sera créé en tant que ",
+              "pull": "Récupérer"
+            },
+            "sftpDetails": {
+              "title": "Détails SFTP",
+              "form": {
+                "protocol": "Protocole",
+                "port": "Port",
+                "host": "Hôte",
+                "username": "Nom d'utilisateur",
+                "password": "Mot de passe",
+                "yourPassword": "Votre mot de passe de panel de contrôle"
+              },
+              "launch": "Lancer"
+            }
+          }
+        },
+        "databases": {
+          "title": "Bases de données",
+          "subtitle": "{current} de {max} base de données maximum créées.",
+          "tooltip": {
+            "limitReached": "Ce serveur est limité à {max} base de données."
+          },
+          "table": {
+            "columns": {
+              "type": "Type",
+              "address": "Adresse",
+              "locked": "Verrouillé ?"
+            }
+          },
+          "button": {
+            "details": "Détails",
+            "rotatePassword": "Régénérer mot de passe"
+          },
+          "modal": {
+            "createDatabase": {
+              "title": "Créer base de données",
+              "toast": {
+                "created": "Base de données créée."
+              },
+              "form": {
+                "databaseName": "Nom de base de données",
+                "databaseHost": "Hôte de base de données",
+                "noHostsFound": "Pas d'hôtes trouvés"
+              }
+            },
+            "editDatabase": {
+              "title": "Modifier la base de données",
+              "toast": {
+                "updated": "Base de données modifiée."
+              },
+              "form": {
+                "locked": "Verrouillée"
+              }
+            },
+            "databaseDetails": {
+              "title": "Détails de connexion à la base de données",
+              "toast": {
+                "passwordRotated": "Le mot de passe a été régénéré."
+              },
+              "form": {
+                "jdbcConnectionString": "Chaîne de connexion JDBC"
+              }
+            },
+            "deleteDatabase": {
+              "title": "Confirmer la suppression de base de données",
+              "content": "Supprimer une base de données est une action permanente, elle ne peut pas être défaite. Ceci supprimera la base de données **name** et toutes données associées de manière permanente.",
+              "toast": {
+                "deleted": "Base de données supprimée."
+              }
+            }
+          }
+        },
+        "schedules": {
+          "title": "Planifications"
+        },
+        "subusers": {
+          "title": "Sous-utilisateurs",
+          "table": {
+            "columns": {
+              "twoFactorEnabled": "2FA activé",
+              "permissions": "Permissions",
+              "ignoredFiles": "Fichiers ignorés"
+            }
+          },
+          "modal": {
+            "createSubuser": {
+              "title": "Créer sous-utilisateur",
+              "toast": {
+                "created": "Sous-utilisateur créé."
+              },
+              "form": {
+                "email": "E-mail",
+                "emailPlaceholder": "Entrez l'adresse e-mail du sous-utilisateur.",
+                "permissions": "Permissions",
+                "ignoredFiles": "Fichiers ignorés"
+              }
+            },
+            "updateSubuser": {
+              "title": "Mettre à jour sous-utilisateur",
+              "toast": {
+                "updated": "Sous-utilisateur mis à jour."
+              }
+            },
+            "removeSubuser": {
+              "title": "Confirmer la suppression du sous-utilisateur",
+              "content": "Êtes-vous sûr de vouloir supprimer **{username}** de ce serveur ?",
+              "toast": {
+                "removed": "Sous-utilisateur supprimé."
+              }
+            }
+          }
+        },
+        "backups": {
+          "title": "Sauvegardes",
+          "subtitle": "{current} de {max} sauvegardes maximum créées.",
+          "tooltip": {
+            "limitReached": "Ce serveur est limité à {max} sauvegardes."
+          },
+          "table": {
+            "columns": {
+              "checksum": "Somme de contrôle",
+              "files": "Fichiers",
+              "locked": "Verrouillé ?"
+            }
+          },
+          "button": {
+            "browse": "Parcourir"
+          },
+          "toast": {
+            "downloadStarted": "Téléchargement commencé.",
+            "restoringBackup": "Restauration de la sauvegarde..."
+          },
+          "modal": {
+            "createBackup": {
+              "title": "Créer sauvegarde",
+              "toast": {
+                "created": "Sauvegarde créée."
+              },
+              "form": {
+                "ignoredFiles": "Fichiers ignorés"
+              }
+            },
+            "editBackup": {
+              "title": "Modifier la sauvegarde",
+              "toast": {
+                "updated": "Sauvegarde mise à jour."
+              },
+              "form": {
+                "locked": "Verrouillé"
+              }
+            },
+            "restoreBackup": {
+              "title": "Restaurer la sauvegarde"
+            },
+            "deleteBackup": {
+              "title": "Confirmer la suppression de la sauvegarde",
+              "content": "Êtes-vous sûr de vouloir supprimer **{name}** de ce serveur ?",
+              "toast": {
+                "deleted": "Sauvegarde supprimée."
+              }
+            }
+          }
+        },
+        "network": {
+          "title": "Réseau",
+          "subtitle": "{current} de {max} allocations maximum assignées.",
+          "tooltip": {
+            "limitReached": "Ce serveur est limité à {max} allocations.",
+            "primary": "Primaire"
+          },
+          "table": {
+            "columns": {
+              "hostname": "Nom d'hôte",
+              "port": "Port",
+              "notes": "Notes"
+            }
+          },
+          "button": {
+            "setPrimary": "Définir primaire",
+            "unsetPrimary": "Retirer primarité"
+          },
+          "toast": {
+            "created": "Allocation créée.",
+            "updated": "Allocation mise à jour.",
+            "removed": "Allocation supprimée.",
+            "setPrimary": "Allocation définie comme primaire.",
+            "unsetPrimary": "Primarité de l'allocation retirée."
+          },
+          "modal": {
+            "editAllocation": {
+              "title": "Modifier l'allocation",
+              "form": {
+                "notes": "Notes"
+              }
+            },
+            "removeAllocation": {
+              "title": "Confirmer la suppression de l'allocation",
+              "content": "Êtes-vous sûr de vouloir supprimer **{allocation}** de ce serveur ?"
+            }
+          }
+        },
+        "startup": {
+          "title": "Démarrage",
+          "form": {
+            "startupCommand": "Commande de démarrage",
+            "dockerImage": "Image Docker"
+          },
+          "variables": "Variables",
+          "dockerImageDescription": "L'image Docker utilisée pour lancer ce serveur. Elle peut être changée pour utiliser une autre image.",
+          "dockerImageDescriptionCustom": "L'image Docker utilisée pour lancer ce serveur. Elle a été définie par un administrateur et ne peut pas être changée.",
+          "toast": {
+            "startupCommandUpdated": "Commande de démarrage mise à jour.",
+            "dockerImageUpdated": "Image Docker mise à jour.",
+            "variablesUpdated": "Variables mises à jour."
+          }
+        },
+        "settings": {
+          "title": "Paramètres",
+          "rename": {
+            "title": "Renommer serveur",
+            "form": {
+              "serverName": "Nom du serveur"
+            },
+            "toast": {
+              "renamed": "Serveur renommé."
+            }
+          },
+          "timezone": {
+            "title": "Fuseau horaire",
+            "form": {
+              "timezone": "Fuseau horaire",
+              "system": "Système"
+            },
+            "toast": {
+              "updated": "Fuseau horaire du serveur mis à jour."
+            }
+          },
+          "autokill": {
+            "title": "Auto-tuage",
+            "form": {
+              "enabled": "Activé",
+              "secondsUntilAutoKill": "Secondes avant auto-tuage"
+            },
+            "toast": {
+              "updated": "Auto-tuage du serveur mis à jour."
+            }
+          },
+          "autostart": {
+            "title": "Auto-démarrage",
+            "form": {
+              "behavior": "Comportement"
+            },
+            "toast": {
+              "updated": "Comportement d'auto-démarrage du serveur mis à jour."
+            }
+          },
+          "reinstall": {
+            "title": "Réinstaller serveur",
+            "button": "Réinstaller serveur",
+            "content": "Réinstaller votre serveur l'éteindra, puis exécutera le script d'installation qui l'a initialement configuré. **Des fichiers peuvent être supprimés ou modifiés durant ce processus, veuillez sauvegarder vos données avant de continuer.**",
+            "modal": {
+              "title": "Réinstaller serveur",
+              "button": "Réinstaller",
+              "toast": {
+                "reinstalling": "Réinstallation du serveur..."
+              }
+            }
+          }
+        },
+        "activity": {
+          "title": "Activité"
+        }
+      }
     }
   }
 }
