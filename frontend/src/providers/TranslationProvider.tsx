@@ -1,4 +1,4 @@
-import { ReactNode, startTransition, useEffect, useState } from 'react';
+import { Fragment, ReactNode, startTransition, useEffect, useState } from 'react';
 import Markdown from 'react-markdown';
 import { getTranslationMapping, setGlobalTranslationHandle, TranslationContext, TranslationItemRecord } from 'shared';
 import { z } from 'zod';
@@ -102,6 +102,37 @@ const TranslationProvider = ({ children }: { children: ReactNode }) => {
     return translation;
   };
 
+  const tReact = (key: string, values: Record<string, ReactNode>): ReactNode => {
+    if (!languageData?.translations[key] && !baseTranslations.mapping[key as never]) {
+      throw new Error(`Language key ${key} not found.`);
+    }
+
+    let translation = languageData?.translations[key] || (baseTranslations.mapping[key as never] as string);
+
+    if (values) {
+      Object.keys(values).forEach((placeholder) => {
+        translation = translation.replaceAll(`{${placeholder}}`, `%%${placeholder}%%`);
+      });
+
+      const parts = translation.split(/(%%\w+%%)/g);
+
+      return (
+        <>
+          {parts.map((part, index) => {
+            const match = part.match(/%%(\w+)%%/);
+            if (match) {
+              const placeholder = match[1];
+              return <Fragment key={index}>{values[placeholder]}</Fragment>;
+            }
+            return <Fragment key={index}>{part}</Fragment>;
+          })}
+        </>
+      );
+    }
+
+    return translation;
+  };
+
   const tItem = (key: string, count: number): string => {
     if (!languageData?.items[key] && !baseTranslations.items[key as never]) {
       throw new Error(`Language item key ${key} not found.`);
@@ -113,10 +144,12 @@ const TranslationProvider = ({ children }: { children: ReactNode }) => {
     return translationItem[rules.select(count)].replaceAll('{count}', count.toString());
   };
 
-  setGlobalTranslationHandle({ language, setLanguage, t, tItem });
+  setGlobalTranslationHandle({ language, setLanguage, t, tReact, tItem });
 
   return (
-    <TranslationContext.Provider value={{ language, setLanguage, t, tItem }}>{children}</TranslationContext.Provider>
+    <TranslationContext.Provider value={{ language, setLanguage, t, tReact, tItem }}>
+      {children}
+    </TranslationContext.Provider>
   );
 };
 

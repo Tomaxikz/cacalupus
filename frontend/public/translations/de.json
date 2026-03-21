@@ -694,7 +694,7 @@
               },
               "twoFactorEnabled": "Zwei-Faktor-Verifizierung ist derzeit aktiviert.",
               "twoFactorDisabled": "Du hast derzeit keine Zwei-Faktor-Verifizierung für deinen Account aktiviert. Klicke auf den Button unten, um mit der Konfiguration zu beginnen.",
-              "twoFactorLastUsed": "Zuletzt verwendet: **{date}**"
+              "twoFactorLastUsed": "Zuletzt verwendet: {timestamp}"
             },
             "account": {
               "title": "Account-Details",

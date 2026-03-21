@@ -7,12 +7,21 @@ import Tooltip from '../Tooltip.tsx';
 
 interface FormattedTimestampProps {
   timestamp: string | number | Date;
+  tooltipClassName?: string;
+  tooltipInnerClassName?: string;
   className?: string;
   autoUpdate?: boolean;
   precise?: boolean;
 }
 
-function FormattedTimestamp({ timestamp, className, autoUpdate = true, precise }: FormattedTimestampProps) {
+function FormattedTimestamp({
+  timestamp,
+  tooltipClassName,
+  tooltipInnerClassName,
+  className,
+  autoUpdate = true,
+  precise,
+}: FormattedTimestampProps) {
   const [, forceRender] = useState(0);
 
   useEffect(() => {
@@ -43,7 +52,11 @@ function FormattedTimestamp({ timestamp, className, autoUpdate = true, precise }
   }, [timestamp, autoUpdate]);
 
   return (
-    <Tooltip label={formatDateTime(timestamp, precise, false)}>
+    <Tooltip
+      label={formatDateTime(timestamp, precise, false)}
+      className={tooltipClassName}
+      innerClassName={tooltipInnerClassName}
+    >
       <span className={classNames('cursor-help', className)}>{formatTimestamp(timestamp)}</span>
     </Tooltip>
   );

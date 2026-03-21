@@ -455,7 +455,7 @@
               },
               "twoFactorEnabled": "La vérification du double facteur est actuellement activée.",
               "twoFactorDisabled": "La vérification double facteur n'est pas activée pour votre compte. Cliquez le bouton ci-dessous pour commencer à la configurer.",
-              "twoFactorLastUsed": "Dernière utilisation : **{date}**"
+              "twoFactorLastUsed": "Dernière utilisation : {timestamp}"
             },
             "account": {
               "title": "Détails du compte",

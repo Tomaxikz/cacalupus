@@ -1,4 +1,5 @@
 fn main() {
     println!("cargo:rerun-if-changed=build.rs");
     println!("cargo:rerun-if-changed=../database/migrations");
+    println!("cargo:rerun-if-changed=../database/extension-migrations");
 }

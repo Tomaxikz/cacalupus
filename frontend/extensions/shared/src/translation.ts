@@ -1,10 +1,11 @@
-import { createContext, useContext } from 'react';
+import { createContext, type ReactNode, useContext } from 'react';
 
 interface TranslationContextType {
   language: string;
   setLanguage: (language: string) => void;
 
   t(key: string, values: Record<string, string | number>): string;
+  tReact(key: string, values: Record<string, ReactNode>): ReactNode;
   tItem(key: string, count: number): string;
 }
 
@@ -86,6 +87,13 @@ export class DefinedTranslations<
       ): string {
         return context.t(`${namespace}.${key as string}`, values);
       },
+      tReact<K extends keyof P>(
+        key: K,
+        // @ts-expect-error this is fine
+        values: Record<GetPlaceholders<P[K]>[number], ReactNode>,
+      ): ReactNode {
+        return context.tReact(`${namespace}.${key as string}`, values);
+      },
       tItem(key: keyof I, count: number): string {
         return context.tItem(`${namespace}.${key as string}`, count);
       },
@@ -109,6 +117,13 @@ export class DefinedTranslations<
         values: Record<GetPlaceholders<P[K]>[number], string | number>,
       ): string {
         return context.t(`${namespace}.${key as string}`, values);
+      },
+      tReact<K extends keyof P>(
+        key: K,
+        // @ts-expect-error this is fine
+        values: Record<GetPlaceholders<P[K]>[number], ReactNode>,
+      ): ReactNode {
+        return context.tReact(`${namespace}.${key as string}`, values);
       },
       tItem(key: keyof I, count: number): string {
         return context.tItem(`${namespace}.${key as string}`, count);

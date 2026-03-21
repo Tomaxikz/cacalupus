@@ -1,14 +1,14 @@
 import { faMobilePhone } from '@fortawesome/free-solid-svg-icons';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import TitleCard from '@/elements/TitleCard.tsx';
-import { formatTimestamp } from '@/lib/time.ts';
+import FormattedTimestamp from '@/elements/time/FormattedTimestamp.tsx';
 import { useAuth } from '@/providers/AuthProvider.tsx';
 import { useTranslations } from '@/providers/TranslationProvider.tsx';
 import TwoFactorDisableButton from './actions/TwoFactorDisableButton.tsx';
 import TwoFactorSetupButton from './actions/TwoFactorSetupButton.tsx';
 
 export default function TwoFactorContainer() {
-  const { t } = useTranslations();
+  const { t, tReact } = useTranslations();
   const { user } = useAuth();
 
   return (
@@ -22,11 +22,11 @@ export default function TwoFactorContainer() {
           ? t('pages.account.account.containers.twoFactor.twoFactorEnabled', {}).md()
           : t('pages.account.account.containers.twoFactor.twoFactorDisabled', {}).md()}
         {user?.totpLastUsed && (
-          <div className='mt-2 text-sm text-gray-400'>
-            {t('pages.account.account.containers.twoFactor.twoFactorLastUsed', {
-              date: formatTimestamp(user.totpLastUsed),
-            }).md()}
-          </div>
+          <span className='mt-2 text-sm text-gray-400'>
+            {tReact('pages.account.account.containers.twoFactor.twoFactorLastUsed', {
+              timestamp: <FormattedTimestamp timestamp={user.totpLastUsed} tooltipClassName='inline-block' />,
+            })}
+          </span>
         )}
       </div>
       <div className='mt-4'>{user!.totpEnabled ? <TwoFactorDisableButton /> : <TwoFactorSetupButton />}</div>

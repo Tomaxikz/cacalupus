@@ -712,7 +712,7 @@
               },
               "twoFactorEnabled": "Two-Factor Verification is currently enabled.",
               "twoFactorDisabled": "You do not currently have two-factor verification enabled on your account. Click the button below to begin configuring it.",
-              "twoFactorLastUsed": "Last used: **{date}**"
+              "twoFactorLastUsed": "Last used: {timestamp}"
             },
             "account": {
               "title": "Account Details",

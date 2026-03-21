@@ -16,7 +16,7 @@ axiosInstance.interceptors.request.use((request) => {
 // Auto transform all data to camel case keys
 axiosInstance.interceptors.response.use(
   (response) => {
-    if (response.headers['content-type'] === 'application/json' && !response.request.responseURL.endsWith('/export')) {
+    if (response.headers['content-type'] === 'application/json') {
       response.data = transformKeysToCamelCase(response.data);
     }
 
@@ -29,6 +29,18 @@ axiosInstance.interceptors.response.use(
     return Promise.reject(error);
   },
 );
+
+export const untransformedAxiosInstance: AxiosInstance = axios.create({
+  headers: {
+    'Content-Type': 'application/json',
+  },
+});
+
+axiosInstance.interceptors.request.use((request) => {
+  request.headers.set('Calagopus-User', localStorage.getItem('impersonatedUser'));
+
+  return request;
+});
 
 /**
  * Converts an error into a human readable response. Mostly just a generic helper to
