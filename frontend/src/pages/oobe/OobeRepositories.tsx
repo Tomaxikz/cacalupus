@@ -73,9 +73,7 @@ export default function OobeRepositories({ onNext, skipFrom }: OobeComponentProp
 
       <Stack gap='xl'>
         <Stack gap='sm'>
-          <Text size="sm">
-            {t("pages.oobe.eggRepositories.description", {})}
-          </Text>
+          <Text size='sm'>{t('pages.oobe.eggRepositories.description', {})}</Text>
           {repositories.map((repo) => {
             const isSelected = selectedRepos.includes(repo.gitRepository);
             return (
