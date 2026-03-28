@@ -102,6 +102,9 @@ nestify::nest! {
         #[serde(default = "true_fn")]
         pub editable: bool,
         #[schema(inline)]
+        #[schema(default)]
+        pub inner_editable: bool,
+        #[schema(inline)]
         pub directory: bool,
         #[schema(inline)]
         pub file: bool,
@@ -485,6 +488,8 @@ pub enum WebsocketEvent {
     SendCommand,
     #[serde(rename = "send stats")]
     SendStats,
+    #[serde(rename = "send status")]
+    SendStatus,
     #[serde(rename = "daemon error")]
     DaemonError,
     #[serde(rename = "jwt error")]

@@ -116,6 +116,7 @@ export const serverDirectoryEntrySchema = z.object({
   size: z.number(),
   sizePhysical: z.number(),
   editable: z.boolean(),
+  innerEditable: z.boolean(),
   directory: z.boolean(),
   file: z.boolean(),
   symlink: z.boolean(),

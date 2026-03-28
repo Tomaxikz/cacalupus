@@ -52,9 +52,9 @@ export function isEditableFile(file: z.infer<typeof serverDirectoryEntrySchema>)
     /^image\/(?!svg\+xml)/,
   ];
 
-  if (isArchiveType(file)) return false;
+  if (isArchiveType(file) && !file.innerEditable) return false;
 
-  return file.editable && matches.every((m) => !file.mime.match(m));
+  return (file.editable || file.innerEditable) && matches.every((m) => !file.mime.match(m));
 }
 
 export function permissionStringToNumber(mode: string) {
