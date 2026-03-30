@@ -39,6 +39,8 @@ COPY . /app/repo
 RUN cd frontend && pnpm install --frozen-lockfile && pnpm build:ci
 RUN cargo build --profile heavy-release
 
+RUN ln -s /app/repo/target/heavy-release/panel-rs /usr/local/bin/panel-rs
+
 COPY entrypoint.heavy.sh /entrypoint.sh
 RUN chmod +x /entrypoint.sh
 

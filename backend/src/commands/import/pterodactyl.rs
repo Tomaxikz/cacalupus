@@ -193,8 +193,7 @@ impl shared::extensions::commands::CliCommand<PterodactylArgs> for PterodactylCo
                 let settings = Arc::new(
                     shared::settings::Settings::new(database.clone())
                         .await
-                        .context("failed to load settings")
-                        .unwrap(),
+                        .context("failed to load settings")?,
                 );
 
                 if let Err(err) = process_table(
@@ -423,12 +422,10 @@ impl shared::extensions::commands::CliCommand<PterodactylArgs> for PterodactylCo
                     .bind(
                         serde_json::to_value(
                             shared::models::backup_configuration::BackupConfigs::default(),
-                        )
-                        .unwrap(),
+                        )?,
                     )
                     .fetch_one(database.write())
-                    .await
-                    .unwrap();
+                    .await?;
 
                     row.get("uuid")
                 };

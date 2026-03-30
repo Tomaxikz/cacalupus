@@ -159,7 +159,7 @@ pub async fn process_table<T, Fut: Future<Output = Result<T, anyhow::Error>>>(
         let empty = bar_width.saturating_sub(filled);
 
         tracing::info!(
-            "\x1b[2K{} [{}{}] {:.2}% ({}/{})",
+            "{} [{}{}] {:.2}% ({}/{})",
             table,
             "=".repeat(filled),
             " ".repeat(empty),
