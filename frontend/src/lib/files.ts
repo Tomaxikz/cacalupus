@@ -1,5 +1,3 @@
-import { join } from 'pathe';
-import { createSearchParams } from 'react-router';
 import { FileOpenMode } from 'shared/src/registries/pages/server/files.ts';
 import { z } from 'zod';
 import { serverDirectoryEntrySchema } from '@/lib/schemas/server/files.ts';
@@ -46,10 +44,8 @@ export function isOpenableFile(file: z.infer<typeof serverDirectoryEntrySchema>)
   if (file.directory || isViewableArchive(file)) {
     return {
       openable: true,
-      handleOpen: ({ fileManagerContext, setSearchParams }) => {
-        setSearchParams({
-          directory: join(fileManagerContext.browsingDirectory, file.name),
-        });
+      handleOpen: ({ handleDirectoryOpen }) => {
+        handleDirectoryOpen(file.name);
       },
     };
   }
@@ -68,13 +64,8 @@ export function isOpenableFile(file: z.infer<typeof serverDirectoryEntrySchema>)
   if (isViewableImage(file)) {
     return {
       openable: true,
-      handleOpen: ({ server, fileManagerContext, navigate }) => {
-        navigate(
-          `/server/${server.uuidShort}/files/image?${createSearchParams({
-            directory: fileManagerContext.browsingDirectory,
-            file: file.name,
-          })}`,
-        );
+      handleOpen: ({ handleFileOpen }) => {
+        handleFileOpen(file.name, 'image', {});
       },
     };
   }
@@ -92,13 +83,8 @@ export function isOpenableFile(file: z.infer<typeof serverDirectoryEntrySchema>)
   return (file.editable || file.innerEditable) && matches.every((m) => !file.mime.match(m))
     ? {
         openable: true,
-        handleOpen: ({ server, fileManagerContext, navigate }) => {
-          navigate(
-            `/server/${server.uuidShort}/files/edit?${createSearchParams({
-              directory: fileManagerContext.browsingDirectory,
-              file: file.name,
-            })}`,
-          );
+        handleOpen: ({ handleFileOpen }) => {
+          handleFileOpen(file.name, 'edit', {});
         },
       }
     : { openable: false };

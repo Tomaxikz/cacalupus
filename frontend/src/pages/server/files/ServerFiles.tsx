@@ -5,7 +5,7 @@ import { useQuery } from '@tanstack/react-query';
 import classNames from 'classnames';
 import { join } from 'pathe';
 import { type Ref, useCallback, useEffect, useRef } from 'react';
-import { useNavigate, useSearchParams } from 'react-router';
+import { createSearchParams, useNavigate, useSearchParams } from 'react-router';
 import { FileOpenMode } from 'shared/src/registries/pages/server/files';
 import { z } from 'zod';
 import { httpErrorToHuman } from '@/api/axios.ts';
@@ -142,6 +142,21 @@ function ServerFilesComponent() {
           fileManagerContext,
           navigate,
           setSearchParams,
+
+          handleDirectoryOpen: (path) => {
+            setSearchParams({
+              directory: join(fileManagerContext.browsingDirectory, path),
+            });
+          },
+          handleFileOpen: (file, action, params) => {
+            const searchParams = createSearchParams({
+              directory: fileManagerContext.browsingDirectory,
+              file,
+              ...params,
+            });
+
+            navigate(`/server/${server.uuidShort}/files/${action}?${searchParams}`);
+          },
         });
       }
     },

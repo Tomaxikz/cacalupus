@@ -15,6 +15,9 @@ type HandleOpenProps = {
   fileManagerContext: FileManagerContextType;
   navigate: NavigateFunction;
   setSearchParams: SetURLSearchParams;
+
+  handleDirectoryOpen: (path: string) => void;
+  handleFileOpen: (file: string, action: string, params: Record<string, string>) => void;
 };
 
 export type FileOpenMode =
