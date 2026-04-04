@@ -66,6 +66,7 @@ sysinfo = "0.38.0"
 serde_with = "3.16.1"
 minijinja = "2.15.1"
 dialoguer = "0.12.0"
+libz-sys = "=1.1.25"
 
 [patch.crates-io]
 compact_str = { git = "https://github.com/ParkMyCar/compact_str.git" }
