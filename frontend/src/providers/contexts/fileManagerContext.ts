@@ -32,6 +32,7 @@ export interface SearchInfo {
 export type ActingFileMode = 'copy' | 'move';
 
 export interface FileManagerContextType {
+  isLoading: boolean;
   fileInputRef: RefObject<HTMLInputElement | null>;
   folderInputRef: RefObject<HTMLInputElement | null>;
 
@@ -71,6 +72,7 @@ export interface FileManagerContextType {
   imageViewerSmoothing: boolean;
   setImageViewerSmoothing: (state: boolean) => void;
 
+  resetEntries: () => void;
   invalidateFilemanager: () => void;
   fileUploader: FileUploader;
   doActFiles: (mode: ActingFileMode | null, files: z.infer<typeof serverDirectoryEntrySchema>[]) => void;

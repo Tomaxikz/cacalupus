@@ -82,42 +82,21 @@ function ServerFilesComponent() {
   const fileManagerContext = useFileManager();
 
   const {
+    isLoading,
     actingFiles,
     actingFilesSource,
     selectedFiles,
     browsingDirectory,
     browsingEntries,
-    page,
     openModal,
     browsingWritableDirectory,
     doSelectFiles,
-    setBrowsingEntries,
-    setBrowsingWritableDirectory,
-    setBrowsingFastDirectory,
     doOpenModal,
     sortMode,
     setSortMode,
     preferPhysicalSize,
+    resetEntries,
   } = fileManagerContext;
-
-  const { data, isLoading } = useQuery({
-    queryKey: ['server', server.uuid, 'files', { browsingDirectory, page, sortMode }],
-    queryFn: () => loadDirectory(server.uuid, browsingDirectory, page, sortMode),
-  });
-
-  useEffect(() => {
-    if (!data) return;
-
-    setBrowsingEntries(data.entries);
-    setBrowsingWritableDirectory(data.isFilesystemWritable);
-    setBrowsingFastDirectory(data.isFilesystemFast);
-  }, [data]);
-
-  const resetEntries = () => {
-    if (!data) return;
-
-    setBrowsingEntries(data.entries);
-  };
 
   const previousSelected = useRef<z.infer<typeof serverDirectoryEntrySchema>[]>([]);
 
@@ -315,7 +294,7 @@ function ServerFilesComponent() {
 
       <FileSearchBanner resetEntries={resetEntries} />
 
-      {!data || isLoading ? (
+      {isLoading ? (
         <Spinner.Centered />
       ) : (
         <SelectionArea onSelectedStart={onSelectedStart} onSelected={onSelected} fireEvents={false} className='h-full'>
