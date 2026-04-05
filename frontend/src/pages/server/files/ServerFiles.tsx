@@ -1,7 +1,6 @@
 import { faChevronDown, faChevronUp } from '@fortawesome/free-solid-svg-icons';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { Group, Title } from '@mantine/core';
-import { useQuery } from '@tanstack/react-query';
 import classNames from 'classnames';
 import { join } from 'pathe';
 import { type Ref, useCallback, useEffect, useRef } from 'react';
@@ -10,7 +9,6 @@ import { FileOpenMode } from 'shared/src/registries/pages/server/files';
 import { z } from 'zod';
 import { httpErrorToHuman } from '@/api/axios.ts';
 import copyFile from '@/api/server/files/copyFile.ts';
-import loadDirectory from '@/api/server/files/loadDirectory.ts';
 import { ContextMenuProvider } from '@/elements/ContextMenu.tsx';
 import ServerContentContainer from '@/elements/containers/ServerContentContainer.tsx';
 import SelectionArea from '@/elements/SelectionArea.tsx';

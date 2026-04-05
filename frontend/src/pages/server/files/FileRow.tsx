@@ -118,20 +118,20 @@ const FileRow = forwardRef<HTMLTableRowElement, FileRowProps>(function FileRow(
                 <td className='w-0'></td>
               )}
 
-              <TableData>
-                <span className='flex items-center gap-4 leading-[100%]'>
-                  <FileRowIcon className='text-gray-400' file={file} fileManagerContext={fileManagerContext} />
-                  {file.name}
+              <TableData className='w-full max-w-0'>
+                <span className='flex items-center gap-4 leading-[100%] min-w-0' title={file.name}>
+                  <FileRowIcon className='shrink-0 text-gray-400' file={file} fileManagerContext={fileManagerContext} />
+                  <span className='truncate'>{file.name}</span>
                 </span>
               </TableData>
 
               <TableData>
-                <span className='flex items-center gap-4 leading-[100%]'>
+                <span className='flex items-center gap-4 leading-[100%] min-w-fit text-nowrap'>
                   {bytesToString(preferPhysicalSize ? file.sizePhysical : file.size)}
                 </span>
               </TableData>
 
-              <TableData className='hidden md:table-cell'>
+              <TableData className='hidden md:table-cell min-w-fit text-nowrap'>
                 <FormattedTimestamp timestamp={file.modified} />
               </TableData>
 
