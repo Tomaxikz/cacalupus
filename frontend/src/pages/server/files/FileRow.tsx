@@ -6,13 +6,39 @@ import Checkbox from '@/elements/input/Checkbox.tsx';
 import { TableData, TableRow } from '@/elements/Table.tsx';
 import FormattedTimestamp from '@/elements/time/FormattedTimestamp.tsx';
 import { isOpenableFile } from '@/lib/files.ts';
+import { ObjectSet } from '@/lib/objectSet.ts';
 import { serverDirectoryEntrySchema } from '@/lib/schemas/server/files.ts';
 import { bytesToString } from '@/lib/size.ts';
 import FileRowContextMenu from '@/pages/server/files/FileRowContextMenu.tsx';
 import { useServerCan } from '@/plugins/usePermissions.ts';
-import { getFileManager } from '@/providers/contexts/fileManagerContext.ts';
+import { getFileManager, useFileManager } from '@/providers/contexts/fileManagerContext.ts';
 import FileMassContextMenu from './FileMassContextMenu.tsx';
 import FileRowIcon from './FileRowIcon.tsx';
+
+function FileRowCheckbox({
+  file,
+  isSelected,
+  toggleSelected,
+}: {
+  file: z.infer<typeof serverDirectoryEntrySchema>;
+  isSelected: boolean;
+  toggleSelected: () => void;
+}) {
+  const { actingFiles } = useFileManager();
+
+  return (
+    <td className='pl-4 relative cursor-pointer w-10 text-center py-2'>
+      <Checkbox
+        id={file.name}
+        checked={isSelected}
+        classNames={{ input: 'cursor-pointer!' }}
+        disabled={actingFiles.size > 0}
+        onChange={toggleSelected}
+        onClick={(e) => e.stopPropagation()}
+      />
+    </td>
+  );
+}
 
 interface FileRowProps {
   file: z.infer<typeof serverDirectoryEntrySchema>;
@@ -20,12 +46,13 @@ interface FileRowProps {
   isSelected: boolean;
   isActing: boolean;
   multipleSelectedRef: RefObject<boolean>;
+  actingFilesRef: RefObject<ObjectSet<z.infer<typeof serverDirectoryEntrySchema>, 'name'>>;
   clickOnce: boolean;
   preferPhysicalSize: boolean;
 }
 
 const FileRow = forwardRef<HTMLTableRowElement, FileRowProps>(function FileRow(
-  { file, handleOpen, isSelected, isActing, multipleSelectedRef, clickOnce, preferPhysicalSize },
+  { file, handleOpen, isSelected, isActing, multipleSelectedRef, actingFilesRef, clickOnce, preferPhysicalSize },
   ref,
 ) {
   const canOpenActionBar = useServerCan(['files.read-content', 'files.archive', 'files.update', 'files.delete'], true);
@@ -43,16 +70,18 @@ const FileRow = forwardRef<HTMLTableRowElement, FileRowProps>(function FileRow(
 
     if (clickTimer.current) return;
 
-    if (e.shiftKey) {
-      addSelectedFile(file);
-    } else if (isSelected) {
-      if (multipleSelectedRef.current) {
-        doSelectFiles([file]);
+    if (actingFilesRef.current.size === 0) {
+      if (e.shiftKey) {
+        addSelectedFile(file);
+      } else if (isSelected) {
+        if (multipleSelectedRef.current) {
+          doSelectFiles([file]);
+        } else {
+          removeSelectedFile(file);
+        }
       } else {
-        removeSelectedFile(file);
+        doSelectFiles([file]);
       }
-    } else {
-      doSelectFiles([file]);
     }
 
     clickTimer.current = setTimeout(() => {
@@ -105,15 +134,7 @@ const FileRow = forwardRef<HTMLTableRowElement, FileRowProps>(function FileRow(
               }}
             >
               {canOpenActionBar ? (
-                <td className='pl-4 relative cursor-pointer w-10 text-center py-2'>
-                  <Checkbox
-                    id={file.name}
-                    checked={isSelected}
-                    classNames={{ input: 'cursor-pointer!' }}
-                    onChange={toggleSelected}
-                    onClick={(e) => e.stopPropagation()}
-                  />
-                </td>
+                <FileRowCheckbox file={file} isSelected={isSelected || isActing} toggleSelected={toggleSelected} />
               ) : (
                 <td className='w-0'></td>
               )}

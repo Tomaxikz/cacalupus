@@ -1092,6 +1092,10 @@ const baseTranslations = defineTranslations({
             },
           },
           notification: {
+            suspended:
+              'Your Server is currently suspended. No actions can be performed until the suspension is lifted.',
+            suspendedAdmin:
+              'This server is currently suspended. Since you are an administrator, you can still access the server, but actions are limited.',
             nodeMaintenance: 'Your Server is on a node that is currently under maintenance.',
             transferring: 'Your Server is currently being transferred to another node.',
             restoringBackup: 'Your Server is currently restoring from a backup. Please wait...',

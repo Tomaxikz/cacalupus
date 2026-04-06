@@ -15,6 +15,7 @@ import SelectionArea from '@/elements/SelectionArea.tsx';
 import Spinner from '@/elements/Spinner.tsx';
 import Table from '@/elements/Table.tsx';
 import { isOpenableFile } from '@/lib/files.ts';
+import { ObjectSet } from '@/lib/objectSet.ts';
 import { serverDirectoryEntrySchema, serverDirectorySortingModeSchema } from '@/lib/schemas/server/files.ts';
 import FileActionBar from '@/pages/server/files/FileActionBar.tsx';
 import FileBreadcrumbs from '@/pages/server/files/FileBreadcrumbs.tsx';
@@ -76,6 +77,7 @@ function ServerFilesComponent() {
   const [_, setSearchParams] = useSearchParams();
   const navigate = useNavigate();
   const multipleSelectedRef = useRef(false);
+  const actingFilesRef = useRef(new ObjectSet<z.infer<typeof serverDirectoryEntrySchema>, 'name'>('name'));
   const typeAheadBuffer = useRef('');
   const typeAheadTimeout = useRef<ReturnType<typeof setTimeout>>(null);
   const fileManagerContext = useFileManager();
@@ -177,6 +179,10 @@ function ServerFilesComponent() {
   useEffect(() => {
     multipleSelectedRef.current = selectedFiles.size > 1;
   }, [selectedFiles]);
+
+  useEffect(() => {
+    actingFilesRef.current = actingFiles;
+  }, [actingFiles]);
 
   useEffect(() => {
     fileManagerContextRef.current = fileManagerContext;
@@ -307,7 +313,13 @@ function ServerFilesComponent() {
       {isLoading ? (
         <Spinner.Centered />
       ) : (
-        <SelectionArea onSelectedStart={onSelectedStart} onSelected={onSelected} fireEvents={false} className='h-full'>
+        <SelectionArea
+          onSelectedStart={onSelectedStart}
+          onSelected={onSelected}
+          fireEvents={false}
+          className='h-full'
+          disabled={actingFiles.size > 0}
+        >
           <ContextMenuProvider>
             <Table
               columns={
@@ -362,6 +374,7 @@ function ServerFilesComponent() {
                       isSelected={selectedFiles.has(entry)}
                       isActing={actingFiles.has(entry) && actingFilesSource === browsingDirectory}
                       multipleSelectedRef={multipleSelectedRef}
+                      actingFilesRef={actingFilesRef}
                       clickOnce={fileManagerContext.clickOnce}
                       preferPhysicalSize={fileManagerContext.preferPhysicalSize}
                     />
