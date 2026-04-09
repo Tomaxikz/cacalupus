@@ -267,6 +267,7 @@ pub enum ScheduleActionInner {
         #[garde(dive)]
         root: ScheduleDynamicParameter,
         #[garde(skip)]
+        #[schema(inline)]
         files: Vec<super::servers_server_files_rename::put::RequestBodyFiles>,
     },
     CompressFiles {

@@ -58,7 +58,7 @@ export default function DatabaseRow({ database }: { database: z.infer<typeof ser
           },
           {
             icon: faRefresh,
-            label: t('pages.server.databases.button.recreate', {}),
+            label: t('common.button.recreate', {}),
             disabled: database.isLocked,
             onClick: () => setOpenModal('recreate'),
             color: 'red',

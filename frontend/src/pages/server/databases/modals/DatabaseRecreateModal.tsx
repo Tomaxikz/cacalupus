@@ -53,7 +53,7 @@ export default function DatabaseRecreateModal({ database, opened, onClose }: Pro
 
         <ModalFooter>
           <Button color='red' onClick={doRecreate} loading={loading} disabled={database.name !== enteredName}>
-            {t('pages.server.databases.button.recreate', {})}
+            {t('common.button.recreate', {})}
           </Button>
           <Button variant='default' onClick={onClose}>
             {t('common.button.close', {})}
