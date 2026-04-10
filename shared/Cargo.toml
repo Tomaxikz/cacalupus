@@ -36,6 +36,7 @@ utoipa-axum = { workspace = true }
 base32 = { workspace = true }
 base64 = { workspace = true }
 sqlx = { workspace = true }
+mongodb = { workspace = true }
 webauthn-rs = { workspace = true }
 jwt = "0.16.0"
 async-trait = { workspace = true }

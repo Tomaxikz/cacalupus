@@ -1119,7 +1119,6 @@ const baseTranslations = defineTranslations({
             pullingImage: "Your Server is currently pulling it's docker image. Please wait...",
             pulling: 'Pulling',
             extracting: 'Extracting',
-            layer: 'Layer',
           },
           tooltip: {
             search: 'Search',

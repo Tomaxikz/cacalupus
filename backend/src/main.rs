@@ -14,7 +14,7 @@ use rand::Rng;
 use sentry_tower::SentryHttpLayer;
 use sha2::Digest;
 use shared::{
-    ApiError, FRONTEND_ASSETS, GetState,
+    ApiError, FRONTEND_ASSETS, GetIp, GetState,
     extensions::commands::CliCommandGroupBuilder,
     models::{ByUuid, node::Node},
     response::ApiResponse,
@@ -717,212 +717,223 @@ async fn main() {
                 },
             ),
         )
-        .fallback(|state: GetState, mut req: Request<Body>| async move {
-            let is_upgrade = req
-                .headers()
-                .get(axum::http::header::UPGRADE)
-                .is_some_and(|v| v.as_bytes().eq_ignore_ascii_case(b"websocket"));
+        .fallback(
+            |state: GetState, ip: GetIp, mut req: Request<Body>| async move {
+                let is_upgrade = req
+                    .headers()
+                    .get(axum::http::header::UPGRADE)
+                    .is_some_and(|v| v.as_bytes().eq_ignore_ascii_case(b"websocket"));
 
-            let on_upgrade = if is_upgrade {
-                Some(hyper::upgrade::on(&mut req))
-            } else {
-                None
-            };
+                let on_upgrade = if is_upgrade {
+                    Some(hyper::upgrade::on(&mut req))
+                } else {
+                    None
+                };
 
-            let (parts, body) = req.into_parts();
-            let path = parts.uri.path();
+                let (parts, body) = req.into_parts();
+                let path = parts.uri.path();
 
-            'proxy: {
-                if !state.env.app_enable_wings_proxy {
-                    break 'proxy;
-                }
+                'proxy: {
+                    if !state.env.app_enable_wings_proxy {
+                        break 'proxy;
+                    }
 
-                if path.starts_with("/wings-proxy") {
-                    let node = match path.strip_prefix("/wings-proxy/") {
-                        Some(node) => node,
-                        None => break 'proxy,
-                    };
-                    let (node, path) = match node.split_once('/') {
-                        Some((node, path)) => (node, path),
-                        None => break 'proxy,
-                    };
-                    let node = match uuid::Uuid::parse_str(node) {
-                        Ok(node) => node,
-                        Err(_) => break 'proxy,
-                    };
+                    if path.starts_with("/wings-proxy") {
+                        let node = match path.strip_prefix("/wings-proxy/") {
+                            Some(node) => node,
+                            None => break 'proxy,
+                        };
+                        let (node, path) = match node.split_once('/') {
+                            Some((node, path)) => (node, path),
+                            None => (node, ""),
+                        };
+                        let node = match uuid::Uuid::parse_str(node) {
+                            Ok(node) => node,
+                            Err(_) => break 'proxy,
+                        };
 
-                    let node = match Node::by_uuid_optional_cached(&state.database, node).await? {
-                        Some(node) => node,
-                        None => break 'proxy,
-                    };
+                        let node =
+                            match Node::by_uuid_optional_cached(&state.database, node).await? {
+                                Some(node) => node,
+                                None => break 'proxy,
+                            };
 
-                    let mut url = node.url(path);
-                    url.set_query(parts.uri.query());
+                        let mut url = node.url(path);
+                        url.set_query(parts.uri.query());
 
-                    let mut request = reqwest::Request::new(parts.method, url);
-                    *request.headers_mut() = parts.headers;
-                    *request.body_mut() = Some(reqwest::Body::wrap_stream(body.into_data_stream()));
+                        let mut request = reqwest::Request::new(parts.method, url);
+                        *request.headers_mut() = parts.headers;
+                        *request.body_mut() =
+                            Some(reqwest::Body::wrap_stream(body.into_data_stream()));
 
-                    let response = match tokio::time::timeout(
-                        std::time::Duration::from_secs(30),
-                        state.client.execute(request),
-                    )
-                    .await
-                    {
-                        Ok(Ok(response)) => response,
-                        Ok(Err(_)) => break 'proxy,
-                        Err(_) => {
-                            return ApiResponse::error("upstream request timed out")
-                                .with_status(StatusCode::GATEWAY_TIMEOUT)
+                        request.headers_mut().remove(axum::http::header::HOST);
+                        request.headers_mut().remove("X-Forwarded-For");
+                        request
+                            .headers_mut()
+                            .insert("X-Real-Ip", ip.to_string().parse()?);
+
+                        let response = match tokio::time::timeout(
+                            std::time::Duration::from_secs(30),
+                            state.client.execute(request),
+                        )
+                        .await
+                        {
+                            Ok(Ok(response)) => response,
+                            Ok(Err(_)) => break 'proxy,
+                            Err(_) => {
+                                return ApiResponse::error("upstream request timed out")
+                                    .with_status(StatusCode::GATEWAY_TIMEOUT)
+                                    .ok();
+                            }
+                        };
+
+                        let status = response.status();
+                        let headers = response.headers().clone();
+
+                        if status == axum::http::StatusCode::SWITCHING_PROTOCOLS
+                            && is_upgrade
+                            && let Some(on_upgrade) = on_upgrade
+                        {
+                            tokio::spawn(async move {
+                                let (client_stream_raw, mut upstream_stream) =
+                                    match tokio::join!(on_upgrade, response.upgrade()) {
+                                        (Ok(c), Ok(u)) => (c, u),
+                                        _ => return,
+                                    };
+
+                                let mut client_stream =
+                                    hyper_util::rt::TokioIo::new(client_stream_raw);
+
+                                let _ = tokio::io::copy_bidirectional(
+                                    &mut client_stream,
+                                    &mut upstream_stream,
+                                )
+                                .await;
+                            });
+
+                            return ApiResponse::new(Body::empty())
+                                .with_status(status)
+                                .with_headers(&headers)
                                 .ok();
                         }
-                    };
 
-                    let status = response.status();
-                    let headers = response.headers().clone();
-
-                    if status == axum::http::StatusCode::SWITCHING_PROTOCOLS
-                        && is_upgrade
-                        && let Some(on_upgrade) = on_upgrade
-                    {
-                        tokio::spawn(async move {
-                            let (client_stream_raw, mut upstream_stream) =
-                                match tokio::join!(on_upgrade, response.upgrade()) {
-                                    (Ok(c), Ok(u)) => (c, u),
-                                    _ => return,
-                                };
-
-                            let mut client_stream = hyper_util::rt::TokioIo::new(client_stream_raw);
-
-                            let _ = tokio::io::copy_bidirectional(
-                                &mut client_stream,
-                                &mut upstream_stream,
-                            )
-                            .await;
-                        });
-
-                        return ApiResponse::new(Body::empty())
+                        return ApiResponse::new(Body::from_stream(response.bytes_stream()))
                             .with_status(status)
                             .with_headers(&headers)
                             .ok();
                     }
-
-                    return ApiResponse::new(Body::from_stream(response.bytes_stream()))
-                        .with_status(status)
-                        .with_headers(&headers)
-                        .ok();
                 }
-            }
 
-            if !path.starts_with("/api") {
-                let path = &path[1.min(path.len())..];
+                if !path.starts_with("/api") {
+                    let path = &path[1.min(path.len())..];
 
-                let (is_index, entry) = match FRONTEND_ASSETS.get_entry(path) {
-                    Some(entry) => (false, entry),
-                    None => (true, FRONTEND_ASSETS.get_entry("index.html").unwrap()),
-                };
+                    let (is_index, entry) = match FRONTEND_ASSETS.get_entry(path) {
+                        Some(entry) => (false, entry),
+                        None => (true, FRONTEND_ASSETS.get_entry("index.html").unwrap()),
+                    };
 
-                if (entry.as_file().is_none() || is_index) && path.starts_with("assets") {
-                    // technically not needed (cap filesystem) but never hurts
-                    if path.contains("..") {
-                        return ApiResponse::error("file not found")
-                            .with_status(StatusCode::NOT_FOUND)
-                            .ok();
+                    if (entry.as_file().is_none() || is_index) && path.starts_with("assets") {
+                        // technically not needed (cap filesystem) but never hurts
+                        if path.contains("..") {
+                            return ApiResponse::error("file not found")
+                                .with_status(StatusCode::NOT_FOUND)
+                                .ok();
+                        }
+
+                        let settings = state.settings.get().await?;
+
+                        let base_filesystem =
+                            match settings.storage_driver.get_cap_filesystem().await {
+                                Some(filesystem) => filesystem?,
+                                None => {
+                                    return ApiResponse::error("file not found")
+                                        .with_status(StatusCode::NOT_FOUND)
+                                        .ok();
+                                }
+                            };
+                        drop(settings);
+
+                        let path = urlencoding::decode(path)?;
+
+                        let metadata = match base_filesystem.async_metadata(&*path).await {
+                            Ok(metadata) => metadata,
+                            Err(_) => {
+                                return ApiResponse::error("file not found")
+                                    .with_status(StatusCode::NOT_FOUND)
+                                    .ok();
+                            }
+                        };
+
+                        let tokio_file = match base_filesystem.async_open(&*path).await {
+                            Ok(file) => file,
+                            Err(_) => {
+                                return ApiResponse::error("file not found")
+                                    .with_status(StatusCode::NOT_FOUND)
+                                    .ok();
+                            }
+                        };
+
+                        let modified = if let Ok(modified) = metadata.modified() {
+                            let modified = chrono::DateTime::from_timestamp(
+                                modified
+                                    .into_std()
+                                    .duration_since(std::time::UNIX_EPOCH)
+                                    .unwrap_or_default()
+                                    .as_secs() as i64,
+                                0,
+                            )
+                            .unwrap_or_default();
+
+                            Some(modified.to_rfc2822())
+                        } else {
+                            None
+                        };
+
+                        return ApiResponse::new(Body::from_stream(
+                            tokio_util::io::ReaderStream::new(tokio_file),
+                        ))
+                        .with_header("Content-Length", metadata.len().to_compact_string())
+                        .with_optional_header("Last-Modified", modified.as_deref())
+                        .ok();
                     }
 
-                    let settings = state.settings.get().await?;
-
-                    let base_filesystem = match settings.storage_driver.get_cap_filesystem().await {
-                        Some(filesystem) => filesystem?,
-                        None => {
-                            return ApiResponse::error("file not found")
-                                .with_status(StatusCode::NOT_FOUND)
-                                .ok();
-                        }
-                    };
-                    drop(settings);
-
-                    let path = urlencoding::decode(path)?;
-
-                    let metadata = match base_filesystem.async_metadata(&*path).await {
-                        Ok(metadata) => metadata,
-                        Err(_) => {
-                            return ApiResponse::error("file not found")
-                                .with_status(StatusCode::NOT_FOUND)
-                                .ok();
-                        }
-                    };
-
-                    let tokio_file = match base_filesystem.async_open(&*path).await {
-                        Ok(file) => file,
-                        Err(_) => {
-                            return ApiResponse::error("file not found")
-                                .with_status(StatusCode::NOT_FOUND)
-                                .ok();
-                        }
-                    };
-
-                    let modified = if let Ok(modified) = metadata.modified() {
-                        let modified = chrono::DateTime::from_timestamp(
-                            modified
-                                .into_std()
-                                .duration_since(std::time::UNIX_EPOCH)
-                                .unwrap_or_default()
-                                .as_secs() as i64,
-                            0,
-                        )
-                        .unwrap_or_default();
-
-                        Some(modified.to_rfc2822())
-                    } else {
-                        None
-                    };
-
-                    return ApiResponse::new(Body::from_stream(tokio_util::io::ReaderStream::new(
-                        tokio_file,
-                    )))
-                    .with_header("Content-Length", metadata.len().to_compact_string())
-                    .with_optional_header("Last-Modified", modified.as_deref())
-                    .ok();
-                }
-
-                let (is_index, file) = match entry {
-                    include_dir::DirEntry::File(file) => (is_index, file),
-                    include_dir::DirEntry::Dir(dir) => match dir.get_file("index.html") {
-                        Some(index_file) => (true, index_file),
-                        None => (true, FRONTEND_ASSETS.get_file("index.html").unwrap()),
-                    },
-                };
-
-                return ApiResponse::new(Body::from(file.contents()))
-                    .with_header(
-                        "Content-Type",
-                        match infer::get(file.contents()) {
-                            Some(kind) => kind.mime_type(),
-                            _ => match file.path().extension() {
-                                Some(ext) => match ext.to_str() {
-                                    Some("html") => "text/html",
-                                    Some("js") => "application/javascript",
-                                    Some("css") => "text/css",
-                                    Some("json") => "application/json",
-                                    Some("svg") => "image/svg+xml",
-                                    _ => "application/octet-stream",
-                                },
-                                None => "application/octet-stream",
-                            },
+                    let (is_index, file) = match entry {
+                        include_dir::DirEntry::File(file) => (is_index, file),
+                        include_dir::DirEntry::Dir(dir) => match dir.get_file("index.html") {
+                            Some(index_file) => (true, index_file),
+                            None => (true, FRONTEND_ASSETS.get_file("index.html").unwrap()),
                         },
-                    )
-                    .with_optional_header(
-                        "Content-Security-Policy",
-                        if is_index {
-                            let settings = state.settings.get().await?;
-                            let script_csp = settings.captcha_provider.to_csp_script_src();
-                            let frame_csp = settings.captcha_provider.to_csp_frame_src();
-                            let style_csp = settings.captcha_provider.to_csp_style_src();
-                            drop(settings);
+                    };
 
-                            Some(format!(
-                                "default-src 'self'; \
+                    return ApiResponse::new(Body::from(file.contents()))
+                        .with_header(
+                            "Content-Type",
+                            match infer::get(file.contents()) {
+                                Some(kind) => kind.mime_type(),
+                                _ => match file.path().extension() {
+                                    Some(ext) => match ext.to_str() {
+                                        Some("html") => "text/html",
+                                        Some("js") => "application/javascript",
+                                        Some("css") => "text/css",
+                                        Some("json") => "application/json",
+                                        Some("svg") => "image/svg+xml",
+                                        _ => "application/octet-stream",
+                                    },
+                                    None => "application/octet-stream",
+                                },
+                            },
+                        )
+                        .with_optional_header(
+                            "Content-Security-Policy",
+                            if is_index {
+                                let settings = state.settings.get().await?;
+                                let script_csp = settings.captcha_provider.to_csp_script_src();
+                                let frame_csp = settings.captcha_provider.to_csp_frame_src();
+                                let style_csp = settings.captcha_provider.to_csp_style_src();
+                                drop(settings);
+
+                                Some(format!(
+                                    "default-src 'self'; \
                                 script-src 'self' blob: {script_csp}; \
                                 frame-src 'self' {frame_csp}; \
                                 style-src 'self' 'unsafe-inline' {style_csp}; \
@@ -934,20 +945,21 @@ async fn main() {
                                 base-uri 'self'; \
                                 form-action 'self'; \
                                 frame-ancestors 'self';"
-                            ))
-                        } else {
-                            None
-                        },
-                    )
-                    .with_header("X-Content-Type-Options", "nosniff")
-                    .with_header("X-Frame-Options", "SAMEORIGIN")
-                    .ok();
-            }
+                                ))
+                            } else {
+                                None
+                            },
+                        )
+                        .with_header("X-Content-Type-Options", "nosniff")
+                        .with_header("X-Frame-Options", "SAMEORIGIN")
+                        .ok();
+                }
 
-            ApiResponse::error("route not found")
-                .with_status(StatusCode::NOT_FOUND)
-                .ok()
-        })
+                ApiResponse::error("route not found")
+                    .with_status(StatusCode::NOT_FOUND)
+                    .ok()
+            },
+        )
         .layer(axum::middleware::from_fn_with_state(
             state.clone(),
             handle_request,
