@@ -1,6 +1,6 @@
 import { faCheck, faGripVertical, faPencil, faTrash, faXmark } from '@fortawesome/free-solid-svg-icons';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
-import { Center, Group, Input, Stack, Text } from '@mantine/core';
+import { Group, Input, Stack, Text } from '@mantine/core';
 import { ComponentProps, startTransition, useEffect, useRef, useState } from 'react';
 import { makeComponentHookable } from 'shared';
 import ActionIcon from '@/elements/ActionIcon.tsx';
