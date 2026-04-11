@@ -199,7 +199,6 @@ export default function FileSearchModal({ opened, onClose }: ModalProps) {
                     <TagsInput
                       label={t('pages.server.files.modal.searchFiles.include', {})}
                       placeholder='e.g., *.js, src/**'
-                      size='sm'
                       value={form.values.pathFilter?.include ?? []}
                       onChange={(value) =>
                         form.setFieldValue('pathFilter', {
@@ -212,7 +211,6 @@ export default function FileSearchModal({ opened, onClose }: ModalProps) {
                     <TagsInput
                       label={t('pages.server.files.modal.searchFiles.exclude', {})}
                       placeholder='e.g., node_modules/**'
-                      size='sm'
                       value={form.values.pathFilter?.exclude ?? []}
                       onChange={(value) =>
                         form.setFieldValue('pathFilter', {
