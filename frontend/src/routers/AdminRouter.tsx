@@ -77,6 +77,10 @@ export default function AdminRouter({ isNormal }: { isNormal: boolean }) {
 
       <div id='admin-root' className={isNormal ? 'max-w-[100vw] flex-1 lg:ml-0' : 'flex-1 lg:ml-0 overflow-auto'}>
         <Container isNormal={isNormal}>
+          {window.extensionContext.extensionRegistry.pages.admin.prependedComponents.map((Component, i) => (
+            <Component key={`admin-prepended-component-${i}`} />
+          ))}
+
           <Suspense fallback={<Spinner.Centered />}>
             <Routes>
               {allAdminRoutes
@@ -99,6 +103,10 @@ export default function AdminRouter({ isNormal }: { isNormal: boolean }) {
               />
             </Routes>
           </Suspense>
+
+          {window.extensionContext.extensionRegistry.pages.admin.appendedComponents.map((Component, i) => (
+            <Component key={`admin-appended-component-${i}`} />
+          ))}
         </Container>
       </div>
     </div>
