@@ -2,11 +2,13 @@ import { faFileArrowDown, faLink, faRotateLeft, faTrash } from '@fortawesome/fre
 import { useState } from 'react';
 import { NavLink } from 'react-router';
 import { z } from 'zod';
+import detachNodeBackup from '@/api/admin/nodes/backups/detachNodeBackup.ts';
 import downloadNodeBackup from '@/api/admin/nodes/backups/downloadNodeBackup.ts';
 import { httpErrorToHuman } from '@/api/axios.ts';
 import Badge from '@/elements/Badge.tsx';
 import Code from '@/elements/Code.tsx';
 import ContextMenu, { ContextMenuToggle } from '@/elements/ContextMenu.tsx';
+import ConfirmationModal from '@/elements/modals/ConfirmationModal.tsx';
 import Spinner from '@/elements/Spinner.tsx';
 import { TableData, TableRow } from '@/elements/Table.tsx';
 import FormattedTimestamp from '@/elements/time/FormattedTimestamp.tsx';
@@ -32,13 +34,25 @@ export default function NodeBackupRow({
   const { t } = useTranslations();
   const { addToast } = useToast();
 
-  const [openModal, setOpenModal] = useState<'restore' | 'reattach' | 'delete' | null>(null);
+  const [openModal, setOpenModal] = useState<'restore' | 'reattach' | 'detach' | 'delete' | null>(null);
 
   const doDownload = (archiveFormat: z.infer<typeof streamingArchiveFormat>) => {
     downloadNodeBackup(node.uuid, backup.uuid, archiveFormat)
       .then(({ url }) => {
         addToast('Download started.', 'success');
         window.open(url, '_blank');
+      })
+      .catch((msg) => {
+        addToast(httpErrorToHuman(msg), 'error');
+      });
+  };
+
+  const doDetach = async () => {
+    await detachNodeBackup(node.uuid, backup.uuid)
+      .then(() => {
+        backup.server = null;
+        setOpenModal(null);
+        addToast('Backup detached successfully.', 'success');
       })
       .catch((msg) => {
         addToast(httpErrorToHuman(msg), 'error');
@@ -61,6 +75,15 @@ export default function NodeBackupRow({
         opened={openModal === 'reattach'}
         onClose={() => setOpenModal(null)}
       />
+      <ConfirmationModal
+        opened={openModal === 'detach'}
+        onClose={() => setOpenModal(null)}
+        title='Confirm Backup Detachment'
+        confirm={t('common.button.continue', {})}
+        onConfirmed={doDetach}
+      >
+        Are you sure you want to detach this backup from its server? It will not be deleted and can be reattached later.
+      </ConfirmationModal>
       <NodeBackupsDeleteModal
         node={node}
         backup={backup}
@@ -99,6 +122,14 @@ export default function NodeBackupRow({
             label: 'Reattach',
             hidden: !backup.completed || isFailed,
             onClick: () => setOpenModal('reattach'),
+            color: 'gray',
+            canAccess: useAdminCan('nodes.backups'),
+          },
+          {
+            icon: faLink,
+            label: 'Detach',
+            hidden: !backup.completed || isFailed || !backup.server,
+            onClick: () => setOpenModal('detach'),
             color: 'gray',
             canAccess: useAdminCan('nodes.backups'),
           },
