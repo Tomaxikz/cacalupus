@@ -111,6 +111,18 @@ export const adminSettingsActivitySchema = z.object({
   serverLogScheduleActivity: z.boolean(),
 });
 
+export const adminSettingsRatelimitConfigurationSchema = z.object({
+  hits: z.number().min(1),
+  windowSeconds: z.number().min(1),
+});
+
+export const adminSettingsRatelimitsSchema = z.object({
+  client: adminSettingsRatelimitConfigurationSchema,
+  clientServersBackupsCreate: adminSettingsRatelimitConfigurationSchema,
+  clientServersFilesPull: adminSettingsRatelimitConfigurationSchema,
+  clientServersFilesPullQuery: adminSettingsRatelimitConfigurationSchema,
+});
+
 export const adminSettingsStorageFilesystemSchema = z.object({
   type: z.literal('filesystem'),
   path: z.string().min(1).max(255),
@@ -175,5 +187,11 @@ export const adminSettingsSchema = z.object({
 
     serverLogAdminActivity: z.boolean(),
     serverLogScheduleActivity: z.boolean(),
+  }),
+  ratelimits: z.object({
+    client: adminSettingsRatelimitConfigurationSchema,
+    clientServersBackupsCreate: adminSettingsRatelimitConfigurationSchema,
+    clientServersFilesPull: adminSettingsRatelimitConfigurationSchema,
+    clientServersFilesPullQuery: adminSettingsRatelimitConfigurationSchema,
   }),
 });

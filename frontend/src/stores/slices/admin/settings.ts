@@ -54,6 +54,24 @@ export const createSettingsSlice: StateCreator<AdminStore, [], [], SettingsSlice
     serverLogAdminActivity: true,
     serverLogScheduleActivity: true,
   },
+  ratelimits: {
+    client: {
+      hits: 0,
+      windowSeconds: 0,
+    },
+    clientServersBackupsCreate: {
+      hits: 0,
+      windowSeconds: 0,
+    },
+    clientServersFilesPull: {
+      hits: 0,
+      windowSeconds: 0,
+    },
+    clientServersFilesPullQuery: {
+      hits: 0,
+      windowSeconds: 0,
+    },
+  },
 
   updateInformation: null,
 
@@ -66,6 +84,7 @@ export const createSettingsSlice: StateCreator<AdminStore, [], [], SettingsSlice
       state.server = value.server;
       state.webauthn = value.webauthn;
       state.activity = value.activity;
+      state.ratelimits = value.ratelimits;
       return state;
     }),
   setUpdateInformation: (value) => set((state) => ({ ...state, updateInformation: value })),
