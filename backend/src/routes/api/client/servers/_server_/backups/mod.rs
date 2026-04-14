@@ -60,9 +60,10 @@ mod get {
 
         permissions.has_server_permission("backups.read")?;
 
-        let backups = ServerBackup::by_server_uuid_with_pagination(
+        let backups = ServerBackup::by_server_uuid_node_uuid_with_pagination(
             &state.database,
             server.uuid,
+            server.node.uuid,
             params.page,
             params.per_page,
             params.search.as_deref(),

@@ -1,4 +1,5 @@
-import { faFileArrowDown, faLink, faRotateLeft, faTrash } from '@fortawesome/free-solid-svg-icons';
+import { faFileArrowDown, faLink, faRotateLeft, faTrash, faWarning } from '@fortawesome/free-solid-svg-icons';
+import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { useState } from 'react';
 import { NavLink } from 'react-router';
 import { z } from 'zod';
@@ -11,6 +12,7 @@ import ContextMenu, { ContextMenuToggle } from '@/elements/ContextMenu.tsx';
 import ConfirmationModal from '@/elements/modals/ConfirmationModal.tsx';
 import Spinner from '@/elements/Spinner.tsx';
 import { TableData, TableRow } from '@/elements/Table.tsx';
+import Tooltip from '@/elements/Tooltip.tsx';
 import FormattedTimestamp from '@/elements/time/FormattedTimestamp.tsx';
 import { streamingArchiveFormatLabelMapping } from '@/lib/enums.ts';
 import { adminNodeSchema } from '@/lib/schemas/admin/nodes.ts';
@@ -152,7 +154,7 @@ export default function NodeBackupRow({
           >
             <TableData>{backup.name}</TableData>
 
-            <TableData>
+            <TableData className='flex flex-row items-center'>
               <Code>
                 {backup.server ? (
                   <NavLink
@@ -165,6 +167,11 @@ export default function NodeBackupRow({
                   '-'
                 )}
               </Code>
+              {backup.server && backup.server.node.uuid !== node.uuid && (
+                <Tooltip label='This backup is not on the same node as the server. It is not viewable from the Client API.'>
+                  <FontAwesomeIcon icon={faWarning} className='ml-1 text-yellow-400' />
+                </Tooltip>
+              )}
             </TableData>
 
             {!isFailed ? (
@@ -175,11 +182,11 @@ export default function NodeBackupRow({
                   <TableData>{bytesToString(backup.bytes)}</TableData>
                 ) : (
                   <TableData colSpan={2}>
-                    <Spinner />
+                    <Spinner size={16} />
                   </TableData>
                 )}
 
-                <TableData>{backup.completed ? backup.files : null}</TableData>
+                {backup.completed ? <TableData>{backup.files}</TableData> : null}
               </>
             ) : (
               <TableData colSpan={3}>
