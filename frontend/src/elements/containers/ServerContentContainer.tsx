@@ -3,6 +3,7 @@ import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { Group, Title } from '@mantine/core';
 import { Dispatch, ReactNode, SetStateAction, useEffect, useState } from 'react';
 import { ContainerRegistry } from 'shared';
+import cancelTransfer from '@/api/admin/servers/cancelTransfer.ts';
 import { httpErrorToHuman } from '@/api/axios.ts';
 import cancelServerInstall from '@/api/server/settings/cancelServerInstall.ts';
 import TextInput from '@/elements/input/TextInput.tsx';
@@ -13,7 +14,7 @@ import { useToast } from '@/providers/ToastProvider.tsx';
 import { useTranslations } from '@/providers/TranslationProvider.tsx';
 import { useServerStore } from '@/stores/server.ts';
 import Button from '../Button.tsx';
-import { ServerCan } from '../Can.tsx';
+import { AdminCan, ServerCan } from '../Can.tsx';
 import Notification from '../Notification.tsx';
 import Progress from '../Progress.tsx';
 import Tooltip from '../Tooltip.tsx';
@@ -58,17 +59,17 @@ export default function ServerContentContainer(props: Props) {
   const { id } = useCurrentWindow();
   const { addToast } = useToast();
 
-  const [abortLoading, setAbortLoading] = useState(false);
+  const [abortLoading, setAbortLoading] = useState<'install' | 'transfer' | null>(null);
 
   useEffect(() => {
-    if (!server?.status && abortLoading) {
+    if (!server?.status && abortLoading === 'install') {
       addToast(t('pages.server.console.toast.installCancelled', {}), 'success');
-      setAbortLoading(false);
+      setAbortLoading(null);
     }
   }, [abortLoading, server?.status]);
 
   const doAbortInstall = () => {
-    setAbortLoading(true);
+    setAbortLoading('install');
 
     cancelServerInstall(server.uuid)
       .then((instantCancel) => {
@@ -78,7 +79,22 @@ export default function ServerContentContainer(props: Props) {
       })
       .catch((err) => {
         addToast(httpErrorToHuman(err), 'error');
-        setAbortLoading(false);
+        setAbortLoading(null);
+      });
+  };
+
+  const doAbortTransfer = () => {
+    setAbortLoading('transfer');
+
+    cancelTransfer(server.uuid)
+      .then(() => {
+        addToast(t('pages.server.console.toast.transferCancelled', {}), 'success');
+        setAbortLoading(null);
+        updateServer({ isTransferring: false });
+      })
+      .catch((err) => {
+        addToast(httpErrorToHuman(err), 'error');
+        setAbortLoading(null);
       });
   };
 
@@ -87,19 +103,39 @@ export default function ServerContentContainer(props: Props) {
       {fullscreen ? null : server.isTransferring ? (
         <div className='mt-2 px-4 lg:px-6 mb-4'>
           <Notification loading>
-            <span className='flex flex-row items-center'>
-              {t('pages.server.console.notification.transferring', {})}
-              <EstimatedTimeArrival className='ml-1' progress={transferProgressArchive} total={transferProgressTotal} />
-            </span>
+            <div className='flex flex-row items-center'>
+              <div className='flex flex-col w-full'>
+                <span className='flex flex-row items-center'>
+                  {t('pages.server.console.notification.transferring', {})}
+                  <EstimatedTimeArrival
+                    className='ml-1'
+                    progress={transferProgressArchive}
+                    total={transferProgressTotal}
+                  />
+                </span>
 
-            <Tooltip
-              label={`${bytesToString(transferProgressArchive)} / ${bytesToString(transferProgressTotal)}`}
-              innerClassName='w-full'
-            >
-              <Progress
-                value={transferProgressArchive > 0 ? (transferProgressArchive / transferProgressTotal) * 100 : 0}
-              />
-            </Tooltip>
+                <Tooltip
+                  label={`${bytesToString(transferProgressArchive)} / ${bytesToString(transferProgressTotal)}`}
+                  innerClassName='w-full'
+                >
+                  <Progress
+                    value={transferProgressArchive > 0 ? (transferProgressArchive / transferProgressTotal) * 100 : 0}
+                  />
+                </Tooltip>
+              </div>
+
+              <AdminCan action='servers.transfer'>
+                <Button
+                  className='ml-4 min-w-fit'
+                  leftSection={<FontAwesomeIcon icon={faCancel} />}
+                  variant='subtle'
+                  loading={abortLoading === 'transfer'}
+                  onClick={doAbortTransfer}
+                >
+                  {t('common.button.cancel', {})}
+                </Button>
+              </AdminCan>
+            </div>
           </Notification>
         </div>
       ) : server.isSuspended ? (
@@ -129,18 +165,20 @@ export default function ServerContentContainer(props: Props) {
       ) : server.status === 'installing' ? (
         <div className='mt-2 px-4 lg:px-6 mb-4'>
           <Notification loading>
-            {t('pages.server.console.notification.installing', {})}
-            <ServerCan action='settings.cancel-install'>
-              <Button
-                className='ml-2'
-                leftSection={<FontAwesomeIcon icon={faCancel} />}
-                variant='subtle'
-                loading={abortLoading}
-                onClick={doAbortInstall}
-              >
-                {t('common.button.cancel', {})}
-              </Button>
-            </ServerCan>
+            <div className='flex flex-row items-center justify-between'>
+              {t('pages.server.console.notification.installing', {})}
+              <ServerCan action='settings.cancel-install'>
+                <Button
+                  className='ml-4'
+                  leftSection={<FontAwesomeIcon icon={faCancel} />}
+                  variant='subtle'
+                  loading={abortLoading === 'install'}
+                  onClick={doAbortInstall}
+                >
+                  {t('common.button.cancel', {})}
+                </Button>
+              </ServerCan>
+            </div>
           </Notification>
         </div>
       ) : server.nodeMaintenanceEnabled ? (

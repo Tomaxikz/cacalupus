@@ -1081,6 +1081,7 @@ const baseTranslations = defineTranslations({
           },
           toast: {
             installCancelled: 'Server install cancelled.',
+            transferCancelled: 'Server transfer cancelled.',
           },
           modal: {
             sshDetails: {

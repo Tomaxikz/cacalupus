@@ -208,6 +208,29 @@ impl ServerAllocation {
         })
     }
 
+    pub async fn all_by_server_uuid(
+        database: &crate::database::Database,
+        server_uuid: uuid::Uuid,
+    ) -> Result<Vec<Self>, crate::database::DatabaseError> {
+        let rows = sqlx::query(&format!(
+            r#"
+            SELECT {}
+            FROM server_allocations
+            JOIN node_allocations ON server_allocations.allocation_uuid = node_allocations.uuid
+            WHERE server_allocations.server_uuid = $1
+            ORDER BY server_allocations.created
+            "#,
+            Self::columns_sql(None)
+        ))
+        .bind(server_uuid)
+        .fetch_all(database.read())
+        .await?;
+
+        rows.into_iter()
+            .map(|row| Self::map(None, &row))
+            .try_collect_vec()
+    }
+
     pub async fn count_by_server_uuid(
         database: &crate::database::Database,
         server_uuid: uuid::Uuid,

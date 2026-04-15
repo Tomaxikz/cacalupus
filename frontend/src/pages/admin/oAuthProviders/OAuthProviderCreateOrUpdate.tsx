@@ -309,7 +309,7 @@ export default function OAuthProviderCreateOrUpdate({
             />
             <Switch
               label='Bypass 2FA on Login'
-              description='Allows users logging in with this provider to bypass 2FA'
+              description='Allows users logging in with this provider to bypass their panel 2FA'
               key={form.key('loginBypass2fa')}
               {...form.getInputProps('loginBypass2fa', { type: 'checkbox' })}
             />

@@ -1089,7 +1089,8 @@
             "ariaLabel": "Console command input."
           },
           "toast": {
-            "installCancelled": "Server install cancelled."
+            "installCancelled": "Server install cancelled.",
+            "transferCancelled": "Server transfer cancelled."
           },
           "modal": {
             "sshDetails": {
