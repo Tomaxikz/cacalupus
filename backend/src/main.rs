@@ -770,20 +770,19 @@ async fn main() {
                             if is_index {
                                 let settings = state.settings.get().await?;
                                 let script_csp = settings.captcha_provider.to_csp_script_src();
-                                let frame_csp = settings.captcha_provider.to_csp_frame_src();
                                 let style_csp = settings.captcha_provider.to_csp_style_src();
                                 drop(settings);
 
                                 Some(format!(
                                     "default-src 'self'; \
                                     script-src 'self' blob: {script_csp}; \
-                                    frame-src 'self' {frame_csp}; \
+                                    frame-src *; \
                                     style-src 'self' 'unsafe-inline' {style_csp}; \
                                     connect-src *; \
                                     font-src 'self' blob: data:; \
                                     img-src * blob: data:; \
                                     media-src 'self' blob: data:; \
-                                    object-src 'none' blob: data:; \
+                                    object-src blob: data:; \
                                     base-uri 'self'; \
                                     form-action 'self'; \
                                     frame-ancestors 'self';"

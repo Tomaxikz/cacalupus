@@ -171,18 +171,6 @@ impl CaptchaProvider {
         }
     }
 
-    pub fn to_csp_frame_src(&self) -> &'static str {
-        match self {
-            CaptchaProvider::None => "",
-            CaptchaProvider::Turnstile { .. } => "https://challenges.cloudflare.com",
-            CaptchaProvider::Recaptcha { .. } => {
-                "https://www.google.com/recaptcha/ https://recaptcha.google.com/recaptcha/"
-            }
-            CaptchaProvider::Hcaptcha { .. } => "https://hcaptcha.com https://*.hcaptcha.com",
-            CaptchaProvider::FriendlyCaptcha { .. } => "https://*.frcapi.com",
-        }
-    }
-
     pub fn to_csp_style_src(&self) -> &'static str {
         match self {
             CaptchaProvider::None => "",

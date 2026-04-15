@@ -169,7 +169,7 @@ export default function ServerContentContainer(props: Props) {
               {t('pages.server.console.notification.installing', {})}
               <ServerCan action='settings.cancel-install'>
                 <Button
-                  className='ml-4'
+                  className='ml-4 min-w-fit'
                   leftSection={<FontAwesomeIcon icon={faCancel} />}
                   variant='subtle'
                   loading={abortLoading === 'install'}
