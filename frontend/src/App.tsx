@@ -93,7 +93,15 @@ export default function App({ theme }: { theme: MantineThemeOverride }) {
                 <CurrentWindowProvider id={null}>
                   <HistoryContext.Provider value={browserHistory}>
                     <HistoryRouter history={browserHistory as never}>
+                      {window.extensionContext.extensionRegistry.global.prependedComponents.map((Component, index) => (
+                        <Component key={`global-prepended-${index}`} />
+                      ))}
+
                       <RouterRoutes isNormal />
+
+                      {window.extensionContext.extensionRegistry.global.appendedComponents.map((Component, index) => (
+                        <Component key={`global-appended-${index}`} />
+                      ))}
                     </HistoryRouter>
                   </HistoryContext.Provider>
 
