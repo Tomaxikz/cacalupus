@@ -88,7 +88,7 @@ export default function AdminUpdates() {
 
       <div className='2xl:columns-2 gap-4 space-y-4'>
         <TitleCard title='Panel Version' icon={<FontAwesomeIcon icon={faInfoCircle} />}>
-          <div className='flex flex-row justify-between items-center'>
+          <div className='flex flex-row justify-between'>
             <span>
               <FontAwesomeIcon
                 icon={

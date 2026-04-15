@@ -11,7 +11,6 @@ import {
   faTriangleExclamation,
 } from '@fortawesome/free-solid-svg-icons';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
-import { useMediaQuery } from '@mantine/hooks';
 import { useState } from 'react';
 import { NavLink } from 'react-router';
 import { z } from 'zod';
@@ -55,7 +54,6 @@ export default function ServerItem({
 
   const [openModal, setOpenModal] = useState<'add-group' | null>(null);
   const stats = useServerStats(server);
-  const isThin = useMediaQuery('(max-width: 500px)');
 
   const diskLimit = server.limits.disk !== 0 ? bytesToString(mbToBytes(server.limits.disk)) : t('common.unlimited', {});
   const memoryLimit =
@@ -219,39 +217,9 @@ export default function ServerItem({
                   <div className='col-span-3 flex flex-row items-center justify-center'>
                     <Spinner size={16} />
                   </div>
-                ) : !isThin ? (
-                  <div className='flex flex-row justify-center'>
-                    <div className='flex gap-2 text-sm justify-center items-center'>
-                      <FontAwesomeIcon icon={faMicrochip} className='size-5 flex-none' />
-                      <div>
-                        <span className='mr-1'>{stats.cpuAbsolute.toFixed(2)}%</span>
-                        <span className='inline-block text-xs text-gray-400'>/ {cpuLimit}</span>
-                      </div>
-                    </div>
-
-                    <Divider mx='sm' orientation='vertical' />
-
-                    <div className='flex gap-2 text-sm justify-center items-center'>
-                      <FontAwesomeIcon icon={faMemory} className='size-5 flex-none' />
-                      <div>
-                        <span className='mr-1'>{bytesToString(stats.memoryBytes)}</span>
-                        <span className='inline-block text-xs text-gray-400'>/ {memoryLimit}</span>
-                      </div>
-                    </div>
-
-                    <Divider mx='sm' orientation='vertical' />
-
-                    <div className='flex gap-2 text-sm justify-center items-center'>
-                      <FontAwesomeIcon icon={faHardDrive} className='size-5 flex-none' />
-                      <div>
-                        <span className='mr-1'>{bytesToString(stats.diskBytes)}</span>
-                        <span className='inline-block text-xs text-gray-400'>/ {diskLimit}</span>
-                      </div>
-                    </div>
-                  </div>
                 ) : (
-                  <div className='flex flex-col gap-2'>
-                    <div className='flex gap-2 text-sm justify-start items-center'>
+                  <div className='flex flex-col sm:flex-row justify-center'>
+                    <div className='flex gap-2 text-sm justify-start sm:justify-center items-center'>
                       <FontAwesomeIcon icon={faMicrochip} className='size-5 flex-none' />
                       <div>
                         <span className='mr-1'>{stats.cpuAbsolute.toFixed(2)}%</span>
@@ -259,7 +227,9 @@ export default function ServerItem({
                       </div>
                     </div>
 
-                    <div className='flex gap-2 text-sm justify-start items-center'>
+                    <Divider mx='sm' orientation='vertical' />
+
+                    <div className='flex gap-2 text-sm justify-start sm:justify-center items-center'>
                       <FontAwesomeIcon icon={faMemory} className='size-5 flex-none' />
                       <div>
                         <span className='mr-1'>{bytesToString(stats.memoryBytes)}</span>
@@ -267,7 +237,9 @@ export default function ServerItem({
                       </div>
                     </div>
 
-                    <div className='flex gap-2 text-sm justify-start items-center'>
+                    <Divider mx='sm' orientation='vertical' />
+
+                    <div className='flex gap-2 text-sm justify-start sm:justify-center items-center'>
                       <FontAwesomeIcon icon={faHardDrive} className='size-5 flex-none' />
                       <div>
                         <span className='mr-1'>{bytesToString(stats.diskBytes)}</span>

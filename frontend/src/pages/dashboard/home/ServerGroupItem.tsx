@@ -132,101 +132,115 @@ export default function ServerGroupItem({
       </ConfirmationModal>
 
       <Card key={serverGroup.uuid} p={0} className='overflow-hidden rounded-xl!'>
-        <div className='flex flex-row items-center gap-3 px-3 bg-(--mantine-color-dark-7)'>
-          <ActionIcon
-            size='md'
-            variant='subtle'
-            color='gray'
-            style={{ cursor: 'grab', flexShrink: 0 }}
-            className='text-gray-400!'
-            {...dragHandleProps}
-          >
-            <FontAwesomeIcon icon={faGripVertical} style={{ fontSize: 16 }} />
-          </ActionIcon>
+        <div className='flex flex-row items-end sm:items-center gap-3 px-3 bg-(--mantine-color-dark-7) justify-between'>
+          <div className='flex flex-col my-3 sm:my-0'>
+            <div className='flex flex-row'>
+              <ActionIcon
+                size='md'
+                variant='subtle'
+                color='gray'
+                style={{ cursor: 'grab', flexShrink: 0 }}
+                className='text-gray-400!'
+                {...dragHandleProps}
+              >
+                <FontAwesomeIcon icon={faGripVertical} style={{ fontSize: 16 }} />
+              </ActionIcon>
 
-          <button
-            onClick={() => setIsExpanded(!isExpanded)}
-            className='flex items-center gap-2.5 flex-1 min-w-0 text-left hover:opacity-80 transition-opacity'
-          >
-            <FontAwesomeIcon
-              icon={faChevronRight}
-              className={classNames(
-                isExpanded ? 'rotate-90' : 'rotate-0',
-                'transition duration-200 w-3 h-3 text-gray-400 shrink-0',
-              )}
-            />
-            <span className='font-medium text-white truncate'>{serverGroup.name}</span>
-            <Badge variant='light' color='gray'>
-              {tItem('server', serverCount)}
-            </Badge>
-          </button>
-
-          <div className='flex flex-row items-center gap-1 py-2.5'>
+              <button
+                onClick={() => setIsExpanded(!isExpanded)}
+                className='flex items-center gap-2.5 flex-1 min-w-0 text-left hover:opacity-80 transition-opacity'
+              >
+                <FontAwesomeIcon
+                  icon={faChevronRight}
+                  className={classNames(
+                    isExpanded ? 'rotate-90' : 'rotate-0',
+                    'transition duration-200 w-3 h-3 text-gray-400 shrink-0',
+                  )}
+                />
+                <span className='font-medium text-white truncate'>{serverGroup.name}</span>
+                <Badge variant='light' color='gray'>
+                  {tItem('server', serverCount)}
+                </Badge>
+              </button>
+            </div>
             <TextInput
               placeholder={t('common.input.search', {})}
               size='xs'
               value={search}
               onChange={(e) => setSearch(e.target.value)}
               leftSection={<FontAwesomeIcon icon={faSearch} className='w-3 h-3 text-gray-500' />}
-              className='w-32'
+              className='w-48 mt-1 sm:hidden'
             />
-            <Menu shadow='md' width={200} position='bottom-end'>
-              <Menu.Target>
-                <Tooltip label={t('pages.account.home.tooltip.groupActions', {})}>
-                  <ActionIcon
-                    variant='subtle'
-                    color='gray'
-                    size='sm'
-                    disabled={groupActionLoading !== null}
-                    loading={groupActionLoading !== null}
+          </div>
+
+          <div className='flex flex-col sm:flex-row items-center gap-1 mb-1.5 sm:mb-0 py-2.5 flex-1 sm:flex-0 justify-end'>
+            <TextInput
+              placeholder={t('common.input.search', {})}
+              size='xs'
+              value={search}
+              onChange={(e) => setSearch(e.target.value)}
+              leftSection={<FontAwesomeIcon icon={faSearch} className='w-3 h-3 text-gray-500' />}
+              className='min-w-32 hidden sm:block'
+            />
+            <div className='flex flex-row items-center gap-1 w-full justify-end'>
+              <Menu shadow='md' width={200} position='bottom-end'>
+                <Menu.Target>
+                  <Tooltip label={t('pages.account.home.tooltip.groupActions', {})}>
+                    <ActionIcon
+                      variant='subtle'
+                      color='gray'
+                      size='sm'
+                      disabled={groupActionLoading !== null}
+                      loading={groupActionLoading !== null}
+                    >
+                      <FontAwesomeIcon icon={faEllipsisVertical} className='w-3.5 h-3.5' />
+                    </ActionIcon>
+                  </Tooltip>
+                </Menu.Target>
+                <Menu.Dropdown>
+                  <Menu.Label>{t('pages.account.home.bulkActions.groupActions', {})}</Menu.Label>
+                  <Menu.Item
+                    leftSection={<FontAwesomeIcon icon={faPowerOff} />}
+                    color='green'
+                    onClick={() => handleGroupPowerAction('start')}
+                    disabled={groupActionLoading !== null || serverCount === 0}
                   >
-                    <FontAwesomeIcon icon={faEllipsisVertical} className='w-3.5 h-3.5' />
-                  </ActionIcon>
-                </Tooltip>
-              </Menu.Target>
-              <Menu.Dropdown>
-                <Menu.Label>{t('pages.account.home.bulkActions.groupActions', {})}</Menu.Label>
-                <Menu.Item
-                  leftSection={<FontAwesomeIcon icon={faPowerOff} />}
-                  color='green'
-                  onClick={() => handleGroupPowerAction('start')}
-                  disabled={groupActionLoading !== null || serverCount === 0}
-                >
-                  {t('common.enum.serverPowerAction.start', {})}
-                </Menu.Item>
-                <Menu.Item
-                  leftSection={<FontAwesomeIcon icon={faPowerOff} />}
-                  color='gray'
-                  onClick={() => handleGroupPowerAction('restart')}
-                  disabled={groupActionLoading !== null || serverCount === 0}
-                >
-                  {t('common.enum.serverPowerAction.restart', {})}
-                </Menu.Item>
-                <Menu.Item
-                  leftSection={<FontAwesomeIcon icon={faPowerOff} />}
-                  color='red'
-                  onClick={() => handleGroupPowerAction('stop')}
-                  disabled={groupActionLoading !== null || serverCount === 0}
-                >
-                  {t('common.enum.serverPowerAction.stop', {})}
-                </Menu.Item>
-              </Menu.Dropdown>
-            </Menu>
-            <Tooltip label={t('pages.account.home.tooltip.addServerToGroup', {})}>
-              <ActionIcon variant='subtle' color='gray' size='sm' onClick={() => setOpenModal('add-server')}>
-                <FontAwesomeIcon icon={faPlus} className='w-3.5 h-3.5' />
-              </ActionIcon>
-            </Tooltip>
-            <Tooltip label={t('common.tooltip.edit', {})}>
-              <ActionIcon variant='subtle' color='gray' size='sm' onClick={() => setOpenModal('edit')}>
-                <FontAwesomeIcon icon={faPen} className='w-3.5 h-3.5' />
-              </ActionIcon>
-            </Tooltip>
-            <Tooltip label={t('common.tooltip.delete', {})}>
-              <ActionIcon variant='subtle' color='red' size='sm' onClick={() => setOpenModal('delete')}>
-                <FontAwesomeIcon icon={faTrash} className='w-3.5 h-3.5' />
-              </ActionIcon>
-            </Tooltip>
+                    {t('common.enum.serverPowerAction.start', {})}
+                  </Menu.Item>
+                  <Menu.Item
+                    leftSection={<FontAwesomeIcon icon={faPowerOff} />}
+                    color='gray'
+                    onClick={() => handleGroupPowerAction('restart')}
+                    disabled={groupActionLoading !== null || serverCount === 0}
+                  >
+                    {t('common.enum.serverPowerAction.restart', {})}
+                  </Menu.Item>
+                  <Menu.Item
+                    leftSection={<FontAwesomeIcon icon={faPowerOff} />}
+                    color='red'
+                    onClick={() => handleGroupPowerAction('stop')}
+                    disabled={groupActionLoading !== null || serverCount === 0}
+                  >
+                    {t('common.enum.serverPowerAction.stop', {})}
+                  </Menu.Item>
+                </Menu.Dropdown>
+              </Menu>
+              <Tooltip label={t('pages.account.home.tooltip.addServerToGroup', {})}>
+                <ActionIcon variant='subtle' color='gray' size='sm' onClick={() => setOpenModal('add-server')}>
+                  <FontAwesomeIcon icon={faPlus} className='w-3.5 h-3.5' />
+                </ActionIcon>
+              </Tooltip>
+              <Tooltip label={t('common.tooltip.edit', {})}>
+                <ActionIcon variant='subtle' color='gray' size='sm' onClick={() => setOpenModal('edit')}>
+                  <FontAwesomeIcon icon={faPen} className='w-3.5 h-3.5' />
+                </ActionIcon>
+              </Tooltip>
+              <Tooltip label={t('common.tooltip.delete', {})}>
+                <ActionIcon variant='subtle' color='red' size='sm' onClick={() => setOpenModal('delete')}>
+                  <FontAwesomeIcon icon={faTrash} className='w-3.5 h-3.5' />
+                </ActionIcon>
+              </Tooltip>
+            </div>
           </div>
         </div>
 
@@ -273,7 +287,7 @@ export default function ServerGroupItem({
                 }
               >
                 {(items) => (
-                  <div className='gap-3 grid sm:grid-cols-2'>
+                  <div className='gap-3 grid md:grid-cols-2'>
                     {items.map((server, i) => (
                       <SortableItem key={server.id} id={server.id}>
                         <MemoizedServerItem
