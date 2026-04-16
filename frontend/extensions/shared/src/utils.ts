@@ -1,4 +1,5 @@
 import React, { createElement } from 'react';
+import { z } from 'zod';
 
 export function createBeforeCallHook<Fn extends (...args: Parameters<Fn>) => ReturnType<Fn>>(
   fn: Fn,
@@ -112,4 +113,29 @@ export function makeComponentHookable<
   }
 
   return HookableWrapper as HookableComponent<P> & AdditionalComponents;
+}
+
+export function deepMergeZod(baseSchema: z.ZodTypeAny, pluginSchema: z.ZodTypeAny): z.ZodTypeAny {
+  if (baseSchema instanceof z.ZodObject && pluginSchema instanceof z.ZodObject) {
+    const baseShape = baseSchema.shape;
+    const pluginShape = pluginSchema.shape;
+
+    const mergedShape: Record<string, z.ZodTypeAny> = { ...baseShape };
+
+    for (const key in pluginShape) {
+      if (baseShape[key]) {
+        mergedShape[key] = deepMergeZod(baseShape[key], pluginShape[key]);
+      } else {
+        mergedShape[key] = pluginShape[key];
+      }
+    }
+
+    return z.object(mergedShape);
+  }
+
+  return pluginSchema;
+}
+
+export function deepMergeZods(...schemas: z.ZodTypeAny[]): z.ZodTypeAny {
+  return schemas.reduce((merged, schema) => deepMergeZod(merged, schema));
 }

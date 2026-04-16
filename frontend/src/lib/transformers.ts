@@ -1,5 +1,3 @@
-import { z } from 'zod';
-
 export const toCamelCase = (str: string): string => {
   return str.replace(/_([a-z0-9])/gi, (_, letter) => letter.toUpperCase());
 };
@@ -70,24 +68,3 @@ export const base64ToArrayBuffer = (base64String: string): ArrayBuffer => {
 export const nullableString = (v: unknown) => (v === '' ? null : v);
 
 export const nullableNumber = (v: unknown) => (v === '' || v === null ? null : Number(v));
-
-export function deepMergeZod(baseSchema: z.ZodTypeAny, pluginSchema: z.ZodTypeAny): z.ZodTypeAny {
-  if (baseSchema instanceof z.ZodObject && pluginSchema instanceof z.ZodObject) {
-    const baseShape = baseSchema.shape;
-    const pluginShape = pluginSchema.shape;
-
-    const mergedShape: Record<string, z.ZodTypeAny> = { ...baseShape };
-
-    for (const key in pluginShape) {
-      if (baseShape[key]) {
-        mergedShape[key] = deepMergeZod(baseShape[key], pluginShape[key]);
-      } else {
-        mergedShape[key] = pluginShape[key];
-      }
-    }
-
-    return z.object(mergedShape);
-  }
-
-  return pluginSchema;
-}

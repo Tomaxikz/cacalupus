@@ -71,6 +71,20 @@ async fn handle_postprocessing(req: Request, next: Next) -> Result<Response, Sta
         .map(|s| s.to_string());
     let mut response = next.run(req).await;
 
+    if response
+        .headers()
+        .get("Content-Type")
+        .and_then(|v| v.to_str().ok())
+        == Some("text/event-stream")
+        || response
+            .headers()
+            .get("X-Accel-Buffering")
+            .and_then(|v| v.to_str().ok())
+            == Some("no")
+    {
+        return Ok(response);
+    }
+
     if let Some(content_type) = response.headers().get("Content-Type")
         && content_type
             .to_str()
@@ -81,11 +95,10 @@ async fn handle_postprocessing(req: Request, next: Next) -> Result<Response, Sta
     {
         let (mut parts, body) = response.into_parts();
 
-        let bytes_body = axum::body::to_bytes(body, usize::MAX)
-            .await
-            .unwrap()
-            .into_iter()
-            .collect::<Vec<u8>>();
+        let bytes_body = match axum::body::to_bytes(body, usize::MAX).await {
+            Ok(bytes) => bytes.into_iter().collect::<Vec<u8>>(),
+            Err(_) => return Ok(Response::from_parts(parts, Body::empty())),
+        };
 
         match String::from_utf8(bytes_body) {
             Ok(text_body) => {
@@ -112,10 +125,13 @@ async fn handle_postprocessing(req: Request, next: Next) -> Result<Response, Sta
         .is_some_and(|c| c.to_str().is_ok_and(|c| c != "text/plain"))
     {
         let (mut parts, body) = response.into_parts();
-        let body_bytes = axum::body::to_bytes(body, usize::MAX).await.unwrap();
+        let body_bytes = match axum::body::to_bytes(body, usize::MAX).await {
+            Ok(bytes) => bytes.into_iter().collect::<Vec<u8>>(),
+            Err(_) => return Ok(Response::from_parts(parts, Body::empty())),
+        };
 
         let mut hash = sha2::Sha256::new();
-        hash.update(body_bytes.as_ref());
+        hash.update(&body_bytes);
         let hash = hex::encode(hash.finalize());
 
         parts.headers.insert("ETag", hash.parse().unwrap());

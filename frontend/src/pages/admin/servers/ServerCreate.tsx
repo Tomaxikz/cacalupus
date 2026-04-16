@@ -48,6 +48,7 @@ import { adminNodeAllocationSchema, adminNodeSchema } from '@/lib/schemas/admin/
 import { adminServerCreateSchema, adminServerSchema } from '@/lib/schemas/admin/servers.ts';
 import { fullUserSchema } from '@/lib/schemas/user.ts';
 import { formatAllocation } from '@/lib/server.ts';
+import { useExtendibleForm } from '@/plugins/useExtendibleForm.ts';
 import { useAdminCan } from '@/plugins/usePermissions.ts';
 import { useResourceForm } from '@/plugins/useResourceForm.ts';
 import { useSearchableResource } from '@/plugins/useSearchableResource.ts';
@@ -73,9 +74,9 @@ export default function ServerCreate() {
   const [isValid, setIsValid] = useState(false);
   const [openModal, setOpenModal] = useState<'confirm-no-allocation' | null>(null);
 
-  const form = useForm<z.infer<typeof adminServerCreateSchema>>({
-    mode: 'uncontrolled',
-    initialValues: {
+  const { formSchema, formInitialValues } = useExtendibleForm({
+    baseSchema: adminServerCreateSchema,
+    defaultValues: {
       externalId: null,
       name: '',
       description: null,
@@ -109,9 +110,22 @@ export default function ServerCreate() {
       allocationUuids: [],
       variables: [],
     },
+    registry: [
+      window.extensionContext.extensionRegistry.pages.admin.servers.create.basicInformationFormContainer,
+      window.extensionContext.extensionRegistry.pages.admin.servers.create.serverAssignmentFormContainer,
+      window.extensionContext.extensionRegistry.pages.admin.servers.create.resourceLimitsFormContainer,
+      window.extensionContext.extensionRegistry.pages.admin.servers.create.serverConfigurationFormContainer,
+      window.extensionContext.extensionRegistry.pages.admin.servers.create.featureLimitsFormContainer,
+      window.extensionContext.extensionRegistry.pages.admin.servers.create.allocationsFormContainer,
+    ],
+  });
+
+  const form = useForm<z.infer<typeof adminServerCreateSchema>>({
+    mode: 'uncontrolled',
+    initialValues: formInitialValues,
     onValuesChange: () => setIsValid(form.isValid()),
     validateInputOnBlur: true,
-    validate: zod4Resolver(adminServerCreateSchema),
+    validate: zod4Resolver(formSchema),
   });
 
   const { loading, doCreateOrUpdate } = useResourceForm<
@@ -119,7 +133,7 @@ export default function ServerCreate() {
     z.infer<typeof adminServerSchema>
   >({
     form,
-    createFn: () => createServer(adminServerCreateSchema.parse(form.getValues())),
+    createFn: () => createServer(formSchema.parse(form.getValues())),
     doUpdate: false,
     basePath: '/admin/servers',
     resourceName: 'Server',
@@ -216,8 +230,20 @@ export default function ServerCreate() {
       >
         <Stack mt='16'>
           <div className='grid grid-cols-1 md:grid-cols-2 gap-4'>
+            {window.extensionContext.extensionRegistry.pages.admin.servers.create.formContainers.prependedComponents.map(
+              (Component, i) => (
+                <Component key={`form-container-prepended-${i}`} form={form as never} />
+              ),
+            )}
+
             <TitleCard title='Basic Information' icon={<FontAwesomeIcon icon={faInfoCircle} />}>
               <Stack>
+                {window.extensionContext.extensionRegistry.pages.admin.servers.create.basicInformationFormContainer.prependedComponents.map(
+                  (Component, i) => (
+                    <Component key={`basic-information-form-container-prepended-${i}`} form={form as never} />
+                  ),
+                )}
+
                 <Group grow>
                   <TextInput
                     withAsterisk
@@ -241,11 +267,23 @@ export default function ServerCreate() {
                   key={form.key('description')}
                   {...form.getInputProps('description')}
                 />
+
+                {window.extensionContext.extensionRegistry.pages.admin.servers.create.basicInformationFormContainer.appendedComponents.map(
+                  (Component, i) => (
+                    <Component key={`basic-information-form-container-appended-${i}`} form={form as never} />
+                  ),
+                )}
               </Stack>
             </TitleCard>
 
             <TitleCard title='Server Assignment' icon={<FontAwesomeIcon icon={faAddressCard} />}>
               <Stack>
+                {window.extensionContext.extensionRegistry.pages.admin.servers.create.serverAssignmentFormContainer.prependedComponents.map(
+                  (Component, i) => (
+                    <Component key={`server-assignment-form-container-prepended-${i}`} form={form as never} />
+                  ),
+                )}
+
                 <Group grow>
                   <Select
                     withAsterisk
@@ -335,11 +373,23 @@ export default function ServerCreate() {
                     {...form.getInputProps('backupConfigurationUuid')}
                   />
                 </Group>
+
+                {window.extensionContext.extensionRegistry.pages.admin.servers.create.resourceLimitsFormContainer.prependedComponents.map(
+                  (Component, i) => (
+                    <Component key={`resource-limits-form-container-prepended-${i}`} form={form as never} />
+                  ),
+                )}
               </Stack>
             </TitleCard>
 
             <TitleCard title='Resource Limits' icon={<FontAwesomeIcon icon={faStopwatch} />}>
               <Stack>
+                {window.extensionContext.extensionRegistry.pages.admin.servers.create.resourceLimitsFormContainer.prependedComponents.map(
+                  (Component, i) => (
+                    <Component key={`resource-limits-form-container-prepended-${i}`} form={form as never} />
+                  ),
+                )}
+
                 <Group grow>
                   <NumberInput
                     withAsterisk
@@ -399,11 +449,23 @@ export default function ServerCreate() {
                     {...form.getInputProps('limits.ioWeight')}
                   />
                 </Group>
+
+                {window.extensionContext.extensionRegistry.pages.admin.servers.create.resourceLimitsFormContainer.appendedComponents.map(
+                  (Component, i) => (
+                    <Component key={`resource-limits-form-container-appended-${i}`} form={form as never} />
+                  ),
+                )}
               </Stack>
             </TitleCard>
 
             <TitleCard title='Server Configuration' icon={<FontAwesomeIcon icon={faWrench} />}>
               <Stack>
+                {window.extensionContext.extensionRegistry.pages.admin.servers.create.serverConfigurationFormContainer.prependedComponents.map(
+                  (Component, i) => (
+                    <Component key={`server-configuration-form-container-prepended-${i}`} form={form as never} />
+                  ),
+                )}
+
                 <Group grow>
                   <Select
                     withAsterisk
@@ -500,11 +562,23 @@ export default function ServerCreate() {
                     type: 'checkbox',
                   })}
                 />
+
+                {window.extensionContext.extensionRegistry.pages.admin.servers.create.serverConfigurationFormContainer.appendedComponents.map(
+                  (Component, i) => (
+                    <Component key={`server-configuration-form-container-appended-${i}`} form={form as never} />
+                  ),
+                )}
               </Stack>
             </TitleCard>
 
             <TitleCard title='Feature Limits' icon={<FontAwesomeIcon icon={faIcons} />}>
               <Stack>
+                {window.extensionContext.extensionRegistry.pages.admin.servers.create.featureLimitsFormContainer.prependedComponents.map(
+                  (Component, i) => (
+                    <Component key={`feature-limits-form-container-prepended-${i}`} form={form as never} />
+                  ),
+                )}
+
                 <Group grow>
                   <NumberInput
                     withAsterisk
@@ -539,11 +613,23 @@ export default function ServerCreate() {
                     {...form.getInputProps('featureLimits.schedules')}
                   />
                 </Group>
+
+                {window.extensionContext.extensionRegistry.pages.admin.servers.create.featureLimitsFormContainer.appendedComponents.map(
+                  (Component, i) => (
+                    <Component key={`feature-limits-form-container-appended-${i}`} form={form as never} />
+                  ),
+                )}
               </Stack>
             </TitleCard>
 
             <TitleCard title='Allocations' icon={<FontAwesomeIcon icon={faNetworkWired} />}>
               <Stack>
+                {window.extensionContext.extensionRegistry.pages.admin.servers.create.allocationsFormContainer.prependedComponents.map(
+                  (Component, i) => (
+                    <Component key={`allocations-form-container-prepended-${i}`} form={form as never} />
+                  ),
+                )}
+
                 <Group grow>
                   <Select
                     label='Primary Allocation'
@@ -579,6 +665,12 @@ export default function ServerCreate() {
                     {...form.getInputProps('allocationUuids')}
                   />
                 </Group>
+
+                {window.extensionContext.extensionRegistry.pages.admin.servers.create.allocationsFormContainer.appendedComponents.map(
+                  (Component, i) => (
+                    <Component key={`allocations-form-container-appended-${i}`} form={form as never} />
+                  ),
+                )}
               </Stack>
             </TitleCard>
 
@@ -617,6 +709,12 @@ export default function ServerCreate() {
                 )}
               </Stack>
             </TitleCard>
+
+            {window.extensionContext.extensionRegistry.pages.admin.servers.create.formContainers.appendedComponents.map(
+              (Component, i) => (
+                <Component key={`form-container-appended-${i}`} form={form as never} />
+              ),
+            )}
           </div>
 
           <Group>

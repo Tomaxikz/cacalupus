@@ -38,6 +38,7 @@ import { adminEggSchema } from '@/lib/schemas/admin/eggs.ts';
 import { adminNestSchema } from '@/lib/schemas/admin/nests.ts';
 import { adminServerSchema, adminServerUpdateSchema } from '@/lib/schemas/admin/servers.ts';
 import { fullUserSchema } from '@/lib/schemas/user.ts';
+import { useExtendibleForm } from '@/plugins/useExtendibleForm.ts';
 import { useAdminCan } from '@/plugins/usePermissions.ts';
 import { useResourceForm } from '@/plugins/useResourceForm.ts';
 import { useSearchableResource } from '@/plugins/useSearchableResource.ts';
@@ -58,10 +59,11 @@ export default function ServerUpdate({ contextServer }: { contextServer: z.infer
   const canReadBackupConfigurations = useAdminCan('backup-configurations.read');
 
   const [isValid, setIsValid] = useState(false);
+  const [selectedNestUuid, setSelectedNestUuid] = useState<string | null>(contextServer?.nest.uuid ?? '');
 
-  const form = useForm<z.infer<typeof adminServerUpdateSchema>>({
-    mode: 'uncontrolled',
-    initialValues: {
+  const { formSchema, formInitialValues } = useExtendibleForm({
+    baseSchema: adminServerUpdateSchema,
+    defaultValues: {
       ownerUuid: '',
       eggUuid: '',
       backupConfigurationUuid: null,
@@ -89,9 +91,21 @@ export default function ServerUpdate({ contextServer }: { contextServer: z.infer
         schedules: 5,
       },
     },
+    registry: [
+      window.extensionContext.extensionRegistry.pages.admin.servers.view.update.basicInformationFormContainer,
+      window.extensionContext.extensionRegistry.pages.admin.servers.view.update.serverAssignmentFormContainer,
+      window.extensionContext.extensionRegistry.pages.admin.servers.view.update.resourceLimitsFormContainer,
+      window.extensionContext.extensionRegistry.pages.admin.servers.view.update.serverConfigurationFormContainer,
+      window.extensionContext.extensionRegistry.pages.admin.servers.view.update.featureLimitsFormContainer,
+    ],
+  });
+
+  const form = useForm<z.infer<typeof adminServerUpdateSchema>>({
+    mode: 'uncontrolled',
+    initialValues: formInitialValues,
     onValuesChange: () => setIsValid(form.isValid()),
     validateInputOnBlur: true,
-    validate: zod4Resolver(adminServerUpdateSchema),
+    validate: zod4Resolver(formSchema),
   });
 
   const { loading, doCreateOrUpdate } = useResourceForm<
@@ -99,7 +113,7 @@ export default function ServerUpdate({ contextServer }: { contextServer: z.infer
     z.infer<typeof adminServerSchema>
   >({
     form,
-    updateFn: () => updateServer(contextServer.uuid, adminServerUpdateSchema.parse(form.getValues())),
+    updateFn: () => updateServer(contextServer.uuid, formSchema.parse(form.getValues())),
     doUpdate: true,
     basePath: '/admin/servers',
     resourceName: 'Server',
@@ -125,8 +139,6 @@ export default function ServerUpdate({ contextServer }: { contextServer: z.infer
       });
     }
   }, [contextServer]);
-
-  const [selectedNestUuid, setSelectedNestUuid] = useState<string | null>(contextServer?.nest.uuid ?? '');
 
   const users = useSearchableResource<z.infer<typeof fullUserSchema>>({
     fetcher: (search) => getUsers(1, search),
@@ -183,8 +195,24 @@ export default function ServerUpdate({ contextServer }: { contextServer: z.infer
           )}
 
           <div className='grid grid-cols-1 md:grid-cols-2 gap-4'>
+            {window.extensionContext.extensionRegistry.pages.admin.servers.view.update.formContainers.prependedComponents.map(
+              (Component, i) => (
+                <Component key={`form-container-prepended-${i}`} form={form as never} server={contextServer} />
+              ),
+            )}
+
             <TitleCard title='Basic Information' icon={<FontAwesomeIcon icon={faInfoCircle} />}>
               <Stack>
+                {window.extensionContext.extensionRegistry.pages.admin.servers.view.update.basicInformationFormContainer.prependedComponents.map(
+                  (Component, i) => (
+                    <Component
+                      key={`basic-information-form-container-prepended-${i}`}
+                      form={form as never}
+                      server={contextServer}
+                    />
+                  ),
+                )}
+
                 <Group grow>
                   <TextInput
                     withAsterisk
@@ -208,11 +236,31 @@ export default function ServerUpdate({ contextServer }: { contextServer: z.infer
                   key={form.key('description')}
                   {...form.getInputProps('description')}
                 />
+
+                {window.extensionContext.extensionRegistry.pages.admin.servers.view.update.basicInformationFormContainer.appendedComponents.map(
+                  (Component, i) => (
+                    <Component
+                      key={`basic-information-form-container-appended-${i}`}
+                      form={form as never}
+                      server={contextServer}
+                    />
+                  ),
+                )}
               </Stack>
             </TitleCard>
 
             <TitleCard title='Server Assignment' icon={<FontAwesomeIcon icon={faAddressCard} />}>
               <Stack>
+                {window.extensionContext.extensionRegistry.pages.admin.servers.view.update.serverAssignmentFormContainer.prependedComponents.map(
+                  (Component, i) => (
+                    <Component
+                      key={`server-assignment-form-container-prepended-${i}`}
+                      form={form as never}
+                      server={contextServer}
+                    />
+                  ),
+                )}
+
                 <Group grow>
                   <Select
                     withAsterisk
@@ -283,11 +331,31 @@ export default function ServerUpdate({ contextServer }: { contextServer: z.infer
                     {...form.getInputProps('eggUuid')}
                   />
                 </Group>
+
+                {window.extensionContext.extensionRegistry.pages.admin.servers.view.update.serverAssignmentFormContainer.appendedComponents.map(
+                  (Component, i) => (
+                    <Component
+                      key={`server-assignment-form-container-appended-${i}`}
+                      form={form as never}
+                      server={contextServer}
+                    />
+                  ),
+                )}
               </Stack>
             </TitleCard>
 
             <TitleCard title='Resource Limits' icon={<FontAwesomeIcon icon={faStopwatch} />}>
               <Stack>
+                {window.extensionContext.extensionRegistry.pages.admin.servers.view.update.resourceLimitsFormContainer.prependedComponents.map(
+                  (Component, i) => (
+                    <Component
+                      key={`resource-limits-form-container-prepended-${i}`}
+                      form={form as never}
+                      server={contextServer}
+                    />
+                  ),
+                )}
+
                 <Group grow>
                   <NumberInput
                     withAsterisk
@@ -347,11 +415,31 @@ export default function ServerUpdate({ contextServer }: { contextServer: z.infer
                     {...form.getInputProps('limits.ioWeight')}
                   />
                 </Group>
+
+                {window.extensionContext.extensionRegistry.pages.admin.servers.view.update.resourceLimitsFormContainer.appendedComponents.map(
+                  (Component, i) => (
+                    <Component
+                      key={`resource-limits-form-container-appended-${i}`}
+                      form={form as never}
+                      server={contextServer}
+                    />
+                  ),
+                )}
               </Stack>
             </TitleCard>
 
             <TitleCard title='Server Configuration' icon={<FontAwesomeIcon icon={faWrench} />}>
               <Stack>
+                {window.extensionContext.extensionRegistry.pages.admin.servers.view.update.serverConfigurationFormContainer.prependedComponents.map(
+                  (Component, i) => (
+                    <Component
+                      key={`server-configuration-form-container-prepended-${i}`}
+                      form={form as never}
+                      server={contextServer}
+                    />
+                  ),
+                )}
+
                 <Group grow>
                   <Select
                     label='Predefined Docker Images'
@@ -436,11 +524,31 @@ export default function ServerUpdate({ contextServer }: { contextServer: z.infer
                     type: 'checkbox',
                   })}
                 />
+
+                {window.extensionContext.extensionRegistry.pages.admin.servers.view.update.serverConfigurationFormContainer.appendedComponents.map(
+                  (Component, i) => (
+                    <Component
+                      key={`server-configuration-form-container-appended-${i}`}
+                      form={form as never}
+                      server={contextServer}
+                    />
+                  ),
+                )}
               </Stack>
             </TitleCard>
 
             <TitleCard title='Feature Limits' icon={<FontAwesomeIcon icon={faIcons} />}>
               <Stack>
+                {window.extensionContext.extensionRegistry.pages.admin.servers.view.update.featureLimitsFormContainer.prependedComponents.map(
+                  (Component, i) => (
+                    <Component
+                      key={`feature-limits-form-container-prepended-${i}`}
+                      form={form as never}
+                      server={contextServer}
+                    />
+                  ),
+                )}
+
                 <Group grow>
                   <NumberInput
                     withAsterisk
@@ -475,8 +583,24 @@ export default function ServerUpdate({ contextServer }: { contextServer: z.infer
                     {...form.getInputProps('featureLimits.schedules')}
                   />
                 </Group>
+
+                {window.extensionContext.extensionRegistry.pages.admin.servers.view.update.featureLimitsFormContainer.appendedComponents.map(
+                  (Component, i) => (
+                    <Component
+                      key={`feature-limits-form-container-appended-${i}`}
+                      form={form as never}
+                      server={contextServer}
+                    />
+                  ),
+                )}
               </Stack>
             </TitleCard>
+
+            {window.extensionContext.extensionRegistry.pages.admin.servers.view.update.formContainers.appendedComponents.map(
+              (Component, i) => (
+                <Component key={`form-container-appended-${i}`} form={form as never} server={contextServer} />
+              ),
+            )}
           </div>
 
           <Group>
