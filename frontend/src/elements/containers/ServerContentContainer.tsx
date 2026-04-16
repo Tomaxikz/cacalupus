@@ -1,6 +1,6 @@
 import { faCancel } from '@fortawesome/free-solid-svg-icons';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
-import { Group, Title } from '@mantine/core';
+import { Group, Title, TitleOrder } from '@mantine/core';
 import { Dispatch, ReactNode, SetStateAction, useEffect, useState } from 'react';
 import { ContainerRegistry } from 'shared';
 import cancelTransfer from '@/api/admin/servers/cancelTransfer.ts';
@@ -25,6 +25,7 @@ export interface Props {
   title: string;
   subtitle?: string;
   hideTitleComponent?: boolean;
+  titleOrder?: TitleOrder;
   search?: string;
   setSearch?: Dispatch<SetStateAction<string>>;
   contentRight?: ReactNode;
@@ -38,6 +39,7 @@ export default function ServerContentContainer(props: Props) {
     title,
     subtitle,
     hideTitleComponent = false,
+    titleOrder = 1,
     search,
     setSearch,
     contentRight,
@@ -195,7 +197,7 @@ export default function ServerContentContainer(props: Props) {
         {hideTitleComponent ? null : setSearch ? (
           <Group justify='space-between' mb='md'>
             <div>
-              <Title order={1} c='white'>
+              <Title order={titleOrder} c='white'>
                 {title}
               </Title>
               {subtitle ? <p className='text-xs text-gray-300!'>{subtitle}</p> : null}
@@ -213,7 +215,7 @@ export default function ServerContentContainer(props: Props) {
         ) : contentRight ? (
           <Group justify='space-between' mb='md'>
             <div>
-              <Title order={1} c='white'>
+              <Title order={titleOrder} c='white'>
                 {title}
               </Title>
               {subtitle ? <p className='text-xs text-gray-300!'>{subtitle}</p> : null}
@@ -221,8 +223,8 @@ export default function ServerContentContainer(props: Props) {
             <Group>{contentRight}</Group>
           </Group>
         ) : (
-          <div>
-            <Title order={1} c='white'>
+          <div className='mb-4'>
+            <Title order={titleOrder} c='white'>
               {title}
             </Title>
             {subtitle ? <p className='text-xs text-gray-300!'>{subtitle}</p> : null}

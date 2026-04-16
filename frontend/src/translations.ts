@@ -876,7 +876,7 @@ const baseTranslations = defineTranslations({
         },
         shortcuts: {
           title: 'Keyboard Shortcuts',
-          description: 'Use these keyboard shortcuts to navigate and interact with the panel more efficiently.',
+          subtitle: 'Use these keyboard shortcuts to navigate and interact with the panel more efficiently.',
           detectedMac: 'macOS detected',
           detectedWindows: 'Windows/Linux detected',
           fileManager: {

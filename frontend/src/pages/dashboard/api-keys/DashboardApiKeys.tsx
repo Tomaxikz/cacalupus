@@ -1,12 +1,11 @@
 import { faCode, faPlus } from '@fortawesome/free-solid-svg-icons';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
-import { Group, Title } from '@mantine/core';
+import { Group } from '@mantine/core';
 import { useState } from 'react';
 import getApiKeys from '@/api/me/api-keys/getApiKeys.ts';
 import Button from '@/elements/Button.tsx';
 import { ContextMenuProvider } from '@/elements/ContextMenu.tsx';
 import AccountContentContainer from '@/elements/containers/AccountContentContainer.tsx';
-import TextInput from '@/elements/input/TextInput.tsx';
 import Table from '@/elements/Table.tsx';
 import ApiKeyCreateOrUpdateModal from '@/pages/dashboard/api-keys/modals/ApiKeyCreateOrUpdateModal.tsx';
 import { useSearchablePaginatedTable } from '@/plugins/useSearchablePageableTable.ts';
@@ -28,21 +27,10 @@ export default function DashboardApiKeys() {
   return (
     <AccountContentContainer
       title={t('pages.account.apiKeys.title', {})}
-      registry={window.extensionContext.extensionRegistry.pages.dashboard.apiKeys.container}
-    >
-      <ApiKeyCreateOrUpdateModal opened={openModal === 'create'} onClose={() => setOpenModal(null)} />
-
-      <Group justify='space-between' align='start' mb='md'>
-        <Title order={1} c='white'>
-          {t('pages.account.apiKeys.title', {})}
-        </Title>
+      search={search}
+      setSearch={setSearch}
+      contentRight={
         <Group>
-          <TextInput
-            placeholder={t('common.input.search', {})}
-            value={search}
-            onChange={(e) => setSearch(e.target.value)}
-            w={250}
-          />
           <a href='/api' target='_blank'>
             <Button variant='light' color='gray' leftSection={<FontAwesomeIcon icon={faCode} />}>
               {t('pages.account.apiKeys.button.apiDocumentation', {})}
@@ -52,7 +40,10 @@ export default function DashboardApiKeys() {
             {t('common.button.create', {})}
           </Button>
         </Group>
-      </Group>
+      }
+      registry={window.extensionContext.extensionRegistry.pages.dashboard.apiKeys.container}
+    >
+      <ApiKeyCreateOrUpdateModal opened={openModal === 'create'} onClose={() => setOpenModal(null)} />
 
       <ContextMenuProvider>
         <Table

@@ -886,7 +886,7 @@
         },
         "shortcuts": {
           "title": "Tastaturkürzel",
-          "description": "Verwende diese Tastaturkürzel, um effizienter durch das Panel zu navigieren und damit zu interagieren.",
+          "subtitle": "Verwende diese Tastaturkürzel, um effizienter durch das Panel zu navigieren und damit zu interagieren.",
           "detectedMac": "macOS erkannt",
           "detectedWindows": "Windows/Linux erkannt",
           "fileManager": {

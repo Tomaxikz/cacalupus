@@ -1,12 +1,11 @@
 import { faDownload, faPlus } from '@fortawesome/free-solid-svg-icons';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
-import { Group, Title } from '@mantine/core';
+import { Group } from '@mantine/core';
 import { useState } from 'react';
 import getSshKeys from '@/api/me/ssh-keys/getSshKeys.ts';
 import Button from '@/elements/Button.tsx';
 import { ContextMenuProvider } from '@/elements/ContextMenu.tsx';
 import AccountContentContainer from '@/elements/containers/AccountContentContainer.tsx';
-import TextInput from '@/elements/input/TextInput.tsx';
 import Table from '@/elements/Table.tsx';
 import { useSearchablePaginatedTable } from '@/plugins/useSearchablePageableTable.ts';
 import { useTranslations } from '@/providers/TranslationProvider.tsx';
@@ -29,22 +28,10 @@ export default function DashboardSshKeys() {
   return (
     <AccountContentContainer
       title={t('pages.account.sshKeys.title', {})}
-      registry={window.extensionContext.extensionRegistry.pages.dashboard.sshKeys.container}
-    >
-      <SshKeyCreateModal opened={openModal === 'create'} onClose={() => setOpenModal(null)} />
-      <SshKeyImportModal opened={openModal === 'import'} onClose={() => setOpenModal(null)} />
-
-      <Group justify='space-between' align='start' mb='md'>
-        <Title order={1} c='white'>
-          {t('pages.account.sshKeys.title', {})}
-        </Title>
+      search={search}
+      setSearch={setSearch}
+      contentRight={
         <Group>
-          <TextInput
-            placeholder={t('common.input.search', {})}
-            value={search}
-            onChange={(e) => setSearch(e.target.value)}
-            w={250}
-          />
           <Button
             onClick={() => setOpenModal('import')}
             color='blue'
@@ -56,7 +43,11 @@ export default function DashboardSshKeys() {
             {t('common.button.create', {})}
           </Button>
         </Group>
-      </Group>
+      }
+      registry={window.extensionContext.extensionRegistry.pages.dashboard.sshKeys.container}
+    >
+      <SshKeyCreateModal opened={openModal === 'create'} onClose={() => setOpenModal(null)} />
+      <SshKeyImportModal opened={openModal === 'import'} onClose={() => setOpenModal(null)} />
 
       <ContextMenuProvider>
         <Table

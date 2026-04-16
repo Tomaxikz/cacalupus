@@ -1,8 +1,6 @@
-import { Group, Title } from '@mantine/core';
 import getSessions from '@/api/me/sessions/getSessions.ts';
 import { ContextMenuProvider } from '@/elements/ContextMenu.tsx';
 import AccountContentContainer from '@/elements/containers/AccountContentContainer.tsx';
-import TextInput from '@/elements/input/TextInput.tsx';
 import Table from '@/elements/Table.tsx';
 import { useSearchablePaginatedTable } from '@/plugins/useSearchablePageableTable.ts';
 import { useTranslations } from '@/providers/TranslationProvider.tsx';
@@ -21,22 +19,10 @@ export default function DashboardSessions() {
   return (
     <AccountContentContainer
       title={t('pages.account.sessions.title', {})}
+      search={search}
+      setSearch={setSearch}
       registry={window.extensionContext.extensionRegistry.pages.dashboard.sessions.container}
     >
-      <Group justify='space-between' mb='md'>
-        <Title order={1} c='white'>
-          {t('pages.account.sessions.title', {})}
-        </Title>
-        <Group>
-          <TextInput
-            placeholder={t('common.input.search', {})}
-            value={search}
-            onChange={(e) => setSearch(e.target.value)}
-            w={250}
-          />
-        </Group>
-      </Group>
-
       <ContextMenuProvider>
         <Table
           columns={[

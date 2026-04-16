@@ -1,6 +1,5 @@
 import { faChevronDown, faFingerprint } from '@fortawesome/free-solid-svg-icons';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
-import { Group, Title } from '@mantine/core';
 import { useEffect, useState } from 'react';
 import { z } from 'zod';
 import getOAuthProviders from '@/api/auth/getOAuthProviders.ts';
@@ -34,49 +33,43 @@ export default function DashboardOAuthLinks() {
   return (
     <AccountContentContainer
       title={t('pages.account.oauthLinks.title', {})}
+      contentRight={
+        <ContextMenuProvider>
+          <ContextMenu
+            items={oAuthProviders
+              .filter((p) => p.userManageable && !oauthLinks.data.some((l) => l.oauthProvider.uuid === p.uuid))
+              .map(
+                (oauthProvider) =>
+                  ({
+                    icon: faFingerprint,
+                    label: t('pages.account.oauthLinks.button.connectTo', { provider: oauthProvider.name }),
+                    onClick: () => window.location.replace(`/api/auth/oauth/redirect/${oauthProvider.uuid}`),
+                    disabled: !oauthProvider.linkViewable,
+                    color: 'gray',
+                  }) as const,
+              )}
+          >
+            {({ openMenu }) => (
+              <Button
+                onClick={(e) => {
+                  e.stopPropagation();
+                  const rect = e.currentTarget.getBoundingClientRect();
+                  openMenu(rect.left, rect.bottom);
+                }}
+                disabled={
+                  !oAuthProviders.filter((p) => !oauthLinks.data.some((l) => l.oauthProvider.uuid === p.uuid)).length
+                }
+                color='blue'
+                rightSection={<FontAwesomeIcon icon={faChevronDown} />}
+              >
+                {t('pages.account.oauthLinks.button.connect', {})}
+              </Button>
+            )}
+          </ContextMenu>
+        </ContextMenuProvider>
+      }
       registry={window.extensionContext.extensionRegistry.pages.dashboard.oauthLinks.container}
     >
-      <Group justify='space-between' align='center' mb='md'>
-        <Title order={1} c='white'>
-          {t('pages.account.oauthLinks.title', {})}
-        </Title>
-        <Group>
-          <ContextMenuProvider>
-            <ContextMenu
-              items={oAuthProviders
-                .filter((p) => p.userManageable && !oauthLinks.data.some((l) => l.oauthProvider.uuid === p.uuid))
-                .map(
-                  (oauthProvider) =>
-                    ({
-                      icon: faFingerprint,
-                      label: t('pages.account.oauthLinks.button.connectTo', { provider: oauthProvider.name }),
-                      onClick: () => window.location.replace(`/api/auth/oauth/redirect/${oauthProvider.uuid}`),
-                      disabled: !oauthProvider.linkViewable,
-                      color: 'gray',
-                    }) as const,
-                )}
-            >
-              {({ openMenu }) => (
-                <Button
-                  onClick={(e) => {
-                    e.stopPropagation();
-                    const rect = e.currentTarget.getBoundingClientRect();
-                    openMenu(rect.left, rect.bottom);
-                  }}
-                  disabled={
-                    !oAuthProviders.filter((p) => !oauthLinks.data.some((l) => l.oauthProvider.uuid === p.uuid)).length
-                  }
-                  color='blue'
-                  rightSection={<FontAwesomeIcon icon={faChevronDown} />}
-                >
-                  {t('pages.account.oauthLinks.button.connect', {})}
-                </Button>
-              )}
-            </ContextMenu>
-          </ContextMenuProvider>
-        </Group>
-      </Group>
-
       <ContextMenuProvider>
         <Table
           columns={[
