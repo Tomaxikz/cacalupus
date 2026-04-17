@@ -152,6 +152,10 @@ impl<T: Serialize> Pagination<T> {
     }
 }
 
+pub type ModelExtensionList = std::sync::RwLock<Vec<Box<dyn ModelExtension + Send + Sync>>>;
+pub type ModelExtensionData = Vec<(compact_str::CompactString, Vec<u8>)>;
+pub type ModelExtensionMapType = Box<dyn erased_serde::Serialize>;
+
 pub trait ModelExtension {
     fn extension_name(&self) -> &'static str;
 
@@ -161,7 +165,7 @@ pub trait ModelExtension {
         &self,
         prefix: &str,
         row: &PgRow,
-    ) -> Result<Box<dyn erased_serde::Serialize>, crate::database::DatabaseError>;
+    ) -> Result<ModelExtensionMapType, crate::database::DatabaseError>;
 }
 
 pub trait SafeModelExtension: ModelExtension {
@@ -169,9 +173,6 @@ pub trait SafeModelExtension: ModelExtension {
 
     fn name() -> &'static str;
 }
-
-pub type ModelExtensionList = std::sync::RwLock<Vec<Box<dyn ModelExtension + Send + Sync>>>;
-pub type ModelExtensionData = Vec<(compact_str::CompactString, Vec<u8>)>;
 
 pub trait BaseModel: Serialize + DeserializeOwned {
     const NAME: &'static str;
