@@ -19,7 +19,7 @@ We take the security of this project seriously. If you believe you have found a 
 
 Please report vulnerabilities using one of the following methods:
 - **GitHub Private Vulnerability Reporting**: Use the [Security Advisories](../../security/advisories/new) tab in this repository.
-- **Email**: Send details to `security@calagopus.com`. If the report contains sensitive information, please encrypt it using our [PGP key](#pgp-key).
+- **Email**: Send details to `security@calagopus.com`. If the report contains sensitive information, please encrypt it using our [PGP key](https://github.com/calagopus/branding/blob/main/SECURITY-PGP.md).
 
 Please include as much of the following information as possible to help us understand and reproduce the issue:
 - Type of vulnerability
