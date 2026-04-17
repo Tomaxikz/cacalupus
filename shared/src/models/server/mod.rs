@@ -165,13 +165,26 @@ pub struct Server {
     subuser_ignored_files_overrides: Option<Box<ignore::overrides::Override>>,
 
     pub created: chrono::NaiveDateTime,
+
+    extension_data: super::ModelExtensionData,
 }
 
 impl BaseModel for Server {
     const NAME: &'static str = "server";
 
+    fn get_extension_list() -> &'static super::ModelExtensionList {
+        static EXTENSIONS: LazyLock<super::ModelExtensionList> =
+            LazyLock::new(|| std::sync::RwLock::new(Vec::new()));
+
+        &EXTENSIONS
+    }
+
+    fn get_extension_data(&self) -> &super::ModelExtensionData {
+        &self.extension_data
+    }
+
     #[inline]
-    fn columns(prefix: Option<&str>) -> BTreeMap<&'static str, compact_str::CompactString> {
+    fn base_columns(prefix: Option<&str>) -> BTreeMap<&'static str, compact_str::CompactString> {
         let prefix = prefix.unwrap_or_default();
 
         let mut columns = BTreeMap::from([
@@ -282,12 +295,12 @@ impl BaseModel for Server {
             ),
         ]);
 
-        columns.extend(super::server_allocation::ServerAllocation::columns(Some(
-            "allocation_",
-        )));
-        columns.extend(super::user::User::columns(Some("owner_")));
-        columns.extend(super::nest_egg::NestEgg::columns(Some("egg_")));
-        columns.extend(super::nest::Nest::columns(Some("nest_")));
+        columns.extend(super::server_allocation::ServerAllocation::base_columns(
+            Some("allocation_"),
+        ));
+        columns.extend(super::user::User::base_columns(Some("owner_")));
+        columns.extend(super::nest_egg::NestEgg::base_columns(Some("egg_")));
+        columns.extend(super::nest::Nest::base_columns(Some("nest_")));
 
         columns
     }
@@ -379,6 +392,7 @@ impl BaseModel for Server {
                 .ok(),
             subuser_ignored_files_overrides: None,
             created: row.try_get(compact_str::format_compact!("{prefix}created").as_str())?,
+            extension_data: Self::map_extensions(prefix, row)?,
         })
     }
 }

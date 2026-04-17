@@ -1,7 +1,7 @@
 use crate::prelude::*;
 use serde::{Deserialize, Serialize};
 use sqlx::{Row, postgres::PgRow};
-use std::collections::BTreeMap;
+use std::{collections::BTreeMap, sync::LazyLock};
 use utoipa::ToSchema;
 
 #[derive(Serialize, Deserialize)]
@@ -11,13 +11,26 @@ pub struct ServerVariable {
     pub value: String,
 
     pub created: chrono::NaiveDateTime,
+
+    extension_data: super::ModelExtensionData,
 }
 
 impl BaseModel for ServerVariable {
     const NAME: &'static str = "server_variable";
 
+    fn get_extension_list() -> &'static super::ModelExtensionList {
+        static EXTENSIONS: LazyLock<super::ModelExtensionList> =
+            LazyLock::new(|| std::sync::RwLock::new(Vec::new()));
+
+        &EXTENSIONS
+    }
+
+    fn get_extension_data(&self) -> &super::ModelExtensionData {
+        &self.extension_data
+    }
+
     #[inline]
-    fn columns(prefix: Option<&str>) -> BTreeMap<&'static str, compact_str::CompactString> {
+    fn base_columns(prefix: Option<&str>) -> BTreeMap<&'static str, compact_str::CompactString> {
         let prefix = prefix.unwrap_or_default();
 
         let mut columns = BTreeMap::from([
@@ -31,9 +44,9 @@ impl BaseModel for ServerVariable {
             ),
         ]);
 
-        columns.extend(super::nest_egg_variable::NestEggVariable::columns(Some(
-            "variable_",
-        )));
+        columns.extend(super::nest_egg_variable::NestEggVariable::base_columns(
+            Some("variable_"),
+        ));
 
         columns
     }
@@ -58,6 +71,7 @@ impl BaseModel for ServerVariable {
             created: row
                 .try_get(compact_str::format_compact!("{prefix}created").as_str())
                 .unwrap_or_else(|_| chrono::Utc::now().naive_utc()),
+            extension_data: Self::map_extensions(prefix, row)?,
         })
     }
 }

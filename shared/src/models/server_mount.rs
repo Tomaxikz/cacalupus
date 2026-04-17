@@ -14,13 +14,26 @@ pub struct ServerMount {
     pub server: Option<Fetchable<super::server::Server>>,
 
     pub created: Option<chrono::NaiveDateTime>,
+
+    extension_data: super::ModelExtensionData,
 }
 
 impl BaseModel for ServerMount {
     const NAME: &'static str = "server_mount";
 
+    fn get_extension_list() -> &'static super::ModelExtensionList {
+        static EXTENSIONS: LazyLock<super::ModelExtensionList> =
+            LazyLock::new(|| std::sync::RwLock::new(Vec::new()));
+
+        &EXTENSIONS
+    }
+
+    fn get_extension_data(&self) -> &super::ModelExtensionData {
+        &self.extension_data
+    }
+
     #[inline]
-    fn columns(prefix: Option<&str>) -> BTreeMap<&'static str, compact_str::CompactString> {
+    fn base_columns(prefix: Option<&str>) -> BTreeMap<&'static str, compact_str::CompactString> {
         let prefix = prefix.unwrap_or_default();
 
         BTreeMap::from([
@@ -53,6 +66,7 @@ impl BaseModel for ServerMount {
                 compact_str::format_compact!("{prefix}server_uuid"),
             ),
             created: row.try_get(compact_str::format_compact!("{prefix}created").as_str())?,
+            extension_data: Self::map_extensions(prefix, row)?,
         })
     }
 }

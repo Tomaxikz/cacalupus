@@ -21,13 +21,26 @@ pub struct ServerActivity {
     pub data: serde_json::Value,
 
     pub created: chrono::NaiveDateTime,
+
+    extension_data: super::ModelExtensionData,
 }
 
 impl BaseModel for ServerActivity {
     const NAME: &'static str = "server_activity";
 
+    fn get_extension_list() -> &'static super::ModelExtensionList {
+        static EXTENSIONS: LazyLock<super::ModelExtensionList> =
+            LazyLock::new(|| std::sync::RwLock::new(Vec::new()));
+
+        &EXTENSIONS
+    }
+
+    fn get_extension_data(&self) -> &super::ModelExtensionData {
+        &self.extension_data
+    }
+
     #[inline]
-    fn columns(prefix: Option<&str>) -> BTreeMap<&'static str, compact_str::CompactString> {
+    fn base_columns(prefix: Option<&str>) -> BTreeMap<&'static str, compact_str::CompactString> {
         let prefix = prefix.unwrap_or_default();
 
         let mut columns = BTreeMap::from([
@@ -61,7 +74,7 @@ impl BaseModel for ServerActivity {
             ),
         ]);
 
-        columns.extend(super::user::User::columns(Some("user_")));
+        columns.extend(super::user::User::base_columns(Some("user_")));
 
         columns
     }
@@ -95,6 +108,7 @@ impl BaseModel for ServerActivity {
             ip: row.try_get(compact_str::format_compact!("{prefix}ip").as_str())?,
             data: row.try_get(compact_str::format_compact!("{prefix}data").as_str())?,
             created: row.try_get(compact_str::format_compact!("{prefix}created").as_str())?,
+            extension_data: Self::map_extensions(prefix, row)?,
         })
     }
 }

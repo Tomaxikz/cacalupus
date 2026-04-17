@@ -152,10 +152,85 @@ impl<T: Serialize> Pagination<T> {
     }
 }
 
+pub trait ModelExtension {
+    fn extension_name(&self) -> &'static str;
+
+    fn extended_columns(&self, prefix: &str) -> BTreeMap<&'static str, compact_str::CompactString>;
+
+    fn map_extended(
+        &self,
+        prefix: &str,
+        row: &PgRow,
+    ) -> Result<Box<dyn erased_serde::Serialize>, crate::database::DatabaseError>;
+}
+
+pub trait SafeModelExtension: ModelExtension {
+    type Value: Serialize + DeserializeOwned;
+
+    fn name() -> &'static str;
+}
+
+pub type ModelExtensionList = std::sync::RwLock<Vec<Box<dyn ModelExtension + Send + Sync>>>;
+pub type ModelExtensionData = Vec<(compact_str::CompactString, Vec<u8>)>;
+
 pub trait BaseModel: Serialize + DeserializeOwned {
     const NAME: &'static str;
 
-    fn columns(prefix: Option<&str>) -> BTreeMap<&'static str, compact_str::CompactString>;
+    fn get_extension_list() -> &'static ModelExtensionList;
+    fn get_extension_data(&self) -> &ModelExtensionData;
+
+    /// Registers a model extension. If an extension with the same name is already registered, this function will do nothing.
+    fn register_model_extension(extension: Box<dyn ModelExtension + Send + Sync>) {
+        let mut extensions = Self::get_extension_list().write().unwrap();
+
+        if extensions
+            .iter()
+            .any(|e| e.extension_name() == extension.extension_name())
+        {
+            return;
+        }
+
+        extensions.push(extension);
+    }
+
+    /// Parses a model extension from the model's extension data. If the extension is not found, or if the data cannot be deserialized, an error is returned.
+    ///
+    /// This can be costly depending on what is stored, so use sparingly.
+    fn parse_model_extension<
+        Extension: SafeModelExtension<Value = T>,
+        T: Serialize + DeserializeOwned,
+    >(
+        &self,
+    ) -> Result<T, crate::database::DatabaseError> {
+        let data = self.get_extension_data();
+
+        for (name, value) in data.iter() {
+            if name.as_str() == Extension::name() {
+                let deserialized = rmp_serde::from_slice::<T>(value).map_err(anyhow::Error::new)?;
+
+                return Ok(deserialized);
+            }
+        }
+
+        Err(crate::database::DatabaseError::Any(anyhow::anyhow!(
+            "model extension not found"
+        )))
+    }
+
+    fn base_columns(prefix: Option<&str>) -> BTreeMap<&'static str, compact_str::CompactString>;
+    fn columns(prefix: Option<&str>) -> BTreeMap<&'static str, compact_str::CompactString> {
+        if let Ok(extensions) = Self::get_extension_list().read() {
+            let mut columns = Self::base_columns(prefix);
+
+            for extension in extensions.iter() {
+                columns.extend(extension.extended_columns(prefix.unwrap_or_default()));
+            }
+
+            columns
+        } else {
+            Self::base_columns(prefix)
+        }
+    }
 
     #[inline]
     fn columns_sql(prefix: Option<&str>) -> compact_str::CompactString {
@@ -163,6 +238,27 @@ pub trait BaseModel: Serialize + DeserializeOwned {
             .iter()
             .map(|(key, value)| compact_str::format_compact!("{key} as {value}"))
             .join_compact(", ")
+    }
+
+    fn map_extensions(
+        prefix: &str,
+        row: &PgRow,
+    ) -> Result<ModelExtensionData, crate::database::DatabaseError> {
+        let mut data = Vec::new();
+
+        if let Ok(extensions) = Self::get_extension_list().read() {
+            for extension in extensions.iter() {
+                let value = extension.map_extended(prefix, row)?;
+                let serialized = rmp_serde::to_vec(&value).map_err(anyhow::Error::new)?;
+
+                data.push((
+                    compact_str::CompactString::const_new(extension.extension_name()),
+                    serialized,
+                ));
+            }
+        }
+
+        Ok(data)
     }
 
     fn map(prefix: Option<&str>, row: &PgRow) -> Result<Self, crate::database::DatabaseError>;

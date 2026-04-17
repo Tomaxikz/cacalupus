@@ -2,6 +2,7 @@ import { ContainerRegistry, Registry } from 'shared';
 import { FormContainerRegistry } from 'shared/src/registries/slices/form';
 import type { Props as ContainerProps } from '@/elements/containers/AdminContentContainer.tsx';
 import { adminServerCreateSchema } from '@/lib/schemas/admin/servers.ts';
+
 export class CreateRegistry implements Registry {
   public mergeFrom(other: this): this {
     this.container.mergeFrom(other.container);

@@ -1,11 +1,10 @@
-use std::borrow::Cow;
-
 pub use crate::models::{
     BaseModel, ByUuid, CreatableModel, CreateListenerList, DeletableModel, DeleteListenerList,
     EventEmittingModel, Fetchable, ListenerPriority, ModelHandlerList, UpdatableModel,
     UpdateListenerList,
 };
 pub use schema_extension_core::finish_extendible;
+use std::borrow::Cow;
 
 pub trait IteratorExt<R, E>: Iterator<Item = Result<R, E>> {
     fn try_collect_vec(self) -> Result<Vec<R>, E>

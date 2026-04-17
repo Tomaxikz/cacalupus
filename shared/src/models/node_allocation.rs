@@ -2,7 +2,10 @@ use crate::{prelude::*, storage::StorageUrlRetriever};
 use compact_str::ToCompactString;
 use serde::{Deserialize, Serialize};
 use sqlx::{Row, postgres::PgRow};
-use std::collections::{BTreeMap, HashMap};
+use std::{
+    collections::{BTreeMap, HashMap},
+    sync::LazyLock,
+};
 use utoipa::ToSchema;
 
 #[derive(Serialize, Deserialize, Clone)]
@@ -15,13 +18,26 @@ pub struct NodeAllocation {
     pub port: i32,
 
     pub created: chrono::NaiveDateTime,
+
+    extension_data: super::ModelExtensionData,
 }
 
 impl BaseModel for NodeAllocation {
     const NAME: &'static str = "node_allocation";
 
+    fn get_extension_list() -> &'static super::ModelExtensionList {
+        static EXTENSIONS: LazyLock<super::ModelExtensionList> =
+            LazyLock::new(|| std::sync::RwLock::new(Vec::new()));
+
+        &EXTENSIONS
+    }
+
+    fn get_extension_data(&self) -> &super::ModelExtensionData {
+        &self.extension_data
+    }
+
     #[inline]
-    fn columns(prefix: Option<&str>) -> BTreeMap<&'static str, compact_str::CompactString> {
+    fn base_columns(prefix: Option<&str>) -> BTreeMap<&'static str, compact_str::CompactString> {
         let prefix = prefix.unwrap_or_default();
 
         BTreeMap::from([
@@ -63,6 +79,7 @@ impl BaseModel for NodeAllocation {
             ip_alias: row.try_get(compact_str::format_compact!("{prefix}ip_alias").as_str())?,
             port: row.try_get(compact_str::format_compact!("{prefix}port").as_str())?,
             created: row.try_get(compact_str::format_compact!("{prefix}created").as_str())?,
+            extension_data: Self::map_extensions(prefix, row)?,
         })
     }
 }

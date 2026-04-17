@@ -18,13 +18,26 @@ pub struct EggRepositoryEgg {
     pub author: compact_str::CompactString,
 
     pub exported_egg: super::nest_egg::ExportedNestEgg,
+
+    extension_data: super::ModelExtensionData,
 }
 
 impl BaseModel for EggRepositoryEgg {
     const NAME: &'static str = "egg_repository_egg";
 
+    fn get_extension_list() -> &'static super::ModelExtensionList {
+        static EXTENSIONS: LazyLock<super::ModelExtensionList> =
+            LazyLock::new(|| std::sync::RwLock::new(Vec::new()));
+
+        &EXTENSIONS
+    }
+
+    fn get_extension_data(&self) -> &super::ModelExtensionData {
+        &self.extension_data
+    }
+
     #[inline]
-    fn columns(prefix: Option<&str>) -> BTreeMap<&'static str, compact_str::CompactString> {
+    fn base_columns(prefix: Option<&str>) -> BTreeMap<&'static str, compact_str::CompactString> {
         let prefix = prefix.unwrap_or_default();
 
         BTreeMap::from([
@@ -76,6 +89,7 @@ impl BaseModel for EggRepositoryEgg {
             exported_egg: serde_json::from_value(
                 row.try_get(compact_str::format_compact!("{prefix}exported_egg").as_str())?,
             )?,
+            extension_data: Self::map_extensions(prefix, row)?,
         })
     }
 }
