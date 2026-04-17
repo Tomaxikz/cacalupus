@@ -93,7 +93,7 @@ pub trait Extendible: Serialize + Sized + 'static {
     fn overlay_map_mut(&mut self) -> &mut serde_json::Map<String, serde_json::Value>;
     fn overlay_map(&self) -> &serde_json::Map<String, serde_json::Value>;
 
-    fn get_extended<E: serde::de::DeserializeOwned>(&self) -> Result<E, anyhow::Error> {
+    fn parse_extended<E: serde::de::DeserializeOwned>(&self) -> Result<E, anyhow::Error> {
         serde_json::from_value(serde_json::Value::Object(self.overlay_map().clone()))
             .map_err(anyhow::Error::from)
     }
