@@ -875,14 +875,10 @@ async fn main() {
 
             if let Some(operation) = operation {
                 operation.operation_id = Some(format!("{method}{path}"));
-                operation.tags = if let Some(group) = OPERATION_GROUPS
+                operation.tags = OPERATION_GROUPS
                     .iter()
                     .find(|g| original_path.starts_with(**g))
-                {
-                    Some(vec![group.to_string()])
-                } else {
-                    None
-                };
+                    .map(|group| vec![group.to_string()]);
             }
         }
     }

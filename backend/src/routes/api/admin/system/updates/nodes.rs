@@ -123,7 +123,7 @@ mod get {
                     node_page += 1;
                 }
 
-                versions.sort_unstable_by(|a, b| a.1.cmp(&b.1));
+                versions.sort_unstable_by_key(|a| a.1);
 
                 Ok::<_, anyhow::Error>((versions, failed_nodes))
             })

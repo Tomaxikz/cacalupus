@@ -5,7 +5,7 @@ import App from '@/App.tsx';
 import.meta.glob('../extensions/*/src/app.css', { eager: true });
 import '@/app.css';
 
-const extensionModules = import.meta.glob('../extensions/*/src/index.ts', { eager: true });
+const extensionModules = import.meta.glob('../extensions/*/src/index.(ts|tsx)', { eager: true });
 const extensions: Extension[] = [];
 
 for (const [path, module] of Object.entries(extensionModules)) {
