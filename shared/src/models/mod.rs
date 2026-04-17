@@ -181,7 +181,7 @@ pub trait BaseModel: Serialize + DeserializeOwned {
     fn get_extension_data(&self) -> &ModelExtensionData;
 
     /// Registers a model extension. If an extension with the same name is already registered, this function will do nothing.
-    fn register_model_extension(extension: Box<dyn ModelExtension + Send + Sync>) {
+    fn register_model_extension(extension: impl ModelExtension + Send + Sync + 'static) {
         let mut extensions = Self::get_extension_list().write().unwrap();
 
         if extensions
@@ -191,7 +191,7 @@ pub trait BaseModel: Serialize + DeserializeOwned {
             return;
         }
 
-        extensions.push(extension);
+        extensions.push(Box::new(extension));
     }
 
     /// Parses a model extension from the model's extension data. If the extension is not found, or if the data cannot be deserialized, an error is returned.
