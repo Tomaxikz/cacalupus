@@ -18,7 +18,6 @@ import Code from '@/elements/Code.tsx';
 import CollapsibleSection from '@/elements/CollapsibleSection.tsx';
 import AdminContentContainer from '@/elements/containers/AdminContentContainer.tsx';
 import Divider from '@/elements/Divider.tsx';
-import { MultiSelectGroup } from '@/elements/input/MultiSelectGroup.tsx';
 import NumberInput from '@/elements/input/NumberInput.tsx';
 import Select from '@/elements/input/Select.tsx';
 import Switch from '@/elements/input/Switch.tsx';
@@ -38,6 +37,7 @@ import { useResourceForm } from '@/plugins/useResourceForm.ts';
 import { useToast } from '@/providers/ToastProvider.tsx';
 import { useGlobalStore } from '@/stores/global.ts';
 import RouteOrderEditor from './RouteOrderEditor.tsx';
+import MultiSelectGroup from "@/elements/input/MultiSelectGroup.tsx";
 
 type DeploymentModeType = EggConfigurationDeployment['mode']['type'];
 

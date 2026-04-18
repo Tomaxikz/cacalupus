@@ -21,7 +21,7 @@ interface Props extends Omit<MultiSelectProps, 'data' | 'value' | 'onChange'> {
   onChange?: (value: string[]) => void;
 }
 
-export function MultiSelectGroup({ data, value, defaultValue = [], onChange, ...rest }: Props) {
+export default function MultiSelectGroup({ data, value, defaultValue = [], onChange, ...rest }: Props) {
   const [internal, setInternal] = useState(defaultValue);
   const controlled = value !== undefined;
   const current = controlled ? value! : internal;
