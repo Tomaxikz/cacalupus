@@ -9,12 +9,12 @@ interface Data {
   captcha: string | null;
 }
 
-export default async (uuid: string, data: Data): Promise<z.infer<typeof serverSubuserSchema>> => {
+export default async (uuid: string, subuserData: Data): Promise<z.infer<typeof serverSubuserSchema>> => {
   const { data } = await axiosInstance.post(`/api/client/servers/${uuid}/subusers`, {
-    email: data.email,
-    permissions: data.permissions,
-    ignored_files: data.ignoredFiles,
-    captcha: data.captcha,
+    email: subuserData.email,
+    permissions: subuserData.permissions,
+    ignored_files: subuserData.ignoredFiles,
+    captcha: subuserData.captcha,
   });
   return data.subuser;
 };

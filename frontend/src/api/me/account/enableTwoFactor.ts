@@ -6,7 +6,7 @@ interface Response {
   recoveryCodes: string[];
 }
 
-export default async (data: z.infer<typeof dashboardTwoFactorEnableSchema>): Promise<Response> => {
-  const { data } = await axiosInstance.post('/api/client/account/two-factor', data);
+export default async (twoFactorData: z.infer<typeof dashboardTwoFactorEnableSchema>): Promise<Response> => {
+  const { data } = await axiosInstance.post('/api/client/account/two-factor', twoFactorData);
   return data;
 };

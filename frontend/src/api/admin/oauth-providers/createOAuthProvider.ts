@@ -4,8 +4,8 @@ import { adminOAuthProviderSchema, adminOAuthProviderUpdateSchema } from '@/lib/
 import { transformKeysToSnakeCase } from '@/lib/transformers.ts';
 
 export default async (
-  data: z.infer<typeof adminOAuthProviderUpdateSchema>,
+  oauthProviderData: z.infer<typeof adminOAuthProviderUpdateSchema>,
 ): Promise<z.infer<typeof adminOAuthProviderSchema>> => {
-  const { data } = await axiosInstance.post('/api/admin/oauth-providers', transformKeysToSnakeCase(data));
+  const { data } = await axiosInstance.post('/api/admin/oauth-providers', transformKeysToSnakeCase(oauthProviderData));
   return data.oauthProvider;
 };

@@ -6,11 +6,11 @@ import { transformKeysToSnakeCase } from '@/lib/transformers.ts';
 export default async (
   serverUuid: string,
   scheduleUuid: string,
-  data: z.infer<typeof serverScheduleStepUpdateSchema>,
+  scheduleStepData: z.infer<typeof serverScheduleStepUpdateSchema>,
 ): Promise<z.infer<typeof serverScheduleStepSchema>> => {
   const { data } = await axiosInstance.post(
     `/api/client/servers/${serverUuid}/schedules/${scheduleUuid}/steps`,
-    transformKeysToSnakeCase(data),
+    transformKeysToSnakeCase(scheduleStepData),
   );
   return data.scheduleStep;
 };

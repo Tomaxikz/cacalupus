@@ -5,8 +5,11 @@ import { transformKeysToSnakeCase } from '@/lib/transformers.ts';
 
 export default async (
   uuid: string,
-  data: z.infer<typeof serverDatabaseCreateSchema>,
+  databaseData: z.infer<typeof serverDatabaseCreateSchema>,
 ): Promise<z.infer<typeof serverDatabaseSchema>> => {
-  const { data } = await axiosInstance.post(`/api/client/servers/${uuid}/databases`, transformKeysToSnakeCase(data));
+  const { data } = await axiosInstance.post(
+    `/api/client/servers/${uuid}/databases`,
+    transformKeysToSnakeCase(databaseData),
+  );
   return data.database;
 };

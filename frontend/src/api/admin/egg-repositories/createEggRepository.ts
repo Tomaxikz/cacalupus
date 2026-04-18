@@ -4,8 +4,8 @@ import { adminEggRepositorySchema, adminEggRepositoryUpdateSchema } from '@/lib/
 import { transformKeysToSnakeCase } from '@/lib/transformers.ts';
 
 export default async (
-  data: z.infer<typeof adminEggRepositoryUpdateSchema>,
+  eggRepositoryData: z.infer<typeof adminEggRepositoryUpdateSchema>,
 ): Promise<z.infer<typeof adminEggRepositorySchema>> => {
-  const { data } = await axiosInstance.post('/api/admin/egg-repositories', transformKeysToSnakeCase(data));
+  const { data } = await axiosInstance.post('/api/admin/egg-repositories', transformKeysToSnakeCase(eggRepositoryData));
   return data.eggRepository;
 };

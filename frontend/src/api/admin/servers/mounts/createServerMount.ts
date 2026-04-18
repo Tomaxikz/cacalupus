@@ -7,7 +7,10 @@ interface Data {
   mountUuid: string;
 }
 
-export default async (serverUuid: string, data: Data): Promise<z.infer<typeof adminServerMountSchema>> => {
-  const { data } = await axiosInstance.post(`/api/admin/servers/${serverUuid}/mounts`, transformKeysToSnakeCase(data));
+export default async (serverUuid: string, mountData: Data): Promise<z.infer<typeof adminServerMountSchema>> => {
+  const { data } = await axiosInstance.post(
+    `/api/admin/servers/${serverUuid}/mounts`,
+    transformKeysToSnakeCase(mountData),
+  );
   return data;
 };

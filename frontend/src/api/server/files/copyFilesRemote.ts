@@ -8,10 +8,10 @@ type Data = z.infer<typeof serverFilesCopyRemoteSchema> & {
   files: string[];
 };
 
-export default async (uuid: string, data: Data): Promise<string> => {
+export default async (uuid: string, copyData: Data): Promise<string> => {
   const { data } = await axiosInstance.post(
     `/api/client/servers/${uuid}/files/copy-remote`,
-    transformKeysToSnakeCase(data),
+    transformKeysToSnakeCase(copyData),
   );
   return data.identifier;
 };

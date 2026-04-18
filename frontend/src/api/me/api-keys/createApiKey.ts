@@ -8,10 +8,10 @@ interface Response {
   key: string;
 }
 
-export default async (data: z.infer<typeof userApiKeyUpdateSchema>): Promise<Response> => {
+export default async (keyData: z.infer<typeof userApiKeyUpdateSchema>): Promise<Response> => {
   const { data } = await axiosInstance.post('/api/client/account/api-keys', {
-    ...transformKeysToSnakeCase(data),
-    expires: data.expires ? data.expires.toISOString() : null,
+    ...transformKeysToSnakeCase(keyData),
+    expires: keyData.expires ? keyData.expires.toISOString() : null,
   });
   return data;
 };

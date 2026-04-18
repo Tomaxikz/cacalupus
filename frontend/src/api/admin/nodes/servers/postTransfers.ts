@@ -14,10 +14,10 @@ interface Data {
   multiplexChannels: number;
 }
 
-export default async (nodeUuid: string, data: Data): Promise<{ affected: number }> => {
+export default async (nodeUuid: string, transferData: Data): Promise<{ affected: number }> => {
   const { data } = await axiosInstance.post(
     `/api/admin/nodes/${nodeUuid}/servers/transfer`,
-    transformKeysToSnakeCase(data),
+    transformKeysToSnakeCase(transferData),
   );
   return data;
 };

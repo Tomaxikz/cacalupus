@@ -8,7 +8,7 @@ interface Data {
   serverOrder: string[];
 }
 
-export default async (data: Data): Promise<z.infer<typeof userServerGroupSchema>> => {
-  const { data } = await axiosInstance.post('/api/client/servers/groups', transformKeysToSnakeCase(data));
+export default async (groupData: Data): Promise<z.infer<typeof userServerGroupSchema>> => {
+  const { data } = await axiosInstance.post('/api/client/servers/groups', transformKeysToSnakeCase(groupData));
   return data.serverGroup;
 };

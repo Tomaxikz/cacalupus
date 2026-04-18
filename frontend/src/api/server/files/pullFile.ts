@@ -6,7 +6,7 @@ interface Data {
   name: string | null;
 }
 
-export default async (uuid: string, data: Data): Promise<string> => {
-  const { data } = await axiosInstance.post(`/api/client/servers/${uuid}/files/pull`, data);
+export default async (uuid: string, pullData: Data): Promise<string> => {
+  const { data } = await axiosInstance.post(`/api/client/servers/${uuid}/files/pull`, pullData);
   return data.identifier;
 };

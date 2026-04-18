@@ -7,10 +7,10 @@ interface Data {
   allocationUuid: string;
 }
 
-export default async (serverUuid: string, data: Data): Promise<z.infer<typeof serverAllocationSchema>> => {
+export default async (serverUuid: string, allocationData: Data): Promise<z.infer<typeof serverAllocationSchema>> => {
   const { data } = await axiosInstance.post(
     `/api/admin/servers/${serverUuid}/allocations`,
-    transformKeysToSnakeCase(data),
+    transformKeysToSnakeCase(allocationData),
   );
   return data.allocation;
 };

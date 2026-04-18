@@ -4,8 +4,8 @@ import { adminLocationSchema, adminLocationUpdateSchema } from '@/lib/schemas/ad
 import { transformKeysToSnakeCase } from '@/lib/transformers.ts';
 
 export default async (
-  data: z.infer<typeof adminLocationUpdateSchema>,
+  locationData: z.infer<typeof adminLocationUpdateSchema>,
 ): Promise<z.infer<typeof adminLocationSchema>> => {
-  const { data } = await axiosInstance.post('/api/admin/locations', transformKeysToSnakeCase(data));
+  const { data } = await axiosInstance.post('/api/admin/locations', transformKeysToSnakeCase(locationData));
   return data.location;
 };

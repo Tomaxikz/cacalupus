@@ -5,11 +5,15 @@ interface Data {
   ipAlias?: string | null;
 }
 
-export default async (nodeUuid: string, allocationUuids: string[], data: Data): Promise<{ updated: number }> => {
+export default async (
+  nodeUuid: string,
+  allocationUuids: string[],
+  allocationData: Data,
+): Promise<{ updated: number }> => {
   const { data } = await axiosInstance.patch(`/api/admin/nodes/${nodeUuid}/allocations`, {
     uuids: allocationUuids,
-    ip: data.ip,
-    ip_alias: data.ipAlias,
+    ip: allocationData.ip,
+    ip_alias: allocationData.ipAlias,
   });
   return data;
 };

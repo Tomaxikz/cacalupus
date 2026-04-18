@@ -11,11 +11,11 @@ interface Data {
 export default async (
   serverUuid: string,
   allocationUuid: string,
-  data: Data,
+  allocationData: Data,
 ): Promise<z.infer<typeof serverAllocationSchema>> => {
   const { data } = await axiosInstance.patch(
     `/api/admin/servers/${serverUuid}/allocations/${allocationUuid}`,
-    transformKeysToSnakeCase(data),
+    transformKeysToSnakeCase(allocationData),
   );
   return data.allocation;
 };

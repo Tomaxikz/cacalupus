@@ -12,7 +12,7 @@ interface Response {
   user: z.infer<typeof fullUserSchema>;
 }
 
-export default async (data: Data): Promise<Response> => {
-  const { data } = await axiosInstance.post('/api/auth/register', transformKeysToSnakeCase(data));
+export default async (registerData: Data): Promise<Response> => {
+  const { data } = await axiosInstance.post('/api/auth/register', transformKeysToSnakeCase(registerData));
   return data;
 };

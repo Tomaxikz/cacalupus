@@ -4,8 +4,8 @@ import { adminDatabaseHostCreateSchema, adminDatabaseHostSchema } from '@/lib/sc
 import { transformKeysToSnakeCase } from '@/lib/transformers.ts';
 
 export default async (
-  data: z.infer<typeof adminDatabaseHostCreateSchema>,
+  databaseHostData: z.infer<typeof adminDatabaseHostCreateSchema>,
 ): Promise<z.infer<typeof adminDatabaseHostSchema>> => {
-  const { data } = await axiosInstance.post('/api/admin/database-hosts', transformKeysToSnakeCase(data));
+  const { data } = await axiosInstance.post('/api/admin/database-hosts', transformKeysToSnakeCase(databaseHostData));
   return data.databaseHost;
 };

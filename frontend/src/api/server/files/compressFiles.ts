@@ -7,8 +7,8 @@ type Data = z.infer<typeof serverFilesArchiveCreateSchema> & {
   files: string[];
 };
 
-export default async (uuid: string, data: Data): Promise<string> => {
-  const { data } = await axiosInstance.post(`/api/client/servers/${uuid}/files/compress`, data, {
+export default async (uuid: string, compressData: Data): Promise<string> => {
+  const { data } = await axiosInstance.post(`/api/client/servers/${uuid}/files/compress`, compressData, {
     timeout: 60000,
     timeoutErrorMessage: 'It looks like this archive is taking a long time to generate. It will appear once completed.',
   });

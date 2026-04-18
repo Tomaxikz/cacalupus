@@ -7,17 +7,17 @@ import {
 import { transformKeysToSnakeCase } from '@/lib/transformers.ts';
 
 export default async (
-  data: z.infer<typeof adminBackupConfigurationUpdateSchema>,
+  backupConfigurationData: z.infer<typeof adminBackupConfigurationUpdateSchema>,
 ): Promise<z.infer<typeof adminBackupConfigurationSchema>> => {
   const { data } = await axiosInstance.post('/api/admin/backup-configurations', {
-    ...transformKeysToSnakeCase(data),
-    backup_configs: data.backupConfigs
+    ...transformKeysToSnakeCase(backupConfigurationData),
+    backup_configs: backupConfigurationData.backupConfigs
       ? {
-          ...transformKeysToSnakeCase(data.backupConfigs),
-          restic: data.backupConfigs.restic
+          ...transformKeysToSnakeCase(backupConfigurationData.backupConfigs),
+          restic: backupConfigurationData.backupConfigs.restic
             ? {
-                ...transformKeysToSnakeCase(data.backupConfigs.restic),
-                environment: data.backupConfigs.restic.environment,
+                ...transformKeysToSnakeCase(backupConfigurationData.backupConfigs.restic),
+                environment: backupConfigurationData.backupConfigs.restic.environment,
               }
             : null,
         }
