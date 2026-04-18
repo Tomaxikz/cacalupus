@@ -505,11 +505,10 @@ impl Cache {
     #[inline]
     pub fn cache_latency_ns_average(&self) -> u64 {
         let calls = self.cache_calls();
-        if calls == 0 {
-            0
-        } else {
-            self.cache_latency_ns_total.load(Ordering::Relaxed) / calls
-        }
+        self.cache_latency_ns_total
+            .load(Ordering::Relaxed)
+            .checked_div(calls)
+            .unwrap_or(0)
     }
 }
 

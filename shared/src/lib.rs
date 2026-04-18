@@ -13,6 +13,8 @@ use std::{
     sync::{Arc, LazyLock},
     time::Instant,
 };
+use tokio::sync::RwLock;
+use tower::util::ServiceExt;
 use utoipa::ToSchema;
 
 pub mod cache;
@@ -102,6 +104,7 @@ pub struct AppState {
     pub version: String,
 
     pub client: reqwest::Client,
+    pub app_router: RwLock<Option<axum::Router>>,
 
     pub extensions: Arc<extensions::manager::ExtensionManager>,
     pub updates: Arc<updates::UpdateManager>,
@@ -163,6 +166,7 @@ impl AppState {
                 .user_agent(format!("github.com/calagopus/panel {}", VERSION))
                 .build()
                 .unwrap(),
+            app_router: RwLock::new(None),
 
             extensions: Arc::new(extensions::manager::ExtensionManager::new(vec![])),
             updates: Arc::new(updates::UpdateManager::default()),
@@ -180,6 +184,50 @@ impl AppState {
         });
 
         Ok(state)
+    }
+
+    pub async fn send_router_oneshot(
+        &self,
+        req: axum::http::Request<axum::body::Body>,
+    ) -> Result<axum::http::Response<axum::body::Body>, anyhow::Error> {
+        let routes_service = self.app_router.read().await;
+        let routes_service = routes_service
+            .as_ref()
+            .ok_or_else(|| anyhow::anyhow!("router not initialized"))?;
+        let routes_service = routes_service.clone();
+
+        let svc = routes_service.oneshot(req);
+        match svc.await {
+            Ok(res) => Ok(res),
+            Err(err) => Err(anyhow::anyhow!(
+                "failed to process request in oneshot router: {:#?}",
+                err
+            )),
+        }
+    }
+
+    pub async fn send_authenticated_router_oneshot(
+        &self,
+        mut req: axum::http::Request<axum::body::Body>,
+        user: models::user::User,
+        auth_method: models::user::AuthMethod,
+    ) -> Result<axum::http::Response<axum::body::Body>, anyhow::Error> {
+        let routes_service = self.app_router.read().await;
+        let routes_service = routes_service
+            .as_ref()
+            .ok_or_else(|| anyhow::anyhow!("router not initialized"))?;
+        let routes_service = routes_service.clone();
+
+        req.extensions_mut().insert((user, auth_method));
+
+        let svc = routes_service.oneshot(req);
+        match svc.await {
+            Ok(res) => Ok(res),
+            Err(err) => Err(anyhow::anyhow!(
+                "failed to process request in oneshot router: {:#?}",
+                err
+            )),
+        }
     }
 }
 

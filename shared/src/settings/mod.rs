@@ -759,10 +759,8 @@ impl<'a> SettingsWriteGuard<'a> {
                         censor_values(k, v);
                     }
                 }
-                serde_json::Value::String(s) => {
-                    if key.contains("password") {
-                        *s = "*".repeat(s.len());
-                    }
+                serde_json::Value::String(s) if key.contains("password") => {
+                    *s = "*".repeat(s.len());
                 }
                 _ => {}
             }

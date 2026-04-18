@@ -6594,6 +6594,7 @@ dependencies = [
  "tokio",
  "tokio-util",
  "toml",
+ "tower",
  "tower-cookies",
  "tracing",
  "tracing-appender",

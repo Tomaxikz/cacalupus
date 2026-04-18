@@ -690,7 +690,7 @@ impl<F: Send + Sync + 'static> ModelHandlerList<F> {
 
         let mut self_listeners = self.listeners.write().await;
         self_listeners.push(listener);
-        self_listeners.sort_by(|a, b| a.priority.cmp(&b.priority));
+        self_listeners.sort_by_key(|a| a.priority);
 
         aborter
     }
@@ -707,7 +707,7 @@ impl<F: Send + Sync + 'static> ModelHandlerList<F> {
 
         let mut self_listeners = self.listeners.blocking_write();
         self_listeners.push(listener);
-        self_listeners.sort_by(|a, b| a.priority.cmp(&b.priority));
+        self_listeners.sort_by_key(|a| a.priority);
 
         aborter
     }

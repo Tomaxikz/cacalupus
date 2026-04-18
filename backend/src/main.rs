@@ -24,6 +24,7 @@ use std::{
     sync::Arc,
     time::Instant,
 };
+use tokio::sync::RwLock;
 use tower::Layer;
 use tower_cookies::CookieManagerLayer;
 use tower_http::normalize_path::NormalizePathLayer;
@@ -414,6 +415,7 @@ async fn main() {
             .user_agent(format!("github.com/calagopus/panel {}", shared::VERSION))
             .build()
             .unwrap(),
+        app_router: RwLock::new(None),
 
         extensions: extensions.clone(),
         updates: Arc::new(shared::updates::UpdateManager::default()),
