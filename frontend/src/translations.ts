@@ -178,7 +178,8 @@ const baseTranslations = defineTranslations({
     },
     elements: {
       errorBoundary: {
-        message: 'An error was encountered by the application while rendering this view. Try refreshing the page.',
+        message:
+          'An unexpected error occurred while rendering this page. Try refreshing. If the problem persists, contact your system administrator.',
         hideDetails: 'Hide Details',
         showDetails: 'Show Details',
         errorMessage: 'Error Message:',
