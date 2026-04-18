@@ -82,7 +82,7 @@ export default function MultiSelectGroup({ data, value, defaultValue = [], onCha
 
       return (
         <Group w='100%'>
-          <Checkbox checked={all} indeterminate={some} readOnly size='xs' />
+          <Checkbox checked={all} indeterminate={some} size='xs' />
           <Text size='sm' fw={600}>
             {item.label}
           </Text>
@@ -95,7 +95,7 @@ export default function MultiSelectGroup({ data, value, defaultValue = [], onCha
 
     return (
       <Group>
-        <Checkbox checked={checked} readOnly size='xs' />
+        <Checkbox checked={checked} size='xs' />
         <Text size='sm'>{item.label}</Text>
       </Group>
     );
