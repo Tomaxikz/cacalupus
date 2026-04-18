@@ -18,7 +18,7 @@ import Code from '@/elements/Code.tsx';
 import CollapsibleSection from '@/elements/CollapsibleSection.tsx';
 import AdminContentContainer from '@/elements/containers/AdminContentContainer.tsx';
 import Divider from '@/elements/Divider.tsx';
-import MultiSelect from '@/elements/input/MultiSelect.tsx';
+import { MultiSelectGroup } from '@/elements/input/MultiSelectGroup.tsx';
 import NumberInput from '@/elements/input/NumberInput.tsx';
 import Select from '@/elements/input/Select.tsx';
 import Switch from '@/elements/input/Switch.tsx';
@@ -308,7 +308,7 @@ export default function EggConfigurationCreateOrUpdate({
             {...form.getInputProps('order')}
           />
 
-          <MultiSelect
+          <MultiSelectGroup
             label='Eggs'
             placeholder='Select Eggs'
             data={eggs}
