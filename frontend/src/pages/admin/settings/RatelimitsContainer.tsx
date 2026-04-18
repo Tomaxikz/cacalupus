@@ -1,19 +1,19 @@
+import { Group, Paper, SimpleGrid, Stack } from '@mantine/core';
 import { useForm } from '@mantine/form';
 import { zod4Resolver } from 'mantine-form-zod-resolver';
 import { useEffect, useState } from 'react';
 import { z } from 'zod';
 import updateRatelimitSettings from '@/api/admin/settings/updateRatelimitSettings.ts';
 import { httpErrorToHuman } from '@/api/axios.ts';
+import Button from '@/elements/Button.tsx';
 import { AdminCan } from '@/elements/Can.tsx';
+import Code from '@/elements/Code.tsx';
+import AdminSubContentContainer from '@/elements/containers/AdminSubContentContainer.tsx';
 import NumberInput from '@/elements/input/NumberInput.tsx';
+import Tooltip from '@/elements/Tooltip.tsx';
 import { adminSettingsRatelimitsSchema } from '@/lib/schemas/admin/settings.ts';
 import { useToast } from '@/providers/ToastProvider.tsx';
 import { useAdminStore } from '@/stores/admin.tsx';
-import AdminSubContentContainer from "@/elements/containers/AdminSubContentContainer.tsx";
-import { Group, Paper, SimpleGrid, Stack, Text } from "@mantine/core";
-import Tooltip from "@/elements/Tooltip.tsx";
-import Button from "@/elements/Button.tsx";
-import Code from "@/elements/Code.tsx";
 
 type RatelimitsSchema = z.infer<typeof adminSettingsRatelimitsSchema>;
 type RatelimitsSchemaKey = keyof RatelimitsSchema;
