@@ -1,6 +1,6 @@
 import { faFileText, faRefresh, faUpload } from '@fortawesome/free-solid-svg-icons';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
-import { Group } from '@mantine/core';
+import { Group, Title } from '@mantine/core';
 import { ChangeEvent, useEffect, useRef, useState } from 'react';
 import { z } from 'zod';
 import getAdminExtensions from '@/api/admin/extensions/getAdminExtensions.ts';
@@ -230,7 +230,7 @@ export default function AdminExtensions() {
           )}
         </span>
       ) : (
-        <div className='grid grid-cols-[repeat(auto-fill,minmax(260px,1fr))] gap-3'>
+        <div className='grid grid-cols-[repeat(auto-fill,minmax(300px,1fr))] gap-3'>
           {window.extensionContext.extensions.map(
             (
               extension,
@@ -269,12 +269,12 @@ export default function AdminExtensions() {
       {extensionStatus && (
         <section className='mt-10'>
           <div className='mb-4 flex items-center justify-between border-b border-zinc-700/60 pb-3'>
-            <h2 className='text-base font-medium text-white'>
+            <Title order={2}>
               Pending extensions
               {extensionStatus.pendingExtensions.length > 0 && (
                 <span className='ml-2 text-xs text-zinc-500'>({extensionStatus.pendingExtensions.length})</span>
               )}
-            </h2>
+            </Title>
 
             <AdminCan action='extensions.manage'>
               <ConditionalTooltip
@@ -290,10 +290,8 @@ export default function AdminExtensions() {
               >
                 <Button
                   color='red'
-                  size='xs'
                   leftSection={<FontAwesomeIcon icon={faRefresh} />}
                   loading={extensionStatus.isBuilding}
-                  disabled={!extensionStatus.pendingExtensions.length && !extensionStatus.removedExtensions.length}
                   onClick={handleRebuild}
                 >
                   Rebuild extensions
@@ -305,7 +303,7 @@ export default function AdminExtensions() {
           {!extensionStatus.pendingExtensions.length ? (
             <p className='text-sm text-zinc-500'>No pending extensions.</p>
           ) : (
-            <div className='grid grid-cols-[repeat(auto-fill,minmax(260px,1fr))] gap-3'>
+            <div className='grid grid-cols-[repeat(auto-fill,minmax(300px,1fr))] gap-3'>
               {extensionStatus.pendingExtensions.map((extension) => (
                 <ExtensionCard
                   key={extension.metadataToml.packageName}

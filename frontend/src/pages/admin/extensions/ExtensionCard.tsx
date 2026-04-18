@@ -114,7 +114,7 @@ export default function ExtensionCard({
         </ConditionalTooltip>
         {backendExtension && onRemove && (
           <Tooltip label='Remove extension'>
-            <ActionIcon color='red' variant='subtle' size='input-xs' disabled={isRemoved} onClick={onRemove}>
+            <ActionIcon color='red' variant='subtle' size='input-md' disabled={isRemoved} onClick={onRemove}>
               <FontAwesomeIcon icon={faTrash} />
             </ActionIcon>
           </Tooltip>
