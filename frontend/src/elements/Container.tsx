@@ -1,10 +1,9 @@
 import { ReactNode } from 'react';
 import { makeComponentHookable } from 'shared';
+import Copyright from '@/elements/Copyright.tsx';
 import { useAuth } from '@/providers/AuthProvider.tsx';
 import { useTranslations } from '@/providers/TranslationProvider.tsx';
-import { useGlobalStore } from '@/stores/global.ts';
 import Alert from './Alert.tsx';
-import Tooltip from './Tooltip.tsx';
 
 interface LayoutProps {
   children: ReactNode;
@@ -14,7 +13,6 @@ interface LayoutProps {
 function Container({ children, isNormal }: LayoutProps) {
   const { t } = useTranslations();
   const { impersonating } = useAuth();
-  const { settings } = useGlobalStore();
 
   return (
     <div
@@ -40,14 +38,7 @@ function Container({ children, isNormal }: LayoutProps) {
           ),
         )}
 
-        <span className='flex flex-row justify-end gap-2'>
-          <Tooltip label={settings.version}>
-            <a href='https://calagopus.com' target='_blank' className='underline'>
-              Calagopus
-            </a>
-          </Tooltip>
-          © 2025 - {new Date().getFullYear()}
-        </span>
+        <Copyright className='justify-end' />
 
         {window.extensionContext.extensionRegistry.pages.global.copyright.appendedComponents.map((Component, index) => (
           <Component key={`global-copyright-appended-${index}`} />
