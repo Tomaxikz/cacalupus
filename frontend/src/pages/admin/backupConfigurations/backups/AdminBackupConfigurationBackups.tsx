@@ -5,6 +5,7 @@ import { getEmptyPaginationSet } from '@/api/axios.ts';
 import { ContextMenuProvider } from '@/elements/ContextMenu.tsx';
 import AdminSubContentContainer from '@/elements/containers/AdminSubContentContainer.tsx';
 import Table from '@/elements/Table.tsx';
+import { queryKeys } from '@/lib/queryKeys.ts';
 import { adminBackupConfigurationSchema } from '@/lib/schemas/admin/backupConfigurations.ts';
 import { adminNodeServerBackupSchema } from '@/lib/schemas/admin/nodes.ts';
 import { useSearchablePaginatedTable } from '@/plugins/useSearchablePageableTable.ts';
@@ -20,6 +21,7 @@ export default function AdminBackupConfigurationBackups({
   >(getEmptyPaginationSet());
 
   const { loading, search, setSearch, setPage } = useSearchablePaginatedTable({
+    queryKey: queryKeys.admin.backupConfigurations.backups(backupConfiguration.uuid),
     fetcher: (page, search) => getBackupConfigurationBackups(backupConfiguration.uuid, page, search),
     setStoreData: setBackupConfigurationBackups,
   });

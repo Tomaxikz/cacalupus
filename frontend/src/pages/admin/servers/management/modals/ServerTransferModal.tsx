@@ -17,6 +17,7 @@ import Switch from '@/elements/input/Switch.tsx';
 import ConfirmationModal from '@/elements/modals/ConfirmationModal.tsx';
 import { Modal } from '@/elements/modals/Modal.tsx';
 import { archiveFormatLabelMapping, compressionLevelLabelMapping } from '@/lib/enums.ts';
+import { queryKeys } from '@/lib/queryKeys.ts';
 import { adminNodeAllocationSchema, adminNodeSchema } from '@/lib/schemas/admin/nodes.ts';
 import { adminServerSchema } from '@/lib/schemas/admin/servers.ts';
 import { serverBackupSchema } from '@/lib/schemas/server/backups.ts';
@@ -46,8 +47,14 @@ export default function ServerTransferModal({
   const [compressionLevel, setCompressionLevel] = useState<z.infer<typeof compressionLevelEnum>>('good_compression');
   const [multiplexChannels, setMultiplexChannels] = useState(0);
 
-  const nodes = useSearchableResource<z.infer<typeof adminNodeSchema>>({ fetcher: (search) => getNodes(1, search) });
+  const nodes = useSearchableResource<z.infer<typeof adminNodeSchema>>({
+    queryKey: queryKeys.admin.nodes.all(),
+    fetcher: (search) => getNodes(1, search),
+  });
   const availablePrimaryAllocations = useSearchableResource<z.infer<typeof adminNodeAllocationSchema>>({
+    queryKey: selectedNodeUuid
+      ? queryKeys.admin.nodes.allocations(selectedNodeUuid)
+      : ['admin', 'nodes', 'primary-allocations'],
     fetcher: (search) =>
       selectedNodeUuid
         ? getAvailableNodeAllocations(selectedNodeUuid, 1, search)
@@ -55,6 +62,9 @@ export default function ServerTransferModal({
     deps: [selectedNodeUuid],
   });
   const availableAllocations = useSearchableResource<z.infer<typeof adminNodeAllocationSchema>>({
+    queryKey: selectedNodeUuid
+      ? queryKeys.admin.nodes.allocations(selectedNodeUuid)
+      : ['admin', 'nodes', 'allocations'],
     fetcher: (search) =>
       selectedNodeUuid
         ? getAvailableNodeAllocations(selectedNodeUuid, 1, search)
@@ -62,6 +72,7 @@ export default function ServerTransferModal({
     deps: [selectedNodeUuid],
   });
   const backups = useSearchableResource<z.infer<typeof serverBackupSchema>>({
+    queryKey: queryKeys.admin.servers.backups(server.uuid),
     fetcher: (search) => getBackups(server.uuid, 1, search),
     canRequest: opened,
   });

@@ -8,6 +8,7 @@ import Code from '@/elements/Code.tsx';
 import AccountContentContainer from '@/elements/containers/AccountContentContainer.tsx';
 import Table, { TableData, TableRow } from '@/elements/Table.tsx';
 import FormattedTimestamp from '@/elements/time/FormattedTimestamp.tsx';
+import { queryKeys } from '@/lib/queryKeys.ts';
 import { userActivitySchema } from '@/lib/schemas/user/activity.ts';
 import { useSearchablePaginatedTable } from '@/plugins/useSearchablePageableTable.ts';
 import { useAuth } from '@/providers/AuthProvider.tsx';
@@ -20,6 +21,7 @@ export default function DashboardActivity() {
   const [activities, setActivities] = useState<Pagination<z.infer<typeof userActivitySchema>>>(getEmptyPaginationSet());
 
   const { loading, search, setSearch, setPage } = useSearchablePaginatedTable({
+    queryKey: queryKeys.user.activity.all(),
     fetcher: getUserActivity,
     setStoreData: setActivities,
   });

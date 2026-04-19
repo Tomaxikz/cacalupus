@@ -17,6 +17,7 @@ import Select from '@/elements/input/Select.tsx';
 import Switch from '@/elements/input/Switch.tsx';
 import TextInput from '@/elements/input/TextInput.tsx';
 import ConfirmationModal from '@/elements/modals/ConfirmationModal.tsx';
+import { queryKeys } from '@/lib/queryKeys.ts';
 import { adminFullUserSchema, adminUserUpdateSchema } from '@/lib/schemas/admin/users.ts';
 import { roleSchema } from '@/lib/schemas/user.ts';
 import { useAdminCan } from '@/plugins/usePermissions.ts';
@@ -82,6 +83,7 @@ export default function UserCreateOrUpdate({ contextUser }: { contextUser?: z.in
   }, [contextUser]);
 
   const roles = useSearchableResource<z.infer<typeof roleSchema>>({
+    queryKey: queryKeys.admin.roles.all(),
     fetcher: (search) => getRoles(1, search),
     defaultSearchValue: contextUser?.role?.name,
     canRequest: canReadRoles,

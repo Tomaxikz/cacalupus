@@ -8,6 +8,7 @@ import { AdminCan } from '@/elements/Can.tsx';
 import { ContextMenuProvider } from '@/elements/ContextMenu.tsx';
 import AdminSubContentContainer from '@/elements/containers/AdminSubContentContainer.tsx';
 import Table from '@/elements/Table.tsx';
+import { queryKeys } from '@/lib/queryKeys.ts';
 import { adminServerSchema } from '@/lib/schemas/admin/servers.ts';
 import { serverAllocationTableColumns } from '@/lib/tableColumns.ts';
 import ServerAllocationAddModal from '@/pages/admin/servers/allocations/modals/ServerAllocationAddModal.tsx';
@@ -21,6 +22,7 @@ export default function AdminServerAllocations({ server }: { server: z.infer<typ
   const [openModal, setOpenModal] = useState<'add' | null>(null);
 
   const { loading, search, setSearch, setPage } = useSearchablePaginatedTable({
+    queryKey: queryKeys.admin.servers.allocations(server.uuid),
     fetcher: (page, search) => getServerAllocations(server.uuid, page, search),
     setStoreData: setServerAllocations,
   });

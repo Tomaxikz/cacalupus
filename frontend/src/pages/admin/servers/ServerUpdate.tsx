@@ -33,6 +33,7 @@ import TextArea from '@/elements/input/TextArea.tsx';
 import TextInput from '@/elements/input/TextInput.tsx';
 import TitleCard from '@/elements/TitleCard.tsx';
 import Tooltip from '@/elements/Tooltip.tsx';
+import { queryKeys } from '@/lib/queryKeys.ts';
 import { adminBackupConfigurationSchema } from '@/lib/schemas/admin/backupConfigurations.ts';
 import { adminEggSchema } from '@/lib/schemas/admin/eggs.ts';
 import { adminNestSchema } from '@/lib/schemas/admin/nests.ts';
@@ -141,16 +142,19 @@ export default function ServerUpdate({ contextServer }: { contextServer: z.infer
   }, [contextServer]);
 
   const users = useSearchableResource<z.infer<typeof fullUserSchema>>({
+    queryKey: queryKeys.admin.users.all(),
     fetcher: (search) => getUsers(1, search),
     defaultSearchValue: contextServer?.owner.username,
     canRequest: canReadUsers,
   });
   const nests = useSearchableResource<z.infer<typeof adminNestSchema>>({
+    queryKey: queryKeys.admin.nests.all(),
     fetcher: (search) => getNests(1, search),
     defaultSearchValue: contextServer?.nest.name,
     canRequest: canReadNests,
   });
   const eggs = useSearchableResource<z.infer<typeof adminEggSchema>>({
+    queryKey: selectedNestUuid ? queryKeys.admin.nests.eggs(selectedNestUuid) : ['admin', 'nests', 'eggs'],
     fetcher: (search) =>
       selectedNestUuid ? getEggs(selectedNestUuid, 1, search) : Promise.resolve(getEmptyPaginationSet()),
     defaultSearchValue: contextServer?.egg.name,
@@ -158,6 +162,7 @@ export default function ServerUpdate({ contextServer }: { contextServer: z.infer
     canRequest: canReadEggs,
   });
   const backupConfigurations = useSearchableResource<z.infer<typeof adminBackupConfigurationSchema>>({
+    queryKey: queryKeys.admin.backupConfigurations.all(),
     fetcher: (search) => getBackupConfigurations(1, search),
     defaultSearchValue: contextServer?.backupConfiguration?.name,
     canRequest: canReadBackupConfigurations,

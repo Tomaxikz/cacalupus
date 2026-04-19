@@ -1,3 +1,4 @@
+import { keepPreviousData, useQuery } from '@tanstack/react-query';
 import debounce from 'debounce';
 import { useCallback, useEffect, useState } from 'react';
 import { useSearchParams } from 'react-router';
@@ -5,6 +6,7 @@ import { httpErrorToHuman } from '@/api/axios.ts';
 import { useToast } from '@/providers/ToastProvider.tsx';
 
 interface UseSearchablePaginatedTableOptions<T> {
+  queryKey: readonly unknown[];
   fetcher: (page: number, search: string) => Promise<T>;
   setStoreData: (data: T) => void;
   paginationKey?: string;
@@ -23,6 +25,7 @@ function parseNumber(num: string | null): number | null {
 }
 
 export function useSearchablePaginatedTable<T>({
+  queryKey,
   fetcher,
   setStoreData,
   paginationKey,
@@ -34,9 +37,9 @@ export function useSearchablePaginatedTable<T>({
   const { addToast } = useToast();
   const [searchParams, setSearchParams] = useSearchParams();
 
-  const [loading, setLoading] = useState(true);
   const [search, setSearch] = useState(modifyParams ? searchParams.get('search') || '' : '');
   const [page, setPage] = useState(modifyParams ? (parseNumber(searchParams.get('page')) ?? initialPage) : initialPage);
+  const [debouncedSearch, setDebouncedSearch] = useState(search);
 
   useEffect(() => {
     if (modifyParams) {
@@ -44,66 +47,74 @@ export function useSearchablePaginatedTable<T>({
     }
   }, [modifyParams, page, search]);
 
-  const fetchData = useCallback(
-    (sL: boolean, p: number, s: string) => {
-      setLoading(sL);
-      fetcher(p, s)
-        .then((res) => {
-          const paginationData = paginationKey
-            ? res && typeof res === 'object' && paginationKey in res
-              ? res[paginationKey as never]
-              : res
-            : res;
-
-          if (
-            paginationData &&
-            typeof paginationData === 'object' &&
-            'total' in paginationData &&
-            typeof paginationData.total === 'number' &&
-            'perPage' in paginationData &&
-            typeof paginationData.perPage === 'number' &&
-            'page' in paginationData &&
-            typeof paginationData.page === 'number'
-          ) {
-            const totalPages = Math.ceil(paginationData.total / paginationData.perPage);
-
-            if (paginationData.total === 0 && paginationData.page !== 1) {
-              setPage(1);
-            } else if (p > totalPages && totalPages !== 0) {
-              setPage(totalPages);
-            } else {
-              setStoreData(res);
-            }
-          }
-        })
-        .catch((err) => {
-          addToast(httpErrorToHuman(err), 'error');
-        })
-        .finally(() => setLoading(false));
-    },
-    [addToast, setStoreData, setPage, ...deps],
-  );
-
-  const debouncedSearch = useCallback(
-    debounce((search: string) => fetchData(true, page, search), debounceMs),
-    [page, fetchData],
+  const updateDebouncedSearch = useCallback(
+    debounce((s: string) => setDebouncedSearch(s), debounceMs),
+    [],
   );
 
   useEffect(() => {
-    if (search) {
-      debouncedSearch(search);
+    if (!search) {
+      updateDebouncedSearch.clear();
+      setDebouncedSearch('');
     } else {
-      debouncedSearch.clear();
-      fetchData(true, page, '');
+      updateDebouncedSearch(search);
     }
-  }, [page, search, debouncedSearch]);
+  }, [search]);
+
+  const enabled = !deps.length || deps.every(Boolean);
+
+  const { data, isFetching, error, refetch } = useQuery({
+    queryKey: [...queryKey, ...deps, { page, search: debouncedSearch }],
+    queryFn: () => fetcher(page, debouncedSearch),
+    enabled,
+    placeholderData: keepPreviousData,
+  });
+
+  useEffect(() => {
+    if (error) {
+      addToast(httpErrorToHuman(error), 'error');
+    }
+  }, [error]);
+
+  useEffect(() => {
+    if (!data) return;
+
+    const paginationData = paginationKey
+      ? data && typeof data === 'object' && paginationKey in data
+        ? data[paginationKey as never]
+        : data
+      : data;
+
+    if (
+      paginationData &&
+      typeof paginationData === 'object' &&
+      'total' in paginationData &&
+      typeof paginationData.total === 'number' &&
+      'perPage' in paginationData &&
+      typeof paginationData.perPage === 'number' &&
+      'page' in paginationData &&
+      typeof paginationData.page === 'number'
+    ) {
+      const totalPages = Math.ceil(paginationData.total / paginationData.perPage);
+
+      if (paginationData.total === 0 && paginationData.page !== 1) {
+        setPage(1);
+      } else if (page > totalPages && totalPages !== 0) {
+        setPage(totalPages);
+      } else {
+        setStoreData(data);
+      }
+    } else {
+      setStoreData(data);
+    }
+  }, [data]);
 
   return {
-    loading,
+    loading: isFetching,
     search,
     setSearch,
     page,
     setPage,
-    refetch: (setLoading: boolean = true) => fetchData(setLoading, page, search),
+    refetch: () => refetch(),
   };
 }

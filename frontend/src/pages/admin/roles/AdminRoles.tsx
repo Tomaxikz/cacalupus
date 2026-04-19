@@ -6,6 +6,7 @@ import Button from '@/elements/Button.tsx';
 import { AdminCan } from '@/elements/Can.tsx';
 import AdminContentContainer from '@/elements/containers/AdminContentContainer.tsx';
 import Table from '@/elements/Table.tsx';
+import { queryKeys } from '@/lib/queryKeys.ts';
 import { roleTableColumns } from '@/lib/tableColumns.ts';
 import RoleCreateOrUpdate from '@/pages/admin/roles/RoleCreateOrUpdate.tsx';
 import RoleRow from '@/pages/admin/roles/RoleRow.tsx';
@@ -19,6 +20,7 @@ function RolesContainer() {
   const { roles, setRoles } = useAdminStore();
 
   const { loading, search, setSearch, setPage } = useSearchablePaginatedTable({
+    queryKey: queryKeys.admin.roles.all(),
     fetcher: getRoles,
     setStoreData: setRoles,
   });

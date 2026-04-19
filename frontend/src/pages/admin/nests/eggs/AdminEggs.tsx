@@ -13,6 +13,7 @@ import AdminSubContentContainer from '@/elements/containers/AdminSubContentConta
 import SelectionArea from '@/elements/SelectionArea.tsx';
 import Table from '@/elements/Table.tsx';
 import { ObjectSet } from '@/lib/objectSet.ts';
+import { queryKeys } from '@/lib/queryKeys.ts';
 import { adminEggSchema } from '@/lib/schemas/admin/eggs.ts';
 import { adminNestSchema } from '@/lib/schemas/admin/nests.ts';
 import { eggTableColumns } from '@/lib/tableColumns.ts';
@@ -39,6 +40,7 @@ function EggsContainer({ contextNest }: { contextNest: z.infer<typeof adminNestS
   const [selectedEggs, setSelectedEggs] = useState(new ObjectSet<z.infer<typeof adminEggSchema>, 'uuid'>('uuid'));
 
   const { loading, refetch, search, setSearch, setPage } = useSearchablePaginatedTable({
+    queryKey: queryKeys.admin.nests.eggs(contextNest.uuid),
     fetcher: (page, search) => getEggs(contextNest.uuid, page, search),
     setStoreData: setEggs,
   });

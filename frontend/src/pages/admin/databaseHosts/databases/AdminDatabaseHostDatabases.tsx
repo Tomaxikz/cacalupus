@@ -4,6 +4,7 @@ import getDatabaseHostDatabases from '@/api/admin/database-hosts/getDatabaseHost
 import { getEmptyPaginationSet } from '@/api/axios.ts';
 import AdminSubContentContainer from '@/elements/containers/AdminSubContentContainer.tsx';
 import Table from '@/elements/Table.tsx';
+import { queryKeys } from '@/lib/queryKeys.ts';
 import { adminDatabaseHostSchema } from '@/lib/schemas/admin/databaseHosts.ts';
 import { adminServerDatabaseSchema } from '@/lib/schemas/admin/servers.ts';
 import { databaseHostDatabaseTableColumns } from '@/lib/tableColumns.ts';
@@ -20,6 +21,7 @@ export default function AdminDatabaseHostDatabases({
   >(getEmptyPaginationSet());
 
   const { loading, search, setSearch, setPage } = useSearchablePaginatedTable({
+    queryKey: queryKeys.admin.databaseHosts.databases(databaseHost.uuid),
     fetcher: (page, search) => getDatabaseHostDatabases(databaseHost.uuid, page, search),
     setStoreData: setDatabaseHostDatabases,
   });

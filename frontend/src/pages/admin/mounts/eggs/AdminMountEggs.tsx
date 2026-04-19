@@ -4,6 +4,7 @@ import getMountNestEggs from '@/api/admin/mounts/nest-eggs/getMountNestEggs.ts';
 import { getEmptyPaginationSet } from '@/api/axios.ts';
 import AdminSubContentContainer from '@/elements/containers/AdminSubContentContainer.tsx';
 import Table from '@/elements/Table.tsx';
+import { queryKeys } from '@/lib/queryKeys.ts';
 import { adminEggSchema } from '@/lib/schemas/admin/eggs.ts';
 import { adminMountSchema } from '@/lib/schemas/admin/mounts.ts';
 import { adminNestSchema } from '@/lib/schemas/admin/nests.ts';
@@ -17,6 +18,7 @@ export default function AdminMountNestEggs({ mount }: { mount: z.infer<typeof ad
   >(getEmptyPaginationSet());
 
   const { loading, search, setSearch, setPage } = useSearchablePaginatedTable({
+    queryKey: queryKeys.admin.mounts.eggs(mount.uuid),
     fetcher: (page, search) => getMountNestEggs(mount.uuid, page, search),
     setStoreData: setMountNestEggs,
   });

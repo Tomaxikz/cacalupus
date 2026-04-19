@@ -4,6 +4,7 @@ import getBackupConfigurationLocations from '@/api/admin/backup-configurations/l
 import { getEmptyPaginationSet } from '@/api/axios.ts';
 import AdminSubContentContainer from '@/elements/containers/AdminSubContentContainer.tsx';
 import Table from '@/elements/Table.tsx';
+import { queryKeys } from '@/lib/queryKeys.ts';
 import { adminBackupConfigurationSchema } from '@/lib/schemas/admin/backupConfigurations.ts';
 import { adminLocationSchema } from '@/lib/schemas/admin/locations.ts';
 import { locationTableColumns } from '@/lib/tableColumns.ts';
@@ -20,6 +21,7 @@ export default function AdminBackupConfigurationLocations({
   >(getEmptyPaginationSet());
 
   const { loading, search, setSearch, setPage } = useSearchablePaginatedTable({
+    queryKey: queryKeys.admin.backupConfigurations.locations(backupConfiguration.uuid),
     fetcher: (page, search) => getBackupConfigurationLocations(backupConfiguration.uuid, page, search),
     setStoreData: setBackupConfigurationLocations,
   });

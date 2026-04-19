@@ -6,6 +6,7 @@ import Button from '@/elements/Button.tsx';
 import { AdminCan } from '@/elements/Can.tsx';
 import AdminContentContainer from '@/elements/containers/AdminContentContainer.tsx';
 import Table from '@/elements/Table.tsx';
+import { queryKeys } from '@/lib/queryKeys.ts';
 import { mountTableColumns } from '@/lib/tableColumns.ts';
 import MountView from '@/pages/admin/mounts/MountView.tsx';
 import { useSearchablePaginatedTable } from '@/plugins/useSearchablePageableTable.ts';
@@ -19,6 +20,7 @@ function MountsContainer() {
   const { mounts, setMounts } = useAdminStore();
 
   const { loading, search, setSearch, setPage } = useSearchablePaginatedTable({
+    queryKey: queryKeys.admin.mounts.all(),
     fetcher: getMounts,
     setStoreData: setMounts,
   });

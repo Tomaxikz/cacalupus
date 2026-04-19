@@ -11,6 +11,7 @@ import ConditionalTooltip from '@/elements/ConditionalTooltip.tsx';
 import { ContextMenuProvider } from '@/elements/ContextMenu.tsx';
 import ServerContentContainer from '@/elements/containers/ServerContentContainer.tsx';
 import Table from '@/elements/Table.tsx';
+import { queryKeys } from '@/lib/queryKeys.ts';
 import { useImportDragAndDrop } from '@/plugins/useImportDragAndDrop.ts';
 import { useSearchablePaginatedTable } from '@/plugins/useSearchablePageableTable.ts';
 import { useToast } from '@/providers/ToastProvider.tsx';
@@ -30,6 +31,7 @@ export default function ServerSchedules() {
   const fileInputRef = useRef<HTMLInputElement | null>(null);
 
   const { loading, search, setSearch, setPage } = useSearchablePaginatedTable({
+    queryKey: queryKeys.server(server.uuid).schedules.all(),
     fetcher: (page, search) => getSchedules(server.uuid, page, search),
     setStoreData: setSchedules,
   });

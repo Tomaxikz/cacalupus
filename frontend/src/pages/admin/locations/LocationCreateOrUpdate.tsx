@@ -15,6 +15,7 @@ import Select from '@/elements/input/Select.tsx';
 import TextArea from '@/elements/input/TextArea.tsx';
 import TextInput from '@/elements/input/TextInput.tsx';
 import ConfirmationModal from '@/elements/modals/ConfirmationModal.tsx';
+import { queryKeys } from '@/lib/queryKeys.ts';
 import { adminBackupConfigurationSchema } from '@/lib/schemas/admin/backupConfigurations.ts';
 import { adminLocationSchema, adminLocationUpdateSchema } from '@/lib/schemas/admin/locations.ts';
 import { useAdminCan } from '@/plugins/usePermissions.ts';
@@ -62,6 +63,7 @@ export default ({ contextLocation }: { contextLocation?: z.infer<typeof adminLoc
   }, [contextLocation]);
 
   const backupConfigurations = useSearchableResource<z.infer<typeof adminBackupConfigurationSchema>>({
+    queryKey: queryKeys.admin.backupConfigurations.all(),
     fetcher: (search) => getBackupConfigurations(1, search),
     defaultSearchValue: contextLocation?.backupConfiguration?.name,
     canRequest: canReadBackupConfigurations,

@@ -8,6 +8,7 @@ import Code from '@/elements/Code.tsx';
 import AdminSubContentContainer from '@/elements/containers/AdminSubContentContainer.tsx';
 import Table, { TableData, TableRow } from '@/elements/Table.tsx';
 import FormattedTimestamp from '@/elements/time/FormattedTimestamp.tsx';
+import { queryKeys } from '@/lib/queryKeys.ts';
 import { userActivitySchema } from '@/lib/schemas/user/activity.ts';
 import { fullUserSchema } from '@/lib/schemas/user.ts';
 import { useSearchablePaginatedTable } from '@/plugins/useSearchablePageableTable.ts';
@@ -21,6 +22,7 @@ export default function AdminUserActivity({ user }: { user: z.infer<typeof fullU
   );
 
   const { loading, search, setSearch, setPage } = useSearchablePaginatedTable({
+    queryKey: queryKeys.admin.users.activity(user.uuid),
     fetcher: (page, search) => getUserActivity(user.uuid, page, search),
     setStoreData: setUserActivity,
   });

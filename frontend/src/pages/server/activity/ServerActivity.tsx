@@ -8,6 +8,7 @@ import Code from '@/elements/Code.tsx';
 import ServerContentContainer from '@/elements/containers/ServerContentContainer.tsx';
 import Table, { TableData, TableRow } from '@/elements/Table.tsx';
 import FormattedTimestamp from '@/elements/time/FormattedTimestamp.tsx';
+import { queryKeys } from '@/lib/queryKeys.ts';
 import { serverActivitySchema } from '@/lib/schemas/server/activity.ts';
 import { useSearchablePaginatedTable } from '@/plugins/useSearchablePageableTable.ts';
 import { useTranslations } from '@/providers/TranslationProvider.tsx';
@@ -21,6 +22,7 @@ export default function ServerActivity() {
   const server = useServerStore((state) => state.server);
 
   const { loading, search, setSearch, setPage } = useSearchablePaginatedTable({
+    queryKey: queryKeys.server(server.uuid).activity.all(),
     fetcher: (page, search) => getServerActivity(server.uuid, page, search),
     setStoreData: setActivities,
   });

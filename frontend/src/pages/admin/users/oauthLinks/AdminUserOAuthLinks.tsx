@@ -7,6 +7,7 @@ import Button from '@/elements/Button.tsx';
 import { ContextMenuProvider } from '@/elements/ContextMenu.tsx';
 import AdminSubContentContainer from '@/elements/containers/AdminSubContentContainer.tsx';
 import Table from '@/elements/Table.tsx';
+import { queryKeys } from '@/lib/queryKeys.ts';
 import { fullUserSchema } from '@/lib/schemas/user.ts';
 import { adminUserOAuthLinkTableColumns } from '@/lib/tableColumns.ts';
 import { useSearchablePaginatedTable } from '@/plugins/useSearchablePageableTable.ts';
@@ -20,6 +21,7 @@ export default function AdminUserOAuthLinks({ user }: { user: z.infer<typeof ful
   const [openModal, setOpenModal] = useState<'add' | null>(null);
 
   const { loading, search, setSearch, setPage } = useSearchablePaginatedTable({
+    queryKey: queryKeys.admin.users.oauthLinks(user.uuid),
     fetcher: (page, search) => getUserOAuthLinks(user.uuid, page, search),
     setStoreData: setUserOAuthLinks,
   });

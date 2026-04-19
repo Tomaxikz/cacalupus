@@ -25,6 +25,7 @@ import TextArea from '@/elements/input/TextArea.tsx';
 import TextInput from '@/elements/input/TextInput.tsx';
 import ConfirmationModal from '@/elements/modals/ConfirmationModal.tsx';
 import Tooltip from '@/elements/Tooltip.tsx';
+import { queryKeys } from '@/lib/queryKeys.ts';
 import { adminBackupConfigurationSchema } from '@/lib/schemas/admin/backupConfigurations.ts';
 import { adminLocationSchema } from '@/lib/schemas/admin/locations.ts';
 import { adminNodeSchema, adminNodeUpdateSchema } from '@/lib/schemas/admin/nodes.ts';
@@ -94,10 +95,12 @@ export default function NodeCreateOrUpdate({ contextNode }: { contextNode?: z.in
   }, [contextNode]);
 
   const locations = useSearchableResource<z.infer<typeof adminLocationSchema>>({
+    queryKey: queryKeys.admin.locations.all(),
     fetcher: (search) => getLocations(1, search),
     defaultSearchValue: contextNode?.location.name,
   });
   const backupConfigurations = useSearchableResource<z.infer<typeof adminBackupConfigurationSchema>>({
+    queryKey: queryKeys.admin.backupConfigurations.all(),
     fetcher: (search) => getBackupConfigurations(1, search),
     defaultSearchValue: contextNode?.backupConfiguration?.name,
   });

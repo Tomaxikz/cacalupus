@@ -9,6 +9,7 @@ import ConditionalTooltip from '@/elements/ConditionalTooltip.tsx';
 import { ContextMenuProvider } from '@/elements/ContextMenu.tsx';
 import ServerContentContainer from '@/elements/containers/ServerContentContainer.tsx';
 import Table from '@/elements/Table.tsx';
+import { queryKeys } from '@/lib/queryKeys.ts';
 import { useSearchablePaginatedTable } from '@/plugins/useSearchablePageableTable.ts';
 import { useToast } from '@/providers/ToastProvider.tsx';
 import { useTranslations } from '@/providers/TranslationProvider.tsx';
@@ -21,6 +22,7 @@ export default function ServerNetwork() {
   const { server, allocations, setAllocations, addAllocation } = useServerStore();
 
   const { loading, search, setSearch, setPage } = useSearchablePaginatedTable({
+    queryKey: queryKeys.server(server.uuid).network.all(),
     fetcher: (page, search) => getAllocations(server.uuid, page, search),
     setStoreData: setAllocations,
   });

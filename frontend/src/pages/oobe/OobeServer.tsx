@@ -20,6 +20,7 @@ import Select from '@/elements/input/Select.tsx';
 import SizeInput from '@/elements/input/SizeInput.tsx';
 import Switch from '@/elements/input/Switch.tsx';
 import TextInput from '@/elements/input/TextInput.tsx';
+import { queryKeys } from '@/lib/queryKeys.ts';
 import { adminEggRepositoryEggSchema, adminEggRepositorySchema } from '@/lib/schemas/admin/eggRepositories.ts';
 import { adminNodeAllocationSchema, adminNodeSchema } from '@/lib/schemas/admin/nodes.ts';
 import { oobeServerSchema } from '@/lib/schemas/oobe.ts';
@@ -42,10 +43,13 @@ export default function OobeServer({ onNext, skipFrom }: OobeComponentProps) {
   const [selectedEgg, setSelectedEgg] = useState<z.infer<typeof adminEggRepositoryEggSchema> | null>(null);
 
   const eggRepositories = useSearchableResource<z.infer<typeof adminEggRepositorySchema>>({
+    queryKey: queryKeys.admin.eggRepositories.all(),
     fetcher: (search) => getEggRepositories(1, search),
-    defaultLoadState: true,
   });
   const eggs = useSearchableResource<z.infer<typeof adminEggRepositoryEggSchema>>({
+    queryKey: selectedEggRepositoryUuid
+      ? queryKeys.admin.eggRepositories.eggs(selectedEggRepositoryUuid)
+      : ['oobe', 'eggs'],
     fetcher: (search) =>
       selectedEggRepositoryUuid
         ? getEggRepositoryEggs(selectedEggRepositoryUuid, 1, search)
@@ -53,6 +57,7 @@ export default function OobeServer({ onNext, skipFrom }: OobeComponentProps) {
     deps: [selectedEggRepositoryUuid],
   });
   const availablePrimaryAllocations = useSearchableResource<z.infer<typeof adminNodeAllocationSchema>>({
+    queryKey: node.current ? queryKeys.admin.nodes.allocations(node.current.uuid) : ['oobe', 'primary-allocations'],
     fetcher: (search) =>
       node.current
         ? getAvailableNodeAllocations(node.current.uuid, 1, search)
@@ -60,6 +65,7 @@ export default function OobeServer({ onNext, skipFrom }: OobeComponentProps) {
     deps: [node.current],
   });
   const availableAllocations = useSearchableResource<z.infer<typeof adminNodeAllocationSchema>>({
+    queryKey: node.current ? queryKeys.admin.nodes.allocations(node.current.uuid) : ['oobe', 'allocations'],
     fetcher: (search) =>
       node.current
         ? getAvailableNodeAllocations(node.current.uuid, 1, search)

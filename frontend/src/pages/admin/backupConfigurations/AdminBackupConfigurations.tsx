@@ -6,6 +6,7 @@ import Button from '@/elements/Button.tsx';
 import { AdminCan } from '@/elements/Can.tsx';
 import AdminContentContainer from '@/elements/containers/AdminContentContainer.tsx';
 import Table from '@/elements/Table.tsx';
+import { queryKeys } from '@/lib/queryKeys.ts';
 import { backupConfigurationTableColumns } from '@/lib/tableColumns.ts';
 import BackupConfigurationCreateOrUpdate from '@/pages/admin/backupConfigurations/BackupConfigurationCreateOrUpdate.tsx';
 import BackupConfigurationRow from '@/pages/admin/backupConfigurations/BackupConfigurationRow.tsx';
@@ -19,6 +20,7 @@ function BackupConfigurationsContainer() {
   const { backupConfigurations, setBackupConfigurations } = useAdminStore();
 
   const { loading, search, setSearch, setPage } = useSearchablePaginatedTable({
+    queryKey: queryKeys.admin.backupConfigurations.all(),
     fetcher: getBackupConfigurations,
     setStoreData: setBackupConfigurations,
   });

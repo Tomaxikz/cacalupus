@@ -4,6 +4,7 @@ import getMountNodes from '@/api/admin/mounts/nodes/getMountNodes.ts';
 import { getEmptyPaginationSet } from '@/api/axios.ts';
 import AdminSubContentContainer from '@/elements/containers/AdminSubContentContainer.tsx';
 import Table from '@/elements/Table.tsx';
+import { queryKeys } from '@/lib/queryKeys.ts';
 import { adminMountSchema } from '@/lib/schemas/admin/mounts.ts';
 import { adminNodeSchema } from '@/lib/schemas/admin/nodes.ts';
 import { nodeTableColumns } from '@/lib/tableColumns.ts';
@@ -16,6 +17,7 @@ export default function AdminMountNodes({ mount }: { mount: z.infer<typeof admin
   );
 
   const { loading, search, setSearch, setPage } = useSearchablePaginatedTable({
+    queryKey: queryKeys.admin.mounts.nodes(mount.uuid),
     fetcher: (page, search) => getMountNodes(mount.uuid, page, search),
     setStoreData: setMountNodes,
   });

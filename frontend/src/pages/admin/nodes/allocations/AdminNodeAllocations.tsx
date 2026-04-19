@@ -11,6 +11,7 @@ import Select from '@/elements/input/Select.tsx';
 import SelectionArea from '@/elements/SelectionArea.tsx';
 import Table from '@/elements/Table.tsx';
 import Tooltip from '@/elements/Tooltip.tsx';
+import { queryKeys } from '@/lib/queryKeys.ts';
 import { adminNodeAllocationSchema, adminNodeSchema } from '@/lib/schemas/admin/nodes.ts';
 import { nodeAllocationTableColumns } from '@/lib/tableColumns.ts';
 import { useKeyboardShortcuts } from '@/plugins/useKeyboardShortcuts.ts';
@@ -53,6 +54,7 @@ export default function AdminNodeAllocations({ node }: { node: z.infer<typeof ad
   }, []);
 
   const { loading, search, setSearch, setPage, refetch } = useSearchablePaginatedTable({
+    queryKey: queryKeys.admin.nodes.allocations(node.uuid),
     fetcher: (page, generalSearch) => {
       const finalSearch = buildSearch(generalSearch || '', ipFilter, portFilter);
       return getNodeAllocations(node.uuid, page, finalSearch);

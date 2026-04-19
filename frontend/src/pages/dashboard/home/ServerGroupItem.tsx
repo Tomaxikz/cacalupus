@@ -28,6 +28,7 @@ import ConfirmationModal from '@/elements/modals/ConfirmationModal.tsx';
 import Spinner from '@/elements/Spinner.tsx';
 import { Pagination } from '@/elements/Table.tsx';
 import Tooltip from '@/elements/Tooltip.tsx';
+import { queryKeys } from '@/lib/queryKeys.ts';
 import { serverPowerAction, serverSchema } from '@/lib/schemas/server/server.ts';
 import { userServerGroupSchema } from '@/lib/schemas/user.ts';
 import ServerItem from '@/pages/dashboard/home/ServerItem.tsx';
@@ -75,6 +76,7 @@ export default function ServerGroupItem({
   const { handleBulkPowerAction, bulkActionLoading: groupActionLoading } = useBulkPowerActions();
 
   const { loading, search, setSearch, setPage, refetch } = useSearchablePaginatedTable({
+    queryKey: [...queryKeys.user.servers.all(), serverGroup.uuid],
     fetcher: (page, search) => getServerGroupServers(serverGroup.uuid, page, search),
     setStoreData: setServers,
     modifyParams: false,

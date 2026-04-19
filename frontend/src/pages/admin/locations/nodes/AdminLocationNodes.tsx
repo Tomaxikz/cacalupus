@@ -4,6 +4,7 @@ import getLocationNodes from '@/api/admin/locations/nodes/getLocationNodes.ts';
 import { getEmptyPaginationSet } from '@/api/axios.ts';
 import AdminSubContentContainer from '@/elements/containers/AdminSubContentContainer.tsx';
 import Table from '@/elements/Table.tsx';
+import { queryKeys } from '@/lib/queryKeys.ts';
 import { adminLocationSchema } from '@/lib/schemas/admin/locations.ts';
 import { adminNodeSchema } from '@/lib/schemas/admin/nodes.ts';
 import { nodeTableColumns } from '@/lib/tableColumns.ts';
@@ -16,6 +17,7 @@ export default function AdminLocationNodes({ location }: { location: z.infer<typ
   );
 
   const { loading, search, setSearch, setPage } = useSearchablePaginatedTable({
+    queryKey: queryKeys.admin.locations.nodes(location.uuid),
     fetcher: (page, search) => getLocationNodes(location.uuid, page, search),
     setStoreData: setLocationNodes,
   });

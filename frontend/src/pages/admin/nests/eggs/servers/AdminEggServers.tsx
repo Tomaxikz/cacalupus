@@ -4,6 +4,7 @@ import getEggServers from '@/api/admin/nests/eggs/servers/getEggServers.ts';
 import { getEmptyPaginationSet } from '@/api/axios.ts';
 import AdminSubContentContainer from '@/elements/containers/AdminSubContentContainer.tsx';
 import Table from '@/elements/Table.tsx';
+import { queryKeys } from '@/lib/queryKeys.ts';
 import { adminEggSchema } from '@/lib/schemas/admin/eggs.ts';
 import { adminNestSchema } from '@/lib/schemas/admin/nests.ts';
 import { adminServerSchema } from '@/lib/schemas/admin/servers.ts';
@@ -21,6 +22,7 @@ export default function AdminEggServers({
   const [eggServers, setEggServers] = useState<Pagination<z.infer<typeof adminServerSchema>>>(getEmptyPaginationSet());
 
   const { loading, search, setSearch, setPage } = useSearchablePaginatedTable({
+    queryKey: queryKeys.admin.eggs.servers(contextEgg.uuid),
     fetcher: (page, search) => getEggServers(contextNest.uuid, contextEgg.uuid, page, search),
     setStoreData: setEggServers,
   });

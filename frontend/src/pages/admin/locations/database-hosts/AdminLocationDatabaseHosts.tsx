@@ -8,6 +8,7 @@ import { AdminCan } from '@/elements/Can.tsx';
 import { ContextMenuProvider } from '@/elements/ContextMenu.tsx';
 import AdminSubContentContainer from '@/elements/containers/AdminSubContentContainer.tsx';
 import Table from '@/elements/Table.tsx';
+import { queryKeys } from '@/lib/queryKeys.ts';
 import { adminLocationSchema } from '@/lib/schemas/admin/locations.ts';
 import { locationDatabaseHostTableColumns } from '@/lib/tableColumns.ts';
 import { useSearchablePaginatedTable } from '@/plugins/useSearchablePageableTable.ts';
@@ -21,6 +22,7 @@ export default function AdminLocationDatabaseHosts({ location }: { location: z.i
   const [openModal, setOpenModal] = useState<'create' | null>(null);
 
   const { loading, search, setSearch, setPage } = useSearchablePaginatedTable({
+    queryKey: queryKeys.admin.locations.databaseHosts(location.uuid),
     fetcher: (page, search) => getLocationDatabaseHosts(location.uuid, page, search),
     setStoreData: setLocationDatabaseHosts,
   });

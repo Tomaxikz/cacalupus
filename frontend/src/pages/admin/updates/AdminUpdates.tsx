@@ -19,6 +19,7 @@ import AdminContentContainer from '@/elements/containers/AdminContentContainer.t
 import Spinner from '@/elements/Spinner.tsx';
 import Table, { TableData, TableRow } from '@/elements/Table.tsx';
 import TitleCard from '@/elements/TitleCard.tsx';
+import { queryKeys } from '@/lib/queryKeys.ts';
 import {
   adminExtensionUpdateCheckResultErrorSchema,
   adminExtensionUpdateCheckResultUpdateAvailableSchema,
@@ -40,6 +41,7 @@ export default function AdminUpdates() {
   const [recheckLoading, setRecheckLoading] = useState(false);
 
   const { loading, setPage } = useSearchablePaginatedTable({
+    queryKey: queryKeys.admin.updates.all(),
     fetcher: (page) => getNodeUpdates(page),
     setStoreData: setNodes,
     paginationKey: 'outdatedNodes',

@@ -8,6 +8,7 @@ import Button from '@/elements/Button.tsx';
 import ContextMenu, { ContextMenuProvider } from '@/elements/ContextMenu.tsx';
 import AccountContentContainer from '@/elements/containers/AccountContentContainer.tsx';
 import Table from '@/elements/Table.tsx';
+import { queryKeys } from '@/lib/queryKeys.ts';
 import { oAuthProviderSchema } from '@/lib/schemas/generic.ts';
 import { useSearchablePaginatedTable } from '@/plugins/useSearchablePageableTable.ts';
 import { useTranslations } from '@/providers/TranslationProvider.tsx';
@@ -26,6 +27,7 @@ export default function DashboardOAuthLinks() {
   }, []);
 
   const { loading, setPage } = useSearchablePaginatedTable({
+    queryKey: queryKeys.user.oauthLinks.all(),
     fetcher: getOAuthLinks,
     setStoreData: setOAuthLinks,
   });

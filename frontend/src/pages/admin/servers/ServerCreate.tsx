@@ -41,6 +41,7 @@ import Spinner from '@/elements/Spinner.tsx';
 import TitleCard from '@/elements/TitleCard.tsx';
 import Tooltip from '@/elements/Tooltip.tsx';
 import VariableContainer from '@/elements/VariableContainer.tsx';
+import { queryKeys } from '@/lib/queryKeys.ts';
 import { adminBackupConfigurationSchema } from '@/lib/schemas/admin/backupConfigurations.ts';
 import { adminEggSchema, adminEggVariableSchema } from '@/lib/schemas/admin/eggs.ts';
 import { adminNestSchema } from '@/lib/schemas/admin/nests.ts';
@@ -145,24 +146,31 @@ export default function ServerCreate() {
   const [eggVariables, setEggVariables] = useState<z.infer<typeof adminEggVariableSchema>[]>([]);
 
   const nodes = useSearchableResource<z.infer<typeof adminNodeSchema>>({
+    queryKey: queryKeys.admin.nodes.all(),
     fetcher: (search) => getNodes(1, search),
     canRequest: canReadNodes,
   });
   const users = useSearchableResource<z.infer<typeof fullUserSchema>>({
+    queryKey: queryKeys.admin.users.all(),
     fetcher: (search) => getUsers(1, search),
     canRequest: canReadUsers,
   });
   const nests = useSearchableResource<z.infer<typeof adminNestSchema>>({
+    queryKey: queryKeys.admin.nests.all(),
     fetcher: (search) => getNests(1, search),
     canRequest: canReadNests,
   });
   const eggs = useSearchableResource<z.infer<typeof adminEggSchema>>({
+    queryKey: selectedNestUuid ? queryKeys.admin.nests.eggs(selectedNestUuid) : ['admin', 'nests', 'eggs'],
     fetcher: (search) =>
       selectedNestUuid ? getEggs(selectedNestUuid, 1, search) : Promise.resolve(getEmptyPaginationSet()),
     deps: [selectedNestUuid],
     canRequest: canReadEggs,
   });
   const availablePrimaryAllocations = useSearchableResource<z.infer<typeof adminNodeAllocationSchema>>({
+    queryKey: form.getValues().nodeUuid
+      ? queryKeys.admin.nodes.allocations(form.getValues().nodeUuid)
+      : ['admin', 'nodes', 'primary-allocations'],
     fetcher: (search) =>
       form.getValues().nodeUuid
         ? getAvailableNodeAllocations(form.getValues().nodeUuid, 1, search)
@@ -170,6 +178,9 @@ export default function ServerCreate() {
     deps: [form.getValues().nodeUuid],
   });
   const availableAllocations = useSearchableResource<z.infer<typeof adminNodeAllocationSchema>>({
+    queryKey: form.getValues().nodeUuid
+      ? queryKeys.admin.nodes.allocations(form.getValues().nodeUuid)
+      : ['admin', 'nodes', 'allocations'],
     fetcher: (search) =>
       form.getValues().nodeUuid
         ? getAvailableNodeAllocations(form.getValues().nodeUuid, 1, search)
@@ -177,6 +188,7 @@ export default function ServerCreate() {
     deps: [form.getValues().nodeUuid],
   });
   const backupConfigurations = useSearchableResource<z.infer<typeof adminBackupConfigurationSchema>>({
+    queryKey: queryKeys.admin.backupConfigurations.all(),
     fetcher: (search) => getBackupConfigurations(1, search),
     canRequest: canReadBackupConfigurations,
   });

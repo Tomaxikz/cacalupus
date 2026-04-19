@@ -4,6 +4,7 @@ import { getEmptyPaginationSet } from '@/api/axios.ts';
 import getMounts from '@/api/server/mounts/getMounts.ts';
 import ServerContentContainer from '@/elements/containers/ServerContentContainer.tsx';
 import Table from '@/elements/Table.tsx';
+import { queryKeys } from '@/lib/queryKeys.ts';
 import { serverMountSchema } from '@/lib/schemas/server/mounts.ts';
 import { MountRow } from '@/pages/server/mounts/MountRow.tsx';
 import { useSearchablePaginatedTable } from '@/plugins/useSearchablePageableTable.ts';
@@ -17,6 +18,7 @@ export default function ServerMounts() {
   const [mounts, setMounts] = useState<Pagination<z.infer<typeof serverMountSchema>>>(getEmptyPaginationSet());
 
   const { loading } = useSearchablePaginatedTable({
+    queryKey: queryKeys.server(server.uuid).mounts.all(),
     fetcher: () => getMounts(server.uuid),
     setStoreData: setMounts,
   });

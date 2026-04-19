@@ -13,6 +13,7 @@ import Spinner from '@/elements/Spinner.tsx';
 import { Pagination } from '@/elements/Table.tsx';
 import FormattedTimestamp from '@/elements/time/FormattedTimestamp.tsx';
 import { handleCopyToClipboard } from '@/lib/copy.ts';
+import { queryKeys } from '@/lib/queryKeys.ts';
 import { serverActivitySchema } from '@/lib/schemas/server/activity.ts';
 import { useSearchablePaginatedTable } from '@/plugins/useSearchablePageableTable.ts';
 import { useToast } from '@/providers/ToastProvider.tsx';
@@ -40,6 +41,7 @@ export default function CommandHistoryDrawer({ opened, onClose, ...props }: Draw
   const [selectedCommand, setSelectedCommand] = useState<CommandDetail | null>(null);
 
   const { loading, setPage } = useSearchablePaginatedTable({
+    queryKey: queryKeys.server(server.uuid).activity.all(),
     fetcher: (page) => getServerActivity(server.uuid, page, 'server:console.command'),
     setStoreData: setActivities,
     modifyParams: false,
