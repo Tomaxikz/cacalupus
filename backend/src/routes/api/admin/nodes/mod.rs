@@ -60,7 +60,7 @@ mod get {
 
         ApiResponse::new_serialized(Response {
             nodes: nodes
-                .try_async_map(|node| node.into_admin_api_object(&state.database))
+                .try_async_map(|node| node.into_admin_api_object(&state))
                 .await?,
         })
         .ok()
@@ -133,7 +133,7 @@ mod post {
             .await;
 
         ApiResponse::new_serialized(Response {
-            node: node.into_admin_api_object(&state.database).await?,
+            node: node.into_admin_api_object(&state).await?,
         })
         .ok()
     }

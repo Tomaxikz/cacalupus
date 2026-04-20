@@ -694,7 +694,7 @@ impl ServerBackup {
             },
         )?;
 
-        let mut url = node.public_url("/download/backup");
+        let mut url = node.public_url(state, "/download/backup").await?;
         url.set_query(Some(&format!(
             "token={}&archive_format={}",
             urlencoding::encode(&token),
@@ -826,7 +826,7 @@ impl ServerBackup {
 
     pub async fn into_admin_node_api_object(
         self,
-        database: &crate::database::Database,
+        state: &crate::State,
         storage_url_retriever: &StorageUrlRetriever<'_>,
     ) -> Result<AdminApiNodeServerBackup, anyhow::Error> {
         let is_remote = self.is_remote();
@@ -836,18 +836,18 @@ impl ServerBackup {
             server: match self.server {
                 Some(server) => Some(
                     server
-                        .fetch_cached(database)
+                        .fetch_cached(&state.database)
                         .await?
-                        .into_admin_api_object(database, storage_url_retriever)
+                        .into_admin_api_object(state, storage_url_retriever)
                         .await?,
                 ),
                 None => None,
             },
             node: self
                 .node
-                .fetch_cached(database)
+                .fetch_cached(&state.database)
                 .await?
-                .into_admin_api_object(database)
+                .into_admin_api_object(state)
                 .await?,
             name: self.name,
             ignored_files: self.ignored_files,
@@ -866,7 +866,7 @@ impl ServerBackup {
 
     pub async fn into_admin_api_object(
         self,
-        database: &crate::database::Database,
+        state: &crate::State,
         storage_url_retriever: &StorageUrlRetriever<'_>,
     ) -> Result<AdminApiServerBackup, anyhow::Error> {
         Ok(AdminApiServerBackup {
@@ -874,9 +874,9 @@ impl ServerBackup {
             server: match self.server {
                 Some(server) => Some(
                     server
-                        .fetch_cached(database)
+                        .fetch_cached(&state.database)
                         .await?
-                        .into_admin_api_object(database, storage_url_retriever)
+                        .into_admin_api_object(state, storage_url_retriever)
                         .await?,
                 ),
                 None => None,

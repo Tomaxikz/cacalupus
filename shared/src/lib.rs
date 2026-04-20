@@ -93,9 +93,40 @@ impl ApiError {
 #[serde(rename_all = "snake_case")]
 pub enum AppContainerType {
     Official,
+    OfficialAIO,
     OfficialHeavy,
+    OfficialHeavyAIO,
     Unknown,
     None,
+}
+
+impl AppContainerType {
+    pub fn detect() -> Self {
+        match std::env::var("OCI_CONTAINER").as_deref() {
+            Ok("official") => AppContainerType::Official,
+            Ok("official-aio") => AppContainerType::OfficialAIO,
+            Ok("official-heavy") => AppContainerType::OfficialHeavy,
+            Ok("official-heavy-aio") => AppContainerType::OfficialHeavyAIO,
+            Ok(_) => AppContainerType::Unknown,
+            Err(_) => AppContainerType::None,
+        }
+    }
+
+    #[inline]
+    pub fn is_all_in_one(&self) -> bool {
+        matches!(
+            self,
+            AppContainerType::OfficialAIO | AppContainerType::OfficialHeavyAIO
+        )
+    }
+
+    #[inline]
+    pub fn is_heavy(&self) -> bool {
+        matches!(
+            self,
+            AppContainerType::OfficialHeavy | AppContainerType::OfficialHeavyAIO
+        )
+    }
 }
 
 pub struct AppState {
@@ -154,12 +185,7 @@ impl AppState {
 
         let state = Arc::new(AppState {
             start_time: Instant::now(),
-            container_type: match std::env::var("OCI_CONTAINER").as_deref() {
-                Ok("official") => AppContainerType::Official,
-                Ok("official-heavy") => AppContainerType::OfficialHeavy,
-                Ok(_) => AppContainerType::Unknown,
-                Err(_) => AppContainerType::None,
-            },
+            container_type: AppContainerType::detect(),
             version: full_version(),
 
             client: reqwest::ClientBuilder::new()

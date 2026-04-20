@@ -307,7 +307,7 @@ pub trait Extension: Send + Sync {
     ) -> Result<Option<ExtensionUpdateInfo>, anyhow::Error> {
         Ok(None)
     }
- 
+
     /// Your extension call processor, this can be called by other extensions to interact with yours,
     /// if the call does not apply to your extension, simply return `None` to continue the matching process.
     ///

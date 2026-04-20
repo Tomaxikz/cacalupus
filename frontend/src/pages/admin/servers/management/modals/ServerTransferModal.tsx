@@ -10,13 +10,15 @@ import getBackups from '@/api/server/backups/getBackups.ts';
 import Alert from '@/elements/Alert.tsx';
 import Button from '@/elements/Button.tsx';
 import Code from '@/elements/Code.tsx';
+import ConditionalTooltip from '@/elements/ConditionalTooltip.tsx';
 import MultiSelect from '@/elements/input/MultiSelect.tsx';
 import NumberInput from '@/elements/input/NumberInput.tsx';
 import Select from '@/elements/input/Select.tsx';
 import Switch from '@/elements/input/Switch.tsx';
 import ConfirmationModal from '@/elements/modals/ConfirmationModal.tsx';
-import { Modal } from '@/elements/modals/Modal.tsx';
+import { Modal, ModalFooter } from '@/elements/modals/Modal.tsx';
 import { archiveFormatLabelMapping, compressionLevelLabelMapping } from '@/lib/enums.ts';
+import { NODE_AIO_UUID } from '@/lib/node.ts';
 import { queryKeys } from '@/lib/queryKeys.ts';
 import { adminNodeAllocationSchema, adminNodeSchema } from '@/lib/schemas/admin/nodes.ts';
 import { adminServerSchema } from '@/lib/schemas/admin/servers.ts';
@@ -235,11 +237,22 @@ export default function ServerTransferModal({
             value={multiplexChannels}
             onChange={(value) => setMultiplexChannels(Number(value) || 0)}
           />
-
-          <Button color='blue' onClick={() => setOpenModal('confirm')} disabled={!selectedNodeUuid}>
-            Transfer
-          </Button>
         </Stack>
+
+        <ModalFooter>
+          <ConditionalTooltip
+            enabled={selectedNodeUuid === NODE_AIO_UUID}
+            label='Transfers to the All-In-One node are not supported'
+          >
+            <Button
+              color='blue'
+              onClick={() => setOpenModal('confirm')}
+              disabled={!selectedNodeUuid || selectedNodeUuid === NODE_AIO_UUID}
+            >
+              Transfer
+            </Button>
+          </ConditionalTooltip>
+        </ModalFooter>
       </Modal>
     </>
   );

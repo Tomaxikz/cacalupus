@@ -174,14 +174,14 @@ impl NodeMount {
     #[inline]
     pub async fn into_admin_node_api_object(
         self,
-        database: &crate::database::Database,
+        state: &crate::State,
     ) -> Result<AdminApiNodeNodeMount, anyhow::Error> {
         Ok(AdminApiNodeNodeMount {
             node: self
                 .node
-                .fetch_cached(database)
+                .fetch_cached(&state.database)
                 .await?
-                .into_admin_api_object(database)
+                .into_admin_api_object(state)
                 .await?,
             created: self.created.and_utc(),
         })
@@ -190,12 +190,12 @@ impl NodeMount {
     #[inline]
     pub async fn into_admin_api_object(
         self,
-        database: &crate::database::Database,
+        state: &crate::State,
     ) -> Result<AdminApiNodeMount, anyhow::Error> {
         Ok(AdminApiNodeMount {
             mount: self
                 .mount
-                .fetch_cached(database)
+                .fetch_cached(&state.database)
                 .await?
                 .into_admin_api_object(),
             created: self.created.and_utc(),

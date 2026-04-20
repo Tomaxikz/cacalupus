@@ -37,7 +37,7 @@ RUN cargo chef cook --profile heavy-release --recipe-path recipe.json
 
 COPY . /app/repo
 RUN cd frontend && pnpm install --frozen-lockfile && pnpm build:ci
-RUN cargo build --profile heavy-release
+RUN cargo build --profile heavy-release --workspace
 
 RUN ln -s /app/repo/target/heavy-release/panel-rs /usr/local/bin/panel-rs
 

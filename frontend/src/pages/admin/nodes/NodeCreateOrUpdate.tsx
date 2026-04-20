@@ -25,6 +25,7 @@ import TextArea from '@/elements/input/TextArea.tsx';
 import TextInput from '@/elements/input/TextInput.tsx';
 import ConfirmationModal from '@/elements/modals/ConfirmationModal.tsx';
 import Tooltip from '@/elements/Tooltip.tsx';
+import { isNodeAIO } from '@/lib/node.ts';
 import { queryKeys } from '@/lib/queryKeys.ts';
 import { adminBackupConfigurationSchema } from '@/lib/schemas/admin/backupConfigurations.ts';
 import { adminLocationSchema } from '@/lib/schemas/admin/locations.ts';
@@ -170,6 +171,7 @@ export default function NodeCreateOrUpdate({ contextNode }: { contextNode?: z.in
             placeholder='URL'
             key={form.key('url')}
             {...form.getInputProps('url')}
+            disabled={contextNode ? isNodeAIO(contextNode) : false}
           />
           <TextInput
             label='Public URL'
@@ -191,6 +193,7 @@ export default function NodeCreateOrUpdate({ contextNode }: { contextNode?: z.in
               </Tooltip>
             }
             {...form.getInputProps('publicUrl')}
+            disabled={contextNode ? isNodeAIO(contextNode) : false}
           />
 
           <TextInput
@@ -276,12 +279,23 @@ export default function NodeCreateOrUpdate({ contextNode }: { contextNode?: z.in
           {contextNode && (
             <>
               <AdminCan action='nodes.reset-token'>
-                <Button color='red' variant='outline' onClick={doResetToken} loading={loading}>
+                <Button
+                  color='red'
+                  variant='outline'
+                  onClick={doResetToken}
+                  loading={loading}
+                  disabled={isNodeAIO(contextNode)}
+                >
                   Reset Token
                 </Button>
               </AdminCan>
               <AdminCan action='nodes.delete' cantDelete>
-                <Button color='red' onClick={() => setOpenModal('delete')} loading={loading}>
+                <Button
+                  color='red'
+                  onClick={() => setOpenModal('delete')}
+                  loading={loading}
+                  disabled={isNodeAIO(contextNode)}
+                >
                   Delete
                 </Button>
               </AdminCan>

@@ -67,7 +67,7 @@ mod get {
         ApiResponse::new_serialized(Response {
             servers: servers
                 .try_async_map(|server| {
-                    server.into_admin_api_object(&state.database, &storage_url_retriever)
+                    server.into_admin_api_object(&state, &storage_url_retriever)
                 })
                 .await?,
         })
@@ -305,7 +305,7 @@ mod post {
 
         ApiResponse::new_serialized(Response {
             server: server
-                .into_admin_api_object(&state.database, &state.storage.retrieve_urls().await?)
+                .into_admin_api_object(&state, &state.storage.retrieve_urls().await?)
                 .await?,
         })
         .ok()

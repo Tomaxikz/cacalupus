@@ -1186,6 +1186,12 @@ impl Server {
             .into());
         }
 
+        if options.destination_node.is_all_in_one_node() {
+            return Err(DisplayError::new("cannot transfer to an all-in-one node")
+                .with_status(axum::http::StatusCode::CONFLICT)
+                .into());
+        }
+
         let mut transaction = state.database.write().begin().await?;
 
         let destination_allocation_uuid = if let Some(allocation_uuid) = options.allocation_uuid {
@@ -1606,12 +1612,12 @@ impl Server {
     #[inline]
     pub async fn into_admin_api_object(
         self,
-        database: &crate::database::Database,
+        state: &crate::State,
         storage_url_retriever: &StorageUrlRetriever<'_>,
     ) -> Result<AdminApiServer, anyhow::Error> {
         let allocation_uuid = self.allocation.as_ref().map(|a| a.uuid);
 
-        let feature_limits = ApiServerFeatureLimits::init_hooks(&self, database).await?;
+        let feature_limits = ApiServerFeatureLimits::init_hooks(&self, &state.database).await?;
         let feature_limits = finish_extendible!(
             ApiServerFeatureLimits {
                 allocations: self.allocation_limit,
@@ -1620,23 +1626,23 @@ impl Server {
                 schedules: self.schedule_limit,
             },
             feature_limits,
-            database
+            &state.database
         )?;
 
         let (node, backup_configuration, egg) = tokio::join!(
             async {
-                match self.node.fetch_cached(database).await {
-                    Ok(node) => Ok(node.into_admin_api_object(database).await?),
+                match self.node.fetch_cached(&state.database).await {
+                    Ok(node) => Ok(node.into_admin_api_object(state).await?),
                     Err(err) => Err(err),
                 }
             },
             async {
                 if let Some(backup_configuration) = self.backup_configuration {
                     if let Ok(backup_configuration) =
-                        backup_configuration.fetch_cached(database).await
+                        backup_configuration.fetch_cached(&state.database).await
                     {
                         backup_configuration
-                            .into_admin_api_object(database)
+                            .into_admin_api_object(&state.database)
                             .await
                             .ok()
                     } else {
@@ -1646,7 +1652,7 @@ impl Server {
                     None
                 }
             },
-            self.egg.into_admin_api_object(database)
+            self.egg.into_admin_api_object(&state.database)
         );
 
         Ok(AdminApiServer {

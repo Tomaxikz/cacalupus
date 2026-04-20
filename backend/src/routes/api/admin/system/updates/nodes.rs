@@ -152,7 +152,7 @@ mod get {
         {
             node_futures.push(async {
                 let node = Node::by_uuid_cached(&state.database, *node_uuid).await?;
-                node.into_admin_api_object(&state.database).await
+                node.into_admin_api_object(&state).await
             });
         }
 

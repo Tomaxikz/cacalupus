@@ -5,6 +5,7 @@ use crate::{
     },
     prelude::*,
 };
+use compact_str::ToCompactString;
 use garde::Validate;
 use rand::distr::SampleString;
 use serde::{Deserialize, Serialize};
@@ -161,6 +162,8 @@ impl BaseModel for Node {
 }
 
 impl Node {
+    pub const AIO_NODE_UUID: uuid::Uuid = uuid::uuid!("7dbbbb63-1734-48c4-e1de-d1a65f62cada");
+
     pub async fn by_token_id_token_cached(
         database: &crate::database::Database,
         token_id: &str,
@@ -480,6 +483,11 @@ impl Node {
     }
 
     #[inline]
+    pub fn is_all_in_one_node(&self) -> bool {
+        self.uuid == Self::AIO_NODE_UUID
+    }
+
+    #[inline]
     pub fn url(&self, path: &str) -> reqwest::Url {
         let mut url = self.url.clone();
         url.path_segments_mut()
@@ -489,12 +497,29 @@ impl Node {
     }
 
     #[inline]
-    pub fn public_url(&self, path: &str) -> reqwest::Url {
-        let mut url = self.public_url.clone().unwrap_or(self.url.clone());
+    pub async fn public_url(
+        &self,
+        state: &crate::State,
+        path: &str,
+    ) -> Result<reqwest::Url, anyhow::Error> {
+        let mut url = if self.is_all_in_one_node() {
+            let mut url = state
+                .settings
+                .get_as(|s| reqwest::Url::parse(&s.app.url))
+                .await??;
+            url.path_segments_mut()
+                .unwrap()
+                .extend(&["wings-proxy", &self.uuid.to_compact_string()]);
+            url
+        } else {
+            self.public_url.clone().unwrap_or(self.url.clone())
+        };
+
         url.path_segments_mut()
             .unwrap()
             .extend(path.trim_start_matches('/').split('/'));
-        url
+
+        Ok(url)
     }
 
     #[inline]
@@ -524,16 +549,23 @@ impl Node {
     #[inline]
     pub async fn into_admin_api_object(
         self,
-        database: &crate::database::Database,
+        state: &crate::State,
     ) -> Result<AdminApiNode, anyhow::Error> {
-        let (location, backup_configuration) =
-            tokio::join!(self.location.into_admin_api_object(database), async {
+        let public_url = if self.is_all_in_one_node() {
+            Some(self.public_url(state, "/").await?.to_string())
+        } else {
+            self.public_url.map(|url| url.to_string())
+        };
+
+        let (location, backup_configuration) = tokio::join!(
+            self.location.into_admin_api_object(&state.database),
+            async {
                 if let Some(backup_configuration) = self.backup_configuration {
                     if let Ok(backup_configuration) =
-                        backup_configuration.fetch_cached(database).await
+                        backup_configuration.fetch_cached(&state.database).await
                     {
                         backup_configuration
-                            .into_admin_api_object(database)
+                            .into_admin_api_object(&state.database)
                             .await
                             .ok()
                     } else {
@@ -542,7 +574,8 @@ impl Node {
                 } else {
                     None
                 }
-            });
+            }
+        );
 
         Ok(AdminApiNode {
             uuid: self.uuid,
@@ -552,14 +585,14 @@ impl Node {
             description: self.description,
             deployment_enabled: self.deployment_enabled,
             maintenance_enabled: self.maintenance_enabled,
-            public_url: self.public_url.map(|url| url.to_string()),
+            public_url,
             url: self.url.to_string(),
             sftp_host: self.sftp_host,
             sftp_port: self.sftp_port,
             memory: self.memory,
             disk: self.disk,
             token_id: self.token_id,
-            token: database.decrypt(self.token).await?,
+            token: state.database.decrypt(self.token).await?,
             created: self.created.and_utc(),
         })
     }
@@ -905,6 +938,10 @@ impl DeletableModel for Node {
         state: &crate::State,
         options: Self::DeleteOptions,
     ) -> Result<(), anyhow::Error> {
+        if self.is_all_in_one_node() && state.container_type.is_all_in_one() {
+            return Err(anyhow::anyhow!("The AIO node cannot be deleted"));
+        }
+
         let mut transaction = state.database.write().begin().await?;
 
         self.run_delete_handlers(&options, state, &mut transaction)

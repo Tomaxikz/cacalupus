@@ -88,7 +88,7 @@ mod get {
         permissions.has_admin_permission("nodes.read")?;
 
         ApiResponse::new_serialized(Response {
-            node: node.0.into_admin_api_object(&state.database).await?,
+            node: node.0.into_admin_api_object(&state).await?,
         })
         .ok()
     }

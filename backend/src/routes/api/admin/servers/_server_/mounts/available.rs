@@ -68,7 +68,7 @@ mod get {
 
         ApiResponse::new_serialized(Response {
             mounts: mounts
-                .try_async_map(|mount| mount.into_admin_api_object(&state.database))
+                .try_async_map(|mount| mount.into_admin_api_object(&state))
                 .await?,
         })
         .ok()

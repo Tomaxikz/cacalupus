@@ -283,7 +283,7 @@ impl ServerMount {
     #[inline]
     pub async fn into_admin_server_api_object(
         self,
-        database: &crate::database::Database,
+        state: &crate::State,
         storage_url_retriever: &StorageUrlRetriever<'_>,
     ) -> Result<AdminApiServerServerMount, anyhow::Error> {
         let created = match self.created {
@@ -295,7 +295,7 @@ impl ServerMount {
             }
         };
         let server = match self.server {
-            Some(server) => server.fetch_cached(database).await?,
+            Some(server) => server.fetch_cached(&state.database).await?,
             None => {
                 return Err(anyhow::anyhow!(
                     "This mount does not have a server attached"
@@ -305,7 +305,7 @@ impl ServerMount {
 
         Ok(AdminApiServerServerMount {
             server: server
-                .into_admin_api_object(database, storage_url_retriever)
+                .into_admin_api_object(state, storage_url_retriever)
                 .await?,
             created: created.and_utc(),
         })
@@ -314,9 +314,9 @@ impl ServerMount {
     #[inline]
     pub async fn into_admin_api_object(
         self,
-        database: &crate::database::Database,
+        state: &crate::State,
     ) -> Result<AdminApiServerMount, anyhow::Error> {
-        let mount = self.mount.fetch_cached(database).await?;
+        let mount = self.mount.fetch_cached(&state.database).await?;
 
         Ok(AdminApiServerMount {
             mount: mount.into_admin_api_object(),

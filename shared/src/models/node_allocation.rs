@@ -656,15 +656,15 @@ impl NodeAllocation {
     #[inline]
     pub async fn into_admin_api_object(
         self,
-        database: &crate::database::Database,
+        state: &crate::State,
         storage_url_retriever: &StorageUrlRetriever<'_>,
     ) -> Result<AdminApiNodeAllocation, crate::database::DatabaseError> {
         let server = match self.server {
             Some(fetchable) => Some(
                 fetchable
-                    .fetch_cached(database)
+                    .fetch_cached(&state.database)
                     .await?
-                    .into_admin_api_object(database, storage_url_retriever)
+                    .into_admin_api_object(state, storage_url_retriever)
                     .await?,
             ),
             None => None,

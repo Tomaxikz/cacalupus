@@ -319,9 +319,7 @@ impl shared::extensions::commands::CliCommand<CreateArgs> for CreateCommand {
                 if args.json {
                     eprintln!(
                         "{}",
-                        serde_json::to_string_pretty(
-                            &node.into_admin_api_object(&state.database).await?
-                        )?
+                        serde_json::to_string_pretty(&node.into_admin_api_object(&state).await?)?
                     );
                 } else {
                     eprintln!(

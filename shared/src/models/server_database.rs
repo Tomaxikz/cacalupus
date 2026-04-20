@@ -444,22 +444,22 @@ impl ServerDatabase {
     #[inline]
     pub async fn into_admin_api_object(
         self,
-        database: &crate::database::Database,
+        state: &crate::State,
         storage_url_retriever: &StorageUrlRetriever<'_>,
     ) -> Result<AdminApiServerDatabase, anyhow::Error> {
         let details = self
             .database_host
             .credentials
-            .parse_connection_details(database)
+            .parse_connection_details(&state.database)
             .await?;
 
         Ok(AdminApiServerDatabase {
             uuid: self.uuid,
             server: self
                 .server
-                .fetch_cached(database)
+                .fetch_cached(&state.database)
                 .await?
-                .into_admin_api_object(database, storage_url_retriever)
+                .into_admin_api_object(state, storage_url_retriever)
                 .await?,
             r#type: self.database_host.r#type,
             host: self.database_host.public_host.unwrap_or(details.host),
@@ -470,7 +470,7 @@ impl ServerDatabase {
             name: self.name,
             is_locked: self.locked,
             username: self.username,
-            password: database.decrypt(self.password).await?,
+            password: state.database.decrypt(self.password).await?,
             created: self.created.and_utc(),
         })
     }
@@ -478,7 +478,7 @@ impl ServerDatabase {
     #[inline]
     pub async fn into_api_object(
         self,
-        database: &crate::database::Database,
+        state: &crate::State,
         show_password: bool,
     ) -> Result<ApiServerDatabase, anyhow::Error> {
         let mut username = self.username;
@@ -491,7 +491,7 @@ impl ServerDatabase {
         let details = self
             .database_host
             .credentials
-            .parse_connection_details(database)
+            .parse_connection_details(&state.database)
             .await?;
 
         Ok(ApiServerDatabase {
@@ -506,7 +506,7 @@ impl ServerDatabase {
             is_locked: self.locked,
             username,
             password: if show_password {
-                Some(database.decrypt(self.password).await?)
+                Some(state.database.decrypt(self.password).await?)
             } else {
                 None
             },

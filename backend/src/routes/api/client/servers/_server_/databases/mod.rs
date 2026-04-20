@@ -103,10 +103,7 @@ mod get {
         ApiResponse::new_serialized(Response {
             databases: databases
                 .try_async_map(|database| {
-                    database.into_api_object(
-                        &state.database,
-                        params.include_password && can_read_password,
-                    )
+                    database.into_api_object(&state, params.include_password && can_read_password)
                 })
                 .await?,
         })
@@ -248,7 +245,7 @@ mod post {
         ApiResponse::new_serialized(Response {
             database: database
                 .into_api_object(
-                    &state.database,
+                    &state,
                     permissions
                         .has_server_permission("databases.read-password")
                         .is_ok(),

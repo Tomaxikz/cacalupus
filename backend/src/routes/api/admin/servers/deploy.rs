@@ -327,7 +327,7 @@ mod post {
 
         ApiResponse::new_serialized(Response {
             server: server
-                .into_admin_api_object(&state.database, &state.storage.retrieve_urls().await?)
+                .into_admin_api_object(&state, &state.storage.retrieve_urls().await?)
                 .await?,
         })
         .ok()

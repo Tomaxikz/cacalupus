@@ -111,7 +111,7 @@ mod get {
         ApiResponse::new_serialized(Response {
             database: database
                 .0
-                .into_api_object(&state.database, params.include_password)
+                .into_api_object(&state, params.include_password)
                 .await?,
         })
         .ok()

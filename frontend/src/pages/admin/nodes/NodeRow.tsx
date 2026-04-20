@@ -9,7 +9,7 @@ import Spinner from '@/elements/Spinner.tsx';
 import { TableData, TableRow } from '@/elements/Table.tsx';
 import Tooltip from '@/elements/Tooltip.tsx';
 import FormattedTimestamp from '@/elements/time/FormattedTimestamp.tsx';
-import { getNodeUrl } from '@/lib/node.ts';
+import { getNodeUrl, isNodeAIO } from '@/lib/node.ts';
 import { adminNodeSchema } from '@/lib/schemas/admin/nodes.ts';
 import { parseVersion } from '@/lib/version.ts';
 import { useAdminStore } from '@/stores/admin.tsx';
@@ -73,6 +73,11 @@ export default function NodeRow({ node }: { node: z.infer<typeof adminNodeSchema
           ) : (
             <Tooltip label='Deployment Disabled'>
               <FontAwesomeIcon icon={faGlobe} className='text-red-500' />
+            </Tooltip>
+          )}
+          {isNodeAIO(node) && (
+            <Tooltip label='All-in-One Node'>
+              <FontAwesomeIcon icon={faHeart} className='text-purple-500' />
             </Tooltip>
           )}
         </span>
