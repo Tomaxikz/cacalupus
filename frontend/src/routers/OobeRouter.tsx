@@ -4,8 +4,11 @@ import { useEffect } from 'react';
 import { Route, Routes, useLocation, useNavigate } from 'react-router';
 import { z } from 'zod';
 import updateOobeSettings from '@/api/admin/settings/updateOobeSettings.ts';
+import AppIcon from '@/elements/AppIcon.tsx';
 import Card from '@/elements/Card.tsx';
 import ContentContainer from '@/elements/containers/ContentContainer.tsx';
+import OobeSidebarFooter from '@/elements/oobe/OobeSidebarFooter.tsx';
+import Sidebar from '@/elements/Sidebar.tsx';
 import { to } from '@/lib/routes.ts';
 import { oobeStepKey } from '@/lib/schemas/oobe.ts';
 import { useAuth } from '@/providers/AuthProvider.tsx';
@@ -48,10 +51,10 @@ export default function OobeRouter() {
   }, [user, activeStep, currentAllowedStep, location.pathname]);
 
   const filteredSteps = () => steps.filter((s) => s.label);
+  const currentStepIndex = filteredSteps().findIndex((s) => s.path === activeStep?.path);
 
   const onNext = () => {
-    const idx = filteredSteps().findIndex((s) => s.path === activeStep?.path);
-    const nextStep = filteredSteps()[idx + 1];
+    const nextStep = filteredSteps()[currentStepIndex + 1];
 
     if (!nextStep) return;
 
@@ -78,42 +81,68 @@ export default function OobeRouter() {
   };
 
   return (
-    <ContentContainer title={`Setting up ${settings.app.name}`}>
-      <div className='flex flex-col gap-4 items-center justify-center min-h-screen p-4'>
-        <div className='flex flex-col items-center gap-2'>
-          <img src='/icon.svg' className='h-48' alt='Calagopus Icon' />
-          <div>
-            <Title order={2} ta='center'>
-              {t('pages.oobe.welcome.title', {})}
-            </Title>
-            <Text size='lg' ta='center' c='dimmed'>
-              {t('pages.oobe.welcome.subtitle', {})}
-            </Text>
+    <div className='lg:flex h-full'>
+      <Sidebar>
+        <AppIcon />
+
+        <Sidebar.Divider />
+
+        <Stepper
+          active={currentStepIndex}
+          size='sm'
+          orientation='vertical'
+        >
+          {filteredSteps().map((step, index) => (
+            <Stepper.Step
+              key={index}
+              label={step.label}
+              description='Test'
+              icon={step.icon ? <FontAwesomeIcon icon={step.icon} /> : null}
+            />
+          ))}
+        </Stepper>
+
+        <OobeSidebarFooter complete={currentStepIndex} total={filteredSteps().length} />
+      </Sidebar>
+      <div className='max-w-[100vw] flex-1 lg:ml-0'>
+        <ContentContainer title={`Setting up ${settings.app.name}`}>
+          <div className='flex flex-col gap-4 items-center justify-center min-h-screen p-4'>
+            <div className='flex flex-col items-center gap-2'>
+              <img src='/icon.svg' className='h-48' alt='Calagopus Icon' />
+              <div>
+                <Title order={2} ta='center'>
+                  {t('pages.oobe.welcome.title', {})}
+                </Title>
+                <Text size='lg' ta='center' c='dimmed'>
+                  {t('pages.oobe.welcome.subtitle', {})}
+                </Text>
+              </div>
+            </div>
+            <Card>
+              <div className='flex flex-col gap-6'>
+                {user && (
+                  <Stepper active={currentStepIndex}>
+                    {filteredSteps().map((step, index) => (
+                      <Stepper.Step
+                        key={index}
+                        label={step.label}
+                        icon={step.icon ? <FontAwesomeIcon icon={step.icon} /> : null}
+                      />
+                    ))}
+                  </Stepper>
+                )}
+                <Box className='max-w-[calc(100%-40px)] w-full mx-auto'>
+                  <Routes>
+                    {steps.map(({ component: Component, ...step }, index) => (
+                      <Route key={index} path={step.path} element={<Component onNext={onNext} skipFrom={skipFrom} />} />
+                    ))}
+                  </Routes>
+                </Box>
+              </div>
+            </Card>
           </div>
-        </div>
-        <Card>
-          <div className='flex flex-col gap-6'>
-            {user && (
-              <Stepper active={filteredSteps().findIndex((s) => s.path === activeStep?.path)}>
-                {filteredSteps().map((step, index) => (
-                  <Stepper.Step
-                    key={index}
-                    label={step.label}
-                    icon={step.icon ? <FontAwesomeIcon icon={step.icon} /> : null}
-                  />
-                ))}
-              </Stepper>
-            )}
-            <Box className='max-w-[calc(100%-40px)] w-full mx-auto'>
-              <Routes>
-                {steps.map(({ component: Component, ...step }, index) => (
-                  <Route key={index} path={step.path} element={<Component onNext={onNext} skipFrom={skipFrom} />} />
-                ))}
-              </Routes>
-            </Box>
-          </div>
-        </Card>
+        </ContentContainer>
       </div>
-    </ContentContainer>
+    </div>
   );
 }
