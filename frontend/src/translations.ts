@@ -99,6 +99,7 @@ const baseTranslations = defineTranslations({
         disabled: 'Disabled',
         successful: 'Successful',
         failed: 'Failed',
+        installed: 'Installed',
       },
       server: {
         noAllocation: 'No Allocation',
@@ -487,6 +488,7 @@ const baseTranslations = defineTranslations({
         },
         server: {
           title: 'Server',
+          existingServer: 'A server has already been created. You can change the settings later in the admin menu.',
           egg: {
             title: 'Egg',
             description: "Let's get your first server up and running. What egg would you like to use?",
