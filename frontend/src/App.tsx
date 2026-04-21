@@ -85,7 +85,12 @@ export default function App({ theme }: { theme: MantineThemeOverride }) {
 
   return Object.keys(settings).length > 0 ? (
     <ErrorBoundary>
-      <MantineProvider theme={theme} forceColorScheme='dark' cssVariablesResolver={v8CssVariablesResolver}>
+      <MantineProvider
+        theme={theme}
+        forceColorScheme='dark'
+        cssVariablesResolver={v8CssVariablesResolver}
+        deduplicateInlineStyles
+      >
         <QueryClientProvider client={queryClient}>
           <TranslationProvider>
             <ToastProvider>
