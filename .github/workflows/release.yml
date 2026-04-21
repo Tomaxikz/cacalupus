@@ -243,7 +243,7 @@ jobs:
 
           if [[ "$VERSION" == *-* ]]; then
             DOCKER_TAGS="$DOCKER_TAGS,ghcr.io/${{ github.repository }}:latest-pre"
-            AIO_TAGS="$AIO_TAGS,ghcr.io/${{ github.repository }}:latest-pre-aio"
+            AIO_TAGS="$AIO_TAGS,ghcr.io/${{ github.repository }}:aio-pre"
 
             if [[ "$VERSION" == 1.0.0-* ]]; then
               DOCKER_TAGS="$DOCKER_TAGS,ghcr.io/${{ github.repository }}:latest"

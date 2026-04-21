@@ -48,4 +48,6 @@ ENV OCI_CONTAINER=official-heavy-aio
 ENV CARGO_BUILD_PROFILE=balanced
 ENV CARGO_TARGET_PROFILE=heavy-release
 
+RUN touch /wings-config.yml
+
 ENTRYPOINT ["/bin/bash", "/entrypoint.sh"]

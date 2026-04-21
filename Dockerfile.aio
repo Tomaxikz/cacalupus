@@ -6,4 +6,6 @@ COPY .docker/${TARGETPLATFORM#linux/}/panel-rs-aio /usr/bin/panel-rs
 
 ENV OCI_CONTAINER=official-aio
 
+RUN touch /wings-config.yml
+
 ENTRYPOINT ["/usr/bin/panel-rs"]
