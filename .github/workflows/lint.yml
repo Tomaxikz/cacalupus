@@ -117,6 +117,9 @@ jobs:
 
       - name: Dummy Frontend Files
         run: mkdir -p frontend/dist && echo "Dummy file" > frontend/dist/dummy.txt
+      
+      - name: Run cargo fmt
+        run: cargo fmt -- --check
 
       - name: Run cargo clippy
         run: cargo clippy

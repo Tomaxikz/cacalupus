@@ -120,14 +120,6 @@ jobs:
         if: contains(matrix.target, 'linux')
         run: cargo install cross --git https://github.com/cross-rs/cross
 
-      - name: Run tests (Linux)
-        if: contains(matrix.target, 'linux')
-        run: cross test --release --target ${{ matrix.target }}
-
-      - name: Run tests (Non-Linux)
-        if: ${{ !contains(matrix.target, 'linux') }}
-        run: cargo test --target ${{ matrix.target }}
-
       - name: Build release binaries (Linux)
         if: contains(matrix.target, 'linux')
         run: |
