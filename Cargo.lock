@@ -1392,6 +1392,12 @@ source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "3d52eff69cd5e647efe296129160853a42795992097e8af39800e1060caeea9b"
 
 [[package]]
+name = "constant_time_eq"
+version = "0.5.0"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "1a1ec0cfec728a79a5109075543131387f911cb4d07716436d7ae20533657a96"
+
+[[package]]
 name = "convert_case"
 version = "0.10.0"
 source = "registry+https://github.com/rust-lang/crates.io-index"
@@ -3919,9 +3925,9 @@ checksum = "224484c5d09285a7b8cb0a0c117e847ebd14cb6e4470ecf68cdb89c503b0edb9"
 
 [[package]]
 name = "mongodb"
-version = "3.5.2"
+version = "3.6.0"
 source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "2c5941683db2ab2697f71e58dc0319024e808d3b28e7cf20f4bfb445fe54a30b"
+checksum = "1ef2c933617431ad0246fb5b43c425ebdae18c7f7259c87de0726d93b0e7e91b"
 dependencies = [
  "base64 0.22.1",
  "bitflags",
@@ -3965,9 +3971,9 @@ dependencies = [
 
 [[package]]
 name = "mongodb-internal-macros"
-version = "3.5.2"
+version = "3.6.0"
 source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "47021a12bbf0dffde9c890fa2d36ff6ae342c532016226b04a42301b2b912660"
+checksum = "9e5758dc828eb2d02ec30563cba365609d56ddd833190b192beaee2b475a7bb3"
 dependencies = [
  "macro_magic",
  "proc-macro2",
@@ -4678,9 +4684,9 @@ dependencies = [
 
 [[package]]
 name = "pbkdf2"
-version = "0.13.0-rc.10"
+version = "0.13.0"
 source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "1f24f3eb2f4471b1730d59e4b730b747939960a8c7eb0c33c5a9076f2d3dddea"
+checksum = "112d82ceb8c5bf524d9af484d4e4970c9fd5a0cc15ba14ad93dccd28873b0629"
 dependencies = [
  "digest 0.11.2",
  "hmac 0.13.0",
@@ -4874,7 +4880,7 @@ dependencies = [
  "aes-gcm 0.11.0-rc.3",
  "cbc 0.2.0",
  "der 0.8.0",
- "pbkdf2 0.13.0-rc.10",
+ "pbkdf2 0.13.0",
  "rand_core 0.10.1",
  "scrypt",
  "sha2 0.11.0",
@@ -5651,9 +5657,9 @@ dependencies = [
 
 [[package]]
 name = "russh"
-version = "0.60.0"
+version = "0.60.1"
 source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "3b530252dc3ff163b73a7e48c97b925450d2ca53edcb466a46ad0a231e45f998"
+checksum = "d937f3f4a79bffd67fc12fd437785effdfc8b94edc89ab90392f9ac9e11cc9fc"
 dependencies = [
  "aes 0.8.4",
  "aws-lc-rs",
@@ -5972,9 +5978,9 @@ checksum = "f87165f0995f63a9fbeea62b64d10b4d9d8e78ec6d7d51fb2125fda7bb36788f"
 
 [[package]]
 name = "rustls-webpki"
-version = "0.103.12"
+version = "0.103.13"
 source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "8279bb85272c9f10811ae6a6c547ff594d6a7f3c6c6b02ee9726d1d0dcfcdd06"
+checksum = "61c429a8649f110dddef65e2a5ad240f747e85f7758a6bccc7e5777bd33f756e"
 dependencies = [
  "aws-lc-rs",
  "ring",
@@ -6079,7 +6085,7 @@ source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "e03ed5b54ed5fcc8e016cd94301416bc2c01c05c87a6742b97468337c8804598"
 dependencies = [
  "cfg-if",
- "pbkdf2 0.13.0-rc.10",
+ "pbkdf2 0.13.0",
  "salsa20",
  "sha2 0.11.0",
 ]
@@ -6580,7 +6586,7 @@ dependencies = [
  "clap",
  "colored",
  "compact_str",
- "constant_time_eq 0.4.2",
+ "constant_time_eq 0.5.0",
  "cron",
  "dotenvy",
  "erased-serde",
@@ -7488,7 +7494,7 @@ dependencies = [
  "toml_datetime",
  "toml_parser",
  "toml_writer",
- "winnow 1.0.1",
+ "winnow 1.0.2",
 ]
 
 [[package]]
@@ -7506,7 +7512,7 @@ version = "1.1.2+spec-1.1.0"
 source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "a2abe9b86193656635d2411dc43050282ca48aa31c2451210f4202550afb7526"
 dependencies = [
- "winnow 1.0.1",
+ "winnow 1.0.2",
 ]
 
 [[package]]
@@ -8833,9 +8839,9 @@ dependencies = [
 
 [[package]]
 name = "winnow"
-version = "1.0.1"
+version = "1.0.2"
 source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "09dac053f1cd375980747450bfc7250c264eaae0583872e845c0c7cd578872b5"
+checksum = "2ee1708bef14716a11bae175f579062d4554d95be2c6829f518df847b7b3fdd0"
 
 [[package]]
 name = "winx"

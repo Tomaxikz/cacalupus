@@ -1,4 +1,10 @@
-import { faCheck, faExclamationTriangle, faInfoCircle, faServer } from '@fortawesome/free-solid-svg-icons';
+import {
+  faCheck,
+  faExclamationTriangle,
+  faInfoCircle,
+  faPuzzlePiece,
+  faServer,
+} from '@fortawesome/free-solid-svg-icons';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { Title } from '@mantine/core';
 import { useEffect, useState } from 'react';
@@ -6,8 +12,9 @@ import getGeneralHealth from '@/api/admin/system/health/getGeneralHealth.ts';
 import getNodesHealth from '@/api/admin/system/health/getNodesHealth.ts';
 import { httpErrorToHuman } from '@/api/axios.ts';
 import Card from '@/elements/Card.tsx';
+import Code from '@/elements/Code.tsx';
 import Spinner from '@/elements/Spinner.tsx';
-import Table from '@/elements/Table.tsx';
+import Table, { TableData, TableRow } from '@/elements/Table.tsx';
 import TitleCard from '@/elements/TitleCard.tsx';
 import { queryKeys } from '@/lib/queryKeys.ts';
 import { nodeTableColumns } from '@/lib/tableColumns.ts';
@@ -67,6 +74,36 @@ export default function AdminOverviewHealth() {
                   Avg. NTP Offset
                 </Card>
               </div>
+            </>
+          )}
+        </TitleCard>
+        <TitleCard title='Extension Migrations' icon={<FontAwesomeIcon icon={faPuzzlePiece} />}>
+          {!general ? (
+            <Spinner.Centered />
+          ) : !Object.keys(general.migrations.extensions).length ? (
+            <>No extension migrations found.</>
+          ) : (
+            <>
+              {Object.keys(general.migrations.extensions).length > 0 && (
+                <>
+                  <div className='mt-4' />
+                  <Table columns={['Package Name', 'Applied', 'Total']} loading={loading}>
+                    {Object.entries(general.migrations.extensions).map(([identifier, migrations]) => (
+                      <TableRow key={identifier}>
+                        <TableData>
+                          <Code>{identifier}</Code>
+                        </TableData>
+                        <TableData>
+                          <Code>{migrations.applied}</Code>
+                        </TableData>
+                        <TableData>
+                          <Code>{migrations.total}</Code>
+                        </TableData>
+                      </TableRow>
+                    ))}
+                  </Table>
+                </>
+              )}
             </>
           )}
         </TitleCard>

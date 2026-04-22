@@ -57,7 +57,7 @@ sentry = { workspace = true }
 sentry-anyhow = { workspace = true }
 russh = { workspace = true }
 rand = { workspace = true }
-constant_time_eq = "0.4.2"
+constant_time_eq = "0.5.0"
 urlencoding = { workspace = true }
 ignore = { version = "0.4.23", features = ["simd-accel"] }
 futures-util = { workspace = true }
