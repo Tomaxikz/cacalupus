@@ -52,6 +52,7 @@ export default function OobeNodeConfigure({ onNext, onBack, canGoBack, skipFrom,
       .get(getNodeUrl(node, '/api/system'), {
         headers: {
           Authorization: `Bearer ${node.token}`,
+          'Cache-Control': 'no-cache, no-store, must-revalidate',
         },
       })
       .then(({ data }) => {

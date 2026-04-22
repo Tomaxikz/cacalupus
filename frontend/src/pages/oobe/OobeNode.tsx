@@ -98,6 +98,14 @@ export default function OobeNode({ onNext, onBack, canGoBack, skipFrom, data }: 
           locationUuid: existingNode.location.uuid,
           backupConfigurationUuid: existingNode.backupConfiguration?.uuid ?? null,
         });
+
+        if (isNodeAIO(existingNode) && allocationsForm.values.ip && resolvedPorts.length > 0) {
+          await createNodeAllocations(existingNode.uuid, {
+            ip: allocationsForm.values.ip,
+            ipAlias: null,
+            ports: resolvedPorts,
+          });
+        }
       } else {
         const node = await createNode({
           name: form.values.name,
@@ -130,7 +138,8 @@ export default function OobeNode({ onNext, onBack, canGoBack, skipFrom, data }: 
     }
   };
 
-  const isFormValid = isEdit ? form.isValid() : form.isValid() && allocationsForm.isValid() && !!locationUuid;
+  const showAllocationsForm = (!isEdit || (existingNode && isNodeAIO(existingNode))) && data.allocations.length === 0;
+  const isFormValid = form.isValid() && !!locationUuid && (!showAllocationsForm || allocationsForm.isValid());
 
   return (
     <Stack gap='lg'>
@@ -209,7 +218,7 @@ export default function OobeNode({ onNext, onBack, canGoBack, skipFrom, data }: 
               />
             </div>
 
-            {!isEdit || isNodeAIO(existingNode) && (
+            {showAllocationsForm && (
               <Card>
                 <Title order={4}>{t('pages.oobe.node.allocationsTitle', {})}</Title>
                 <div className='flex flex-col sm:flex-row gap-2 items-start'>
@@ -222,9 +231,9 @@ export default function OobeNode({ onNext, onBack, canGoBack, skipFrom, data }: 
                   />
                   <TagsInput
                     withAsterisk
+                    flex={1}
                     label={t('pages.oobe.node.form.portRanges', {})}
                     placeholder={t('pages.oobe.node.form.portRangesPlaceholder', {})}
-                    flex={1}
                     {...allocationsForm.getInputProps('ports')}
                   />
                 </div>

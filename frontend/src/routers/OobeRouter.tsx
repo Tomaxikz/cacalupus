@@ -19,17 +19,19 @@ import { queryKeys } from '@/lib/queryKeys.ts';
 import { to } from '@/lib/routes.ts';
 import { adminEggRepositorySchema } from '@/lib/schemas/admin/eggRepositories.ts';
 import { adminLocationSchema } from '@/lib/schemas/admin/locations.ts';
-import { adminNodeSchema } from '@/lib/schemas/admin/nodes.ts';
+import { adminNodeAllocationSchema, adminNodeSchema } from '@/lib/schemas/admin/nodes.ts';
 import { adminServerSchema } from '@/lib/schemas/admin/servers.ts';
 import { oobeStepKey } from '@/lib/schemas/oobe.ts';
 import { useAuth } from '@/providers/AuthProvider.tsx';
 import { useTranslations } from '@/providers/TranslationProvider.tsx';
 import { steps } from '@/routers/oobeSteps.ts';
 import { useGlobalStore } from '@/stores/global.ts';
+import getNodeAllocations from "@/api/admin/nodes/allocations/getNodeAllocations.ts";
 
 export interface OobeData {
   locations: z.infer<typeof adminLocationSchema>[];
   nodes: z.infer<typeof adminNodeSchema>[];
+  allocations: z.infer<typeof adminNodeAllocationSchema>[];
   servers: z.infer<typeof adminServerSchema>[];
   eggRepositories: z.infer<typeof adminEggRepositorySchema>[];
   isLoading: boolean;
@@ -67,6 +69,12 @@ export default function OobeRouter() {
     queryFn: () => getNodes(1).then((r) => r.data),
     enabled: !!user,
   });
+  const nodeUuid = nodesData?.[0]?.uuid;
+  const { data: nodeAllocationsData, isLoading: nodeAllocationsLoading } = useQuery({
+    queryKey: queryKeys.admin.nodes.allocations(nodeUuid ?? ''),
+    queryFn: () => getNodeAllocations(nodeUuid!, 1).then((r) => r.data),
+    enabled: !!user && !!nodeUuid,
+  });
   const { data: serversData, isLoading: serversLoading } = useQuery({
     queryKey: queryKeys.admin.servers.all(),
     queryFn: () => getServers(1).then((r) => r.data),
@@ -81,12 +89,14 @@ export default function OobeRouter() {
   const oobeData: OobeData = {
     locations: locationsData ?? [],
     nodes: nodesData ?? [],
+    allocations: nodeAllocationsData ?? [],
     servers: serversData ?? [],
     eggRepositories: eggReposData ?? [],
-    isLoading: locLoading || nodesLoading || serversLoading || eggReposLoading,
+    isLoading: locLoading || nodesLoading || nodeAllocationsLoading || serversLoading || eggReposLoading,
     refetch: () => {
       queryClient.invalidateQueries({ queryKey: queryKeys.admin.locations.all() });
       queryClient.invalidateQueries({ queryKey: queryKeys.admin.nodes.all() });
+      if (nodeUuid) queryClient.invalidateQueries({ queryKey: queryKeys.admin.nodes.allocations(nodeUuid) });
       queryClient.invalidateQueries({ queryKey: queryKeys.admin.servers.all() });
       queryClient.invalidateQueries({ queryKey: queryKeys.admin.eggRepositories.all() });
     },
