@@ -1,4 +1,4 @@
-import { Box } from '@mantine/core';
+import { Box, StyleProp } from "@mantine/core";
 import { startTransition, useEffect, useRef, useState } from 'react';
 import { makeComponentHookable } from 'shared';
 import { closestUnit, formatUnitBytes, mapUnitToLocale, mbToBytes, UNITS, unitToBytes } from '@/lib/size.ts';
@@ -13,9 +13,10 @@ interface SizeInputProps {
   min: number;
   value: number;
   onChange: (value: number) => void;
+  flex?: StyleProp<React.CSSProperties['flex']>
 }
 
-function SizeInput({ mode, min, value, onChange, ...rest }: SizeInputProps) {
+function SizeInput({ mode, min, value, onChange, flex, ...rest }: SizeInputProps) {
   const isSpecialValue = value === -1;
   const bytes = isSpecialValue ? -1 : mode === 'b' ? value : mbToBytes(value);
 
@@ -81,7 +82,7 @@ function SizeInput({ mode, min, value, onChange, ...rest }: SizeInputProps) {
   };
 
   return (
-    <Box pos='relative'>
+    <Box pos='relative' flex={flex}>
       <NumberInput {...rest} min={min} value={displayValue} onChange={handleValueChange} hideControls />
       <Select
         data={availableUnits.map((u) => ({

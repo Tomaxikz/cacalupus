@@ -245,6 +245,7 @@ export default function OobeServer({ onNext, onBack, canGoBack, skipFrom, data }
                     description='The amount of swap to give this server, -1 will not set a limit'
                     mode='mb'
                     min={-1}
+                    flex={1}
                     value={form.getValues().limits.swap}
                     onChange={(value) => form.setFieldValue('limits.swap', value)}
                   />
@@ -257,6 +258,7 @@ export default function OobeServer({ onNext, onBack, canGoBack, skipFrom, data }
                     description='The Memory limit of the server container, 0 will not set a limit'
                     mode='mb'
                     min={0}
+                    flex={1}
                     value={form.getValues().limits.memory}
                     onChange={(value) => form.setFieldValue('limits.memory', value)}
                   />
@@ -266,6 +268,7 @@ export default function OobeServer({ onNext, onBack, canGoBack, skipFrom, data }
                     description='The disk limit of the server, this is a soft-limit unless disk limiter configured on wings'
                     mode='mb'
                     min={0}
+                    flex={1}
                     value={form.getValues().limits.disk}
                     onChange={(value) => form.setFieldValue('limits.disk', value)}
                   />

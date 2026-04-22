@@ -194,6 +194,7 @@ export default function OobeNode({ onNext, onBack, canGoBack, skipFrom, data }: 
                 label={t('pages.oobe.node.form.memory', {})}
                 mode='mb'
                 min={0}
+                flex={1}
                 value={form.values.memory}
                 onChange={(value) => form.setFieldValue('memory', value)}
               />
@@ -202,12 +203,13 @@ export default function OobeNode({ onNext, onBack, canGoBack, skipFrom, data }: 
                 label={t('pages.oobe.node.form.disk', {})}
                 mode='mb'
                 min={0}
+                flex={1}
                 value={form.values.disk}
                 onChange={(value) => form.setFieldValue('disk', value)}
               />
             </div>
 
-            {!isEdit && (
+            {!isEdit || isNodeAIO(existingNode) && (
               <Card>
                 <Title order={4}>{t('pages.oobe.node.allocationsTitle', {})}</Title>
                 <div className='flex flex-col sm:flex-row gap-2 items-start'>
@@ -222,6 +224,7 @@ export default function OobeNode({ onNext, onBack, canGoBack, skipFrom, data }: 
                     withAsterisk
                     label={t('pages.oobe.node.form.portRanges', {})}
                     placeholder={t('pages.oobe.node.form.portRangesPlaceholder', {})}
+                    flex={1}
                     {...allocationsForm.getInputProps('ports')}
                   />
                 </div>
