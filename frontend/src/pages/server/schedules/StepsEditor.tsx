@@ -153,7 +153,7 @@ export default function StepsEditor({ schedule }: { schedule: z.infer<typeof ser
                     renderItem={({ dragHandleProps }) => (
                       <div {...dragHandleProps}>
                         <MemoizedStepCard
-                          onModalToggle={setChildModalOpen}
+                          onStepToggle={setChildModalOpen}
                           schedule={schedule}
                           step={step}
                           onStepUpdate={handleStepUpdate}
