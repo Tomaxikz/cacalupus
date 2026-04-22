@@ -38,6 +38,8 @@ async fn main() {
         }
         #[cfg(not(unix))]
         {
+            use colored::Colorize;
+
             eprintln!("{}", "invalid bind address".red());
             std::process::exit(1);
         }

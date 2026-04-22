@@ -19,6 +19,7 @@ sqlx = { workspace = true }
 zstd = { workspace = true }
 serde_norway = { workspace = true }
 sysinfo = { workspace = true }
+futures-util = { workspace = true }
 
 [target.'cfg(all(target_os = "linux", target_arch = "x86_64"))'.dependencies]
 tikv-jemallocator = "0.6.0"

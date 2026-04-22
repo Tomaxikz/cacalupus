@@ -4590,6 +4590,8 @@ version = "1.0.3"
 dependencies = [
  "axum",
  "backend",
+ "colored",
+ "futures-util",
  "shared",
  "tikv-jemallocator",
  "tokio",
@@ -4606,6 +4608,7 @@ dependencies = [
  "axum",
  "backend",
  "colored",
+ "futures-util",
  "reqwest 0.13.2",
  "serde",
  "serde_json",
