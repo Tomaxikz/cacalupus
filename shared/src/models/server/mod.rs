@@ -1367,6 +1367,27 @@ impl Server {
         permissions
     }
 
+    /// Gets the feature limits for the server, useful in case you need to loop over them or want to pass them to the frontend individually.
+    pub async fn feature_limits(
+        &self,
+        state: &crate::State,
+    ) -> Result<ApiServerFeatureLimits, anyhow::Error> {
+        let feature_limits = ApiServerFeatureLimits::init_hooks(&self, state).await?;
+
+        let feature_limits = finish_extendible!(
+            ApiServerFeatureLimits {
+                allocations: self.allocation_limit,
+                databases: self.database_limit,
+                backups: self.backup_limit,
+                schedules: self.schedule_limit,
+            },
+            feature_limits,
+            state
+        )?;
+
+        Ok(feature_limits)
+    }
+
     pub async fn backup_configuration(
         &self,
         database: &crate::database::Database,
