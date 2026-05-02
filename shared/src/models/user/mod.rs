@@ -601,6 +601,45 @@ impl User {
         Ok(())
     }
 
+    /// Update the User password, `None` will disallow password login and not require one when changing
+    pub async fn update_password_with_transaction(
+        &mut self,
+        transaction: &mut sqlx::Transaction<'_, sqlx::Postgres>,
+        password: Option<&str>,
+    ) -> Result<(), crate::database::DatabaseError> {
+        if let Some(password) = password {
+            sqlx::query(
+                r#"
+		            UPDATE users
+		            SET password = crypt($2, gen_salt('bf'))
+		            WHERE users.uuid = $1
+		            "#,
+            )
+            .bind(self.uuid)
+            .bind(password)
+            .execute(&mut **transaction)
+            .await?;
+
+            self.has_password = true;
+        } else {
+            sqlx::query(
+                r#"
+		            UPDATE users
+		            SET password = NULL
+		            WHERE users.uuid = $1
+		            "#,
+            )
+            .bind(self.uuid)
+            .bind(password)
+            .execute(&mut **transaction)
+            .await?;
+
+            self.has_password = false;
+        }
+
+        Ok(())
+    }
+
     pub fn require_two_factor(&self, settings: &crate::settings::AppSettings) -> bool {
         if let Some(role) = &self.role {
             role.require_two_factor
@@ -979,7 +1018,7 @@ impl UpdatableModel for User {
         }
 
         if let Some(password) = options.password {
-            self.update_password(&state.database, password.as_deref())
+            self.update_password_with_transaction(transaction, password.as_deref())
                 .await?;
         }
 
