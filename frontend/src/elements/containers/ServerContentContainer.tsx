@@ -6,15 +6,14 @@ import { ContainerRegistry, makeComponentHookable } from 'shared';
 import cancelTransfer from '@/api/admin/servers/cancelTransfer.ts';
 import { httpErrorToHuman } from '@/api/axios.ts';
 import cancelServerInstall from '@/api/server/settings/cancelServerInstall.ts';
+import DismissibleAnnouncementAlert from '@/elements/DismissibleAnnouncementAlert.tsx';
 import TextInput from '@/elements/input/TextInput.tsx';
-import { announcementTypeColorMapping, announcementTypeIconMapping } from '@/lib/enums.ts';
 import { bytesToString } from '@/lib/size.ts';
 import { useAuth } from '@/providers/AuthProvider.tsx';
 import { useCurrentWindow } from '@/providers/CurrentWindowProvider.tsx';
 import { useToast } from '@/providers/ToastProvider.tsx';
 import { useTranslations } from '@/providers/TranslationProvider.tsx';
 import { useServerStore } from '@/stores/server.ts';
-import Alert from '../Alert.tsx';
 import Button from '../Button.tsx';
 import { AdminCan, ServerCan } from '../Can.tsx';
 import Notification from '../Notification.tsx';
@@ -62,7 +61,7 @@ function ServerContentContainer(props: Props) {
     fullscreen = false,
   } = props;
 
-  const { t, language } = useTranslations();
+  const { t } = useTranslations();
   const {
     server,
     serverAnnouncements,
@@ -118,15 +117,7 @@ function ServerContentContainer(props: Props) {
   return (
     <ContentContainer title={`${title} | ${server.name}`}>
       {serverAnnouncements.map((announcement) => (
-        <Alert
-          icon={<FontAwesomeIcon icon={announcementTypeIconMapping[announcement.type]} />}
-          key={announcement.uuid}
-          title={announcement.titleTranslations[language] ?? announcement.title}
-          color={announcementTypeColorMapping[announcement.type]}
-          className='mt-2 mx-2'
-        >
-          {(announcement.contentTranslations[language] ?? announcement.content).md()}
-        </Alert>
+        <DismissibleAnnouncementAlert key={announcement.uuid} announcement={announcement} />
       ))}
 
       {fullscreen ? null : server.isTransferring ? (

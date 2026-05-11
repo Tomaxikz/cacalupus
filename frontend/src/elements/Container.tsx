@@ -3,11 +3,11 @@ import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { ReactNode } from 'react';
 import { makeComponentHookable } from 'shared';
 import Copyright from '@/elements/Copyright.tsx';
-import { announcementTypeColorMapping, announcementTypeIconMapping } from '@/lib/enums.ts';
 import { useAuth } from '@/providers/AuthProvider.tsx';
 import { useTranslations } from '@/providers/TranslationProvider.tsx';
 import { useGlobalStore } from '@/stores/global.ts';
 import Alert from './Alert.tsx';
+import DismissibleAnnouncementAlert from './DismissibleAnnouncementAlert.tsx';
 
 interface LayoutProps {
   children: ReactNode;
@@ -15,7 +15,7 @@ interface LayoutProps {
 }
 
 function Container({ children, isNormal }: LayoutProps) {
-  const { t, language } = useTranslations();
+  const { t } = useTranslations();
   const { impersonating } = useAuth();
   const { announcements } = useGlobalStore();
 
@@ -34,15 +34,7 @@ function Container({ children, isNormal }: LayoutProps) {
           </Alert>
         )}
         {announcements.map((announcement) => (
-          <Alert
-            icon={<FontAwesomeIcon icon={announcementTypeIconMapping[announcement.type]} />}
-            key={announcement.uuid}
-            title={announcement.titleTranslations[language] ?? announcement.title}
-            color={announcementTypeColorMapping[announcement.type]}
-            className='mt-2 mx-2'
-          >
-            {(announcement.contentTranslations[language] ?? announcement.content).md()}
-          </Alert>
+          <DismissibleAnnouncementAlert key={announcement.uuid} announcement={announcement} />
         ))}
 
         {children}

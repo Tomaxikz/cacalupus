@@ -57,6 +57,8 @@ export default function AnnouncementCreateOrUpdate({
       enabled: true,
       enabledStart: null,
       enabledEnd: null,
+      dismissible: false,
+      dismissibleEnd: null,
       title: '',
       titleTranslations: {},
       content: '',
@@ -92,6 +94,8 @@ export default function AnnouncementCreateOrUpdate({
         enabled: contextAnnouncement.enabled,
         enabledStart: contextAnnouncement.enabledStart ? new Date(contextAnnouncement.enabledStart) : null,
         enabledEnd: contextAnnouncement.enabledEnd ? new Date(contextAnnouncement.enabledEnd) : null,
+        dismissible: contextAnnouncement.dismissible,
+        dismissibleEnd: contextAnnouncement.dismissibleEnd ? new Date(contextAnnouncement.dismissibleEnd) : null,
         title: contextAnnouncement.title,
         titleTranslations: contextAnnouncement.titleTranslations,
         content: contextAnnouncement.content,
@@ -190,6 +194,13 @@ export default function AnnouncementCreateOrUpdate({
           />
 
           <DateTimePicker
+            label='Dismissible End'
+            clearable
+            value={form.values.dismissibleEnd}
+            onChange={(value) => form.setFieldValue('dismissibleEnd', value ? new Date(value) : null)}
+          />
+
+          <DateTimePicker
             label='Enabled Start'
             clearable
             value={form.values.enabledStart}
@@ -252,6 +263,12 @@ export default function AnnouncementCreateOrUpdate({
           />
 
           <Switch label='Enabled' key={form.key('enabled')} {...form.getInputProps('enabled', { type: 'checkbox' })} />
+
+          <Switch
+            label='Dismissible'
+            key={form.key('dismissible')}
+            {...form.getInputProps('dismissible', { type: 'checkbox' })}
+          />
         </div>
 
         <Group mt='md'>

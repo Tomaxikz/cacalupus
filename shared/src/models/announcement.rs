@@ -82,6 +82,8 @@ pub struct Announcement {
     pub enabled: bool,
     pub enabled_start: Option<chrono::NaiveDateTime>,
     pub enabled_end: Option<chrono::NaiveDateTime>,
+    pub dismissible: bool,
+    pub dismissible_end: Option<chrono::NaiveDateTime>,
 
     pub title: compact_str::CompactString,
     pub title_translations: BTreeMap<compact_str::CompactString, compact_str::CompactString>,
@@ -138,6 +140,14 @@ impl BaseModel for Announcement {
                 compact_str::format_compact!("{prefix}enabled_end"),
             ),
             (
+                "announcements.dismissible",
+                compact_str::format_compact!("{prefix}dismissible"),
+            ),
+            (
+                "announcements.dismissible_end",
+                compact_str::format_compact!("{prefix}dismissible_end"),
+            ),
+            (
                 "announcements.title",
                 compact_str::format_compact!("{prefix}title"),
             ),
@@ -188,6 +198,10 @@ impl BaseModel for Announcement {
                 .try_get(compact_str::format_compact!("{prefix}enabled_start").as_str())?,
             enabled_end: row
                 .try_get(compact_str::format_compact!("{prefix}enabled_end").as_str())?,
+            dismissible: row
+                .try_get(compact_str::format_compact!("{prefix}dismissible").as_str())?,
+            dismissible_end: row
+                .try_get(compact_str::format_compact!("{prefix}dismissible_end").as_str())?,
             title: row.try_get(compact_str::format_compact!("{prefix}title").as_str())?,
             title_translations: serde_json::from_value(
                 row.try_get(compact_str::format_compact!("{prefix}title_translations").as_str())?,
@@ -340,6 +354,8 @@ impl IntoAdminApiObject for Announcement {
                 enabled: self.enabled,
                 enabled_start: self.enabled_start.map(|dt| dt.and_utc()),
                 enabled_end: self.enabled_end.map(|dt| dt.and_utc()),
+                dismissible: self.dismissible,
+                dismissible_end: self.dismissible_end.map(|dt| dt.and_utc()),
                 title: self.title,
                 title_translations: self.title_translations,
                 content: self.content,
@@ -374,6 +390,8 @@ impl IntoApiObject for Announcement {
             ApiAnnouncement {
                 uuid: self.uuid,
                 r#type: self.r#type,
+                dismissible: self.dismissible,
+                dismissible_end: self.dismissible_end.map(|dt| dt.and_utc()),
                 title: self.title,
                 title_translations: self.title_translations,
                 content: self.content,
@@ -439,6 +457,10 @@ pub struct CreateAnnouncementOptions {
     pub enabled_start: Option<chrono::DateTime<chrono::Utc>>,
     #[garde(skip)]
     pub enabled_end: Option<chrono::DateTime<chrono::Utc>>,
+    #[garde(skip)]
+    pub dismissible: bool,
+    #[garde(skip)]
+    pub dismissible_end: Option<chrono::DateTime<chrono::Utc>>,
 
     #[garde(length(chars, min = 1, max = 255))]
     #[schema(min_length = 1, max_length = 255)]
@@ -493,6 +515,8 @@ impl CreatableModel for Announcement {
             .set("enabled", options.enabled)
             .set("enabled_start", options.enabled_start)
             .set("enabled_end", options.enabled_end)
+            .set("dismissible", options.dismissible)
+            .set("dismissible_end", options.dismissible_end)
             .set("title", &options.title)
             .set(
                 "title_translations",
@@ -533,6 +557,11 @@ pub struct UpdateAnnouncementOptions {
     #[garde(skip)]
     #[serde(default, with = "::serde_with::rust::double_option")]
     pub enabled_end: Option<Option<chrono::DateTime<chrono::Utc>>>,
+    #[garde(skip)]
+    pub dismissible: Option<bool>,
+    #[garde(skip)]
+    #[serde(default, with = "::serde_with::rust::double_option")]
+    pub dismissible_end: Option<Option<chrono::DateTime<chrono::Utc>>>,
 
     #[garde(length(chars, min = 1, max = 255))]
     #[schema(min_length = 1, max_length = 255)]
@@ -602,6 +631,14 @@ impl UpdatableModel for Announcement {
                     .as_ref()
                     .map(|dt| dt.as_ref().map(|dt| dt.naive_utc())),
             )
+            .set("dismissible", options.dismissible)
+            .set(
+                "dismissible_end",
+                options
+                    .dismissible_end
+                    .as_ref()
+                    .map(|dt| dt.as_ref().map(|dt| dt.naive_utc())),
+            )
             .set("title", options.title.as_ref())
             .set(
                 "title_translations",
@@ -642,6 +679,12 @@ impl UpdatableModel for Announcement {
         }
         if let Some(enabled_end) = options.enabled_end {
             self.enabled_end = enabled_end.map(|dt| dt.naive_utc());
+        }
+        if let Some(dismissible) = options.dismissible {
+            self.dismissible = dismissible;
+        }
+        if let Some(dismissible_end) = options.dismissible_end {
+            self.dismissible_end = dismissible_end.map(|dt| dt.naive_utc());
         }
         if let Some(title) = options.title {
             self.title = title;
@@ -723,6 +766,8 @@ pub struct AdminApiAnnouncement {
     pub enabled: bool,
     pub enabled_start: Option<chrono::DateTime<chrono::Utc>>,
     pub enabled_end: Option<chrono::DateTime<chrono::Utc>>,
+    pub dismissible: bool,
+    pub dismissible_end: Option<chrono::DateTime<chrono::Utc>>,
 
     pub title: compact_str::CompactString,
     pub title_translations: BTreeMap<compact_str::CompactString, compact_str::CompactString>,
@@ -746,6 +791,8 @@ pub struct ApiAnnouncement {
     pub uuid: uuid::Uuid,
 
     pub r#type: AnnouncementType,
+    pub dismissible: bool,
+    pub dismissible_end: Option<chrono::DateTime<chrono::Utc>>,
 
     pub title: compact_str::CompactString,
     pub title_translations: BTreeMap<compact_str::CompactString, compact_str::CompactString>,

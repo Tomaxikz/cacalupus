@@ -11,5 +11,6 @@ export default async (
     ...transformKeysToSnakeCase(announcementData),
     enabled_start: announcementData.enabledStart ? announcementData.enabledStart.toISOString() : null,
     enabled_end: announcementData.enabledEnd ? announcementData.enabledEnd.toISOString() : null,
+    dismissible_end: announcementData.dismissibleEnd ? announcementData.dismissibleEnd.toISOString() : null,
   });
 };

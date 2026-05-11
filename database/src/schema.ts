@@ -66,41 +66,39 @@ export const settingsTable = pgTable('settings', {
   value: text().notNull(),
 });
 
-export const versionHistoryTable = pgTable('version_history', {
-  extension: varchar({ length: 255 }).notNull(),
-  version: varchar({ length: 255 }).notNull(),
-  installed: timestamp().defaultNow().notNull(),
-}, (cols) => [
-  primaryKey({ name: 'version_history_extension_version_pk', columns: [cols.extension, cols.version] }),
-]);
-
-export const announcementsTable = pgTable(
-  'announcements',
+export const versionHistoryTable = pgTable(
+  'version_history',
   {
-    uuid: uuid().default(sql`gen_random_uuid()`).primaryKey().notNull(),
-    type: announcementTypeEnum().notNull(),
-    enabled: boolean().default(false).notNull(),
-    enabled_start: timestamp(),
-    enabled_end: timestamp(),
-    title: varchar({ length: 255 * UTF8_MAX_SCALAR_SIZE }).notNull(),
-    title_translations: jsonb().default({}).notNull(),
-    content: text().notNull(),
-    content_translations: jsonb().default({}).notNull(),
-    locations: uuid().array().default([]).notNull(),
-    nodes: uuid().array().default([]).notNull(),
-    backup_configurations: uuid().array().default([]).notNull(),
-    eggs: uuid().array().default([]).notNull(),
-    created: timestamp().defaultNow().notNull(),
-  }
-);
-
-export const emailTemplatesTable = pgTable(
-  'email_templates',
-  {
-    identifier: varchar({ length: 255 }).primaryKey().notNull(),
-    content: text().notNull(),
+    extension: varchar({ length: 255 }).notNull(),
+    version: varchar({ length: 255 }).notNull(),
+    installed: timestamp().defaultNow().notNull(),
   },
+  (cols) => [primaryKey({ name: 'version_history_extension_version_pk', columns: [cols.extension, cols.version] })],
 );
+
+export const announcementsTable = pgTable('announcements', {
+  uuid: uuid().default(sql`gen_random_uuid()`).primaryKey().notNull(),
+  type: announcementTypeEnum().notNull(),
+  enabled: boolean().default(false).notNull(),
+  enabled_start: timestamp(),
+  enabled_end: timestamp(),
+  dismissible: boolean().default(false).notNull(),
+  dismissible_end: timestamp(),
+  title: varchar({ length: 255 * UTF8_MAX_SCALAR_SIZE }).notNull(),
+  title_translations: jsonb().default({}).notNull(),
+  content: text().notNull(),
+  content_translations: jsonb().default({}).notNull(),
+  locations: uuid().array().default([]).notNull(),
+  nodes: uuid().array().default([]).notNull(),
+  backup_configurations: uuid().array().default([]).notNull(),
+  eggs: uuid().array().default([]).notNull(),
+  created: timestamp().defaultNow().notNull(),
+});
+
+export const emailTemplatesTable = pgTable('email_templates', {
+  identifier: varchar({ length: 255 }).primaryKey().notNull(),
+  content: text().notNull(),
+});
 
 export const usersTable = pgTable(
   'users',
@@ -670,9 +668,7 @@ export const databaseHostsTable = pgTable(
     credentials: jsonb().notNull(),
     created: timestamp().defaultNow().notNull(),
   },
-  (cols) => [
-    uniqueIndex('database_hosts_name_idx').on(cols.name),
-  ],
+  (cols) => [uniqueIndex('database_hosts_name_idx').on(cols.name)],
 );
 
 export const serversTable = pgTable(

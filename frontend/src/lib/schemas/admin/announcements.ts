@@ -5,8 +5,10 @@ export const adminAnnouncementSchema = z.object({
   uuid: z.string(),
   type: z.lazy(() => announcementType),
   enabled: z.boolean(),
-  enabledStart: z.string().nullable(),
-  enabledEnd: z.string().nullable(),
+  enabledStart: z.date().nullable(),
+  enabledEnd: z.date().nullable(),
+  dismissible: z.boolean(),
+  dismissibleEnd: z.date().nullable(),
   title: z.string().min(1).max(255),
   titleTranslations: z.record(z.string(), z.string()),
   content: z.string().min(1).max(2048),
@@ -18,9 +20,6 @@ export const adminAnnouncementSchema = z.object({
   created: z.string(),
 });
 
-export const adminAnnouncementUpdateSchema = adminAnnouncementSchema.omit({ uuid: true, created: true }).extend({
-  enabledStart: z.date().nullable(),
-  enabledEnd: z.date().nullable(),
-});
+export const adminAnnouncementUpdateSchema = adminAnnouncementSchema.omit({ uuid: true, created: true });
 
 export const adminAnnouncementCreateSchema = adminAnnouncementUpdateSchema;
