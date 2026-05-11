@@ -247,11 +247,14 @@ impl User {
             .cached(&format!("user::session::{session}"), 5, || async {
                 let row = sqlx::query(&format!(
                     r#"
+                    WITH user_sessions AS MATERIALIZED (
+                        SELECT * FROM user_sessions WHERE key_id = $1
+                    )
                     SELECT {}, {}
                     FROM users
                     LEFT JOIN roles ON roles.uuid = users.role_uuid
                     JOIN user_sessions ON user_sessions.user_uuid = users.uuid
-                    WHERE user_sessions.key_id = $1 AND user_sessions.key = crypt($2, user_sessions.key)
+                    WHERE user_sessions.key = crypt($2, user_sessions.key)
                     "#,
                     Self::columns_sql(None),
                     super::user_session::UserSession::columns_sql(Some("session_"))

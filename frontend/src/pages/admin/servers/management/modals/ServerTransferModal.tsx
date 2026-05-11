@@ -4,9 +4,9 @@ import { useNavigate } from 'react-router';
 import { z } from 'zod';
 import getAvailableNodeAllocations from '@/api/admin/nodes/allocations/getAvailableNodeAllocations.ts';
 import getNodes from '@/api/admin/nodes/getNodes.ts';
+import getServerBackups from '@/api/admin/servers/backups/getServerBackups.ts';
 import postTransfer from '@/api/admin/servers/postTransfer.ts';
 import { getEmptyPaginationSet, httpErrorToHuman } from '@/api/axios.ts';
-import getBackups from '@/api/server/backups/getBackups.ts';
 import Alert from '@/elements/Alert.tsx';
 import Button from '@/elements/Button.tsx';
 import Code from '@/elements/Code.tsx';
@@ -75,7 +75,7 @@ export default function ServerTransferModal({
   });
   const backups = useSearchableResource<z.infer<typeof serverBackupSchema>>({
     queryKey: queryKeys.admin.servers.backups(server.uuid),
-    fetcher: (search) => getBackups(server.uuid, 1, search),
+    fetcher: (search) => getServerBackups(server.uuid, 1, search),
     canRequest: opened,
   });
 
@@ -186,10 +186,12 @@ export default function ServerTransferModal({
             placeholder='Backups to transfer'
             value={selectedBackupUuids}
             onChange={(value) => setSelectedBackupsUuids(value)}
-            data={backups.items.map((backup) => ({
-              label: backup.name,
-              value: backup.uuid,
-            }))}
+            data={backups.items
+              .filter((backup) => !backup.isShared)
+              .map((backup) => ({
+                label: backup.name,
+                value: backup.uuid,
+              }))}
             searchable
             searchValue={backups.search}
             onSearchChange={backups.setSearch}

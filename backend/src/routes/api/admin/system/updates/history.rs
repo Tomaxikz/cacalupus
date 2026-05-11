@@ -2,14 +2,13 @@ use super::State;
 use utoipa_axum::{router::OpenApiRouter, routes};
 
 mod get {
-    use std::collections::BTreeMap;
-
     use serde::Serialize;
     use shared::{
         ApiError, GetState,
         models::user::GetPermissionManager,
         response::{ApiResponse, ApiResponseResult},
     };
+    use std::collections::BTreeMap;
     use utoipa::ToSchema;
 
     #[derive(ToSchema, Serialize)]

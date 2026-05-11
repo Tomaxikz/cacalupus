@@ -191,6 +191,7 @@ pub struct BackupConfiguration {
     pub description: Option<compact_str::CompactString>,
 
     pub maintenance_enabled: bool,
+    pub shared: bool,
 
     pub backup_disk: super::server_backup::BackupDisk,
     pub backup_configs: BackupConfigs,
@@ -236,6 +237,10 @@ impl BaseModel for BackupConfiguration {
                 compact_str::format_compact!("{prefix}maintenance_enabled"),
             ),
             (
+                "backup_configurations.shared",
+                compact_str::format_compact!("{prefix}shared"),
+            ),
+            (
                 "backup_configurations.backup_disk",
                 compact_str::format_compact!("{prefix}backup_disk"),
             ),
@@ -261,6 +266,7 @@ impl BaseModel for BackupConfiguration {
                 .try_get(compact_str::format_compact!("{prefix}description").as_str())?,
             maintenance_enabled: row
                 .try_get(compact_str::format_compact!("{prefix}maintenance_enabled").as_str())?,
+            shared: row.try_get(compact_str::format_compact!("{prefix}shared").as_str())?,
             backup_disk: row
                 .try_get(compact_str::format_compact!("{prefix}backup_disk").as_str())?,
             backup_configs: serde_json::from_value(
@@ -330,8 +336,9 @@ impl IntoAdminApiObject for BackupConfiguration {
             AdminApiBackupConfiguration {
                 uuid: self.uuid,
                 name: self.name,
-                maintenance_enabled: self.maintenance_enabled,
                 description: self.description,
+                maintenance_enabled: self.maintenance_enabled,
+                shared: self.shared,
                 backup_disk: self.backup_disk,
                 backup_configs: self.backup_configs,
                 created: self.created.and_utc(),
@@ -396,6 +403,8 @@ pub struct CreateBackupConfigurationOptions {
     #[garde(skip)]
     pub maintenance_enabled: bool,
     #[garde(skip)]
+    pub shared: bool,
+    #[garde(skip)]
     pub backup_disk: super::server_backup::BackupDisk,
     #[garde(dive)]
     pub backup_configs: BackupConfigs,
@@ -430,6 +439,7 @@ impl CreatableModel for BackupConfiguration {
             .set("name", &options.name)
             .set("description", &options.description)
             .set("maintenance_enabled", options.maintenance_enabled)
+            .set("shared", options.shared)
             .set("backup_disk", options.backup_disk)
             .set(
                 "backup_configs",
@@ -464,6 +474,8 @@ pub struct UpdateBackupConfigurationOptions {
     pub description: Option<Option<compact_str::CompactString>>,
     #[garde(skip)]
     pub maintenance_enabled: Option<bool>,
+    #[garde(skip)]
+    pub shared: Option<bool>,
     #[garde(skip)]
     pub backup_disk: Option<super::server_backup::BackupDisk>,
     #[garde(dive)]
@@ -501,6 +513,7 @@ impl UpdatableModel for BackupConfiguration {
                 options.description.as_ref().map(|d| d.as_ref()),
             )
             .set("maintenance_enabled", options.maintenance_enabled)
+            .set("shared", options.shared)
             .set("backup_disk", options.backup_disk)
             .set(
                 "backup_configs",
@@ -524,6 +537,9 @@ impl UpdatableModel for BackupConfiguration {
         }
         if let Some(maintenance_enabled) = options.maintenance_enabled {
             self.maintenance_enabled = maintenance_enabled;
+        }
+        if let Some(shared) = options.shared {
+            self.shared = shared;
         }
         if let Some(backup_disk) = options.backup_disk {
             self.backup_disk = backup_disk;
@@ -584,8 +600,10 @@ pub struct AdminApiBackupConfiguration {
     pub uuid: uuid::Uuid,
 
     pub name: compact_str::CompactString,
-    pub maintenance_enabled: bool,
     pub description: Option<compact_str::CompactString>,
+
+    pub maintenance_enabled: bool,
+    pub shared: bool,
 
     pub backup_disk: super::server_backup::BackupDisk,
     pub backup_configs: BackupConfigs,

@@ -53,6 +53,7 @@ pub struct ServerBackup {
     pub browsable: bool,
     pub streaming: bool,
     pub locked: bool,
+    pub shared: bool,
 
     pub ignored_files: Vec<compact_str::CompactString>,
     pub checksum: Option<compact_str::CompactString>,
@@ -126,6 +127,10 @@ impl BaseModel for ServerBackup {
                 compact_str::format_compact!("{prefix}locked"),
             ),
             (
+                "server_backups.shared",
+                compact_str::format_compact!("{prefix}shared"),
+            ),
+            (
                 "server_backups.ignored_files",
                 compact_str::format_compact!("{prefix}ignored_files"),
             ),
@@ -191,6 +196,7 @@ impl BaseModel for ServerBackup {
             browsable: row.try_get(compact_str::format_compact!("{prefix}browsable").as_str())?,
             streaming: row.try_get(compact_str::format_compact!("{prefix}streaming").as_str())?,
             locked: row.try_get(compact_str::format_compact!("{prefix}locked").as_str())?,
+            shared: row.try_get(compact_str::format_compact!("{prefix}shared").as_str())?,
             ignored_files: row
                 .try_get(compact_str::format_compact!("{prefix}ignored_files").as_str())?,
             checksum: row.try_get(compact_str::format_compact!("{prefix}checksum").as_str())?,
@@ -234,8 +240,8 @@ impl ServerBackup {
 
         let row = sqlx::query(&format!(
             r#"
-            INSERT INTO server_backups (server_uuid, node_uuid, backup_configuration_uuid, name, ignored_files, bytes, disk)
-            VALUES ($1, $2, $3, $4, $5, $6, $7)
+            INSERT INTO server_backups (server_uuid, node_uuid, backup_configuration_uuid, name, ignored_files, bytes, disk, shared)
+            VALUES ($1, $2, $3, $4, $5, $6, $7, $8)
             RETURNING {}
             "#,
             Self::columns_sql(None)
@@ -247,6 +253,7 @@ impl ServerBackup {
         .bind(&options.ignored_files)
         .bind(0i64)
         .bind(backup_configuration.backup_disk)
+        .bind(backup_configuration.shared)
         .fetch_one(state.database.write())
         .await?;
 
@@ -575,6 +582,27 @@ impl ServerBackup {
             .collect())
     }
 
+    pub async fn all_uuids_by_server_uuid_not_shared(
+        database: &crate::database::Database,
+        server_uuid: uuid::Uuid,
+    ) -> Result<Vec<uuid::Uuid>, crate::database::DatabaseError> {
+        let rows = sqlx::query(
+            r#"
+            SELECT server_backups.uuid
+            FROM server_backups
+            WHERE server_backups.server_uuid = $1 AND server_backups.deleted IS NULL AND server_backups.shared = false
+            "#,
+        )
+        .bind(server_uuid)
+        .fetch_all(database.read())
+        .await?;
+
+        Ok(rows
+            .into_iter()
+            .map(|row| row.get::<uuid::Uuid, _>("uuid"))
+            .collect())
+    }
+
     pub async fn all_by_server_uuid(
         database: &crate::database::Database,
         server_uuid: uuid::Uuid,
@@ -818,18 +846,11 @@ impl ServerBackup {
         }
     }
 
-    #[inline]
-    pub fn is_remote(&self) -> bool {
-        matches!(self.disk, BackupDisk::S3 | BackupDisk::Restic)
-    }
-
     pub async fn into_admin_node_api_object(
         self,
         state: &crate::State,
         storage_url_retriever: &StorageUrlRetriever<'_>,
     ) -> Result<AdminApiNodeServerBackup, crate::database::DatabaseError> {
-        let is_remote = self.is_remote();
-
         Ok(AdminApiNodeServerBackup {
             uuid: self.uuid,
             server: match self.server {
@@ -854,7 +875,7 @@ impl ServerBackup {
             is_locked: self.locked,
             is_browsable: self.browsable,
             is_streaming: self.streaming,
-            is_remote,
+            is_shared: self.shared,
             checksum: self.checksum,
             bytes: self.bytes,
             files: self.files,
@@ -895,6 +916,7 @@ impl IntoAdminApiObject for ServerBackup {
                 is_locked: self.locked,
                 is_browsable: self.browsable,
                 is_streaming: self.streaming,
+                is_shared: self.shared,
                 checksum: self.checksum,
                 bytes: self.bytes,
                 files: self.files,
@@ -1017,7 +1039,8 @@ impl CreatableModel for ServerBackup {
             .set("name", &options.name)
             .set("ignored_files", &options.ignored_files)
             .set("bytes", 0i64)
-            .set("disk", backup_configuration.backup_disk);
+            .set("disk", backup_configuration.backup_disk)
+            .set("shared", backup_configuration.shared);
 
         let row = query_builder
             .returning(&Self::columns_sql(None))
@@ -1398,7 +1421,7 @@ pub struct AdminApiNodeServerBackup {
     pub is_locked: bool,
     pub is_browsable: bool,
     pub is_streaming: bool,
-    pub is_remote: bool,
+    pub is_shared: bool,
 
     pub checksum: Option<compact_str::CompactString>,
     pub bytes: i64,
@@ -1424,6 +1447,7 @@ pub struct AdminApiServerBackup {
     pub is_locked: bool,
     pub is_browsable: bool,
     pub is_streaming: bool,
+    pub is_shared: bool,
 
     pub checksum: Option<compact_str::CompactString>,
     pub bytes: i64,

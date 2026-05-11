@@ -74,7 +74,7 @@ mod post {
                 }
             };
 
-        if server.node.uuid != node.uuid && !backup.is_remote() {
+        if server.node.uuid != node.uuid && !backup.shared {
             return ApiResponse::error("server does not belong to the same node as the backup")
                 .with_status(StatusCode::BAD_REQUEST)
                 .ok();

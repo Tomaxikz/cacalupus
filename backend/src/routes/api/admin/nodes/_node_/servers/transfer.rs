@@ -94,7 +94,8 @@ mod post {
             }
 
             let backups = if data.transfer_backups {
-                ServerBackup::all_uuids_by_server_uuid(&state.database, server.uuid).await?
+                ServerBackup::all_uuids_by_server_uuid_not_shared(&state.database, server.uuid)
+                    .await?
             } else {
                 Vec::new()
             };

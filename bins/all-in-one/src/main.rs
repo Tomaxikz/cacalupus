@@ -66,6 +66,7 @@ async fn handle_aio_wings(state: &shared::State) -> Result<(), anyhow::Error> {
                                 name: "Integrated Backup Configuration".into(),
                                 description: None,
                                 maintenance_enabled: false,
+                                shared: false,
                                 backup_disk: shared::models::server_backup::BackupDisk::Local,
                                 backup_configs: Default::default(),
                             }).await?

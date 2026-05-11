@@ -110,7 +110,7 @@ export const adminServerBackupSchema = z.object({
   isLocked: z.boolean(),
   isBrowsable: z.boolean(),
   isStreaming: z.boolean(),
-  isRemote: z.boolean(),
+  isShared: z.boolean(),
   checksum: z.string().nullable(),
   bytes: z.number(),
   files: z.number(),

@@ -27,8 +27,8 @@ export default function NodeBackupsRestoreModal({ node, backup, opened, onClose 
   const [loading, setLoading] = useState(false);
 
   const servers = useSearchableResource<z.infer<typeof adminServerSchema>>({
-    queryKey: backup.isRemote ? queryKeys.admin.servers.all() : queryKeys.admin.nodes.servers(node.uuid),
-    fetcher: (search) => (backup.isRemote ? getServers(1, search) : getNodeServers(node.uuid, 1, search)),
+    queryKey: backup.isShared ? queryKeys.admin.servers.all() : queryKeys.admin.nodes.servers(node.uuid),
+    fetcher: (search) => (backup.isShared ? getServers(1, search) : getNodeServers(node.uuid, 1, search)),
   });
 
   useEffect(() => {
