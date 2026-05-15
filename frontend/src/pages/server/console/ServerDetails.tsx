@@ -9,12 +9,12 @@ import {
 } from '@fortawesome/free-solid-svg-icons';
 import { useEffect, useRef, useState } from 'react';
 import Checkbox from '@/elements/input/Checkbox.tsx';
+import StatCard from '@/elements/StatCard.tsx';
 import { formatAllocation } from '@/lib/server.ts';
 import { bytesToString, mbToBytes } from '@/lib/size.ts';
 import { formatMilliseconds } from '@/lib/time.ts';
 import { useTranslations } from '@/providers/TranslationProvider.tsx';
 import { useServerStore } from '@/stores/server.ts';
-import StatCard from './StatCard.tsx';
 
 export default function ServerDetails() {
   const { t } = useTranslations();
