@@ -35,7 +35,7 @@ export default function OobeNode({ onNext, onBack, canGoBack, skipFrom, data }: 
   const [error, setError] = useState('');
   const [resolvedPorts, setResolvedPorts] = useState<number[]>([]);
 
-  const existingNode = data.nodes[0];
+  const [existingNode, setExistingNode] = useState(data.nodes[0]);
   const isEdit = !!existingNode;
   const locationUuid = existingNode?.location.uuid ?? data.locations[0]?.uuid;
 
@@ -121,6 +121,7 @@ export default function OobeNode({ onNext, onBack, canGoBack, skipFrom, data }: 
           locationUuid: locationUuid!,
           backupConfigurationUuid: null,
         });
+        setExistingNode(node);
 
         await createNodeAllocations(node.uuid, {
           ip: allocationsForm.values.ip,

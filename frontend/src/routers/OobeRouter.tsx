@@ -116,6 +116,11 @@ export default function OobeRouter() {
       return;
     }
 
+    if (!user && isLoginRoute && currentAllowedStep?.preAuth) {
+      navigate(to(currentAllowedStep.path, '/oobe'));
+      return;
+    }
+
     if (user && currentAllowedStep) {
       if (isPreAuth) {
         navigate(to(currentAllowedStep.path, '/oobe'));
