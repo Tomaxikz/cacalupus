@@ -99,7 +99,7 @@ const admin = {
   },
 
   activity: {
-    all: () => ['admin', 'activity'] as const,
+    all: (userUuid: string | null) => ['admin', 'activity', { uuid: userUuid }] as const,
   },
 
   assets: {
@@ -122,7 +122,7 @@ const admin = {
 
 const server = (serverUuid: string) => ({
   activity: {
-    all: () => ['server', serverUuid, 'activity'] as const,
+    all: (userUuid: string | null) => ['server', serverUuid, 'activity', { uuid: userUuid }] as const,
   },
   allocations: {
     all: () => ['server', serverUuid, 'allocations'] as const,

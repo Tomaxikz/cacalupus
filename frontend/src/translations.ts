@@ -1995,6 +1995,8 @@ const baseTranslations = defineTranslations({
                 emailPlaceholder: 'Enter the email that this subuser should be saved as.',
                 permissions: 'Permissions',
                 ignoredFiles: 'Ignored Files',
+                ignoredFilesDescription:
+                  'Files and directories matching these patterns will be hidden from this subuser. Uses gitignore-style glob patterns (e.g. `*.env`, `secrets/`). Prefix a pattern with `!` to un-hide a path that a broader pattern would otherwise exclude.',
               },
             },
             updateSubuser: {
@@ -2227,6 +2229,9 @@ const baseTranslations = defineTranslations({
         },
         activity: {
           title: 'Activity',
+          button: {
+            clearUserFilter: 'Clear User Filter',
+          },
         },
       },
     },

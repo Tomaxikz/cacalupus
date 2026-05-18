@@ -174,7 +174,7 @@ export default function ServerGroupItem({
               size='xs'
               value={search}
               onChange={(e) => setSearch(e.target.value)}
-              leftSection={<FontAwesomeIcon icon={faSearch} className='w-3 h-3 text-(--mantine-color-dimmed)' />}
+              leftSection={<FontAwesomeIcon icon={faSearch} />}
               className='w-48 mt-1 sm:hidden'
             />
           </div>
@@ -185,7 +185,7 @@ export default function ServerGroupItem({
               size='xs'
               value={search}
               onChange={(e) => setSearch(e.target.value)}
-              leftSection={<FontAwesomeIcon icon={faSearch} className='w-3 h-3 text-(--mantine-color-dimmed)' />}
+              leftSection={<FontAwesomeIcon icon={faSearch} />}
               className='min-w-32 hidden sm:block'
             />
             <div className='flex flex-row items-center gap-1 w-full justify-end'>

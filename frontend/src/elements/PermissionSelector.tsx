@@ -1,6 +1,6 @@
 import { faChevronDown, faChevronUp, faX } from '@fortawesome/free-solid-svg-icons';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
-import { Checkbox, Group, Input, Stack, Title } from '@mantine/core';
+import { Checkbox, Group, Input, Stack, Text, Title } from '@mantine/core';
 import { useCallback, useMemo, useState } from 'react';
 import { z } from 'zod';
 import ActionIcon from '@/elements/ActionIcon.tsx';
@@ -111,19 +111,21 @@ export default function PermissionSelector({
 
   const selectedPanel = (
     <Card>
-      <Title order={3}>
+      <Title order={3} className='pb-4'>
         {t('elements.permissionSelector.selectedPermissions', { count: selectedPermissions.length })}
       </Title>
       <div className='max-h-96 overflow-y-auto'>
         {selectedPermissions.length === 0 ? (
-          <p className='text-(--mantine-color-dimmed) text-sm'>{t('elements.permissionSelector.noPermissions', {})}</p>
+          <Text className='text-sm' c='dimmed'>
+            {t('elements.permissionSelector.noPermissions', {})}
+          </Text>
         ) : (
           <div className='space-y-1'>
             {sortedSelectedPermissions.map((permission) => (
               <Card key={permission} className='border border-(--mantine-color-default-border)' padding='xs'>
                 <Group justify='space-between'>
                   <span className='text-sm font-mono'>{permission}</span>
-                  <ActionIcon color='red' onClick={() => togglePermission(permission)}>
+                  <ActionIcon color='red' variant='light' onClick={() => togglePermission(permission)}>
                     <FontAwesomeIcon icon={faX} />
                   </ActionIcon>
                 </Group>
@@ -164,16 +166,15 @@ export default function PermissionSelector({
                 <div className='flex items-center justify-between gap-1'>
                   <div className='flex items-center gap-3'>
                     {permissionIcons[permissionIconMap[permissionsMapType]][category] ?? (
-                      <FontAwesomeIcon
-                        icon={permissionCategoryIconMapping[category]}
-                        className='w-5 h-5 text-(--mantine-color-text)'
-                      />
+                      <FontAwesomeIcon icon={permissionCategoryIconMapping[category]} />
                     )}
                     <div>
                       <Title order={5} className='uppercase'>
                         {category.replaceAll('-', ' ')}
                       </Title>
-                      <p className='text-sm text-(--mantine-color-dimmed) mt-1'>{description}</p>
+                      <Text className='mt-1' size='xs' c='dimmed'>
+                        {description}
+                      </Text>
                     </div>
                   </div>
                   <div className='flex items-center gap-2'>
@@ -210,10 +211,10 @@ export default function PermissionSelector({
                             <Group wrap='nowrap' align='flex-start'>
                               <Checkbox.Indicator />
                               <div>
-                                <div className='text-(--mantine-color-text) font-bold'>
-                                  {permission.charAt(0).toUpperCase() + permission.slice(1)}
-                                </div>
-                                <div className='text-sm text-(--mantine-color-dimmed) mt-1'>{permDescription}</div>
+                                <Text>{permission.charAt(0).toUpperCase() + permission.slice(1)}</Text>
+                                <Text className='mt-1' size='xs' c='dimmed'>
+                                  {permDescription}
+                                </Text>
                               </div>
                             </Group>
                           </Checkbox.Card>

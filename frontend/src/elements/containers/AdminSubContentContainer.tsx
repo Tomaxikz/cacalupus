@@ -1,3 +1,5 @@
+import { faSearch } from '@fortawesome/free-solid-svg-icons';
+import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { Group, Title, TitleOrder } from '@mantine/core';
 import { Dispatch, ReactNode, SetStateAction, useMemo } from 'react';
 import { ContainerRegistry, makeComponentHookable } from 'shared';
@@ -60,6 +62,7 @@ function AdminSubContentContainer<P>(props: Props<P>) {
               placeholder={t('common.input.search', {})}
               value={search}
               onChange={(e) => setSearch(e.target.value)}
+              leftSection={<FontAwesomeIcon icon={faSearch} />}
               w={250}
             />
             {contentRight}

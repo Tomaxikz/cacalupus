@@ -1,12 +1,17 @@
+import { faX } from '@fortawesome/free-solid-svg-icons';
+import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { Group } from '@mantine/core';
-import { useState } from 'react';
+import { useEffect, useState } from 'react';
+import { useSearchParams } from 'react-router';
 import { z } from 'zod';
 import { getEmptyPaginationSet } from '@/api/axios.ts';
 import getServerActivity from '@/api/server/getServerActivity.ts';
 import ActivityInfoButton from '@/elements/activity/ActivityInfoButton.tsx';
+import Button from '@/elements/Button.tsx';
 import Code from '@/elements/Code.tsx';
 import ServerContentContainer from '@/elements/containers/ServerContentContainer.tsx';
 import Table, { TableData, TableRow } from '@/elements/Table.tsx';
+import TableLink from '@/elements/TableLink.tsx';
 import FormattedTimestamp from '@/elements/time/FormattedTimestamp.tsx';
 import { queryKeys } from '@/lib/queryKeys.ts';
 import { serverActivitySchema } from '@/lib/schemas/server/activity.ts';
@@ -16,14 +21,38 @@ import { useServerStore } from '@/stores/server.ts';
 
 export default function ServerActivity() {
   const { t } = useTranslations();
+  const server = useServerStore((state) => state.server);
+  const [searchParams, setSearchParams] = useSearchParams();
+
   const [activities, setActivities] = useState<Pagination<z.infer<typeof serverActivitySchema>>>(
     getEmptyPaginationSet(),
   );
-  const server = useServerStore((state) => state.server);
+  const [filterUserUuid, setFilterUserUuid] = useState<string | null>(null);
+
+  useEffect(() => {
+    if (filterUserUuid) {
+      setSearchParams((prev) => {
+        prev.set('user', filterUserUuid);
+        return prev;
+      });
+    } else {
+      setSearchParams((prev) => {
+        prev.delete('user');
+        return prev;
+      });
+    }
+  }, [filterUserUuid, setSearchParams]);
+
+  useEffect(() => {
+    const userUuid = searchParams.get('user');
+    if (userUuid) {
+      setFilterUserUuid(userUuid);
+    }
+  }, [searchParams, setSearchParams]);
 
   const { loading, search, setSearch, setPage } = useSearchablePaginatedTable({
-    queryKey: queryKeys.server(server.uuid).activity.all(),
-    fetcher: (page, search) => getServerActivity(server.uuid, page, search),
+    queryKey: queryKeys.server(server.uuid).activity.all(filterUserUuid),
+    fetcher: (page, search) => getServerActivity(server.uuid, filterUserUuid, page, search),
     setStoreData: setActivities,
   });
 
@@ -32,6 +61,13 @@ export default function ServerActivity() {
       title={t('pages.server.activity.title', {})}
       search={search}
       setSearch={setSearch}
+      contentRight={
+        filterUserUuid ? (
+          <Button onClick={() => setFilterUserUuid(null)} color='gray' leftSection={<FontAwesomeIcon icon={faX} />}>
+            {t('pages.server.activity.button.clearUserFilter', {})}
+          </Button>
+        ) : null
+      }
       registry={window.extensionContext.extensionRegistry.pages.server.activity.container}
     >
       <Table
@@ -60,11 +96,18 @@ export default function ServerActivity() {
             </TableData>
 
             <TableData>
-              {activity.user
-                ? `${activity.user.username} (${activity.isApi ? t('common.api', {}) : t('common.web', {})})`
-                : activity.isSchedule
-                  ? t('common.schedule', {})
-                  : t('common.system', {})}
+              {activity.user ? (
+                <>
+                  <TableLink to={{ search: `?${searchParams.toString()}&user=${activity.user.uuid}` }}>
+                    {activity.user.username}
+                  </TableLink>{' '}
+                  ({activity.isApi ? t('common.api', {}) : t('common.web', {})})
+                </>
+              ) : activity.isSchedule ? (
+                t('common.schedule', {})
+              ) : (
+                t('common.system', {})
+              )}
               {activity.impersonator &&
                 ` (${t('common.impersonatedBy', { username: activity.impersonator.username })})`}
             </TableData>

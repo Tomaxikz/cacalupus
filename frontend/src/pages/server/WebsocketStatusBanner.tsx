@@ -83,7 +83,7 @@ export default function WebsocketStatusBanner() {
     <Alert
       icon={<FontAwesomeIcon icon={isRecoverable ? faExclamationTriangle : faTimesCircle} />}
       color={isRecoverable ? 'yellow' : 'red'}
-      className='mt-2 mx-8'
+      className='mt-2 mx-6'
     >
       {message}
     </Alert>

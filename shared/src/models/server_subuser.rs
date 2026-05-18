@@ -12,7 +12,7 @@ use std::{
 };
 use utoipa::ToSchema;
 
-#[derive(Serialize, Deserialize)]
+#[derive(Clone, Serialize, Deserialize)]
 pub struct ServerSubuser {
     pub user: super::user::User,
     pub server: Fetchable<super::server::Server>,
@@ -87,10 +87,10 @@ impl BaseModel for ServerSubuser {
 }
 
 impl ServerSubuser {
-    pub async fn by_server_uuid_username(
+    pub async fn by_server_uuid_user_uuid(
         database: &crate::database::Database,
         server_uuid: uuid::Uuid,
-        username: &str,
+        user_uuid: uuid::Uuid,
     ) -> Result<Option<Self>, crate::database::DatabaseError> {
         let row = sqlx::query(&format!(
             r#"
@@ -98,12 +98,12 @@ impl ServerSubuser {
             FROM server_subusers
             JOIN users ON users.uuid = server_subusers.user_uuid
             LEFT JOIN roles ON roles.uuid = users.role_uuid
-            WHERE server_subusers.server_uuid = $1 AND users.username = $2
+            WHERE server_subusers.server_uuid = $1 AND server_subusers.user_uuid = $2
             "#,
             Self::columns_sql(None)
         ))
         .bind(server_uuid)
-        .bind(username)
+        .bind(user_uuid)
         .fetch_optional(database.read())
         .await?;
 

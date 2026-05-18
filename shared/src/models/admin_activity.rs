@@ -176,6 +176,47 @@ impl AdminActivity {
         })
     }
 
+    pub async fn by_user_uuid_with_pagination(
+        database: &crate::database::Database,
+        user_uuid: uuid::Uuid,
+        page: i64,
+        per_page: i64,
+        search: Option<&str>,
+    ) -> Result<super::Pagination<Self>, crate::database::DatabaseError> {
+        let offset = (page - 1) * per_page;
+
+        let rows = sqlx::query(&format!(
+            r#"
+            SELECT {}, COUNT(*) OVER() AS total_count
+            FROM admin_activities
+            LEFT JOIN users ON users.uuid = admin_activities.user_uuid
+            LEFT JOIN roles ON roles.uuid = users.role_uuid
+            WHERE admin_activities.user_uuid = $1 AND ($2 IS NULL OR admin_activities.event ILIKE '%' || $2 || '%' OR users.username ILIKE '%' || $2 || '%')
+            ORDER BY admin_activities.created DESC
+            LIMIT $3 OFFSET $4
+            "#,
+            Self::columns_sql(None)
+        ))
+        .bind(user_uuid)
+        .bind(search)
+        .bind(per_page)
+        .bind(offset)
+        .fetch_all(database.read())
+        .await?;
+
+        Ok(super::Pagination {
+            total: rows
+                .first()
+                .map_or(Ok(0), |row| row.try_get("total_count"))?,
+            per_page,
+            page,
+            data: rows
+                .into_iter()
+                .map(|row| Self::map(None, &row))
+                .try_collect_vec()?,
+        })
+    }
+
     pub async fn delete_older_than(
         database: &crate::database::Database,
         cutoff: chrono::DateTime<chrono::Utc>,

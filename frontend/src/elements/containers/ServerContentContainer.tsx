@@ -1,4 +1,4 @@
-import { faCancel } from '@fortawesome/free-solid-svg-icons';
+import { faCancel, faSearch } from '@fortawesome/free-solid-svg-icons';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { Group, Text, Title, TitleOrder } from '@mantine/core';
 import { Dispatch, ReactNode, SetStateAction, useEffect, useMemo, useState } from 'react';
@@ -227,6 +227,7 @@ function ServerContentContainer(props: Props) {
                 placeholder={t('common.input.search', {})}
                 value={search}
                 onChange={(e) => setSearch(e.target.value)}
+                leftSection={<FontAwesomeIcon icon={faSearch} />}
                 w={250}
               />
               {contentRight}

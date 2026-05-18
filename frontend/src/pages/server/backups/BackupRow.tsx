@@ -82,6 +82,7 @@ export default function BackupRow({ backup }: { backup: z.infer<typeof serverBac
         title={t('pages.server.backups.modal.viewMetadata.title', {})}
         onClose={() => setOpenModal(null)}
         opened={openModal === 'metadata'}
+        size='lg'
       >
         <HljsCode languageName='json' language={jsonLanguage}>
           {metadataJson}

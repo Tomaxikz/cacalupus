@@ -5,8 +5,8 @@ import {
   Group,
   GroupProps,
   Pagination as MantinePagination,
+  Table as MantineTable,
   Stack,
-  Table,
   TableTdProps,
   TableTrProps,
   Text,
@@ -23,43 +23,43 @@ interface TableHeaderProps {
 
 export const TableHeader = ({ name, rightSection, onClick }: TableHeaderProps) => {
   if (!name || (typeof name === 'function' && !name())) {
-    return <Table.Th className='py-2' />;
+    return <MantineTable.Th className='py-2' />;
   }
 
   return (
-    <Table.Th className='font-normal!' onClick={onClick}>
+    <MantineTable.Th className='font-normal!' onClick={onClick}>
       <div className='flex flex-row items-center gap-2'>
         <p>{typeof name === 'function' ? name() : name}</p> {rightSection}
       </div>
-    </Table.Th>
+    </MantineTable.Th>
   );
 };
 
 export const TableHead = ({ children }: { children: ReactNode }) => {
   return (
-    <Table.Thead>
-      <Table.Tr>{children}</Table.Tr>
-    </Table.Thead>
+    <MantineTable.Thead>
+      <MantineTable.Tr>{children}</MantineTable.Tr>
+    </MantineTable.Thead>
   );
 };
 
 export const TableBody = ({ children }: { children: ReactNode }) => {
-  return <Table.Tbody>{children}</Table.Tbody>;
+  return <MantineTable.Tbody>{children}</MantineTable.Tbody>;
 };
 
 export const TableRow = forwardRef<HTMLTableRowElement, TableTrProps>(({ className, children, ...rest }, ref) => {
   return (
-    <Table.Tr ref={ref} className={className} {...rest}>
+    <MantineTable.Tr ref={ref} className={className} {...rest}>
       {children}
-    </Table.Tr>
+    </MantineTable.Tr>
   );
 });
 
 export const TableData = forwardRef<HTMLTableCellElement, TableTdProps>(({ className, children, ...rest }, ref) => {
   return (
-    <Table.Td ref={ref} className={className} {...rest}>
+    <MantineTable.Td ref={ref} className={className} {...rest}>
       {children}
-    </Table.Td>
+    </MantineTable.Td>
   );
 });
 
@@ -151,9 +151,16 @@ interface TableProps {
   children: ReactNode;
 }
 
-export default ({ columns, loading, pagination, onPageSelect, allowSelect = true, children }: TableProps) => {
+export default function Table({
+  columns,
+  loading,
+  pagination,
+  onPageSelect,
+  allowSelect = true,
+  children,
+}: TableProps) {
   return (
-    <Table.ScrollContainer
+    <MantineTable.ScrollContainer
       minWidth={0}
       type='native'
       style={{
@@ -166,7 +173,7 @@ export default ({ columns, loading, pagination, onPageSelect, allowSelect = true
         <Pagination data={pagination} m='xs' onPageSelect={onPageSelect} />
       )}
 
-      <Table
+      <MantineTable
         stickyHeader
         highlightOnHover={(pagination?.total ?? 0) > 0 && !loading}
         className={allowSelect ? undefined : 'select-none'}
@@ -183,26 +190,26 @@ export default ({ columns, loading, pagination, onPageSelect, allowSelect = true
             />
           ))}
         </TableHead>
-        <Table.Tbody>
+        <MantineTable.Tbody>
           {loading ? (
-            <Table.Tr>
-              <Table.Td colSpan={columns.length}>
+            <MantineTable.Tr>
+              <MantineTable.Td colSpan={columns.length}>
                 <Spinner.Centered />
-              </Table.Td>
-            </Table.Tr>
+              </MantineTable.Td>
+            </MantineTable.Tr>
           ) : pagination?.total === 0 ? (
-            <Table.Tr>
-              <Table.Td colSpan={columns.length}>
+            <MantineTable.Tr>
+              <MantineTable.Td colSpan={columns.length}>
                 <NoItems />
-              </Table.Td>
-            </Table.Tr>
+              </MantineTable.Td>
+            </MantineTable.Tr>
           ) : (
             children
           )}
-        </Table.Tbody>
-      </Table>
+        </MantineTable.Tbody>
+      </MantineTable>
 
       {pagination && onPageSelect && <Pagination data={pagination} m='xs' onPageSelect={onPageSelect} />}
-    </Table.ScrollContainer>
+    </MantineTable.ScrollContainer>
   );
-};
+}
