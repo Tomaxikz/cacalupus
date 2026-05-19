@@ -1,13 +1,16 @@
-import { faChevronDown, faChevronUp, faX } from '@fortawesome/free-solid-svg-icons';
+import { faChevronDown, faChevronUp, faClipboard, faPaste, faX } from '@fortawesome/free-solid-svg-icons';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
-import { Checkbox, Group, Input, Stack, Text, Title } from '@mantine/core';
+import { Checkbox, Group, Input, Menu, Stack, Text, Title } from '@mantine/core';
 import { useCallback, useMemo, useState } from 'react';
 import { z } from 'zod';
 import ActionIcon from '@/elements/ActionIcon.tsx';
 import Button from '@/elements/Button.tsx';
 import Card from '@/elements/Card.tsx';
+import { handleRawCopyToClipboard } from '@/lib/copy.ts';
 import { permissionCategoryIconMapping } from '@/lib/enums.ts';
+import { handleRawPasteFromClipboard } from '@/lib/paste.ts';
 import { apiPermissionsSchema, permissionMapSchema } from '@/lib/schemas/generic.ts';
+import { useToast } from '@/providers/ToastProvider.tsx';
 import { useTranslations } from '@/providers/TranslationProvider.tsx';
 
 const permissionIconMap: Record<
@@ -37,6 +40,7 @@ export default function PermissionSelector({
   setSelectedPermissions: (selected: string[]) => void;
 }) {
   const { t } = useTranslations();
+  const { addToast } = useToast();
 
   const [expandedCategories, setExpandedCategories] = useState<string[]>([]);
   const permissionIcons = window.extensionContext.extensionRegistry.permissionIcons;
@@ -147,6 +151,31 @@ export default function PermissionSelector({
         >
           {t('common.button.deselectAll', {})}
         </Button>
+        <Menu shadow='md' width={200} position='top-end'>
+          <Menu.Target>
+            <ActionIcon size='input-sm' className='ml-2'>
+              <FontAwesomeIcon icon={faClipboard} />
+            </ActionIcon>
+          </Menu.Target>
+          <Menu.Dropdown>
+            <Menu.Item
+              leftSection={<FontAwesomeIcon icon={faClipboard} />}
+              onClick={() => handleRawCopyToClipboard(selectedPermissions.join('\n'), addToast)}
+            >
+              {t('elements.permissionSelector.button.copyPermissions', {})}
+            </Menu.Item>
+            <Menu.Item
+              leftSection={<FontAwesomeIcon icon={faPaste} />}
+              onClick={() =>
+                handleRawPasteFromClipboard((text) => {
+                  setSelectedPermissions(text.split('\n').filter((perm) => allPermissionKeys.includes(perm)));
+                }, addToast)
+              }
+            >
+              {t('elements.permissionSelector.button.pastePermissions', {})}
+            </Menu.Item>
+          </Menu.Dropdown>
+        </Menu>
       </div>
     </Card>
   );

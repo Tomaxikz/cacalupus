@@ -17,7 +17,7 @@ export default function DebugInformationContainer() {
       icon={<FontAwesomeIcon icon={faInfoCircle} />}
       className='h-full order-10'
     >
-      <Stack>
+      <Stack h='100%'>
         <CopyOnClick content={`${server.nodeName} (${server.nodeUuid})`} className='text-left'>
           <TextInput
             label={t('pages.server.settings.debugInformation.form.nodeName', {})}

@@ -197,6 +197,13 @@ const baseTranslations = defineTranslations({
           copyManual: 'Copy to clipboard: Ctrl+C or Command+C, Enter',
         },
       },
+      pasteOnClick: {
+        toast: {
+          pasted: 'Pasted from clipboard.',
+          failed: 'Failed to paste from clipboard.',
+          pasteManual: 'Paste from clipboard: Ctrl+V or Command+V, Enter',
+        },
+      },
       estimatedTimeArrival: {
         tooltip: {
           estimating: 'Estimating completion time...',
@@ -223,6 +230,10 @@ const baseTranslations = defineTranslations({
         },
       },
       permissionSelector: {
+        button: {
+          copyPermissions: 'Copy Permissions',
+          pastePermissions: 'Paste Permissions',
+        },
         selectedPermissions: 'Selected Permissions ({count})',
         noPermissions: 'No permissions selected.',
       },
@@ -2153,11 +2164,14 @@ const baseTranslations = defineTranslations({
               readOnly: 'Read Only',
             },
           },
+          button: {
+            attach: 'Attach',
+            detach: 'Detach',
+          },
           modal: {
             attachMount: {
               title: 'Attach Mount',
               content: 'Do you want to attach **{name}** to `{target}`?',
-              confirm: 'Attach',
               toast: {
                 attached: '{name} has been mounted to your server.',
               },
@@ -2165,7 +2179,6 @@ const baseTranslations = defineTranslations({
             detachMount: {
               title: 'Detach Mount',
               content: 'Do you want to detach **{name}** from `{target}`?',
-              confirm: 'Detach',
               toast: {
                 detached: '{name} has been removed from your server.',
               },
