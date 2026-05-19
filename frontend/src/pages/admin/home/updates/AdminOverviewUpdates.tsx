@@ -135,7 +135,7 @@ export default function AdminOverviewUpdates() {
         <TitleCard
           title='Version History'
           icon={<FontAwesomeIcon icon={faClockRotateLeft} />}
-          className='max-h-80 overflow-y-scroll'
+          wrapperClassName='max-h-72 overflow-y-auto'
         >
           <Select
             placeholder='Select an update history to view'
