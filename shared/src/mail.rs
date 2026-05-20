@@ -197,6 +197,10 @@ impl Mail {
         let mut environment = minijinja::Environment::new();
         environment.set_auto_escape_callback(|_| minijinja::AutoEscape::Html);
         environment.add_global("settings", minijinja::Value::from_serialize(&*settings));
+        environment.add_global(
+            "subject",
+            minijinja::Value::from_serialize(subject.as_ref()),
+        );
         drop(settings);
 
         let rendered_subject = environment.render_str(subject.as_ref(), context.clone())?;
@@ -284,6 +288,10 @@ impl Mail {
         let mut environment = minijinja::Environment::new();
         environment.set_auto_escape_callback(|_| minijinja::AutoEscape::Html);
         environment.add_global("settings", minijinja::Value::from_serialize(&*settings));
+        environment.add_global(
+            "subject",
+            minijinja::Value::from_serialize(subject.as_ref()),
+        );
         drop(settings);
 
         let rendered_subject = match environment.render_str(subject.as_ref(), &context) {
