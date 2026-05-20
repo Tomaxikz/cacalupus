@@ -416,6 +416,8 @@ const baseTranslations = defineTranslations({
           form: {
             locationName: 'Location Name',
             locationNamePlaceholder: 'My home',
+            locationFlag: 'Location Flag',
+            locationFlagPlaceholder: 'The best country',
             backupName: 'Backup Configuration Name',
             backupNamePlaceholder: 'Unicorn Cloud',
             backupDisk: 'Backup Disk',
