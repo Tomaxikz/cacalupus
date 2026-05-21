@@ -126,10 +126,11 @@ export default function App({ theme }: { theme: MantineThemeOverride }) {
     </ErrorBoundary>
   ) : (
     <>
+    <MantineProvider theme={theme} defaultColorScheme='dark' deduplicateInlineStyles>
       <Spinner.Centered />
       {loadWarning && (
         <p className='text-center text-sm text-slate-400 -mt-4'>Having trouble connecting to the server. Retrying...</p>
-      )}
+      )}</MantineProvider>
     </>
   );
 }
