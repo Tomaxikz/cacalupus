@@ -274,13 +274,14 @@ pub fn router(state: &State) -> OpenApiRouter<State> {
 
                             let token = state.jwt.create(&TwoFactorRequiredJwt {
                                 base: BasePayload {
+                                    scope: "two-factor-checkpoint".into(),
                                     issuer: "panel".into(),
                                     subject: None,
                                     audience: Vec::new(),
                                     expiration_time: Some(chrono::Utc::now().timestamp() + 300),
                                     not_before: None,
                                     issued_at: Some(chrono::Utc::now().timestamp()),
-                                    jwt_id: user.uuid.to_string(),
+                                    jwt_id: user.uuid.to_compact_string(),
                                 },
                                 user_uuid: user.uuid,
                             })?;

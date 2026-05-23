@@ -758,13 +758,14 @@ impl ServerBackup {
             &state.jwt,
             &BackupDownloadJwt {
                 base: BasePayload {
+                    scope: "backup-download".into(),
                     issuer: "panel".into(),
                     subject: None,
                     audience: Vec::new(),
                     expiration_time: Some(chrono::Utc::now().timestamp() + 900),
                     not_before: None,
                     issued_at: Some(chrono::Utc::now().timestamp()),
-                    jwt_id: user.uuid.to_string(),
+                    jwt_id: user.uuid.to_compact_string(),
                 },
                 backup_uuid: self.uuid,
                 unique_id: uuid::Uuid::new_v4(),

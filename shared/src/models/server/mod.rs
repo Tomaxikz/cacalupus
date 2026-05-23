@@ -1244,13 +1244,14 @@ impl Server {
             &state.database,
             &state.jwt,
             &crate::jwt::BasePayload {
+                scope: "transfer".into(),
                 issuer: "panel".into(),
-                subject: Some(self.uuid.to_string()),
+                subject: Some(self.uuid.to_compact_string()),
                 audience: Vec::new(),
                 expiration_time: Some(chrono::Utc::now().timestamp() + 600),
                 not_before: None,
                 issued_at: Some(chrono::Utc::now().timestamp()),
-                jwt_id: self.node.uuid.to_string(),
+                jwt_id: self.node.uuid.to_compact_string(),
             },
         )?;
 

@@ -64,7 +64,7 @@ mod post {
             }
         };
 
-        if !payload.base.validate() {
+        if !payload.base.validate(Some("two-factor-checkpoint")) {
             return ApiResponse::error("invalid confirmation token")
                 .with_status(StatusCode::BAD_REQUEST)
                 .ok();
