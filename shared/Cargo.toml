@@ -63,7 +63,7 @@ ignore = { version = "0.4.23", features = ["simd-accel"] }
 futures-util = { workspace = true }
 cap-std = "4.0.0"
 semver = { workspace = true }
-git2 = { version = "0.21.0", features = ["https"] }
+gix = { version = "0.83.0", features = ["blocking-http-transport-reqwest-rust-tls"] }
 tempfile = { workspace = true }
 compact_str = { workspace = true }
 nestify = { workspace = true }

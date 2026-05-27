@@ -5,7 +5,6 @@ use crate::{
 use compact_str::ToCompactString;
 use futures_util::StreamExt;
 use garde::Validate;
-use git2::FetchOptions;
 use serde::{Deserialize, Serialize};
 use sqlx::{Row, postgres::PgRow};
 use std::{
@@ -141,11 +140,23 @@ impl EggRepository {
                 let temp_dir = tempfile::tempdir()?;
                 let filesystem = crate::cap::CapFilesystem::new(temp_dir.path().to_path_buf())?;
 
-                let mut fetch_options = FetchOptions::new();
-                fetch_options.depth(1);
-                git2::build::RepoBuilder::new()
-                    .fetch_options(fetch_options)
-                    .clone(&git_repository, temp_dir.path())?;
+                let mut prepare_fetch = gix::clone::PrepareFetch::new(
+                    git_repository.as_str(),
+                    temp_dir.path(),
+                    gix::create::Kind::WithWorktree,
+                    Default::default(),
+                    Default::default(),
+                )?;
+
+                let (mut prepare_checkout, _) = prepare_fetch
+                    .fetch_then_checkout(gix::progress::Discard, &gix::interrupt::IS_INTERRUPTED)?;
+                let _ = prepare_checkout
+                    .main_worktree(gix::progress::Discard, &gix::interrupt::IS_INTERRUPTED)?;
+
+                tracing::info!(
+                    "cloned egg repository {} to temporary directory",
+                    git_repository
+                );
 
                 let mut walker = filesystem.walk_dir(".")?;
                 while let Some(Ok((is_dir, entry))) = walker.next_entry() {
@@ -187,6 +198,8 @@ impl EggRepository {
 
                     exported_eggs.push((entry, exported_egg));
                 }
+
+                drop(prepare_fetch);
 
                 Ok(exported_eggs)
             },
