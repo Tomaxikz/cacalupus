@@ -1,5 +1,6 @@
 import { faClockRotateLeft, faTriangleExclamation } from '@fortawesome/free-solid-svg-icons';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
+import { Audio } from '@gfazioli/mantine-audio';
 import { Group, Title } from '@mantine/core';
 import { type OnMount } from '@monaco-editor/react';
 import { join } from 'pathe';
@@ -14,6 +15,7 @@ import Alert from '@/elements/Alert.tsx';
 import Button from '@/elements/Button.tsx';
 import { ServerCan } from '@/elements/Can.tsx';
 import ServerContentContainer from '@/elements/containers/ServerContentContainer.tsx';
+import Select from '@/elements/input/Select.tsx';
 import MonacoEditor from '@/elements/MonacoEditor.tsx';
 import ConfirmationModal from '@/elements/modals/ConfirmationModal.tsx';
 import { Modal, ModalFooter } from '@/elements/modals/Modal.tsx';
@@ -91,6 +93,10 @@ function FileEditorComponent() {
     editorMinimap,
     editorLineOverflow,
     imageViewerSmoothing,
+    audioPlayerVolume,
+    audioPlayerPlaybackRate,
+    setAudioPlayerVolume,
+    setAudioPlayerPlaybackRate,
     browsingPrimaryFilesystem,
     browsingWritableDirectory,
     browsingDirectory,
@@ -144,7 +150,7 @@ function FileEditorComponent() {
           return content;
         }
 
-        if (params.action === 'image') {
+        if (params.action === 'image' || params.action === 'audio') {
           return URL.createObjectURL(content);
         } else {
           return content.text();
@@ -266,7 +272,7 @@ function FileEditorComponent() {
       });
   };
 
-  if (!matchedFileEditorAction && !['new', 'edit', 'image'].includes(params.action!)) {
+  if (!matchedFileEditorAction && !['new', 'edit', 'image', 'audio'].includes(params.action!)) {
     return (
       <ServerContentContainer title='Not found' hideTitleComponent>
         <ScreenBlock title='404' content='Editor not found' />
@@ -279,7 +285,9 @@ function FileEditorComponent() {
     : fileName
       ? params.action === 'image'
         ? t('pages.server.files.titleEditorViewing', { file: fileName })
-        : t('pages.server.files.titleEditorEditing', { file: fileName })
+        : params.action === 'audio'
+          ? t('pages.server.files.titleEditorPlaying', { file: fileName })
+          : t('pages.server.files.titleEditorEditing', { file: fileName })
       : t('pages.server.files.titleEditorNew', {});
 
   return (
@@ -304,7 +312,7 @@ function FileEditorComponent() {
         {matchedFileEditorAction?.header.rightSection ? (
           <matchedFileEditorAction.header.rightSection />
         ) : (
-          <div hidden={!browsingWritableDirectory || params.action === 'image'}>
+          <div hidden={!browsingWritableDirectory || params.action === 'image' || params.action === 'audio'}>
             {params.action === 'edit' ? (
               <div className='flex flex-row items-center'>
                 <ServerCan action='files.read-content'>
@@ -448,6 +456,48 @@ function FileEditorComponent() {
                       />
                     </TransformComponent>
                   </TransformWrapper>
+                </div>
+              ) : params.action === 'audio' ? (
+                <div className='h-full w-full flex flex-row justify-center items-center'>
+                  <Audio
+                    size='xl'
+                    w='50%'
+                    src={content}
+                    volume={audioPlayerVolume}
+                    onVolumeChange={(volume) => setAudioPlayerVolume(volume)}
+                    playbackRate={audioPlayerPlaybackRate}
+                    onError={(err) => (err ? addToast(err.message, 'error') : null)}
+                  >
+                    <Audio.Waveform height={120} mirrorGap={2} />
+                    <Audio.Controls>
+                      <Audio.SkipButton seconds={-15} label={t('pages.server.files.tooltip.back', { seconds: 15 })} />
+                      <Audio.PlayButton
+                        playLabel={t('pages.server.files.tooltip.play', {})}
+                        pauseLabel={t('pages.server.files.tooltip.pause', {})}
+                      />
+                      <Audio.SkipButton seconds={15} label={t('pages.server.files.tooltip.forward', { seconds: 15 })} />
+                      <Audio.Timeline />
+                      <Audio.TimeDisplay />
+                      <Audio.MuteButton
+                        muteLabel={t('pages.server.files.tooltip.mute', {})}
+                        unmuteLabel={t('pages.server.files.tooltip.unmute', {})}
+                      />
+                      <Audio.VolumeSlider />
+                      <Select
+                        value={audioPlayerPlaybackRate.toString()}
+                        onChange={(value) => setAudioPlayerPlaybackRate(Number(value))}
+                        data={[
+                          { value: '0.5', label: '0.5x' },
+                          { value: '0.75', label: '0.75x' },
+                          { value: '1', label: '1x' },
+                          { value: '1.25', label: '1.25x' },
+                          { value: '1.5', label: '1.5x' },
+                          { value: '2', label: '2x' },
+                        ]}
+                        style={{ width: 80 }}
+                      />
+                    </Audio.Controls>
+                  </Audio>
                 </div>
               ) : (
                 <MonacoEditor

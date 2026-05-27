@@ -1984,6 +1984,7 @@ const baseTranslations = defineTranslations({
         files: {
           title: 'Files',
           titleEditorViewing: 'Viewing {file}',
+          titleEditorPlaying: 'Playing {file}',
           titleEditorEditing: 'Editing {file}',
           titleEditorNew: 'New File',
           titleDiffRevisionVsCurrent: '{file} - Revision #{revision} vs Current',
@@ -2076,6 +2077,12 @@ const baseTranslations = defineTranslations({
           tooltip: {
             fileHistory: 'File History',
             largestDirectories: 'Analyze directory sizes',
+            back: 'Back {seconds} seconds',
+            forward: 'Forward {seconds} seconds',
+            play: 'Play',
+            pause: 'Pause',
+            mute: 'Mute',
+            unmute: 'Unmute',
           },
           drawer: {
             revisions: {

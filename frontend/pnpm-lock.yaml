@@ -32,6 +32,9 @@ importers:
       '@friendlycaptcha/sdk':
         specifier: ^1.0.0
         version: 1.0.0
+      '@gfazioli/mantine-audio':
+        specifier: ^1.0.0
+        version: 1.0.0(@mantine/core@9.2.1(@mantine/hooks@9.2.1(react@19.2.6))(@types/react@19.2.15)(react-dom@19.2.6(react@19.2.6))(react@19.2.6))(@mantine/hooks@9.2.1(react@19.2.6))(@tabler/icons-react@3.41.1(react@19.2.6))(react-dom@19.2.6(react@19.2.6))(react@19.2.6)
       '@gfazioli/mantine-window':
         specifier: ^3.1.2
         version: 3.1.2(@mantine/core@9.2.1(@mantine/hooks@9.2.1(react@19.2.6))(@types/react@19.2.15)(react-dom@19.2.6(react@19.2.6))(react@19.2.6))(@mantine/hooks@9.2.1(react@19.2.6))(@tabler/icons-react@3.41.1(react@19.2.6))(react-dom@19.2.6(react@19.2.6))(react@19.2.6)
@@ -648,6 +651,18 @@ packages:
 
   '@gerrit0/mini-shiki@3.23.0':
     resolution: {integrity: sha512-bEMORlG0cqdjVyCEuU0cDQbORWX+kYCeo0kV1lbxF5bt4r7SID2l9bqsxJEM0zndaxpOUT7riCyIVEuqq/Ynxg==}
+
+  '@gfazioli/mantine-audio@1.0.0':
+    resolution: {integrity: sha512-kV9CBpY7q78VZ9pmjxm8udh7Tt63Sk9iwZ+dSsqhK9MWTcGwPgTuXWNKZRY+S1VbMqFKfHRGVBDi5GIgnYc0mw==}
+    peerDependencies:
+      '@mantine/core': '>=7.0.0'
+      '@mantine/hooks': '>=7.0.0'
+      '@tabler/icons-react': '>=3.0.0'
+      react: ^18.x || ^19.x
+      react-dom: ^18.x || ^19.x
+    peerDependenciesMeta:
+      '@tabler/icons-react':
+        optional: true
 
   '@gfazioli/mantine-window@3.1.2':
     resolution: {integrity: sha512-AOnVMUFom3f7KoXRX4TOzExaYuGOmBXBMBw6SQetvE+2jdYuRkOwcZbeFG66wLTCIycluJdAnmOrYk5cGGio2g==}
@@ -3010,6 +3025,15 @@ snapshots:
       '@shikijs/themes': 3.23.0
       '@shikijs/types': 3.23.0
       '@shikijs/vscode-textmate': 10.0.2
+
+  '@gfazioli/mantine-audio@1.0.0(@mantine/core@9.2.1(@mantine/hooks@9.2.1(react@19.2.6))(@types/react@19.2.15)(react-dom@19.2.6(react@19.2.6))(react@19.2.6))(@mantine/hooks@9.2.1(react@19.2.6))(@tabler/icons-react@3.41.1(react@19.2.6))(react-dom@19.2.6(react@19.2.6))(react@19.2.6)':
+    dependencies:
+      '@mantine/core': 9.2.1(@mantine/hooks@9.2.1(react@19.2.6))(@types/react@19.2.15)(react-dom@19.2.6(react@19.2.6))(react@19.2.6)
+      '@mantine/hooks': 9.2.1(react@19.2.6)
+      react: 19.2.6
+      react-dom: 19.2.6(react@19.2.6)
+    optionalDependencies:
+      '@tabler/icons-react': 3.41.1(react@19.2.6)
 
   '@gfazioli/mantine-window@3.1.2(@mantine/core@9.2.1(@mantine/hooks@9.2.1(react@19.2.6))(@types/react@19.2.15)(react-dom@19.2.6(react@19.2.6))(react@19.2.6))(@mantine/hooks@9.2.1(react@19.2.6))(@tabler/icons-react@3.41.1(react@19.2.6))(react-dom@19.2.6(react@19.2.6))(react@19.2.6)':
     dependencies:

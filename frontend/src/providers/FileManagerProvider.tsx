@@ -55,6 +55,12 @@ const FileManagerProvider = ({ children }: { children: ReactNode }) => {
   const [imageViewerSmoothing, setImageViewerSmoothing] = useState(
     localStorage.getItem('file_image_viewer_smoothing') !== 'false',
   );
+  const [audioPlayerVolume, setAudioPlayerVolume] = useState(
+    Number(localStorage.getItem('file_audio_player_volume')) || 0.5,
+  );
+  const [audioPlayerPlaybackRate, setAudioPlayerPlaybackRate] = useState(
+    Number(localStorage.getItem('file_audio_player_playback_rate')) || 1,
+  );
 
   const { data, isLoading } = useQuery({
     queryKey: ['server', server.uuid, 'files', { browsingDirectory, page, sortMode }],
@@ -183,6 +189,14 @@ const FileManagerProvider = ({ children }: { children: ReactNode }) => {
     localStorage.setItem('file_image_viewer_smoothing', imageViewerSmoothing.toString());
   }, [imageViewerSmoothing]);
 
+  useEffect(() => {
+    localStorage.setItem('file_audio_player_volume', audioPlayerVolume.toString());
+  }, [audioPlayerVolume]);
+
+  useEffect(() => {
+    localStorage.setItem('file_audio_player_playback_rate', audioPlayerPlaybackRate.toString());
+  }, [audioPlayerPlaybackRate]);
+
   return (
     <FileManagerContext.Provider
       value={{
@@ -227,6 +241,10 @@ const FileManagerProvider = ({ children }: { children: ReactNode }) => {
         setEditorLineOverflow,
         imageViewerSmoothing,
         setImageViewerSmoothing,
+        audioPlayerVolume,
+        setAudioPlayerVolume,
+        audioPlayerPlaybackRate,
+        setAudioPlayerPlaybackRate,
 
         resetEntries,
         invalidateFilemanager,

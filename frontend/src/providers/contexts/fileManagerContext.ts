@@ -74,6 +74,10 @@ export interface FileManagerContextType {
   setEditorLineOverflow: (state: boolean) => void;
   imageViewerSmoothing: boolean;
   setImageViewerSmoothing: (state: boolean) => void;
+  audioPlayerVolume: number;
+  setAudioPlayerVolume: (volume: number) => void;
+  audioPlayerPlaybackRate: number;
+  setAudioPlayerPlaybackRate: (rate: number) => void;
 
   resetEntries: () => void;
   invalidateFilemanager: () => void;

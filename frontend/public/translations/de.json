@@ -1756,7 +1756,7 @@
             "admin": "Administrator",
             "twoFactorEnabled": "2FA aktiviert",
             "twoFactorDisabled": "2FA deaktiviert",
-            "cannotImpersonateSelf": "Du kannst dich nicht selbst imitieren."
+            "cannotImpersonateSelf": "Du kannst dich nicht selbst impersonieren."
           },
           "tabs": {
             "servers": "Server",
@@ -1766,7 +1766,7 @@
           "button": {
             "disableTwoFactor": "Zwei-Faktor deaktivieren",
             "sendPasswordResetEmail": "Passwort-Zurücksetzungs-E-Mail senden",
-            "impersonate": "Imitieren"
+            "impersonate": "Impersonieren"
           },
           "form": {
             "admin": "Administrator",
@@ -1847,7 +1847,7 @@
           "title": "Server"
         },
         "nests": {
-          "title": "Nester"
+          "title": "Nests"
         },
         "eggConfigurations": {
           "title": "Egg-Konfigurationen"

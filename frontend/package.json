@@ -30,6 +30,7 @@
     "@fortawesome/free-solid-svg-icons": "^7.2.0",
     "@fortawesome/react-fontawesome": "^3.3.1",
     "@friendlycaptcha/sdk": "^1.0.0",
+    "@gfazioli/mantine-audio": "^1.0.0",
     "@gfazioli/mantine-window": "^3.1.2",
     "@hcaptcha/react-hcaptcha": "^2.0.2",
     "@mantine/charts": "^9.2.1",
