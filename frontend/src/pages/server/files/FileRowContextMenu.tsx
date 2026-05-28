@@ -145,7 +145,7 @@ export default function FileRowContextMenu({ file, openMode, children }: FileRow
               hidden: !browsingWritableDirectory,
               onClick: doUnarchive,
               color: 'gray',
-              canAccess: canCreate,
+              canAccess: canArchive,
             }
           : {
               icon: faFileZipper,
