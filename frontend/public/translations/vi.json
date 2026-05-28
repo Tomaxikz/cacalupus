@@ -1358,7 +1358,7 @@
               "searchText": "Văn Bản Tìm Kiếm",
               "maxFileSize": "Kích Thước Tệp Tối Đa",
               "includeOversized": "Bao Gồm Tệp Quá Lớn",
-              "includeOversizedDescription": "Bao gồm các tệp khớp với các bộ lọc khác nhưng quá lớn để tìm kiếm",
+              "includeOversizedDescription": "Bao gồm các tệp khớp với các bộ lọc khác nhưng quá lớn để tìm kiếm.",
               "fileSize": "Kích Thước Tệp",
               "minimum": "Tối Thiểu",
               "maximum": "Tối Đa"
@@ -1676,7 +1676,7 @@
               "title": "Định Dạng",
               "form": {
                 "formatString": "Chuỗi Định Dạng",
-                "formatStringDescription": "Chuỗi định dạng, có thể bao gồm các biến bằng cách bao bọc bên trong {wrapper}"
+                "formatStringDescription": "Chuỗi định dạng. Có thể bao gồm các biến bằng cách bọc chúng trong {wrapper}."
               },
               "renderer": {
                 "compact": "Định dạng chuỗi thành {outputInto}"

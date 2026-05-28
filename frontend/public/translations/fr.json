@@ -927,7 +927,7 @@
               "searchText": "Chercher texte",
               "maxFileSize": "Taille de fichier maximale",
               "includeOversized": "Inclure fichiers surdimensionnés",
-              "includeOversizedDescription": "Inclure les fichiers qui correspondent aux autres filtres mais qui sont trop grands pour être cherchés",
+              "includeOversizedDescription": "Inclut les fichiers qui correspondent à d'autres filtres mais sont trop volumineux pour être recherchés.",
               "fileSize": "Taille de fichier",
               "minimum": "Minimum",
               "maximum": "Maximum"

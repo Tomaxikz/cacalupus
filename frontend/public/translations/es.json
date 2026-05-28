@@ -1372,7 +1372,7 @@
               "searchText": "Texto de búsqueda",
               "maxFileSize": "Tamaño máximo de archivo",
               "includeOversized": "Incluir archivos demasiado grandes",
-              "includeOversizedDescription": "Incluye archivos que coinciden con otros filtros pero son demasiado grandes para buscar en su contenido",
+              "includeOversizedDescription": "Incluye archivos que coinciden con otros filtros pero son demasiado grandes para buscar.",
               "fileSize": "Tamaño del archivo",
               "minimum": "Mínimo",
               "maximum": "Máximo"
@@ -1697,7 +1697,7 @@
               "title": "Formatear",
               "form": {
                 "formatString": "Cadena de formato",
-                "formatStringDescription": "La cadena de formato puede incluir variables envolviéndolas en {wrapper}"
+                "formatStringDescription": "La cadena de formato. Se pueden incluir variables envolviéndolas dentro de {wrapper}."
               },
               "renderer": {
                 "compact": "Formatear una cadena en {outputInto}"

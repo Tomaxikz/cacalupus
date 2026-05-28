@@ -70,7 +70,7 @@ export default function WebauthnContainer() {
         opened={openModal === 'changeRpId'}
         onClose={() => setOpenModal(null)}
         title={t('pages.admin.settings.tabs.webauthn.page.modal.changeRpId.title', {})}
-        confirm={t('pages.admin.settings.tabs.webauthn.page.modal.changeRpId.button.confirm', {})}
+        confirm={t('common.button.update', {})}
         onConfirmed={() => {
           doUpdate();
           setOpenModal(null);

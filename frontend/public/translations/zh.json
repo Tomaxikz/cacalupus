@@ -1401,7 +1401,7 @@
               "searchText": "搜尋文字",
               "maxFileSize": "最大檔案大小",
               "includeOversized": "包含超大檔案",
-              "includeOversizedDescription": "包含符合其他篩選條件但太大而無法搜尋的檔案",
+              "includeOversizedDescription": "包含匹配其他筛选条件但过大而无法搜索的文件。",
               "fileSize": "檔案大小",
               "minimum": "最小值",
               "maximum": "最大值"
@@ -1727,7 +1727,7 @@
               "title": "格式化",
               "form": {
                 "formatString": "格式字串",
-                "formatStringDescription": "格式字串，可以將變數包在 {wrapper} 中使用"
+                "formatStringDescription": "格式字符串。可以通过将变量包装在 {wrapper} 中来包含它们。"
               },
               "renderer": {
                 "compact": "將字串格式化到 {outputInto}"

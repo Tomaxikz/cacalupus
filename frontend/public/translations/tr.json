@@ -1363,7 +1363,7 @@
               "searchText": "Metni ara",
               "maxFileSize": "Maksimum dosya boyutu",
               "includeOversized": "Aşırı büyük dosyaları dahil et",
-              "includeOversizedDescription": "Diğer filtrelere uyan ancak aranmak için çok büyük olan dosyaları dahil et",
+              "includeOversizedDescription": "Diğer filtrelerle eşleşen ancak aranamayacak kadar büyük olan dosyaları içerir.",
               "fileSize": "Dosya Boyutu",
               "minimum": "Minimum",
               "maximum": "Maksimum"
@@ -1688,7 +1688,7 @@
               "title": "Formatla",
               "form": {
                 "formatString": "Format Dizgesi",
-                "formatStringDescription": "Format dizgesi, {wrapper} içine alarak değişkenleri içerebilir"
+                "formatStringDescription": "Biçim dizesi. Değişkenler {wrapper} içine sarılarak eklenebilir."
               },
               "renderer": {
                 "compact": "Bir dizgeyi {outputInto} içine formatla"

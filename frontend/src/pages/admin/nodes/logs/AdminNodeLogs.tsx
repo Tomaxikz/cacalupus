@@ -12,6 +12,7 @@ import { getNodeUrl } from '@/lib/node.ts';
 import { adminNodeSchema } from '@/lib/schemas/admin/nodes.ts';
 import { bytesToString } from '@/lib/size.ts';
 import { useToast } from '@/providers/ToastProvider.tsx';
+import { useTranslations } from '@/providers/TranslationProvider.tsx';
 
 interface NodeLog {
   name: string;
@@ -20,6 +21,7 @@ interface NodeLog {
 }
 
 export default function AdminNodeLogs({ node }: { node: z.infer<typeof adminNodeSchema> }) {
+  const { t } = useTranslations();
   const { addToast } = useToast();
 
   const [logs, setLogs] = useState<NodeLog[]>([]);
@@ -102,7 +104,7 @@ export default function AdminNodeLogs({ node }: { node: z.infer<typeof adminNode
   };
 
   return (
-    <AdminSubContentContainer title='Node Logs' titleOrder={2}>
+    <AdminSubContentContainer title={t('pages.admin.nodes.tabs.logs.page.title', {})} titleOrder={2}>
       {!logs.length ? (
         <Spinner.Centered />
       ) : (
@@ -111,8 +113,8 @@ export default function AdminNodeLogs({ node }: { node: z.infer<typeof adminNode
             <div className='flex flex-row space-x-2 col-span-2'>
               <Select
                 withAsterisk
-                label='Log File'
-                placeholder='Log File'
+                label={t('pages.admin.nodes.tabs.logs.page.form.logFile', {})}
+                placeholder={t('pages.admin.nodes.tabs.logs.page.form.logFile', {})}
                 value={selectedLog?.name || ''}
                 className='w-full'
                 onChange={(value) => setSelectedLog(logs.find((log) => log.name === value) ?? null)}
@@ -123,8 +125,8 @@ export default function AdminNodeLogs({ node }: { node: z.infer<typeof adminNode
               />
               <NumberInput
                 withAsterisk
-                label='Lines'
-                placeholder='Lines'
+                label={t('pages.admin.nodes.tabs.logs.page.form.lines', {})}
+                placeholder={t('pages.admin.nodes.tabs.logs.page.form.lines', {})}
                 value={lines}
                 className='w-full'
                 onChange={(value) => setLines(Number(value))}
@@ -133,10 +135,10 @@ export default function AdminNodeLogs({ node }: { node: z.infer<typeof adminNode
 
             <div className='flex flex-row items-end'>
               <Button onClick={doDownload} disabled={!selectedLog} loading={loading}>
-                Download Full Log
+                {t('pages.admin.nodes.tabs.logs.page.button.download', {})}
               </Button>
               <Button className='ml-2' onClick={doView} variant='outline' disabled={!selectedLog} loading={loading}>
-                View
+                {t('pages.admin.nodes.tabs.logs.page.button.view', {})}
               </Button>
             </div>
           </div>

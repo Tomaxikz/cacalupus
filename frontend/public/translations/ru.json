@@ -1358,7 +1358,7 @@
               "searchText": "Текст поиска",
               "maxFileSize": "Макс. размер файла",
               "includeOversized": "Включить слишком большие файлы",
-              "includeOversizedDescription": "Включить файлы, соответствующие другим фильтрам, но слишком большие для поиска",
+              "includeOversizedDescription": "Включает файлы, которые соответствуют другим фильтрам, но слишком велики для поиска.",
               "fileSize": "Размер файла",
               "minimum": "Минимум",
               "maximum": "Максимум"
@@ -1676,7 +1676,7 @@
               "title": "Форматирование",
               "form": {
                 "formatString": "Строка формата",
-                "formatStringDescription": "Строка формата, может включать переменные, обёрнутые в {wrapper}"
+                "formatStringDescription": "Строка формата. Переменные можно включить, обернув их в {wrapper}."
               },
               "renderer": {
                 "compact": "Форматировать строку в {outputInto}"

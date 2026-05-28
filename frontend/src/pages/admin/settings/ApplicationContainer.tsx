@@ -104,7 +104,7 @@ export default function ApplicationContainer() {
         opened={openModal === 'disableTelemetry'}
         onClose={() => setOpenModal(null)}
         title={t('pages.admin.settings.tabs.application.page.modal.disableTelemetry.title', {})}
-        confirm={t('pages.admin.settings.tabs.application.page.modal.disableTelemetry.button.confirm', {})}
+        confirm={t('common.button.disable', {})}
         onConfirmed={() => {
           form.setFieldValue('telemetryEnabled', false);
           setOpenModal(null);
@@ -116,7 +116,7 @@ export default function ApplicationContainer() {
         opened={openModal === 'enableRegistration'}
         onClose={() => setOpenModal(null)}
         title={t('pages.admin.settings.tabs.application.page.modal.enableRegistration.title', {})}
-        confirm={t('pages.admin.settings.tabs.application.page.modal.enableRegistration.button.confirm', {})}
+        confirm={t('common.button.enable', {})}
         onConfirmed={() => {
           form.setFieldValue('registrationEnabled', true);
           setOpenModal(null);

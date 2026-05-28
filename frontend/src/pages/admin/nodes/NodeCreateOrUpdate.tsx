@@ -15,7 +15,6 @@ import { httpErrorToHuman } from '@/api/axios.ts';
 import ActionIcon from '@/elements/ActionIcon.tsx';
 import Button from '@/elements/Button.tsx';
 import { AdminCan } from '@/elements/Can.tsx';
-import Code from '@/elements/Code.tsx';
 import AdminContentContainer from '@/elements/containers/AdminContentContainer.tsx';
 import NumberInput from '@/elements/input/NumberInput.tsx';
 import Select from '@/elements/input/Select.tsx';
@@ -33,8 +32,10 @@ import { adminNodeSchema, adminNodeUpdateSchema } from '@/lib/schemas/admin/node
 import { useResourceForm } from '@/plugins/useResourceForm.ts';
 import { useSearchableResource } from '@/plugins/useSearchableResource.ts';
 import { useToast } from '@/providers/ToastProvider.tsx';
+import { useTranslations } from '@/providers/TranslationProvider.tsx';
 
 export default function NodeCreateOrUpdate({ contextNode }: { contextNode?: z.infer<typeof adminNodeSchema> }) {
+  const { t } = useTranslations();
   const { addToast } = useToast();
 
   const [isValid, setIsValid] = useState(false);
@@ -73,7 +74,7 @@ export default function NodeCreateOrUpdate({ contextNode }: { contextNode?: z.in
     deleteFn: contextNode ? () => deleteNode(contextNode.uuid) : undefined,
     doUpdate: !!contextNode,
     basePath: '/admin/nodes',
-    resourceName: 'Node',
+    resourceName: t('pages.admin.nodes.resourceName', {}),
   });
 
   useEffect(() => {
@@ -113,7 +114,7 @@ export default function NodeCreateOrUpdate({ contextNode }: { contextNode?: z.in
 
     resetNodeToken(contextNode.uuid)
       .then(({ tokenId, token }) => {
-        addToast('Node token reset.', 'success');
+        addToast(t('pages.admin.nodes.tabs.general.page.toast.tokenReset', {}), 'success');
         contextNode.tokenId = tokenId;
         contextNode.token = token;
       })
@@ -125,33 +126,37 @@ export default function NodeCreateOrUpdate({ contextNode }: { contextNode?: z.in
 
   return (
     <AdminContentContainer
-      title={`${contextNode ? 'Update' : 'Create'} Node`}
+      title={
+        contextNode
+          ? t('pages.admin.nodes.tabs.general.page.titleUpdate', {})
+          : t('pages.admin.nodes.tabs.general.page.titleCreate', {})
+      }
       fullscreen={!!contextNode}
       titleOrder={2}
     >
       <ConfirmationModal
         opened={openModal === 'delete'}
         onClose={() => setOpenModal(null)}
-        title='Confirm Node Deletion'
-        confirm='Delete'
+        title={t('pages.admin.nodes.modal.delete.title', {})}
+        confirm={t('common.button.delete', {})}
         onConfirmed={doDelete}
       >
-        Are you sure you want to delete <Code>{form.getValues().name}</Code>?
+        {t('pages.admin.nodes.modal.delete.content', { name: form.getValues().name }).md()}
       </ConfirmationModal>
 
       <form onSubmit={form.onSubmit(() => doCreateOrUpdate(false, queryKeys.admin.nodes.all()))}>
         <div className='grid grid-cols-1 md:grid-cols-2 gap-4'>
           <TextInput
             withAsterisk
-            label='Name'
-            placeholder='Name'
+            label={t('common.form.name', {})}
+            placeholder={t('common.form.name', {})}
             key={form.key('name')}
             {...form.getInputProps('name')}
           />
           <Select
             withAsterisk
-            label='Location'
-            placeholder='Location'
+            label={t('common.table.columns.location', {})}
+            placeholder={t('common.table.columns.location', {})}
             data={locations.items.map((location) => ({
               label: location.name,
               value: location.uuid,
@@ -166,20 +171,20 @@ export default function NodeCreateOrUpdate({ contextNode }: { contextNode?: z.in
 
           <TextInput
             withAsterisk
-            label='URL'
-            description='used for internal communication with the node'
-            placeholder='URL'
+            label={t('common.form.url', {})}
+            description={t('pages.admin.nodes.tabs.general.page.form.urlDescription', {})}
+            placeholder={t('common.form.url', {})}
             key={form.key('url')}
             {...form.getInputProps('url')}
             disabled={contextNode ? isNodeAIO(contextNode) : false}
           />
           <TextInput
-            label='Public URL'
-            description='used for websocket/downloads'
-            placeholder='URL'
+            label={t('common.form.publicUrl', {})}
+            description={t('pages.admin.nodes.tabs.general.page.form.publicUrlDescription', {})}
+            placeholder={t('common.form.url', {})}
             key={form.key('publicUrl')}
             rightSection={
-              <Tooltip label='Use Wings Proxy URL'>
+              <Tooltip label={t('pages.admin.nodes.tabs.general.page.tooltip.useWingsProxyUrl', {})}>
                 <ActionIcon
                   variant='subtle'
                   onClick={() =>
@@ -197,15 +202,15 @@ export default function NodeCreateOrUpdate({ contextNode }: { contextNode?: z.in
           />
 
           <TextInput
-            label='SFTP Host'
-            placeholder='SFTP Host'
+            label={t('pages.admin.nodes.tabs.general.page.form.sftpHost', {})}
+            placeholder={t('pages.admin.nodes.tabs.general.page.form.sftpHost', {})}
             key={form.key('sftpHost')}
             {...form.getInputProps('sftpHost')}
           />
           <NumberInput
             withAsterisk
-            label='SFTP Port'
-            placeholder='SFTP Port'
+            label={t('pages.admin.nodes.tabs.general.page.form.sftpPort', {})}
+            placeholder={t('pages.admin.nodes.tabs.general.page.form.sftpPort', {})}
             min={1}
             max={65535}
             key={form.key('sftpPort')}
@@ -214,7 +219,7 @@ export default function NodeCreateOrUpdate({ contextNode }: { contextNode?: z.in
 
           <SizeInput
             withAsterisk
-            label='Memory'
+            label={t('pages.admin.nodes.tabs.general.page.form.memory', {})}
             mode='mb'
             min={0}
             value={form.getValues().memory}
@@ -222,7 +227,7 @@ export default function NodeCreateOrUpdate({ contextNode }: { contextNode?: z.in
           />
           <SizeInput
             withAsterisk
-            label='Disk'
+            label={t('pages.admin.nodes.tabs.general.page.form.disk', {})}
             mode='mb'
             min={0}
             value={form.getValues().disk}
@@ -230,8 +235,8 @@ export default function NodeCreateOrUpdate({ contextNode }: { contextNode?: z.in
           />
 
           <Select
-            label='Backup Configuration'
-            placeholder='Inherit from Location'
+            label={t('common.form.backupConfiguration', {})}
+            placeholder={t('pages.admin.nodes.tabs.general.page.form.backupConfigurationPlaceholder', {})}
             data={backupConfigurations.items.map((backupConfiguration) => ({
               label: backupConfiguration.name,
               value: backupConfiguration.uuid,
@@ -246,20 +251,20 @@ export default function NodeCreateOrUpdate({ contextNode }: { contextNode?: z.in
             {...form.getInputProps('backupConfigurationUuid')}
           />
           <TextArea
-            label='Description'
-            placeholder='Description'
+            label={t('common.form.description', {})}
+            placeholder={t('common.form.description', {})}
             rows={3}
             key={form.key('description')}
             {...form.getInputProps('description')}
           />
 
           <Switch
-            label='Deployment Enabled'
+            label={t('pages.admin.nodes.tabs.general.page.form.deploymentEnabled', {})}
             key={form.key('deploymentEnabled')}
             {...form.getInputProps('deploymentEnabled', { type: 'checkbox' })}
           />
           <Switch
-            label='Maintenance Enabled'
+            label={t('pages.admin.nodes.tabs.general.page.form.maintenanceEnabled', {})}
             key={form.key('maintenanceEnabled')}
             {...form.getInputProps('maintenanceEnabled', { type: 'checkbox' })}
           />
@@ -268,11 +273,11 @@ export default function NodeCreateOrUpdate({ contextNode }: { contextNode?: z.in
         <Group mt='md'>
           <AdminCan action={contextNode ? 'nodes.update' : 'nodes.create'} cantSave>
             <Button type='submit' disabled={!isValid} loading={loading}>
-              Save
+              {t('common.button.save', {})}
             </Button>
             {!contextNode && (
               <Button onClick={() => doCreateOrUpdate(true)} disabled={!isValid} loading={loading}>
-                Save & Stay
+                {t('common.button.saveAndStay', {})}
               </Button>
             )}
           </AdminCan>
@@ -286,12 +291,12 @@ export default function NodeCreateOrUpdate({ contextNode }: { contextNode?: z.in
                   loading={loading}
                   disabled={isNodeAIO(contextNode)}
                 >
-                  Reset Token
+                  {t('pages.admin.nodes.tabs.general.page.button.resetToken', {})}
                 </Button>
               </AdminCan>
               <AdminCan action='nodes.delete' cantDelete>
                 <Button color='red' onClick={() => setOpenModal('delete')} loading={loading}>
-                  Delete
+                  {t('common.button.delete', {})}
                 </Button>
               </AdminCan>
             </>

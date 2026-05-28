@@ -1372,7 +1372,7 @@
               "searchText": "نص البحث",
               "maxFileSize": "الحد الأقصى لحجم الملف",
               "includeOversized": "تضمين الملفات الكبيرة جداً",
-              "includeOversizedDescription": "تضمين الملفات التي تطابق الفلاتر الأخرى لكنها كبيرة جداً للبحث",
+              "includeOversizedDescription": "يتضمن الملفات التي تطابق المرشحات الأخرى ولكنها كبيرة جدًا للبحث فيها.",
               "fileSize": "حجم الملف",
               "minimum": "الحد الأدنى",
               "maximum": "الحد الأقصى"
@@ -1697,7 +1697,7 @@
               "title": "تنسيق",
               "form": {
                 "formatString": "سلسلة التنسيق",
-                "formatStringDescription": "سلسلة التنسيق، يمكن أن تتضمن متغيرات عن طريق وضعها داخل {wrapper}"
+                "formatStringDescription": "سلسلة التنسيق. يمكن تضمين المتغيرات عن طريق تغليفها داخل {wrapper}."
               },
               "renderer": {
                 "compact": "تنسيق سلسلة إلى {outputInto}"

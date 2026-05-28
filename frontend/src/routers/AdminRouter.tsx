@@ -43,7 +43,7 @@ export default function AdminRouter({ isNormal }: { isNormal: boolean }) {
                 <AppIcon />
               </NavLink>
               <Sidebar.Divider />
-              <Sidebar.Link to='/' end icon={faReply} name='Back' />
+              <Sidebar.Link to='/' end icon={faReply} name={t('pages.admin.sidebar.back', {})} />
               <Sidebar.Divider />
             </>
           }

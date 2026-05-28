@@ -29,13 +29,13 @@ export default function AdminUserServers({ user }: { user: z.infer<typeof fullUs
 
   return (
     <AdminSubContentContainer
-      title={t('pages.admin.users.servers.title', {})}
+      title={t('pages.admin.users.tabs.servers.page.title', {})}
       titleOrder={2}
       search={search}
       setSearch={setSearch}
       contentRight={
         <Switch
-          label={t('pages.admin.users.servers.showOwnedOnly', {})}
+          label={t('pages.admin.users.tabs.servers.page.showOwnedOnly', {})}
           checked={showOwnedUserServers}
           onChange={(e) => setShowOwnedUserServers(e.currentTarget.checked)}
         />

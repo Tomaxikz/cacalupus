@@ -14,6 +14,7 @@ import FormattedTimestamp from '@/elements/time/FormattedTimestamp.tsx';
 import { getNodeUrl, isNodeAIO } from '@/lib/node.ts';
 import { adminNodeSchema } from '@/lib/schemas/admin/nodes.ts';
 import { parseVersion } from '@/lib/version.ts';
+import { useTranslations } from '@/providers/TranslationProvider.tsx';
 import { useAdminStore } from '@/stores/admin.tsx';
 
 interface NodeRowProps {
@@ -28,6 +29,7 @@ const NodeRow = forwardRef<HTMLTableRowElement, NodeRowProps>(function NodeRow(
   { node, desync, isSelected, onSelectionChange, contextMenuProps },
   ref,
 ) {
+  const { t } = useTranslations();
   const { updateInformation } = useAdminStore();
 
   const [version, setVersion] = useState<string | null>(null);
@@ -81,11 +83,11 @@ const NodeRow = forwardRef<HTMLTableRowElement, NodeRowProps>(function NodeRow(
       <TableData>
         {version ? (
           version === 'Unavailable' ? (
-            <Tooltip label='Error while fetching version'>
+            <Tooltip label={t('pages.admin.nodes.tabs.general.page.tooltip.errorWhileFetchingVersion', {})}>
               <FontAwesomeIcon icon={faHeartBroken} className='text-red-500' />
             </Tooltip>
           ) : updateInformation && parseVersion(updateInformation.latestWingsVersion).isNewerThan(version) ? (
-            <Tooltip label={`${version} (Update Available)`}>
+            <Tooltip label={t('pages.admin.nodes.tabs.general.page.tooltip.updateAvailable', { version })}>
               <FontAwesomeIcon icon={faHeart} className='text-yellow-500 animate-pulse' />
             </Tooltip>
           ) : (
@@ -110,16 +112,16 @@ const NodeRow = forwardRef<HTMLTableRowElement, NodeRowProps>(function NodeRow(
         <span className='flex gap-2 items-center'>
           {node.name}&nbsp;
           {node.deploymentEnabled ? (
-            <Tooltip label='Deployment Enabled'>
+            <Tooltip label={t('pages.admin.nodes.tabs.general.page.tooltip.deploymentEnabled', {})}>
               <FontAwesomeIcon icon={faGlobe} className='text-green-500' />
             </Tooltip>
           ) : (
-            <Tooltip label='Deployment Disabled'>
+            <Tooltip label={t('pages.admin.nodes.tabs.general.page.tooltip.deploymentDisabled', {})}>
               <FontAwesomeIcon icon={faGlobe} className='text-red-500' />
             </Tooltip>
           )}
           {isNodeAIO(node) && (
-            <Tooltip label='All-in-One Node'>
+            <Tooltip label={t('pages.admin.nodes.tabs.general.page.tooltip.allInOneNode', {})}>
               <FontAwesomeIcon icon={faHeart} className='text-purple-500' />
             </Tooltip>
           )}

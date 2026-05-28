@@ -1377,7 +1377,7 @@
               "searchText": "Söktext",
               "maxFileSize": "Max filstorlek",
               "includeOversized": "Inkludera oversized filer",
-              "includeOversizedDescription": "Inkludera filer som matchar andra filter men är för stora att söka i",
+              "includeOversizedDescription": "Inkluderar filer som matchar andra filter men är för stora för att sökas igenom.",
               "fileSize": "Filstorlek",
               "minimum": "Minimum",
               "maximum": "Maximum"
@@ -1702,7 +1702,7 @@
               "title": "Format",
               "form": {
                 "formatString": "Formatera sträng",
-                "formatStringDescription": "Formatsträngen kan inkludera variabler genom att radbrytas inuti {wrapper}"
+                "formatStringDescription": "Formatsträngen. Variabler kan inkluderas genom att omsluta dem i {wrapper}."
               },
               "renderer": {
                 "compact": "Formatera en sträng till {outputInto}"

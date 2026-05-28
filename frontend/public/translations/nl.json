@@ -1363,7 +1363,7 @@
               "searchText": "Zoektekst",
               "maxFileSize": "Maximale bestandsgrootte",
               "includeOversized": "Te grote bestanden opnemen",
-              "includeOversizedDescription": "Bestanden opnemen die aan andere filters voldoen maar te groot zijn om te doorzoeken",
+              "includeOversizedDescription": "Bevat bestanden die overeenkomen met andere filters maar te groot zijn om te doorzoeken.",
               "fileSize": "Bestandsgrootte",
               "minimum": "Minimum",
               "maximum": "Maximum"
@@ -1688,7 +1688,7 @@
               "title": "Opmaken",
               "form": {
                 "formatString": "Opmaaktekenreeks",
-                "formatStringDescription": "De opmaaktekenreeks, kan variabelen bevatten door ze te omsluiten met {wrapper}"
+                "formatStringDescription": "De opmaakreeks. Variabelen kunnen worden opgenomen door ze in {wrapper} te plaatsen."
               },
               "renderer": {
                 "compact": "Maak een tekenreeks op in {outputInto}"

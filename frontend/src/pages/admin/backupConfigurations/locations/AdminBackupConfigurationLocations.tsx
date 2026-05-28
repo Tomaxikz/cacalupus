@@ -27,7 +27,7 @@ export default function AdminBackupConfigurationLocations({
   return (
     <AdminSubContentContainer title={`Backup Config Locations`} titleOrder={2} search={search} setSearch={setSearch}>
       <Table
-        columns={locationTableColumns}
+        columns={locationTableColumns()}
         loading={loading}
         pagination={backupConfigurationLocations}
         onPageSelect={setPage}

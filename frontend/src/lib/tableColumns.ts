@@ -27,9 +27,26 @@ export const databaseHostTableColumns = ['ID', 'Name', 'Type', 'Created'];
 
 export const databaseHostDatabaseTableColumns = ['Name', 'Server', 'Type', 'Address', 'Username', 'Size', 'Created'];
 
-export const locationDatabaseHostTableColumns = ['ID', 'Name', 'Type', 'Added', ''];
+export const locationDatabaseHostTableColumns = (): string[] => {
+  const { t } = getTranslations();
+  return [
+    t('common.table.columns.id', {}),
+    t('common.table.columns.name', {}),
+    t('common.table.columns.type', {}),
+    t('common.table.columns.added', {}),
+    '',
+  ];
+};
 
-export const locationTableColumns = ['ID', 'Name', 'Backup Configuration', 'Created'];
+export const locationTableColumns = (): string[] => {
+  const { t } = getTranslations();
+  return [
+    t('common.table.columns.id', {}),
+    t('common.table.columns.name', {}),
+    t('common.table.columns.backupConfiguration', {}),
+    t('common.table.columns.created', {}),
+  ];
+};
 
 export const eggRepositoryTableColumns = ['ID', 'Name', 'Description', 'Git Repository', 'Created'];
 
@@ -52,9 +69,30 @@ export const nodeTableColumns = (): string[] => {
   ];
 };
 
-export const nodeMountTableColumns = ['ID', 'Name', 'Source', 'Target', 'Added', ''];
+export const nodeMountTableColumns = (): string[] => {
+  const { t } = getTranslations();
+  return [
+    t('common.table.columns.id', {}),
+    t('common.table.columns.name', {}),
+    t('pages.admin.nodes.tabs.mounts.page.table.columns.source', {}),
+    t('pages.admin.nodes.tabs.mounts.page.table.columns.target', {}),
+    t('common.table.columns.added', {}),
+    '',
+  ];
+};
 
-export const nodeAllocationTableColumns = ['', 'ID', 'Server', 'IP', 'IP Alias', 'Port', 'Created'];
+export const nodeAllocationTableColumns = (): string[] => {
+  const { t } = getTranslations();
+  return [
+    '',
+    t('common.table.columns.id', {}),
+    t('pages.admin.nodes.tabs.backups.page.table.columns.server', {}),
+    t('common.table.columns.ip', {}),
+    t('pages.admin.nodes.tabs.allocations.page.table.columns.ipAlias', {}),
+    t('common.form.port', {}),
+    t('common.table.columns.created', {}),
+  ];
+};
 
 export const oauthProviderTableColumns = [
   'ID',
@@ -93,7 +131,7 @@ export const adminUserOAuthLinkTableColumns = (): string[] => {
   const { t } = getTranslations();
   return [
     t('common.table.columns.id', {}),
-    t('pages.admin.users.oauthLinks.modal.add.form.oauthProvider', {}),
+    t('pages.admin.users.tabs.oauthLinks.page.modal.add.form.oauthProvider', {}),
     t('common.form.identifier', {}),
     t('common.table.columns.lastUsed', {}),
     t('common.table.columns.created', {}),

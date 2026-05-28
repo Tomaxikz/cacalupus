@@ -28,6 +28,7 @@ import { getNodeUrl } from '@/lib/node.ts';
 import { adminNodeSchema } from '@/lib/schemas/admin/nodes.ts';
 import { bytesToString } from '@/lib/size.ts';
 import { useToast } from '@/providers/ToastProvider.tsx';
+import { useTranslations } from '@/providers/TranslationProvider.tsx';
 
 interface NodeStatistics {
   cpu: {
@@ -57,13 +58,18 @@ interface NodeStatistics {
 }
 
 export default function AdminNodeStatistics({ node }: { node: z.infer<typeof adminNodeSchema> }) {
+  const { t } = useTranslations();
   const { addToast } = useToast();
 
   const [stats, setStats] = useState<NodeStatistics | null>(null);
 
-  const cpu = useChartTickLabel('CPU', 100, '%', 2);
-  const memory = useChartTickLabel('Memory', stats ? Math.floor(stats.memory.total / 1024 / 1024) : 0, 'MiB');
-  const disk = useChart('Disk', {
+  const cpu = useChartTickLabel(t('pages.admin.nodes.tabs.statistics.page.label.cpu', {}), 100, '%', 2);
+  const memory = useChartTickLabel(
+    t('pages.admin.nodes.tabs.statistics.page.label.memory', {}),
+    stats ? Math.floor(stats.memory.total / 1024 / 1024) : 0,
+    'MiB',
+  );
+  const disk = useChart(t('pages.admin.nodes.tabs.statistics.page.label.disk', {}), {
     sets: 2,
     options: {
       scales: {
@@ -77,10 +83,15 @@ export default function AdminNodeStatistics({ node }: { node: z.infer<typeof adm
       },
     },
     callback(opts, index) {
-      return { ...opts, label: !index ? 'Disk Read' : 'Disk Write' };
+      return {
+        ...opts,
+        label: !index
+          ? t('pages.admin.nodes.tabs.statistics.page.chart.diskRead', {})
+          : t('pages.admin.nodes.tabs.statistics.page.chart.diskWrite', {}),
+      };
     },
   });
-  const network = useChart('Network', {
+  const network = useChart(t('pages.admin.nodes.tabs.statistics.page.label.network', {}), {
     sets: 2,
     options: {
       scales: {
@@ -94,7 +105,12 @@ export default function AdminNodeStatistics({ node }: { node: z.infer<typeof adm
       },
     },
     callback(opts, index) {
-      return { ...opts, label: !index ? 'Network In' : 'Network Out' };
+      return {
+        ...opts,
+        label: !index
+          ? t('pages.admin.nodes.tabs.statistics.page.chart.networkInLabel', {})
+          : t('pages.admin.nodes.tabs.statistics.page.chart.networkOutLabel', {}),
+      };
     },
   });
 
@@ -133,13 +149,16 @@ export default function AdminNodeStatistics({ node }: { node: z.infer<typeof adm
   }, [stats]);
 
   return (
-    <AdminSubContentContainer title='Node Statistics' titleOrder={2}>
+    <AdminSubContentContainer title={t('pages.admin.nodes.tabs.statistics.page.title', {})} titleOrder={2}>
       {!stats ? (
         <Spinner.Centered />
       ) : (
         <>
           <div className='mt-4'>
-            <TitleCard title='Resources' icon={<FontAwesomeIcon icon={faUserLarge} />}>
+            <TitleCard
+              title={t('pages.admin.nodes.tabs.statistics.page.card.resources', {})}
+              icon={<FontAwesomeIcon icon={faUserLarge} />}
+            >
               <div className='grid grid-cols-1 lg:grid-cols-2 2xl:grid-cols-3 gap-4'>
                 <Card>
                   <Group grow>
@@ -151,9 +170,12 @@ export default function AdminNodeStatistics({ node }: { node: z.infer<typeof adm
                       />
                     </div>
                     <div className='flex flex-col text-right flex-1'>
-                      <Title order={2}>CPU</Title>
+                      <Title order={2}>{t('pages.admin.nodes.tabs.statistics.page.label.cpu', {})}</Title>
                       <h2>
-                        {stats.cpu.model} ({stats.cpu.threads} threads)
+                        {t('pages.admin.nodes.tabs.statistics.page.label.cpuThreads', {
+                          model: stats.cpu.model,
+                          threads: stats.cpu.threads,
+                        })}
                       </h2>
                     </div>
                   </Group>
@@ -168,11 +190,15 @@ export default function AdminNodeStatistics({ node }: { node: z.infer<typeof adm
                       />
                     </div>
                     <div className='flex flex-col text-right flex-1'>
-                      <Title order={2}>Memory</Title>
+                      <Title order={2}>{t('pages.admin.nodes.tabs.statistics.page.label.memory', {})}</Title>
                       <h2>
                         {bytesToString(stats.memory.used)} / {bytesToString(stats.memory.total)}
                       </h2>
-                      <p className='text-xs'>{bytesToString(stats.memory.usedProcess)} used by Wings</p>
+                      <p className='text-xs'>
+                        {t('pages.admin.nodes.tabs.statistics.page.label.usedByWings', {
+                          size: bytesToString(stats.memory.usedProcess),
+                        })}
+                      </p>
                     </div>
                   </Group>
                 </Card>
@@ -186,7 +212,7 @@ export default function AdminNodeStatistics({ node }: { node: z.infer<typeof adm
                       />
                     </div>
                     <div className='flex flex-col text-right flex-1'>
-                      <Title order={2}>Disk</Title>
+                      <Title order={2}>{t('pages.admin.nodes.tabs.statistics.page.label.disk', {})}</Title>
                       <h2>
                         {bytesToString(stats.disk.used)} / {bytesToString(stats.disk.total)}
                       </h2>
@@ -199,11 +225,15 @@ export default function AdminNodeStatistics({ node }: { node: z.infer<typeof adm
                       <SemiCircleProgress value={100} label='--' filledSegmentColor='gray' />
                     </div>
                     <div className='flex flex-col text-right flex-1'>
-                      <Title order={2}>Network</Title>
+                      <Title order={2}>{t('pages.admin.nodes.tabs.statistics.page.label.network', {})}</Title>
                       <h2>
-                        In: {bytesToString(stats.network.received)}
+                        {t('pages.admin.nodes.tabs.statistics.page.label.networkIn', {
+                          in: bytesToString(stats.network.received),
+                        })}
                         <br />
-                        Out: {bytesToString(stats.network.sent)}
+                        {t('pages.admin.nodes.tabs.statistics.page.label.networkOut', {
+                          out: bytesToString(stats.network.sent),
+                        })}
                       </h2>
                     </div>
                   </Group>
@@ -212,23 +242,32 @@ export default function AdminNodeStatistics({ node }: { node: z.infer<typeof adm
             </TitleCard>
           </div>
           <div className='mt-4'>
-            <TitleCard title='Graphs' icon={<FontAwesomeIcon icon={faChartBar} />}>
+            <TitleCard
+              title={t('pages.admin.nodes.tabs.statistics.page.card.graphs', {})}
+              icon={<FontAwesomeIcon icon={faChartBar} />}
+            >
               <div className='grid grid-cols-1 md:grid-cols-2 gap-4'>
-                <ChartBlock icon={<FontAwesomeIcon icon={faMicrochip} />} title='CPU Load'>
+                <ChartBlock
+                  icon={<FontAwesomeIcon icon={faMicrochip} />}
+                  title={t('pages.admin.nodes.tabs.statistics.page.chart.cpuLoad', {})}
+                >
                   <Line {...cpu.props} />
                 </ChartBlock>
-                <ChartBlock icon={<FontAwesomeIcon icon={faMemory} />} title='Memory Usage'>
+                <ChartBlock
+                  icon={<FontAwesomeIcon icon={faMemory} />}
+                  title={t('pages.admin.nodes.tabs.statistics.page.chart.memoryUsage', {})}
+                >
                   <Line {...memory.props} />
                 </ChartBlock>
                 <ChartBlock
                   icon={<FontAwesomeIcon icon={faDatabase} />}
-                  title='Disk I/O'
+                  title={t('pages.admin.nodes.tabs.statistics.page.chart.diskIo', {})}
                   legend={
                     <>
-                      <Tooltip label='Disk Read'>
+                      <Tooltip label={t('pages.admin.nodes.tabs.statistics.page.chart.diskRead', {})}>
                         <FontAwesomeIcon icon={faSearch} className='mr-2 h-4 w-4 text-cyan-400 light:text-cyan-600' />
                       </Tooltip>
-                      <Tooltip label='Disk Write'>
+                      <Tooltip label={t('pages.admin.nodes.tabs.statistics.page.chart.diskWrite', {})}>
                         <FontAwesomeIcon icon={faPen} className='h-4 w-4 text-yellow-400 light:text-amber-600' />
                       </Tooltip>
                     </>
@@ -238,16 +277,16 @@ export default function AdminNodeStatistics({ node }: { node: z.infer<typeof adm
                 </ChartBlock>
                 <ChartBlock
                   icon={<FontAwesomeIcon icon={faCloudDownload} />}
-                  title='Network Traffic'
+                  title={t('pages.admin.nodes.tabs.statistics.page.chart.networkTraffic', {})}
                   legend={
                     <>
-                      <Tooltip label='Inbound'>
+                      <Tooltip label={t('pages.admin.nodes.tabs.statistics.page.chart.inbound', {})}>
                         <FontAwesomeIcon
                           icon={faCloudArrowDown}
                           className='mr-2 h-4 w-4 text-cyan-400 light:text-cyan-600'
                         />
                       </Tooltip>
-                      <Tooltip label='Outbound'>
+                      <Tooltip label={t('pages.admin.nodes.tabs.statistics.page.chart.outbound', {})}>
                         <FontAwesomeIcon
                           icon={faCloudArrowUp}
                           className='h-4 w-4 text-yellow-400 light:text-amber-600'
