@@ -17,6 +17,7 @@ const baseTranslations = defineTranslations({
     asset: defineEnglishItem('Asset', 'Assets'),
     node: defineEnglishItem('Node', 'Nodes'),
     allocation: defineEnglishItem('Node Allocation', 'Node Allocations'),
+    egg: defineEnglishItem('Egg', 'Eggs'),
   },
   translations: {
     common: {
@@ -84,6 +85,7 @@ const baseTranslations = defineTranslations({
       form: {
         name: 'Name',
         description: 'Description',
+        author: 'Author',
         password: 'Password',
         host: 'Host',
         username: 'Username',
@@ -163,6 +165,7 @@ const baseTranslations = defineTranslations({
         columns: {
           id: 'ID',
           name: 'Name',
+          author: 'Author',
           type: 'Type',
           title: 'Title',
           enabled: 'Enabled',
@@ -2440,6 +2443,203 @@ const baseTranslations = defineTranslations({
         },
         nests: {
           title: 'Nests',
+          resourceName: 'Nest',
+          tabs: {
+            general: {
+              page: {
+                titleCreate: 'Create Nest',
+                titleUpdate: 'Update Nest',
+                modal: {
+                  delete: {
+                    title: 'Confirm Nest Deletion',
+                    content: 'Are you sure you want to delete **{name}**?',
+                  },
+                },
+              },
+            },
+            eggs: {
+              title: 'Eggs',
+              page: {
+                title: 'Eggs',
+                resourceName: 'Egg',
+                dropzone: {
+                  title: 'Drop some files here to import as Eggs',
+                  subtitle: 'Release to start importing',
+                },
+                form: {
+                  nest: 'Nest',
+                },
+                button: {
+                  move: 'Move',
+                  updateFromRepository: 'Update from Repository',
+                },
+                toast: {
+                  imported: 'Egg imported.',
+                  moved: 'Egg moved.',
+                  movedBulk: '{eggs} moved.',
+                  deletedBulk: '{eggs} deleted.',
+                  updatedFromRepository: '{eggs} updated using their respective repository egg successfully.',
+                  parseFailed: 'Failed to parse egg: {error}',
+                },
+                modal: {
+                  move: {
+                    title: 'Move Egg',
+                  },
+                  moveBulk: {
+                    title: 'Move Eggs',
+                    confirm: 'Move {eggs}',
+                  },
+                  deleteBulk: {
+                    title: 'Confirm Egg Deletion',
+                    content: 'Are you sure you want to delete `{count}` eggs?',
+                  },
+                },
+                tabs: {
+                  general: {
+                    page: {
+                      titleCreate: 'Create Egg',
+                      titleUpdate: 'Update Egg',
+                      card: {
+                        startupConfiguration: 'Startup Configuration',
+                        stopConfiguration: 'Stop Configuration',
+                        configFiles: 'Config Files Configuration',
+                      },
+                      form: {
+                        eggRepository: 'Egg Repository',
+                        eggRepositoryEgg: 'Egg Repository Egg',
+                        startupDone: 'Startup Done',
+                        startupDoneDescription: 'Console message indicating startup completion.',
+                        stripAnsi: 'Strip ANSI from startup messages',
+                        stripAnsiDescription:
+                          'Removes ANSI control characters from the console output before matching startup completion.',
+                        stopType: 'Stop Type',
+                        stopCommand: 'Stop Command',
+                        stopSignal: 'Stop Signal',
+                        filePath: 'File Path',
+                        parser: 'Parser',
+                        createNewFile: 'Create New File',
+                        createNewFileDescription:
+                          'If enabled, the file will be created if it does not exist. If disabled, the file must already exist or the replacement will fail.',
+                        match: 'Match',
+                        ifValue: 'If Value',
+                        replaceWith: 'Replace With',
+                        insertNew: 'Insert New',
+                        insertNewDescription:
+                          'If enabled, if no existing value matches the "Match" field, the "Replace With" value will be inserted into the file. If disabled, if no match is found, no changes will be made to the file.',
+                        updateExisting: 'Update Existing',
+                        updateExistingDescription:
+                          'If enabled, if a match is found, it will be replaced with the "Replace With" value. If disabled, the replacement will only insert new values and will fail if a match is found.',
+                        startupCommands: 'Startup Commands',
+                        forceOutgoingIp: 'Force Outgoing IP',
+                        separatePort: 'Separate IP and Port',
+                        separatePortDescription:
+                          'Separates the primary IP and port on the Console page instead of joining them with ":".',
+                        features: 'Features',
+                        featurePlaceholder: 'Feature',
+                        fileDenylist: 'File Deny List',
+                        dockerImages: 'Docker Images',
+                      },
+                      enum: {
+                        stopType: {
+                          command: 'Send Command',
+                          signal: 'Send Signal',
+                          docker: 'Docker Stop',
+                        },
+                      },
+                      emptyConfigFiles: 'No config files defined.',
+                      emptyReplacements: 'No replacements defined.',
+                      button: {
+                        addReplacement: 'Add Replacement',
+                        addConfigFile: 'Add Config File',
+                        fromFile: 'from File',
+                        fromRepository: 'from Repository',
+                        asJson: 'as JSON',
+                        asYaml: 'as YAML',
+                      },
+                      toast: {
+                        exported: 'Egg exported.',
+                        updated: 'Egg updated.',
+                      },
+                      modal: {
+                        delete: {
+                          title: 'Confirm Egg Deletion',
+                          content: 'Are you sure you want to delete **{name}**?',
+                        },
+                      },
+                    },
+                  },
+                  installationScript: {
+                    title: 'Installation Script',
+                    page: {
+                      title: 'Egg Installation Script',
+                      form: {
+                        container: 'Installation Container',
+                        entrypoint: 'Container Entrypoint',
+                      },
+                      toast: {
+                        updated: 'Egg script updated.',
+                      },
+                    },
+                  },
+                  variables: {
+                    title: 'Variables',
+                    page: {
+                      title: 'Egg Variables',
+                      form: {
+                        supportsMarkdown: 'Supports Markdown formatting.',
+                        envVariable: 'Environment Variable',
+                        defaultValue: 'Default Value',
+                        defaultValuePlaceholder: 'server.jar',
+                        userViewable: 'User Viewable',
+                        userEditable: 'User Editable',
+                        secret: 'Secret',
+                        rules: 'Rules',
+                        rulesDescription:
+                          'Inspired by https://laravel.com/docs/12.x/validation#available-validation-rules',
+                      },
+                      toast: {
+                        created: 'Egg variable created.',
+                        updated: 'Egg variable updated.',
+                        deleted: 'Egg variable deleted.',
+                      },
+                      modal: {
+                        delete: {
+                          title: 'Confirm Egg Variable Removal',
+                          content: 'Are you sure you want to remove **{variable}**?',
+                          emptyVariable: 'this empty variable',
+                        },
+                      },
+                    },
+                  },
+                  mounts: {
+                    title: 'Mounts',
+                    page: {
+                      title: 'Egg Mounts',
+                      toast: {
+                        added: 'Egg Mount added.',
+                        deleted: 'Egg Mount deleted.',
+                      },
+                      modal: {
+                        add: {
+                          title: 'Add Egg Mount',
+                        },
+                        delete: {
+                          title: 'Confirm Egg Mount Removal',
+                          content: 'Are you sure you want to remove the mount **{mount}** from **{egg}**?',
+                        },
+                      },
+                    },
+                  },
+                  servers: {
+                    title: 'Servers',
+                    page: {
+                      title: 'Egg Servers',
+                    },
+                  },
+                },
+              },
+            },
+          },
         },
         eggConfigurations: {
           title: 'Egg Configurations',

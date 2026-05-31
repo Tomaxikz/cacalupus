@@ -112,7 +112,7 @@ export default function AdminMountNestEggs({ mount }: { mount: z.infer<typeof ad
       />
 
       <ContextMenuProvider>
-        <Table columns={[...eggTableColumns, '']} loading={loading} pagination={mountNestEggs} onPageSelect={setPage}>
+        <Table columns={[...eggTableColumns(), '']} loading={loading} pagination={mountNestEggs} onPageSelect={setPage}>
           {mountNestEggs?.data.map((nestEggMount) => (
             <MountEggRow
               key={nestEggMount.nestEgg.uuid}

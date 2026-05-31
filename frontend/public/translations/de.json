@@ -63,6 +63,14 @@
       "few": "{count} Node-Allocations",
       "many": "{count} Node-Allocations",
       "other": "{count} Node-Allocations"
+    },
+    "egg": {
+      "zero": "{count} Eggs",
+      "one": "{count} Egg",
+      "two": "{count} Eggs",
+      "few": "{count} Eggs",
+      "many": "{count} Eggs",
+      "other": "{count} Eggs"
     }
   },
   "translations": {
@@ -197,7 +205,8 @@
         "lineContains": "Zeile enthält",
         "eggs": "Eggs",
         "ignoredFiles": "Ignorierte Dateien",
-        "yourControlPanelPassword": "Dein Control Panel Passwort"
+        "yourControlPanelPassword": "Dein Control Panel Passwort",
+        "author": "Autor"
       },
       "table": {
         "pagination": {
@@ -231,7 +240,8 @@
           "source": "Quelle",
           "target": "Ziel",
           "checksum": "Prüfsumme",
-          "files": "Dateien"
+          "files": "Dateien",
+          "author": "Autor"
         }
       },
       "badge": {
@@ -2421,7 +2431,198 @@
           }
         },
         "nests": {
-          "title": "Nests"
+          "title": "Nests",
+          "resourceName": "Nest",
+          "tabs": {
+            "general": {
+              "page": {
+                "titleCreate": "Nest erstellen",
+                "titleUpdate": "Nest aktualisieren",
+                "modal": {
+                  "delete": {
+                    "title": "Löschen des Nests bestätigen",
+                    "content": "Bist du sicher, dass du **{name}** löschen möchtest?"
+                  }
+                }
+              }
+            },
+            "eggs": {
+              "title": "Eggs",
+              "page": {
+                "title": "Eggs",
+                "resourceName": "Egg",
+                "dropzone": {
+                  "title": "Lege einige Dateien hier ab, um sie als Eggs zu importieren",
+                  "subtitle": "Loslassen, um den Import zu starten"
+                },
+                "form": {
+                  "nest": "Nest"
+                },
+                "button": {
+                  "move": "Verschieben",
+                  "updateFromRepository": "Aus Repository aktualisieren"
+                },
+                "toast": {
+                  "imported": "Egg importiert.",
+                  "moved": "Egg verschoben.",
+                  "movedBulk": "{eggs} verschoben.",
+                  "deletedBulk": "{eggs} gelöscht.",
+                  "updatedFromRepository": "{eggs} erfolgreich mit dem jeweiligen Repository-Egg aktualisiert.",
+                  "parseFailed": "Egg konnte nicht geparst werden: {error}"
+                },
+                "modal": {
+                  "move": {
+                    "title": "Egg verschieben"
+                  },
+                  "moveBulk": {
+                    "title": "Eggs verschieben",
+                    "confirm": "{eggs} verschieben"
+                  },
+                  "deleteBulk": {
+                    "title": "Löschen des Eggs bestätigen",
+                    "content": "Bist du sicher, dass du `{count}` Eggs löschen möchtest?"
+                  }
+                },
+                "tabs": {
+                  "general": {
+                    "page": {
+                      "titleCreate": "Egg erstellen",
+                      "titleUpdate": "Egg aktualisieren",
+                      "card": {
+                        "startupConfiguration": "Startkonfiguration",
+                        "stopConfiguration": "Stopp-Konfiguration",
+                        "configFiles": "Konfigurationsdateien-Konfiguration"
+                      },
+                      "form": {
+                        "eggRepository": "Egg Repository",
+                        "eggRepositoryEgg": "Egg Repository Egg",
+                        "startupDone": "Start abgeschlossen",
+                        "startupDoneDescription": "Konsolennachricht, die den Abschluss des Starts anzeigt.",
+                        "stripAnsi": "ANSI aus Startnachrichten entfernen",
+                        "stripAnsiDescription": "Entfernt ANSI-Steuerzeichen aus der Konsolenausgabe, bevor der Startabschluss abgeglichen wird.",
+                        "stopType": "Stopp-Typ",
+                        "stopCommand": "Stopp-Befehl",
+                        "stopSignal": "Stopp-Signal",
+                        "filePath": "Dateipfad",
+                        "parser": "Parser",
+                        "createNewFile": "Neue Datei erstellen",
+                        "createNewFileDescription": "Wenn aktiviert, wird die Datei erstellt, falls sie nicht existiert. Wenn deaktiviert, muss die Datei bereits existieren, andernfalls schlägt die Ersetzung fehl.",
+                        "match": "Übereinstimmung",
+                        "ifValue": "Wenn Wert",
+                        "replaceWith": "Ersetzen durch",
+                        "insertNew": "Neu einfügen",
+                        "insertNewDescription": "Wenn aktiviert und kein vorhandener Wert dem Feld \"Übereinstimmung\" entspricht, wird der Wert \"Ersetzen durch\" in die Datei eingefügt. Wenn deaktiviert und keine Übereinstimmung gefunden wird, werden keine Änderungen an der Datei vorgenommen.",
+                        "updateExisting": "Vorhandene aktualisieren",
+                        "updateExistingDescription": "Wenn aktiviert und eine Übereinstimmung gefunden wird, wird sie durch den Wert \"Ersetzen durch\" ersetzt. Wenn deaktiviert, fügt die Ersetzung nur neue Werte ein und schlägt fehl, wenn eine Übereinstimmung gefunden wird.",
+                        "startupCommands": "Startbefehle",
+                        "forceOutgoingIp": "Ausgehende IP erzwingen",
+                        "separatePort": "IP und Port trennen",
+                        "separatePortDescription": "Trennt die primäre IP und den Port auf der Konsolenseite, anstatt sie mit \":\" zu verbinden.",
+                        "features": "Funktionen",
+                        "featurePlaceholder": "Funktion",
+                        "fileDenylist": "Datei-Sperrliste",
+                        "dockerImages": "Docker-Images"
+                      },
+                      "enum": {
+                        "stopType": {
+                          "command": "Befehl senden",
+                          "signal": "Signal senden",
+                          "docker": "Docker Stop"
+                        }
+                      },
+                      "emptyConfigFiles": "Keine Konfigurationsdateien definiert.",
+                      "emptyReplacements": "Keine Ersetzungen definiert.",
+                      "button": {
+                        "addReplacement": "Ersetzung hinzufügen",
+                        "addConfigFile": "Konfigurationsdatei hinzufügen",
+                        "fromFile": "aus Datei",
+                        "fromRepository": "aus Repository",
+                        "asJson": "als JSON",
+                        "asYaml": "als YAML"
+                      },
+                      "toast": {
+                        "exported": "Egg exportiert.",
+                        "updated": "Egg aktualisiert."
+                      },
+                      "modal": {
+                        "delete": {
+                          "title": "Löschen des Eggs bestätigen",
+                          "content": "Bist du sicher, dass du **{name}** löschen möchtest?"
+                        }
+                      }
+                    }
+                  },
+                  "installationScript": {
+                    "title": "Installationsskript",
+                    "page": {
+                      "title": "Egg Installationsskript",
+                      "form": {
+                        "container": "Installations-Container",
+                        "entrypoint": "Container-Einstiegspunkt"
+                      },
+                      "toast": {
+                        "updated": "Egg Skript aktualisiert."
+                      }
+                    }
+                  },
+                  "variables": {
+                    "title": "Variablen",
+                    "page": {
+                      "title": "Egg Variablen",
+                      "form": {
+                        "supportsMarkdown": "Unterstützt Markdown-Formatierung.",
+                        "envVariable": "Umgebungsvariable",
+                        "defaultValue": "Standardwert",
+                        "defaultValuePlaceholder": "server.jar",
+                        "userViewable": "Für Benutzer sichtbar",
+                        "userEditable": "Für Benutzer bearbeitbar",
+                        "secret": "Geheim",
+                        "rules": "Regeln",
+                        "rulesDescription": "Inspiriert von https://laravel.com/docs/12.x/validation#available-validation-rules"
+                      },
+                      "toast": {
+                        "created": "Egg Variable erstellt.",
+                        "updated": "Egg Variable aktualisiert.",
+                        "deleted": "Egg Variable gelöscht."
+                      },
+                      "modal": {
+                        "delete": {
+                          "title": "Entfernen der Egg Variable bestätigen",
+                          "content": "Bist du sicher, dass du **{variable}** entfernen möchtest?",
+                          "emptyVariable": "diese leere Variable"
+                        }
+                      }
+                    }
+                  },
+                  "mounts": {
+                    "title": "Mounts",
+                    "page": {
+                      "title": "Egg Mounts",
+                      "toast": {
+                        "added": "Egg Mount hinzugefügt.",
+                        "deleted": "Egg Mount gelöscht."
+                      },
+                      "modal": {
+                        "add": {
+                          "title": "Egg Mount hinzufügen"
+                        },
+                        "delete": {
+                          "title": "Entfernen des Egg Mounts bestätigen",
+                          "content": "Bist du sicher, dass du das Mount **{mount}** von **{egg}** entfernen möchtest?"
+                        }
+                      }
+                    }
+                  },
+                  "servers": {
+                    "title": "Server",
+                    "page": {
+                      "title": "Egg Server"
+                    }
+                  }
+                }
+              }
+            }
+          }
         },
         "eggConfigurations": {
           "title": "Egg-Konfigurationen"

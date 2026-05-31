@@ -52,11 +52,41 @@ export const eggRepositoryTableColumns = ['ID', 'Name', 'Description', 'Git Repo
 
 export const mountTableColumns = ['ID', 'Name', 'Source', 'Target', 'Created'];
 
-export const nestTableColumns = ['ID', 'Name', 'Author', 'Description', 'Created'];
+export const nestTableColumns = (): string[] => {
+  const { t } = getTranslations();
+  return [
+    t('common.table.columns.id', {}),
+    t('common.table.columns.name', {}),
+    t('common.table.columns.author', {}),
+    t('common.table.columns.description', {}),
+    t('common.table.columns.created', {}),
+  ];
+};
 
-export const eggTableColumns = ['ID', 'Name', 'Author', 'Description', 'Created'];
+export const eggTableColumns = (): string[] => {
+  const { t } = getTranslations();
+  return [
+    t('common.table.columns.id', {}),
+    t('common.table.columns.name', {}),
+    t('common.table.columns.author', {}),
+    t('common.table.columns.description', {}),
+    t('common.table.columns.created', {}),
+  ];
+};
 
 export const eggConfigurationTableColumns = ['ID', 'Order', 'Name', 'Eggs', 'Created'];
+
+export const eggMountTableColumns = (): string[] => {
+  const { t } = getTranslations();
+  return [
+    t('common.table.columns.id', {}),
+    t('common.table.columns.name', {}),
+    t('common.table.columns.source', {}),
+    t('common.table.columns.target', {}),
+    t('common.table.columns.added', {}),
+    '',
+  ];
+};
 
 export const nodeTableColumns = (): string[] => {
   const { t } = getTranslations();
