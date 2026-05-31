@@ -385,6 +385,7 @@ pub fn router(state: &State) -> OpenApiRouter<State> {
                             name_last,
                             password: None,
                             admin: false,
+                            send_email: false,
                             language: settings.app.language.clone(),
                         };
                         let app_url = settings.app.url.clone();

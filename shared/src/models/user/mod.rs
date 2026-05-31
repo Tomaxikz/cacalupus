@@ -830,6 +830,9 @@ pub struct CreateUserOptions {
 
     #[garde(skip)]
     pub admin: bool,
+    #[garde(skip)]
+    #[serde(default)]
+    pub send_email: bool,
 
     #[garde(
         length(chars, min = 2, max = 15),
@@ -894,16 +897,57 @@ impl CreatableModel for User {
 
         Self::run_after_create_handlers(&mut result, &options, state, transaction).await?;
 
-        Ok(result)
-    }
+        if options.send_email {
+            match super::user_password_reset::UserPasswordReset::create(
+                &state.database,
+                result.uuid,
+            )
+            .await
+            {
+                Ok(token) => {
+                    let settings = state.settings.get().await?;
 
-    async fn create(
-        state: &crate::State,
-        options: Self::CreateOptions<'_>,
-    ) -> Result<Self, crate::database::DatabaseError> {
-        let mut transaction = state.database.write().begin().await?;
-        let result = Self::create_with_transaction(state, options, &mut transaction).await?;
-        transaction.commit().await?;
+                    super::user_activity::UserActivity::create(
+                        state,
+                        super::user_activity::CreateUserActivityOptions {
+                            user_uuid: result.uuid,
+                            impersonator_uuid: None,
+                            api_key_uuid: None,
+                            event: "email:account-created".into(),
+                            ip: None,
+                            data: serde_json::json!({}),
+                            created: None,
+                        },
+                    )
+                    .await?;
+
+                    state
+                        .mail
+                        .send_template(
+                            state,
+                            "account_created",
+                            result.email.clone(),
+                            minijinja::context! {
+                                user => result,
+                                reset_link => format!(
+                                    "{}/auth/reset-password?token={}",
+                                    settings.app.url,
+                                    urlencoding::encode(&token),
+                                )
+                            },
+                        )
+                        .await;
+                }
+                Err(err) => {
+                    tracing::warn!(
+                        user = %result.uuid,
+                        "failed to create user password reset token: {:#?}",
+                        err
+                    );
+                }
+            };
+        }
+
         Ok(result)
     }
 }
