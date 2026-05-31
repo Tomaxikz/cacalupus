@@ -6,7 +6,9 @@ import { hostnameSchema } from '../generic.ts';
 export const adminSettingsApplicationSchema = z.object({
   name: z.string().min(1).max(64),
   icon: z.string().min(1).max(255),
+  iconLight: z.preprocess(nullableString, z.string().min(1).max(255).nullable()),
   banner: z.preprocess(nullableString, z.string().min(1).max(255).nullable()),
+  bannerLight: z.preprocess(nullableString, z.string().min(1).max(255).nullable()),
   url: z.url({ protocol: /^https?$/ }).max(255),
   language: z.string(),
   twoFactorRequirement: z.enum(['admins', 'all_users', 'none']),
@@ -128,6 +130,7 @@ export const adminSettingsServerSchema = z.object({
   allowViewingInstallationLogs: z.boolean(),
   allowAcknowledgingInstallationFailure: z.boolean(),
   allowViewingTransferProgress: z.boolean(),
+  containerPrelude: z.string().min(1).max(255),
 });
 
 export const adminSettingsUserSchema = z.object({

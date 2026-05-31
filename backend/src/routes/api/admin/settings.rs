@@ -50,7 +50,13 @@ mod put {
         icon: Option<compact_str::CompactString>,
         #[garde(length(chars, min = 1, max = 255))]
         #[serde(default, with = "::serde_with::rust::double_option")]
+        icon_light: Option<Option<compact_str::CompactString>>,
+        #[garde(length(chars, min = 1, max = 255))]
+        #[serde(default, with = "::serde_with::rust::double_option")]
         banner: Option<Option<compact_str::CompactString>>,
+        #[garde(length(chars, min = 1, max = 255))]
+        #[serde(default, with = "::serde_with::rust::double_option")]
+        banner_light: Option<Option<compact_str::CompactString>>,
         #[garde(url)]
         url: Option<compact_str::CompactString>,
         #[garde(
@@ -96,7 +102,12 @@ mod put {
         #[garde(skip)]
         allow_viewing_installation_logs: Option<bool>,
         #[garde(skip)]
+        allow_acknowledging_installation_failure: Option<bool>,
+        #[garde(skip)]
         allow_viewing_transfer_progress: Option<bool>,
+
+        #[garde(length(chars, min = 1, max = 255))]
+        container_prelude: Option<compact_str::CompactString>,
     }
 
     #[derive(ToSchema, Validate, Deserialize)]
@@ -243,8 +254,14 @@ mod put {
             if let Some(icon) = app.icon {
                 settings.app.icon = icon;
             }
+            if let Some(icon_light) = app.icon_light {
+                settings.app.icon_light = icon_light;
+            }
             if let Some(banner) = app.banner {
                 settings.app.banner = banner;
+            }
+            if let Some(banner_light) = app.banner_light {
+                settings.app.banner_light = banner_light;
             }
             if let Some(url) = app.url {
                 settings.app.url = url;
@@ -324,8 +341,17 @@ mod put {
             if let Some(allow_viewing_installation_logs) = server.allow_viewing_installation_logs {
                 settings.server.allow_viewing_installation_logs = allow_viewing_installation_logs;
             }
+            if let Some(allow_acknowledging_installation_failure) =
+                server.allow_acknowledging_installation_failure
+            {
+                settings.server.allow_acknowledging_installation_failure =
+                    allow_acknowledging_installation_failure;
+            }
             if let Some(allow_viewing_transfer_progress) = server.allow_viewing_transfer_progress {
                 settings.server.allow_viewing_transfer_progress = allow_viewing_transfer_progress;
+            }
+            if let Some(container_prelude) = server.container_prelude {
+                settings.server.container_prelude = container_prelude;
             }
         }
         if let Some(activity) = data.activity {

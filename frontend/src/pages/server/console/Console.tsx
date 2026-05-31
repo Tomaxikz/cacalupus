@@ -36,8 +36,7 @@ import SshDetailsModal from './modals/SshDetailsModal.tsx';
 
 import '@xterm/xterm/css/xterm.css';
 import './xterm.css';
-
-const RAW_PRELUDE = '\u001b[1m\u001b[33mcontainer@calagopus~ \u001b[0m';
+import { useGlobalStore } from '@/stores/global.ts';
 
 const commandSnippetFilter: OptionsFilter = ({ options, search }) => {
   if (!search.startsWith('!')) {
@@ -83,6 +82,7 @@ export default function Terminal() {
   const { t } = useTranslations();
   const { server, updateServer, commandSnippets, imagePulls, socketConnected, socketInstance, state } =
     useServerStore();
+  const { settings } = useGlobalStore();
   const computedColorScheme = useComputedColorScheme('dark');
 
   const [history, setHistory] = useState<string[]>([]);
@@ -324,11 +324,11 @@ export default function Terminal() {
     let processed = text.replaceAll('\x1b[?25h', '').replaceAll('\x1b[?25l', '');
 
     if (processed.includes('container@pterodactyl~')) {
-      processed = processed.replace('container@pterodactyl~', 'container@calagopus~');
+      processed = processed.replace('container@pterodactyl~', settings.server.containerPrelude);
     }
 
-    if (prelude && !processed.includes('\u001b[1m\u001b[41m')) {
-      processed = RAW_PRELUDE.concat(processed);
+    if (prelude && !processed.includes('\x1b[1m\x1b[41m')) {
+      processed = `\x1b[1m\x1b[33m${settings.server.containerPrelude} \x1b[0m${processed}`;
     }
 
     if (isFirstLine.current) {

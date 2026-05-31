@@ -41,7 +41,9 @@ export default function ApplicationContainer() {
     initialValues: {
       name: '',
       icon: '',
+      iconLight: null,
       banner: null,
+      bannerLight: null,
       url: '',
       language: 'en',
       twoFactorRequirement: 'none',
@@ -153,10 +155,22 @@ export default function ApplicationContainer() {
             {...form.getInputProps('icon')}
           />
           <Autocomplete
+            label={t('pages.admin.settings.tabs.application.page.form.iconLight', {})}
+            data={assets.items.map((asset) => asset.url)}
+            key={form.key('iconLight')}
+            {...form.getInputProps('iconLight')}
+          />
+          <Autocomplete
             label={t('pages.admin.settings.tabs.application.page.form.banner', {})}
             data={assets.items.map((asset) => asset.url)}
             key={form.key('banner')}
             {...form.getInputProps('banner')}
+          />
+          <Autocomplete
+            label={t('pages.admin.settings.tabs.application.page.form.bannerLight', {})}
+            data={assets.items.map((asset) => asset.url)}
+            key={form.key('bannerLight')}
+            {...form.getInputProps('bannerLight')}
           />
 
           <TextInput withAsterisk label={t('common.form.url', {})} {...form.getInputProps('url')} />

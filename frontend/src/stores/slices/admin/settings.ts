@@ -27,9 +27,11 @@ export const createSettingsSlice: StateCreator<AdminStore, [], [], SettingsSlice
   app: {
     name: '',
     icon: '',
+    iconLight: null,
     language: '',
     url: '',
     banner: null,
+    bannerLight: null,
     twoFactorRequirement: 'none',
     sessionCookie: '',
     sessionDurationSeconds: 3600,
@@ -47,6 +49,7 @@ export const createSettingsSlice: StateCreator<AdminStore, [], [], SettingsSlice
     allowViewingInstallationLogs: true,
     allowAcknowledgingInstallationFailure: true,
     allowViewingTransferProgress: true,
+    containerPrelude: '\x1b[1m\x1b[33mcontainer@calagopus~ \x1b[0m',
   },
   user: {
     maxServerGroupCount: 25,

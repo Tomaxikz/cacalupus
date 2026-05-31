@@ -1327,7 +1327,9 @@ const baseTranslations = defineTranslations({
                 title: 'Application Settings',
                 form: {
                   icon: 'Icon',
+                  iconLight: 'Icon (Light Mode)',
                   banner: 'Banner',
+                  bannerLight: 'Banner (Light Mode)',
                   sessionCookie: 'Session Cookie',
                   sessionDurationSeconds: 'Session Duration (seconds)',
                   twoFactorRequirement: 'Two-Factor Authentication Requirement',
@@ -1531,6 +1533,9 @@ const baseTranslations = defineTranslations({
                   allowViewingTransferProgress: 'Allow Viewing Transfer Progress',
                   allowViewingTransferProgressDescription:
                     'If enabled, users with console read permissions will also be able to view transfer progress logs via the websocket connection. If disabled, transfer progress logs will only be available for admins.',
+                  containerPrelude: 'Container Prelude',
+                  containerPreludeDescription:
+                    'The terminal prelude used for some status-related messages in the server console.',
                 },
                 toast: {
                   updated: 'Server settings updated.',

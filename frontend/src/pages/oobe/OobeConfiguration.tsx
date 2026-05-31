@@ -65,7 +65,9 @@ export default function OobeConfiguration({ onNext }: OobeComponentProps) {
     updateApplicationSettings({
       name: form.values.applicationName,
       icon: '/icon.svg',
+      iconLight: null,
       banner: null,
+      bannerLight: null,
       language: form.values.applicationLanguage,
       url: form.values.applicationUrl,
       twoFactorRequirement: 'none',
