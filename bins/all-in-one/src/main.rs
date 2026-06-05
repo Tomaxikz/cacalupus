@@ -104,7 +104,7 @@ async fn handle_aio_wings(
             }
 
             tracing::info!("creating aio wings node...");
-            let node = Node::create(
+            let mut node = Node::create(
                 state,
                 shared::models::node::CreateNodeOptions {
                     location_uuid: location.uuid,
@@ -130,6 +130,7 @@ async fn handle_aio_wings(
             )
             .execute(state.database.write())
             .await?;
+            node.uuid = Node::AIO_NODE_UUID;
 
             node
         }
