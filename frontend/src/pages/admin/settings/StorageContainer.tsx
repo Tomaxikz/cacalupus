@@ -40,7 +40,7 @@ export default function StorageContainer() {
   });
 
   useEffect(() => {
-    form.setValues({
+    form.setValues<z.infer<typeof adminSettingsStorageSchema>>({
       ...storageDriver,
     });
   }, [storageDriver]);

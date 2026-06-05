@@ -3,9 +3,9 @@ use std::net::{IpAddr, SocketAddr};
 use tower::Layer;
 use tower_http::normalize_path::NormalizePathLayer;
 
-#[cfg(all(target_os = "linux", target_arch = "x86_64"))]
+#[cfg(target_arch = "x86_64")]
 #[global_allocator]
-static ALLOC: tikv_jemallocator::Jemalloc = tikv_jemallocator::Jemalloc;
+static ALLOC: mimalloc::MiMalloc = mimalloc::MiMalloc;
 
 #[tokio::main]
 async fn main() {

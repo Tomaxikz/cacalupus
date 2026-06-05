@@ -20,9 +20,9 @@ use tower_http::normalize_path::NormalizePathLayer;
 
 mod bins;
 
-#[cfg(all(target_os = "linux", target_arch = "x86_64"))]
+#[cfg(target_arch = "x86_64")]
 #[global_allocator]
-static ALLOC: tikv_jemallocator::Jemalloc = tikv_jemallocator::Jemalloc;
+static ALLOC: mimalloc::MiMalloc = mimalloc::MiMalloc;
 
 async fn handle_aio_wings(
     state: &shared::State,

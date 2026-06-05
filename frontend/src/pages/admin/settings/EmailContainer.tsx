@@ -41,7 +41,7 @@ export default function EmailContainer() {
   });
 
   useEffect(() => {
-    form.setValues({
+    form.setValues<z.infer<typeof adminSettingsEmailSchema>>({
       ...mailMode,
     });
   }, [mailMode]);
