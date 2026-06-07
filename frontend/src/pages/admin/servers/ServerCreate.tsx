@@ -34,6 +34,7 @@ import NumberInput from '@/elements/input/NumberInput.tsx';
 import Select from '@/elements/input/Select.tsx';
 import SizeInput from '@/elements/input/SizeInput.tsx';
 import Switch from '@/elements/input/Switch.tsx';
+import TagsInput from '@/elements/input/TagsInput.tsx';
 import TextArea from '@/elements/input/TextArea.tsx';
 import TextInput from '@/elements/input/TextInput.tsx';
 import ConfirmationModal from '@/elements/modals/ConfirmationModal.tsx';
@@ -452,6 +453,19 @@ export default function ServerCreate() {
                   description={t('pages.admin.servers.tabs.general.page.form.ioWeightDescription', {})}
                   key={form.key('limits.ioWeight')}
                   {...form.getInputProps('limits.ioWeight')}
+                />
+                <TagsInput
+                  label={t('pages.admin.servers.tabs.general.page.form.pinnedCpus', {})}
+                  description={t('pages.admin.servers.tabs.general.page.form.pinnedCpusDescription', {})}
+                  placeholder='0'
+                  allowReordering={false}
+                  value={form.getValues().pinnedCpus.map(String)}
+                  onChange={(tags) =>
+                    form.setFieldValue(
+                      'pinnedCpus',
+                      tags.map((tag) => Number.parseInt(tag, 10)).filter((n) => Number.isInteger(n) && n >= 0),
+                    )
+                  }
                 />
 
                 {window.extensionContext.extensionRegistry.pages.admin.servers.create.resourceLimitsFormContainer.appendedComponents.map(

@@ -2271,6 +2271,8 @@
                   "diskSpaceDescription": "Das Speicher-Limit des Servers. Dies ist ein Soft-Limit, sofern der Disk-Limiter nicht in Wings konfiguriert ist.",
                   "ioWeight": "IO-Gewichtung",
                   "ioWeightDescription": "Die relative IO-Gewichtung des Server-Containers im Vergleich zu anderen Containern, 0-1000. Funktioniert möglicherweise nicht auf allen Systemen.",
+                  "pinnedCpus": "Angeheftete CPUs",
+                  "pinnedCpusDescription": "Die CPU-Kerne (nach Index, z. B. 0, 1, 2), an die dieser Server angeheftet ist. Leer lassen, um alle Kerne zuzulassen.",
                   "dockerImagePlaceholder": "ghcr.io/...",
                   "predefinedDockerImages": "Vordefinierte Docker-Images",
                   "predefinedDockerImagesPlaceholder": "Kein vordefiniertes Image ausgewählt",

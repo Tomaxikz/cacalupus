@@ -2271,6 +2271,9 @@ const baseTranslations = defineTranslations({
                   ioWeight: 'IO Weight',
                   ioWeightDescription:
                     'The relative IO Weight of the server container compared to other containers, 0-1000. May not work on all systems.',
+                  pinnedCpus: 'Pinned CPUs',
+                  pinnedCpusDescription:
+                    'The CPU cores (by index, e.g. 0, 1, 2) this server is pinned to. Leave empty to allow all cores.',
                   dockerImagePlaceholder: 'ghcr.io/...',
                   predefinedDockerImages: 'Predefined Docker Images',
                   predefinedDockerImagesPlaceholder: 'No predefined image selected',
