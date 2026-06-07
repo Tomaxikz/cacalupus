@@ -114,28 +114,71 @@ export default function AdminNodeStatistics({ node }: { node: z.infer<typeof adm
   });
 
   useEffect(() => {
-    const url = new URL(`/api/admin/nodes/${node.uuid}/system/stats/ws`, window.location.origin);
-    url.protocol = url.protocol === 'https:' ? 'wss:' : 'ws:';
+    let socketRef: WebSocket | null = null;
+    let reconnectTimer: ReturnType<typeof setTimeout> | null = null;
+    let destroyed = false;
 
-    const socket = new WebSocket(url);
-
-    socket.onmessage = (event) => {
-      try {
-        const data = transformKeysToCamelCase(JSON.parse(event.data)) as NodeStatistics & {
-          stats?: NodeStatistics;
-        };
-        setStats(data.stats ?? data);
-      } catch {
-        // ignore malformed messages
+    const connect = () => {
+      if (destroyed) {
+        return;
       }
+
+      const url = new URL(`/api/admin/nodes/${node.uuid}/system/stats/ws`, window.location.origin);
+      url.protocol = url.protocol === 'https:' ? 'wss:' : 'ws:';
+
+      const socket = new WebSocket(url);
+      socketRef = socket;
+
+      socket.onmessage = (event) => {
+        if (destroyed || socket !== socketRef) {
+          return;
+        }
+
+        try {
+          const data = transformKeysToCamelCase(JSON.parse(event.data)) as NodeStatistics & {
+            stats?: NodeStatistics;
+          };
+
+          setStats(data.stats ?? data);
+        } catch {
+          // ignore malformed messages
+        }
+      };
+
+      socket.onclose = (e) => {
+        if (destroyed || socket !== socketRef) {
+          return;
+        }
+
+        socketRef = null;
+
+        if (e.wasClean) {
+          return;
+        }
+
+        addToast(t('pages.admin.nodes.tabs.statistics.page.toast.connectionLost', {}), 'error');
+        setStats(null);
+
+        reconnectTimer = setTimeout(() => {
+          reconnectTimer = null;
+          connect();
+        }, 5000);
+      };
     };
 
-    socket.onerror = () => {
-      addToast(t('pages.admin.nodes.tabs.statistics.page.toast.connectionLost', {}), 'error');
-    };
+    connect();
 
-    return () => socket.close();
-  }, []);
+    return () => {
+      destroyed = true;
+
+      if (reconnectTimer !== null) {
+        clearTimeout(reconnectTimer);
+      }
+
+      socketRef?.close();
+      socketRef = null;
+    };
+  }, [node.uuid]);
 
   useEffect(() => {
     if (!stats) {
