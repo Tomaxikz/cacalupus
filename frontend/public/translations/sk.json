@@ -1,0 +1,4235 @@
+{
+  "items": {
+    "byte": {
+      "zero": "{count} bajtov",
+      "one": "{count} bajt",
+      "two": "{count} bajty",
+      "few": "{count} bajty",
+      "many": "{count} bajta",
+      "other": "{count} bajtov"
+    },
+    "user": {
+      "zero": "{count} používateľov",
+      "one": "{count} používateľ",
+      "two": "{count} používatelia",
+      "few": "{count} používatelia",
+      "many": "{count} používateľa",
+      "other": "{count} používateľov"
+    },
+    "file": {
+      "zero": "{count} súborov",
+      "one": "{count} súbor",
+      "two": "{count} súbory",
+      "few": "{count} súbory",
+      "many": "{count} súboru",
+      "other": "{count} súborov"
+    },
+    "server": {
+      "zero": "{count} serverov",
+      "one": "{count} server",
+      "two": "{count} servery",
+      "few": "{count} servery",
+      "many": "{count} servera",
+      "other": "{count} serverov"
+    },
+    "sshKey": {
+      "zero": "{count} kľúčov SSH",
+      "one": "{count} kľúč SSH",
+      "two": "{count} kľúče SSH",
+      "few": "{count} kľúče SSH",
+      "many": "{count} kľúča SSH",
+      "other": "{count} kľúčov SSH"
+    },
+    "asset": {
+      "zero": "{count} položiek",
+      "one": "{count} položka",
+      "two": "{count} položky",
+      "few": "{count} položky",
+      "many": "{count} položky",
+      "other": "{count} položiek"
+    },
+    "node": {
+      "zero": "{count} uzlov",
+      "one": "{count} uzol",
+      "two": "{count} uzly",
+      "few": "{count} uzly",
+      "many": "{count} uzla",
+      "other": "{count} uzlov"
+    },
+    "allocation": {
+      "zero": "{count} alokácií uzla",
+      "one": "{count} alokácia uzla",
+      "two": "{count} alokácie uzla",
+      "few": "{count} alokácie uzla",
+      "many": "{count} alokácie uzla",
+      "other": "{count} alokácií uzla"
+    },
+    "egg": {
+      "zero": "{count} vajec",
+      "one": "{count} vajce",
+      "two": "{count} vajcia",
+      "few": "{count} vajcia",
+      "many": "{count} vajca",
+      "other": "{count} vajec"
+    }
+  },
+  "translations": {
+    "common": {
+      "button": {
+        "create": "Vytvoriť",
+        "add": "Pridať",
+        "save": "Uložiť",
+        "saveAndStay": "Uložiť a zostať",
+        "edit": "Upraviť",
+        "delete": "Odstrániť",
+        "remove": "Odstrániť",
+        "enable": "Povoliť",
+        "disable": "Zakázať",
+        "update": "Aktualizovať",
+        "close": "Zavrieť",
+        "cancel": "Zrušiť",
+        "continue": "Pokračovať",
+        "skip": "Preskočiť",
+        "okay": "Dobre",
+        "back": "Späť",
+        "next": "Ďalej",
+        "install": "Inštalovať",
+        "selectAll": "Vybrať všetko",
+        "deselectAll": "Zrušiť výber všetkého",
+        "restore": "Obnoviť",
+        "discard": "Zahodiť",
+        "download": "Stiahnuť",
+        "downloadAs": "Stiahnuť ako {format}",
+        "export": "Exportovať",
+        "exportAs": "Exportovať ako {format}",
+        "recreate": "Znovu vytvoriť",
+        "move": "Presunúť",
+        "transfer": "Preniesť",
+        "reattach": "Znovu pripojiť",
+        "detach": "Odpojiť",
+        "send": "Odoslať",
+        "reset": "Resetovať",
+        "view": "Zobraziť",
+        "import": "Importovať",
+        "details": "Podrobnosti",
+        "loadLogs": "Načítať denníky",
+        "sendTestEmail": "Odoslať testovací e-mail",
+        "setPrimary": "Nastaviť primárne",
+        "unsetPrimary": "Zrušiť primárne",
+        "leavePage": "Opustiť stránku",
+        "viewDocumentation": "Zobraziť dokumentáciu"
+      },
+      "alert": {
+        "error": "Chyba",
+        "warning": "Upozornenie",
+        "success": "Úspech",
+        "clockOffset": "Vaše systémové hodiny nie sú synchronizované so serverom o viac ako 5 sekúnd. Môže to spôsobiť problémy s overením pomocou passkey a dvojfaktorovým overením. Ak sa vyskytnú problémy, synchronizujte hodiny. Aktuálny posun: {offset} s."
+      },
+      "divider": {
+        "or": "ALEBO"
+      },
+      "input": {
+        "search": "Hľadať..."
+      },
+      "tooltip": {
+        "resetToDefault": "Obnoviť predvolené nastavenie",
+        "edit": "Upraviť",
+        "delete": "Odstrániť",
+        "remove": "Odstrániť",
+        "primary": "Primárne",
+        "backupOnDifferentNode": "Táto záloha je na inom uzle ako server. Nie je možné ju zobraziť z klientskeho API."
+      },
+      "form": {
+        "name": "Názov",
+        "description": "Popis",
+        "author": "Autor",
+        "type": "Typ",
+        "password": "Heslo",
+        "host": "Hostiteľ",
+        "username": "Používateľské meno",
+        "server": "Server",
+        "url": "URL",
+        "email": "Email",
+        "path": "Cesta",
+        "port": "Port",
+        "provider": "Poskytovateľ",
+        "command": "Príkaz",
+        "fromAddress": "Adresa odosielateľa",
+        "fromName": "Meno odosielateľa",
+        "siteKey": "Kľúč lokality",
+        "secretKey": "Tajný kľúč",
+        "apiKey": "API kľúč",
+        "accessKey": "Prístupový kľúč",
+        "bucket": "Bucket",
+        "region": "Región",
+        "endpoint": "Koncový bod",
+        "publicUrl": "Verejná adresa URL",
+        "firstName": "Krstné meno",
+        "lastName": "Priezvisko",
+        "language": "Jazyk",
+        "identifier": "Identifikátor",
+        "enabled": "Povolené",
+        "title": "Názov",
+        "content": "Obsah",
+        "backupConfiguration": "Záložná konfigurácia",
+        "fileName": "Názov súboru",
+        "sftpPort": "Port SFTP",
+        "sftpHost": "Hostiteľ SFTP",
+        "dockerImage": "Obrázok Docker",
+        "memory": "Pamäť",
+        "disk": "Disk",
+        "serverName": "Názov servera",
+        "startupCommand": "Príkaz na spustenie",
+        "archiveName": "Názov archívu",
+        "archiveFormat": "Formát archívu",
+        "compressionLevel": "Úroveň kompresie",
+        "multiplexChannels": "Multiplexné kanály",
+        "multiplexChannelsDescription": "Pridajte ďalšie HTTP pripojenia (a teda aj vlákna) na prenos rozdelených archívov, celkový počet streamov je 1 + multiplexné kanály.",
+        "deleteSourceBackups": "Odstráňte zálohy zdroja",
+        "deleteSourceBackupsDescription": "Po dokončení prenosu odstráni prenesené zálohy na zdrojovom uzle.",
+        "node": "Uzol",
+        "primaryAllocation": "Primárna alokácia",
+        "additionalAllocations": "Ďalšie alokácie",
+        "externalId": "Externé ID",
+        "mount": "Pripojenie",
+        "nest": "Hniezdo",
+        "lines": "Riadky",
+        "databaseHost": "Hostiteľ databázy",
+        "timezone": "Časové pásmo",
+        "timezoneSystem": "Systém",
+        "protocol": "Protokol",
+        "powerAction": "Akcia napájania",
+        "destination": "Cieľ",
+        "directoryName": "Názov adresára",
+        "locked": "Zamknuté",
+        "portRanges": "Rozsahy portov",
+        "portRangesPlaceholder": "Rozsahy portov (napr. 3 000 – 4 000)",
+        "currentPassword": "Aktuálne heslo",
+        "confirmPassword": "Potvrdiť heslo",
+        "authenticationCode": "Autentifikačný kód",
+        "restoreStartup": "Obnovte príkaz na spustenie, obraz a premenné z tejto zálohy.",
+        "lineContains": "Riadok obsahuje",
+        "filePath": "Cesta k súboru",
+        "envVariable": "Premenná prostredia",
+        "value": "Hodnota",
+        "eggs": "Vajcia",
+        "ignoredFiles": "Ignorované súbory",
+        "yourControlPanelPassword": "Vaše heslo ovládacieho panela",
+        "deploymentEnabled": "Nasadenie povolené",
+        "maintenanceEnabled": "Údržba povolená",
+        "truncateDirectory": "Chcete pred vykonaním tejto akcie vymazať všetky súbory tohto servera? Toto sa nedá vrátiť späť."
+      },
+      "table": {
+        "pagination": {
+          "results": "Zobrazuje sa {start} až {end} z výsledkov {total}.",
+          "empty": "Nenašli sa žiadne položky, je to takmer akoby sa schovávali."
+        },
+        "columns": {
+          "id": "ID",
+          "name": "Názov",
+          "author": "Autor",
+          "type": "Typ",
+          "title": "Názov",
+          "enabled": "Povolené",
+          "description": "Popis",
+          "username": "Používateľské meno",
+          "size": "Veľkosť",
+          "lastUsed": "Naposledy použité",
+          "created": "Vytvorené",
+          "actor": "Aktér",
+          "event": "Udalosť",
+          "ip": "IP",
+          "when": "Kedy",
+          "command": "Príkaz",
+          "location": "Poloha",
+          "node": "Uzol",
+          "owner": "Vlastník",
+          "added": "Pridané",
+          "backupConfiguration": "Záložná konfigurácia",
+          "status": "Stav",
+          "allocation": "Alokácia",
+          "notes": "Poznámky",
+          "source": "Zdroj",
+          "target": "Cieľ",
+          "checksum": "Kontrolný súčet",
+          "files": "Súbory",
+          "server": "Server",
+          "address": "Adresa",
+          "eggs": "Vajcia"
+        }
+      },
+      "tabs": {
+        "general": "Všeobecné"
+      },
+      "badge": {
+        "active": "Aktívne",
+        "inactive": "Neaktívne",
+        "enabled": "Povolené",
+        "disabled": "Zakázané",
+        "successful": "Úspešný",
+        "failed": "Zlyhalo",
+        "installed": "Nainštalované"
+      },
+      "server": {
+        "noAllocation": "Bez alokácie",
+        "state": {
+          "suspended": "Pozastavené",
+          "transferring": "Server sa prenáša",
+          "nodeMaintenance": "Uzol je pod údržbou",
+          "restoringBackup": "Obnovuje sa záloha",
+          "installing": "Inštaluje sa",
+          "installFailed": "Inštalácia zlyhala"
+        }
+      },
+      "enum": {
+        "userToastPosition": {
+          "topLeft": "Vľavo hore",
+          "topCenter": "Stred hore",
+          "topRight": "Vpravo hore",
+          "bottomLeft": "Vľavo dole",
+          "bottomCenter": "Stred dole",
+          "bottomRight": "Vpravo dole"
+        },
+        "serverState": {
+          "unknown": "Neznámy",
+          "offline": "Offline",
+          "running": "Spustený",
+          "starting": "Spúšťa sa",
+          "stopping": "Zastavuje sa"
+        },
+        "serverPowerAction": {
+          "start": "Spustiť",
+          "stop": "Stop",
+          "restart": "Reštartovať",
+          "kill": "Ukončiť"
+        },
+        "serverBackupStatus": {
+          "starting": "Spúšťa sa",
+          "finished": "Dokončené",
+          "failed": "Zlyhalo"
+        },
+        "connectionStatus": {
+          "connected": "Pripojené",
+          "offline": "Offline"
+        },
+        "serverAutoStartBehavior": {
+          "always": "Vždy",
+          "unlessStopped": "Pokiaľ sa nezastaví",
+          "never": "Nikdy"
+        },
+        "bulkActionServerAction": {
+          "started": "Začaté",
+          "stopped": "Zastavené",
+          "restarted": "Reštartované",
+          "killed": "Ukončený"
+        }
+      },
+      "unit": {
+        "bytes": {
+          "bytes": "B",
+          "kibibytes": "KiB",
+          "mebibytes": "MiB",
+          "gibibytes": "GiB",
+          "tebibytes": "TiB",
+          "pebibytes": "PiB"
+        }
+      },
+      "unlimited": "Neobmedzené",
+      "readOnly": "Iba na čítanie",
+      "na": "N/A",
+      "never": "Nikdy",
+      "none": "Žiadne",
+      "unknown": "Neznámy",
+      "yes": "Áno",
+      "no": "Nie",
+      "web": "Web",
+      "api": "API",
+      "default": "Predvolené",
+      "custom": "Vlastné",
+      "system": "Systém",
+      "schedule": "Rozvrh",
+      "impersonatedBy": "Zastúpený používateľom {username}"
+    },
+    "elements": {
+      "routeOrderEditor": {
+        "title": "Konfigurácia trasy",
+        "label": {
+          "route": "Trasa",
+          "divider": "Rozdeľovač",
+          "redirect": "Presmerovať"
+        },
+        "empty": "Nie sú nakonfigurované žiadne trasy. Nižšie pridajte trasy, rozdeľovače alebo presmerovania.",
+        "unnamed": "(bez názvu)",
+        "dividerPlaceholder": "Štítok oddeľovača (voliteľné)",
+        "redirectNamePlaceholder": "Názov presmerovania",
+        "destinationPlaceholder": "Cieľová adresa URL (napr. https://...)",
+        "selectRoutePlaceholder": "Vyberte trasu…",
+        "button": {
+          "addDivider": "Pridať rozdeľovač",
+          "addRedirect": "Pridať presmerovanie"
+        }
+      },
+      "errorBoundary": {
+        "message": "Pri vykresľovaní tejto stránky sa vyskytla neočakávaná chyba. Skúste sa osviežiť. Ak problém pretrváva, kontaktujte správcu systému.",
+        "hideDetails": "Skryť podrobnosti",
+        "showDetails": "Zobraziť podrobnosti",
+        "errorMessage": "Chybové hlásenie:",
+        "stackTrace": "Sledovanie zásobníka:",
+        "componentStack": "Zásobník komponentov:"
+      },
+      "copyOnClick": {
+        "toast": {
+          "copied": "Skopírované do schránky.",
+          "failed": "Kopírovanie do schránky zlyhalo.",
+          "copyManual": "Kopírovať do schránky: Ctrl+C alebo Command+C, Enter"
+        }
+      },
+      "pasteOnClick": {
+        "toast": {
+          "pasted": "Vložené zo schránky.",
+          "failed": "Prilepenie zo schránky zlyhalo.",
+          "pasteManual": "Prilepenie zo schránky: Ctrl+V alebo Command+V, Enter"
+        }
+      },
+      "estimatedTimeArrival": {
+        "tooltip": {
+          "estimating": "Odhadovaný čas dokončenia...",
+          "estimated": "Odhadovaný čas dokončenia: {time}"
+        },
+        "calculating": "ETA: Počítam...",
+        "calculated": "ETA: {time}"
+      },
+      "container": {
+        "alert": {
+          "impersonating": "Momentálne sa vydávate za používateľa. Upozorňujeme, že vaše kroky môžu ovplyvniť účet odcudzeného používateľa. Ak chcete ukončiť režim odcudzenia identity, kliknite na tlačidlo „Zastaviť odcudzenie identity“ v ľavom dolnom rohu."
+        }
+      },
+      "sidebar": {
+        "button": {
+          "logout": "Odhlásiť sa",
+          "stopImpersonating": "Prestaňte sa vydávať za identitu",
+          "openInVirtualWindow": "Otvoriť vo virtuálnom okne",
+          "openInPopup": "Otvoriť vo vyskakovacom okne",
+          "openInNewTab": "Otvoriť na novej karte",
+          "switchToDark": "Prepnite do tmavého režimu",
+          "switchToLight": "Prepnite do režimu svetla"
+        }
+      },
+      "permissionSelector": {
+        "button": {
+          "copyPermissions": "Povolenia na kopírovanie",
+          "pastePermissions": "Prilepiť povolenia"
+        },
+        "selectedPermissions": "Vybrané povolenia ({count})",
+        "noPermissions": "Nie sú vybraté žiadne povolenia."
+      },
+      "selectInput": {
+        "noResults": "Nenašli sa žiadne výsledky."
+      },
+      "can": {
+        "tooltip": {
+          "cantSave": "Nemáte povolenie na uloženie.",
+          "cantDelete": "Nemáte povolenie na odstránenie."
+        }
+      },
+      "resource": {
+        "tooltip": {
+          "created": "{resource} vytvorené.",
+          "updated": "Aktualizované {resource}.",
+          "deleted": "{resource} vymazané."
+        }
+      },
+      "activityInfoButton": {
+        "modal": {
+          "info": {
+            "title": "Podrobnosti aktivity"
+          }
+        }
+      },
+      "screenBlock": {
+        "permissionDenied": {
+          "title": "Povolenie odmietnuté",
+          "content": "Nemáte povolenie na prístup k tejto stránke."
+        },
+        "notFound": {
+          "title": "Nenájdené",
+          "content": "Stránka, ktorú hľadáte, sa nenašla."
+        },
+        "suspended": {
+          "title": "Účet pozastavený",
+          "content": "Váš účet bol pozastavený. Vo svojom účte nemôžete vykonávať zmeny. Pre viac informácií kontaktujte správcu."
+        },
+        "serverConflict": {
+          "title": "Konfliktný stav servera",
+          "contentSuspended": "Tento server je pozastavený a nie je k nemu prístup.",
+          "contentNodeMaintenance": "Tento server je na uzle, ktorý je momentálne v údržbe a nie je možné k nemu získať prístup.",
+          "contentTransferring": "Tento server sa momentálne prenáša a nie je možné k nemu pristupovať, kým sa prenos nedokončí.",
+          "contentInstallFailed": "Tento server sa nepodarilo nainštalovať a nie je možné k nemu pristupovať, kým nebude potvrdený.",
+          "contentInstalling": "Tento server sa momentálne inštaluje a nie je možné k nemu pristupovať, kým nebude dokončený.",
+          "contentRestoringBackup": "Tento server sa momentálne obnovuje zo zálohy a nie je možné k nemu pristupovať, kým sa nedokončí.",
+          "button": {
+            "viewInstallLogs": "Zobraziť denníky inštalácie",
+            "acknowledgeFailure": "Potvrdiť zlyhanie"
+          },
+          "modal": {
+            "acknowledgeFailure": {
+              "title": "Potvrďte zlyhanie inštalácie",
+              "content": "Potvrdením tohto zlyhania inštalácie potvrdzujete, že ste si vedomí neúspešnej inštalácie a podnikli ste všetky potrebné kroky na vyriešenie problému. To vám umožní znovu získať kontrolu nad serverom."
+            }
+          }
+        }
+      },
+      "scheduleDynamicInput": {
+        "enterVariable": "Zadajte názov premennej na vyhodnotenie.",
+        "enterData": "Zadajte údaje na odoslanie.",
+        "inputType": "Typ vstupu",
+        "dataType": "Typ údajov na odoslanie",
+        "selectType": "Vyberte Typ",
+        "none": "žiadne",
+        "rawString": "Surová struna",
+        "variable": "Variabilné"
+      },
+      "serverWebsocket": {
+        "error": {
+          "connectionFailed": "Nedá sa pripojiť po viacerých pokusoch. Obnovte stránku.",
+          "connectionClosed": "Pripojenie k serveru bolo ukončené. Prebieha pokus o opätovné pripojenie...",
+          "connectionRetry": "Spojenie sa stratilo. Opakuje sa pokus (pokus {attempt})...",
+          "authFailed": "Autentifikácia zlyhala. Prebieha pokus o obnovenie poverení... ({error})",
+          "authRefreshFailed": "Obnovenie poverení zlyhalo. Obnovte stránku a skúste to znova.",
+          "permissionRevoked": "Pripojenie zatvorené: váš prístup k tomuto serveru bol zrušený.",
+          "tokenRefreshLoop": "Bola zistená overovacia slučka. Obnovte stránku a skúste to znova."
+        },
+        "banner": {
+          "retrying": "Opakuje sa pokus v {countdown}..."
+        },
+        "listener": {
+          "toast": {
+            "backupCompleted": "Zálohovanie bolo úspešne dokončené.",
+            "backupFailed": "Zálohovanie zlyhalo.",
+            "backupRestoreCompleted": "Obnova zálohy bola úspešne dokončená.",
+            "installCompleted": "Inštalácia servera bola úspešne dokončená.",
+            "installFailed": "Inštalácia servera zlyhala.",
+            "operations": {
+              "compressing": {
+                "completed": "Komprimované {files} na `{path}` v {time}.",
+                "failed": "Nepodarilo sa komprimovať {files} na `{path}`:\n{error}"
+              },
+              "decompressing": {
+                "completed": "Dekomprimované `{path}` na `{destination}` v {time}.",
+                "failed": "Nepodarilo sa dekomprimovať `{path}` na `{destination}`:\n{error}"
+              },
+              "pulling": {
+                "completed": "Vytiahnuté `{destination}` v {time}.",
+                "failed": "Nepodarilo sa stiahnuť `{destination}`:\n{error}"
+              },
+              "copying": {
+                "completed": "Skopírované `{path}` do `{destination}` v {time}.",
+                "failed": "Nepodarilo sa skopírovať `{path}` do `{destination}`:\n{error}"
+              },
+              "copyingMany": {
+                "completed": "Skopírované {files} do {time}.",
+                "failed": "Nepodarilo sa skopírovať {files}:\n{error}"
+              },
+              "copyingRemote": {
+                "completedFrom": "Skopírované {files} zo vzdialeného servera v {time}.",
+                "completedTo": "{files} bolo skopírované na vzdialený server v {time}.",
+                "failedFrom": "Nepodarilo sa skopírovať {files} zo vzdialeného servera:\n{error}",
+                "failedTo": "Nepodarilo sa skopírovať {files} na vzdialený server:\n{error}"
+              }
+            }
+          }
+        }
+      },
+      "fileUpload": {
+        "toast": {
+          "uploading": "Začalo sa odovzdávať {files}...",
+          "cancelledFile": "Odovzdávanie `{file}` bolo úspešne zrušené.",
+          "cancelledFolder": "Odovzdávanie `{folder}` ({files}) bolo úspešne zrušené.",
+          "cancelledAll": "Všetky nahrávania boli zrušené."
+        }
+      }
+    },
+    "pages": {
+      "oobe": {
+        "welcome": {
+          "title": "Vitajte v Calagopus",
+          "subtitle": "Poďme spustiť váš systém správy herného servera!",
+          "wizardIntro": "Tento sprievodca nastavením vás prevedie:",
+          "steps": {
+            "account": "Vytvorenie účtu správcu",
+            "settings": "Konfigurácia základných nastavení systému",
+            "location": "Nastavenie umiestnenia servera",
+            "node": "Pridáva sa váš prvý uzol",
+            "server": "Nasadenie vášho prvého herného servera"
+          },
+          "button": {
+            "start": "Začíname"
+          }
+        },
+        "register": {
+          "title": "Vytvoriť účet správcu",
+          "alert": {
+            "title": "Bezpečnostné upozornenie",
+            "description": "Zvoľte si silné heslo. Tento účet bude mať úplný administratívny prístup ku všetkým serverom a nastaveniam."
+          },
+          "form": {
+            "usernamePlaceholder": "admin",
+            "email": "E-mailová adresa",
+            "emailPlaceholder": "admin@example.com",
+            "firstNamePlaceholder": "Alan",
+            "lastNamePlaceholder": "Turing",
+            "passwordPlaceholder": "Zadajte silné heslo",
+            "confirmPasswordPlaceholder": "Znova zadajte svoje heslo"
+          },
+          "button": {
+            "create": "Vytvoriť účet a pokračovať"
+          }
+        },
+        "login": {
+          "title": "Prihláste sa",
+          "alert": "Počas procesu nastavenia ste boli odhlásení. Prihláste sa, aby ste mohli pokračovať tam, kde ste prestali.",
+          "form": {
+            "usernamePlaceholder": "admin",
+            "passwordPlaceholder": "Zadajte silné heslo"
+          },
+          "button": {
+            "login": "Prihláste sa a pokračujte"
+          }
+        },
+        "location": {
+          "title": "Konfigurácia polohy",
+          "form": {
+            "locationName": "Názov miesta",
+            "locationNamePlaceholder": "Môj domov",
+            "locationFlag": "Príznak polohy",
+            "locationFlagPlaceholder": "Najlepšia krajina",
+            "backupName": "Názov konfigurácie zálohy",
+            "backupNamePlaceholder": "Unicorn Cloud",
+            "backupDisk": "Záložný disk",
+            "backupDiskPlaceholder": "Záložný disk"
+          },
+          "button": {
+            "create": "Vytvoriť a pokračovať"
+          }
+        },
+        "node": {
+          "title": "Konfigurácia uzla",
+          "allocationsTitle": "Konfigurácia pridelenia",
+          "form": {
+            "name": "Meno",
+            "namePlaceholder": "Môj server",
+            "urlPlaceholder": "URL",
+            "urlDescription": "slúži na internú komunikáciu s uzlom",
+            "publicUrl": "Verejná adresa URL",
+            "publicUrlPlaceholder": "URL",
+            "publicUrlDescription": "používa sa na websocket/sťahovanie",
+            "sftpHostPlaceholder": "Hostiteľ SFTP",
+            "sftpPortPlaceholder": "Port SFTP",
+            "ip": "IP"
+          },
+          "error": {
+            "noLocations": "Niečo sa pokazilo. Nenašli sa žiadne miesta."
+          },
+          "button": {
+            "create": "Vytvoriť a pokračovať"
+          }
+        },
+        "nodeConfiguration": {
+          "title": "Konfigurácia uzla",
+          "error": {
+            "noNodes": "Niečo sa pokazilo. Nenašli sa žiadne uzly.",
+            "connectionError": "Niečo sa pokazilo. Chyba pripojenia."
+          },
+          "successMessage": "Pripojenie k vášmu uzlu bolo úspešne overené. Teraz môžete pokračovať.",
+          "configurationDescription": "Umiestnite to do konfiguračného súboru na `{file}` alebo spustite:",
+          "button": {
+            "verify": "Overte pripojenie"
+          }
+        },
+        "configuration": {
+          "title": "Nastavenia aplikácie",
+          "form": {
+            "applicationName": "Názov aplikácie",
+            "applicationNamePlaceholder": "Calagopus",
+            "languagePlaceholder": "Jazyk",
+            "applicationUrl": "Adresa URL aplikácie",
+            "applicationUrlPlaceholder": "https://calagop.us",
+            "registration": "Povoliť registráciu",
+            "registrationDescription": "Umožnite novým používateľom zaregistrovať si vlastný účet."
+          },
+          "button": {
+            "submit": "Aktualizovať nastavenia a pokračovať"
+          }
+        },
+        "eggRepositories": {
+          "title": "Úschovne vajec",
+          "description": "Toto sú zdrojové úložiská vašich vajec. Tieto úložiská môžete kedykoľvek zmeniť.",
+          "repositories": {
+            "pterodactylGame": {
+              "title": "Pterodaktylia hra Vajcia",
+              "description": "Vajcia pre hry ako Minecraft, Terraria a mnoho ďalších."
+            },
+            "pterodactylApplication": {
+              "title": "Pterodaktylové aplikačné vajcia",
+              "description": "Vajcia pre aplikácie ako Grafana, Meilisearch a rôzne databázy."
+            },
+            "pterodactylGeneral": {
+              "title": "Pterodaktylové generické vajcia",
+              "description": "Vajcia pre generické aplikácie ako Node JS, Java a Rust."
+            }
+          }
+        },
+        "server": {
+          "title": "Server",
+          "existingServer": "Server už bol vytvorený. Nastavenia môžete neskôr zmeniť v ponuke správcu.",
+          "egg": {
+            "title": "Vajcia",
+            "description": "Poďme spustiť váš prvý server. Aké vajíčko by ste chceli použiť?",
+            "nestDescription": "Ak chcete začať používať toto vajíčko, budete musieť vytvoriť hniezdo, hniezda sú zbierky vajec. Daj tomu názov:"
+          },
+          "server": {
+            "title": "Server",
+            "nestDescription": "Ak chcete začať používať toto vajíčko, budete musieť vytvoriť hniezdo, hniezda sú zbierky vajec. Daj tomu názov:"
+          },
+          "error": {
+            "noNodes": "Niečo sa pokazilo. Nenašli sa žiadne uzly."
+          },
+          "button": {
+            "create": "Vytvoriť a pokračovať"
+          }
+        },
+        "finished": {
+          "title": "Nastavenie je dokončené!",
+          "subtitle": "Váš panel Calagopus je pripravený na použitie",
+          "setupTitle": "Čo sme nastavili",
+          "items": {
+            "account": "Účet správcu",
+            "configuration": {
+              "title": "Konfigurácia systému",
+              "subtitle": "Nastavenia a predvoľby panela sú nakonfigurované"
+            },
+            "eggRepositories": {
+              "title": "Úschovne vajec",
+              "subtitle": "Úložisko {count}"
+            },
+            "location": "Poloha",
+            "node": "Uzol",
+            "server": "Server"
+          },
+          "badge": {
+            "skipped": "Preskočené"
+          },
+          "button": "Prejsť na informačný panel"
+        }
+      },
+      "auth": {
+        "button": {
+          "login": "Prihláste sa",
+          "loginWith": "Prihláste sa pomocou {name}"
+        },
+        "alert": {
+          "urlMismatch": "Adresa URL aplikácie sa nezhoduje s aktuálnou adresou URL. Očakávané: `{appUrl}`, aktuálne: `{currentUrl}`."
+        },
+        "login": {
+          "error": {
+            "usernameRequired": "Zadajte používateľské meno",
+            "registrationDisabled": "Nebol nájdený žiadny zodpovedajúci účet a registrácia je momentálne zakázaná.",
+            "userAlreadyExists": "Účet s týmto používateľským menom alebo e-mailom už existuje."
+          },
+          "passkey": {
+            "error": {
+              "notSupported": "Váš prehliadač nepodporuje prístupové kľúče.",
+              "unexpected": "Pri používaní vášho prístupového kľúča sa vyskytla neočakávaná chyba.",
+              "cancelled": "Žiadosť o passkey bola zrušená.",
+              "dismissed": "Zamietli ste výzvu na passkey alebo ste s ňou neinteragovali. Použitý kľúč tiež nemusí byť zaregistrovaný.",
+              "invalidState": "Tento passkey nie je dostupný alebo je už zaregistrovaný.",
+              "notSupportedType": "Váš prehliadač alebo zariadenie nepodporuje tento typ prístupového kľúča.",
+              "securityError": "Prístupové kľúče možno použiť iba cez HTTPS a s platnou doménou.",
+              "authenticatorError": "Vyskytol sa problém s autentifikátorom.",
+              "constraintError": "Autentifikátor nemohol splniť požadované obmedzenia."
+            }
+          },
+          "step": {
+            "username": {
+              "title": "Prihláste sa",
+              "subtitle": "Ak chcete pokračovať, zadajte svoje používateľské meno",
+              "form": {
+                "usernamePlaceholder": "Zadajte svoje používateľské meno"
+              },
+              "link": {
+                "forgotPassword": "Zabudnuté heslo",
+                "notRegistered": "Nie ste zaregistrovaný?",
+                "createAccount": "Vytvoriť účet"
+              },
+              "button": {
+                "oauthLogin": "Prihlásenie OAuth"
+              }
+            },
+            "passkey": {
+              "title": "Overte sa prístupovým kľúčom",
+              "subtitle": "Našli sme passkey spojený s {username}",
+              "button": {
+                "usePasskey": "Použiť passkey",
+                "usePassword": "Použiť heslo"
+              }
+            },
+            "password": {
+              "title": "Zadajte heslo",
+              "subtitle": "Zadajte svoje heslo pre {username}",
+              "form": {
+                "passwordPlaceholder": "Zadajte svoje heslo"
+              },
+              "button": {
+                "signIn": "Prihlásiť sa",
+                "forgotPassword": "Zabudnuté heslo"
+              }
+            },
+            "totp": {
+              "title": "Dvojfaktorová autentifikácia",
+              "welcomeBack": "Vitajte späť {username}!",
+              "enterCode": "Zadajte 6-ciferný kód z vašej autentifikačnej aplikácie",
+              "button": {
+                "verify": "Overiť kód",
+                "useRecoveryCode": "Použiť kód obnovy",
+                "useTotp": "Použiť TOTP"
+              }
+            },
+            "totpRecovery": {
+              "subtitle": "Zadajte kód na obnovenie",
+              "form": {
+                "label": "Obnovovací kód",
+                "placeholder": "Zadajte kód na obnovenie"
+              }
+            }
+          }
+        },
+        "register": {
+          "title": "Zaregistrujte sa",
+          "subtitle": "Pre registráciu zadajte svoje údaje",
+          "button": {
+            "register": "Zaregistrujte sa"
+          }
+        },
+        "forgotPassword": {
+          "title": "Zabudnuté heslo",
+          "subtitle": "Zadajte svoj e-mail, aby ste dostali pokyny na obnovenie hesla",
+          "button": {
+            "request": "Požiadať o obnovenie hesla"
+          },
+          "success": "Bol vám odoslaný e-mail s pokynmi, ako obnoviť heslo."
+        },
+        "resetPassword": {
+          "title": "Obnoviť heslo",
+          "subtitle": "Zadajte svoje nové heslo",
+          "button": {
+            "reset": "Obnoviť heslo"
+          },
+          "toast": {
+            "success": "Heslo bolo obnovené."
+          }
+        },
+        "oauth": {
+          "title": "Overte sa pomocou protokolu OAuth",
+          "subtitle": "Na prihlásenie si vyberte ktoréhokoľvek z nižšie uvedených poskytovateľov"
+        }
+      },
+      "account": {
+        "home": {
+          "title": "Servery",
+          "tooltip": {
+            "removeFromGroup": "Odstrániť zo skupiny",
+            "addToGroup": "Pridať do skupiny",
+            "addServerToGroup": "Pridať server do skupiny",
+            "groupActions": "Skupinové akcie",
+            "noGroups": "Nie sú dostupné žiadne skupiny na pridanie servera",
+            "noGroup": "Tento server nie je v žiadnej skupine"
+          },
+          "badge": {
+            "foreign": "Zahraničné"
+          },
+          "tabs": {
+            "groupedServers": {
+              "title": "Zoskupené servery",
+              "page": {
+                "button": {
+                  "createGroup": "Vytvoriť skupinu"
+                },
+                "modal": {
+                  "createServerGroup": {
+                    "title": "Vytvoriť skupinu serverov",
+                    "toast": {
+                      "created": "Skupina serverov bola vytvorená."
+                    }
+                  },
+                  "editServerGroup": {
+                    "title": "Upraviť skupinu serverov",
+                    "toast": {
+                      "updated": "Skupina serverov bola aktualizovaná."
+                    }
+                  },
+                  "deleteServerGroup": {
+                    "title": "Potvrďte vymazanie skupiny serverov",
+                    "content": "Naozaj chcete odstrániť **{group}** zo svojho účtu?",
+                    "toast": {
+                      "deleted": "Skupina serverov bola odstránená."
+                    }
+                  },
+                  "addServerToGroup": {
+                    "title": "Pridať server do {group}",
+                    "noServers": "Všetky servery sú už v tejto skupine.",
+                    "toast": {
+                      "added": "Server bol pridaný do skupiny."
+                    }
+                  }
+                },
+                "noGroups": "Nenašli sa žiadne skupiny, je čas na vytvorenie?"
+              }
+            },
+            "allServers": {
+              "title": "Všetky servery",
+              "page": {
+                "input": {
+                  "showOtherUsersServers": "Zobraziť servery iných používateľov"
+                },
+                "modal": {
+                  "addToServerGroup": {
+                    "title": "Pridať {server} do skupiny serverov",
+                    "form": {
+                      "serverGroup": "Skupina serverov"
+                    }
+                  }
+                }
+              }
+            }
+          },
+          "bulkActions": {
+            "selectionMode": "Režim výberu",
+            "select": "Vyberte server",
+            "deselect": "Zrušiť výber servera",
+            "success": "Úspešne {action} {servers}.",
+            "partial": "Úspešne {action} {successfulServers}. {failedServers} zlyhal.",
+            "groupActions": "Skupinové akcie"
+          },
+          "noServers": "Nenašli sa žiadne servery, je čas na pridanie?"
+        },
+        "admin": {
+          "title": "Admin"
+        },
+        "account": {
+          "title": "účtu",
+          "alert": {
+            "requireTwoFactor": {
+              "title": "Vyžaduje sa dvojfaktorové overenie",
+              "description": "Na vašom účte sa vyžaduje dvojfaktorové overenie. Ak chcete panel naďalej používať, nastavte ho nižšie."
+            },
+            "frozen": {
+              "title": "Účet zmrazený",
+              "description": "Váš účet bol zmrazený. Vo svojom účte nemôžete vykonávať zmeny, kým nebude zmrazený. Pre viac informácií kontaktujte správcu."
+            }
+          },
+          "containers": {
+            "password": {
+              "title": "heslo",
+              "toast": {
+                "updated": "Heslo bolo úspešne aktualizované."
+              },
+              "form": {
+                "newPassword": "Nové heslo",
+                "confirmNewPassword": "Potvrďte nové heslo"
+              }
+            },
+            "email": {
+              "title": "Email",
+              "toast": {
+                "updated": "E-mail bol úspešne aktualizovaný."
+              },
+              "form": {
+                "newEmail": "Nový email"
+              }
+            },
+            "twoFactor": {
+              "title": "Dvojfaktorová autentifikácia",
+              "toast": {
+                "disabled": "Dvojfaktorová autentifikácia bola úspešne zakázaná.",
+                "enabled": "Dvojfaktorová autentifikácia bola úspešne aktivovaná. Skopírujte si kódy na obnovenie."
+              },
+              "modal": {
+                "disableTwoFactor": {
+                  "title": "Zakázať dvojfaktorové overenie",
+                  "description": "Vypnutím dvojfaktorovej autentifikácie bude váš účet menej bezpečný."
+                },
+                "setupTwoFactor": {
+                  "title": "Nastavte dvojfaktorové overenie",
+                  "description": "Pomôžte chrániť svoj účet pred neoprávneným prístupom. Pri každom prihlásení sa vám zobrazí výzva na zadanie overovacieho kódu.",
+                  "descriptionQR": "Naskenujte vyššie uvedený QR kód pomocou aplikácie dvojfaktorovej autentifikácie podľa vášho výberu. Potom zadajte vygenerovaný 6-miestny kód do poľa nižšie."
+                },
+                "recoveryCodes": {
+                  "title": "Obnovovacie kódy",
+                  "description": "Nižšie sú uvedené vaše kódy na obnovenie. Uschovajte ich na bezpečnom mieste. Ak stratíte prístup k svojmu overovaciemu zariadeniu, môžete tieto kódy použiť na opätovné získanie prístupu k svojmu účtu."
+                }
+              },
+              "button": {
+                "disableTwoFactor": "Zakázať dvojfaktorové",
+                "setupTwoFactor": "Nastavenie dvojfaktora"
+              },
+              "twoFactorEnabled": "Momentálne je povolené dvojfaktorové overenie.",
+              "twoFactorDisabled": "Vo svojom účte momentálne nemáte povolené dvojfaktorové overenie. Kliknutím na tlačidlo nižšie ho začnete konfigurovať.",
+              "twoFactorLastUsed": "Naposledy použité: {timestamp}"
+            },
+            "account": {
+              "title": "Podrobnosti o účte",
+              "toast": {
+                "updated": "Podrobnosti účtu boli úspešne aktualizované."
+              },
+              "form": {
+                "toastPosition": "Pozícia toastu",
+                "startOnGroupedServers": "Začnite na stránke Zoskupené servery"
+              }
+            },
+            "avatar": {
+              "title": "Avatar",
+              "toast": {
+                "updated": "Avatar bol úspešne aktualizovaný.",
+                "removed": "Avatar bol úspešne odstránený."
+              },
+              "form": {
+                "avatar": "Avatar"
+              }
+            }
+          }
+        },
+        "securityKeys": {
+          "title": "Bezpečnostné kľúče",
+          "subtitle": "Boli vytvorené maximálne bezpečnostné kľúče {current} z {max}.",
+          "table": {
+            "columns": {
+              "credentialId": "ID poverenia"
+            }
+          },
+          "tooltip": {
+            "secureContextRequired": "Na používanie bezpečnostných kľúčov sa vyžaduje zabezpečený kontext (HTTPS).",
+            "limitReached": "Ste obmedzený na bezpečnostné kľúče {max}."
+          },
+          "modal": {
+            "createSecurityKey": {
+              "title": "Vytvoriť bezpečnostný kľúč",
+              "toast": {
+                "created": "Bezpečnostný kľúč bol úspešne vytvorený.",
+                "aborted": "Vytvorenie bezpečnostného kľúča bolo prerušené."
+              }
+            },
+            "editSecurityKey": {
+              "title": "Upraviť bezpečnostný kľúč",
+              "toast": {
+                "updated": "Bezpečnostný kľúč bol úspešne aktualizovaný."
+              }
+            },
+            "deleteSecurityKey": {
+              "title": "Potvrďte vymazanie bezpečnostného kľúča",
+              "content": "Naozaj chcete odstrániť **{key}** zo svojho účtu?",
+              "toast": {
+                "deleted": "Bezpečnostný kľúč bol úspešne odstránený."
+              }
+            }
+          }
+        },
+        "sessions": {
+          "title": "Relácie",
+          "table": {
+            "columns": {
+              "ip": "IP",
+              "thisDevice": "Toto zariadenie?",
+              "userAgent": "Používateľský agent"
+            }
+          },
+          "modal": {
+            "deleteSession": {
+              "title": "Potvrďte vymazanie relácie",
+              "content": "Naozaj chcete odstrániť reláciu **{ip}** zo svojho účtu?",
+              "toast": {
+                "deleted": "Relácia bola odstránená."
+              }
+            }
+          }
+        },
+        "shortcuts": {
+          "title": "Klávesové skratky",
+          "subtitle": "Použite tieto klávesové skratky na efektívnejšiu navigáciu a interakciu s panelom.",
+          "detectedMac": "zistený macOS",
+          "detectedWindows": "Zistil sa systém Windows/Linux",
+          "fileManager": {
+            "title": "Správca súborov",
+            "selectAll": "Vyberte všetky súbory",
+            "cutFiles": "Vystrihnite vybrané súbory",
+            "copyFiles": "Skopírujte vybrané súbory",
+            "duplicateFile": "Duplikovať vybraný súbor",
+            "pasteFiles": "Prilepte súbory",
+            "searchFiles": "Vyhľadajte súbory",
+            "moveUpDirectory": "Posunúť o adresár nahor",
+            "moveUpSelection": "Posunúť výber nahor",
+            "moveDownSelection": "Posunúť výber nadol",
+            "renameFile": "Premenovať súbor",
+            "deselectAll": "Zrušiť výber všetkých súborov",
+            "deleteFiles": "Vymazať vybrané súbory"
+          },
+          "table": {
+            "title": "Navigácia v tabuľke",
+            "previousPage": "Predchádzajúca strana",
+            "nextPage": "Ďalšia strana",
+            "firstPage": "Prvá strana",
+            "lastPage": "Posledná strana"
+          },
+          "console": {
+            "title": "Serverová konzola",
+            "searchContent": "Hľadať vo výstupe konzoly",
+            "previousCommand": "Predchádzajúci príkaz v histórii",
+            "nextCommand": "Ďalší príkaz v histórii"
+          },
+          "serverList": {
+            "title": "Zoznam serverov",
+            "selectServer": "Podržte S a kliknutím vyberte/zrušte výber servera"
+          }
+        },
+        "sshKeys": {
+          "title": "Kľúče SSH",
+          "subtitle": "{current} z maximálneho ssh kľúčov {max} boli vytvorené.",
+          "tooltip": {
+            "limitReached": "Ste obmedzený na {max} ssh kľúče."
+          },
+          "table": {
+            "columns": {
+              "fingerprint": "Odtlačok prsta"
+            }
+          },
+          "modal": {
+            "createSshKey": {
+              "title": "Vytvoriť kľúč SSH",
+              "toast": {
+                "created": "Bol vytvorený kľúč SSH."
+              },
+              "button": {
+                "uploadKeyFile": "Nahrať súbor kľúča"
+              },
+              "form": {
+                "publicKey": "Verejný kľúč"
+              }
+            },
+            "editSshKey": {
+              "title": "Upraviť kľúč SSH",
+              "toast": {
+                "updated": "Kľúč SSH bol aktualizovaný."
+              }
+            },
+            "importSshKeys": {
+              "title": "Importujte kľúče SSH",
+              "toast": {
+                "created": "{sshKeys} vytvorené."
+              },
+              "form": {
+                "provider": "Poskytovateľ"
+              }
+            },
+            "deleteSshKey": {
+              "title": "Potvrďte vymazanie kľúča SSH",
+              "content": "Naozaj chcete odstrániť **{name}** zo svojho účtu?",
+              "toast": {
+                "removed": "Kľúč SSH bol odstránený."
+              }
+            }
+          }
+        },
+        "commandSnippets": {
+          "title": "Úryvky príkazov",
+          "subtitle": "{current} z maximálneho počtu {max} vytvorených úryvkov príkazov.",
+          "tooltip": {
+            "limitReached": "Ste obmedzený na {max} úryvky príkazov."
+          },
+          "modal": {
+            "createCommandSnippet": {
+              "title": "Vytvoriť úryvok príkazu",
+              "toast": {
+                "created": "Útržok príkazu bol vytvorený."
+              }
+            },
+            "editCommandSnippet": {
+              "title": "Upraviť úryvok príkazu",
+              "toast": {
+                "updated": "Útržok príkazu bol aktualizovaný."
+              }
+            },
+            "deleteCommandSnippet": {
+              "title": "Potvrďte vymazanie úryvku príkazu",
+              "content": "Naozaj chcete odstrániť **{name}** zo svojho účtu?",
+              "toast": {
+                "removed": "Útržok príkazu bol odstránený."
+              }
+            }
+          }
+        },
+        "oauthLinks": {
+          "title": "Odkazy OAuth",
+          "button": {
+            "connect": "Pripojte sa",
+            "connectTo": "Pripojte sa k {provider}"
+          },
+          "table": {
+            "columns": {
+              "providerName": "Meno poskytovateľa"
+            }
+          },
+          "modal": {
+            "deleteOAuthLink": {
+              "title": "Potvrďte vymazanie odkazu OAuth",
+              "content": "Naozaj chcete zo svojho účtu odstrániť pripojenie **{provider}**?",
+              "toast": {
+                "removed": "Odkaz OAuth bol odstránený."
+              }
+            }
+          }
+        },
+        "apiKeys": {
+          "title": "API kľúče",
+          "subtitle": "Boli vytvorené {current} z maximálnych kľúčov API {max}.",
+          "button": {
+            "apiDocumentation": "API dokumentácia"
+          },
+          "tooltip": {
+            "limitReached": "Ste obmedzený na kľúče API {max}."
+          },
+          "table": {
+            "columns": {
+              "key": "kľúč",
+              "permissions": "Povolenia používateľa / servera / správcu",
+              "expires": "Platnosť vyprší"
+            }
+          },
+          "modal": {
+            "createApiKey": {
+              "title": "Vytvoriť kľúč API",
+              "toast": {
+                "created": "Kľúč API bol vytvorený."
+              }
+            },
+            "updateApiKey": {
+              "title": "Aktualizovať kľúč API",
+              "toast": {
+                "updated": "Kľúč API bol aktualizovaný."
+              }
+            },
+            "recreateApiKey": {
+              "title": "Znovu vytvoriť kľúč API",
+              "content": "Opätovné vytvorenie kľúča API vygeneruje nový kľúč a zruší platnosť starého. Naozaj chcete znova vytvoriť kľúč API **{name}**?",
+              "toast": {
+                "recreated": "Kľúč API bol znovu vytvorený."
+              }
+            },
+            "deleteApiKey": {
+              "title": "Potvrďte vymazanie kľúča API",
+              "content": "Naozaj chcete odstrániť **{name}** zo svojho účtu?",
+              "toast": {
+                "removed": "Kľúč API bol odstránený."
+              }
+            }
+          },
+          "form": {
+            "allowedIps": "Povolené adresy IP",
+            "allowedIpsPlaceholder": "napr. 192.168.1.1, 2001:db8::1",
+            "userPermissions": "Používateľské povolenia",
+            "serverPermissions": "Povolenia servera",
+            "adminPermissions": "Povolenia správcu"
+          }
+        },
+        "activity": {
+          "title": "Aktivita"
+        }
+      },
+      "admin": {
+        "home": {
+          "title": "Domov",
+          "alert": {
+            "newPanelVersion": "Pre panel je k dispozícii nová verzia! Momentálne používate {current} a najnovšia verzia je {latest}. Možno budete chcieť zvážiť inováciu. [Kliknutím sem]({upgradeUrl}) zobrazíte pokyny na inováciu."
+          },
+          "tabs": {
+            "overview": {
+              "title": "Prehľad",
+              "page": {
+                "permissionDenied": "Nemáte povolenie čítať štatistiky, ktoré by tu inak boli. Zatiaľ si vychutnajte tohto vtáka.",
+                "card": {
+                  "systemOverview": "Prehľad systému",
+                  "generalStatistics": "Všeobecná štatistika",
+                  "backupStatistics": "Štatistika zálohovania"
+                },
+                "system": {
+                  "cpu": "CPU",
+                  "memoryUsage": "Využitie pamäte ({process} používané panelom)",
+                  "memoryValue": "{used} / {total} ({percent} %)",
+                  "kernelVersion": "Verzia jadra ({architecture})",
+                  "containerType": "Typ kontajnera",
+                  "databaseVersion": "Verzia databázy ({size})",
+                  "cacheVersion": "Verzia vyrovnávacej pamäte",
+                  "cacheCalls": "Ukladať hovory do vyrovnávacej pamäte",
+                  "cacheHits": "Prístupy do vyrovnávacej pamäte ({percent} %)",
+                  "cacheMisses": "Chyby vo vyrovnávacej pamäti ({percent} %)",
+                  "avgCachedCallLatency": "Priem. Latencia hovorov vo vyrovnávacej pamäti"
+                },
+                "containerType": {
+                  "none": "Žiadne zistené",
+                  "official": "Oficiálne",
+                  "officialAio": "Oficiálne AIO",
+                  "officialHeavy": "Oficiálne ťažké"
+                },
+                "stats": {
+                  "users": "Používatelia",
+                  "servers": "Servery",
+                  "locations": "Miesta",
+                  "nodes": "Uzly",
+                  "nestEggs": "Vajcia hniezd",
+                  "databaseHosts": "Hostitelia databázy",
+                  "backupConfigurations": "Záložné konfigurácie",
+                  "roles": "Roly"
+                },
+                "backup": {
+                  "allTime": "Všetky časy",
+                  "today": "Dnes",
+                  "week": "Tento týždeň",
+                  "month": "Tento mesiac",
+                  "totalAllTime": "Celkový počet záloh po celú dobu",
+                  "successfulAllTime": "Úspešné zálohy po celú dobu",
+                  "failedAllTime": "Po celú dobu zlyhali zálohy",
+                  "deletedAllTime": "Všetky zálohy boli odstránené",
+                  "totalToday": "Celkové dnešné zálohy",
+                  "successfulToday": "Dnes úspešné zálohy",
+                  "failedToday": "Dnes zlyhali zálohy",
+                  "deletedToday": "Dnes boli odstránené zálohy",
+                  "totalWeek": "Celkový počet záloh tento týždeň",
+                  "successfulWeek": "Úspešné zálohy tento týždeň",
+                  "failedWeek": "Tento týždeň zlyhali zálohy",
+                  "deletedWeek": "Tento týždeň boli odstránené zálohy",
+                  "totalMonth": "Celkový počet záloh za tento mesiac",
+                  "successfulMonth": "Úspešné zálohy tento mesiac",
+                  "failedMonth": "Tento mesiac zlyhali zálohy",
+                  "deletedMonth": "Tento mesiac boli odstránené zálohy",
+                  "successfulValue": "{count} ({size})",
+                  "deletedValue": "{count} ({size})"
+                }
+              }
+            },
+            "updates": {
+              "title": "Aktualizácie",
+              "page": {
+                "alert": {
+                  "extensionUpdateErrors": "Pri kontrole aktualizácií niektorých rozšírení sa vyskytli chyby."
+                },
+                "card": {
+                  "panelVersion": "Verzia panela",
+                  "versionHistory": "História verzií",
+                  "outdatedExtensions": "Zastarané rozšírenia",
+                  "outdatedNodes": "Zastarané uzly"
+                },
+                "panelVersion": "Váš panel momentálne používa verziu `{current}`. Najnovšia dostupná verzia je `{latest}`.",
+                "unknown": "neznámy",
+                "button": {
+                  "recheck": "Znova skontrolujte aktualizácie"
+                },
+                "toast": {
+                  "recheckComplete": "Opätovná kontrola dokončená."
+                },
+                "selectHistory": "Vyberte históriu aktualizácií, ktorú chcete zobraziť.",
+                "historyPanel": "Panel",
+                "historyExtension": "Rozšírenie: {name}",
+                "extensionsUpToDate": "Všetky rozšírenia sú aktuálne.",
+                "extensionsOutdated": "Niektoré rozšírenia sú zastarané alebo sa vyskytli chyby pri kontrole aktualizácií.",
+                "noChangelog": "Žiadny zoznam zmien",
+                "nodesUpToDate": "Zdá sa, že všetky uzly sú aktuálne. ({failed} sa nepodarilo skontrolovať)",
+                "nodesOutdated": "Niektoré uzly sú zastarané, najnovšia dostupná verzia je `{latest}`. ({outdated} je zastarané, kontrola {failed} zlyhala)",
+                "table": {
+                  "version": "Verzia",
+                  "installed": "Nainštalované",
+                  "packageName": "Názov balíka",
+                  "latestVersion": "Najnovšia verzia",
+                  "changes": "Zmeny",
+                  "error": "Chyba"
+                }
+              }
+            },
+            "health": {
+              "title": "Zdravie",
+              "page": {
+                "card": {
+                  "generalHealth": "Všeobecné zdravie",
+                  "extensionMigrationHealth": "Rozšírenie Migrácia Zdravie",
+                  "desyncNodes": "Desynchronizácia uzlov",
+                  "debugMode": "Režim ladenia"
+                },
+                "appliedMigrations": "Aplikované migrácie ({percent} %)",
+                "migrationsValue": "{applied} / {total}",
+                "avgNtpOffset": "Priem. NTP Offset",
+                "noExtensions": "Nenašli sa žiadne rozšírenia.",
+                "nodesSynced": "Zdá sa, že všetky uzly majú synchronizované hodiny (do 5 sekúnd od hodín na paneli). ({failed} sa nepodarilo skontrolovať)",
+                "nodesDesync": "Niektoré uzly majú desynchronizačné hodiny (viac ako 5 sekúnd mimo hodín panela). To môže spôsobiť problémy so sťahovaním súborov/konzolou. (Desynchronizácia {desync}, kontrola {failed} zlyhala)",
+                "debugEnabled": "Režim ladenia je momentálne povolený.",
+                "debugDisabled": "Režim ladenia je momentálne zakázaný.",
+                "debugResetNote": "Po reštartovaní aplikácie sa toto nastavenie obnoví na predvolené ({default}).",
+                "table": {
+                  "packageName": "Názov balíka",
+                  "applied": "Aplikované",
+                  "total": "Celkom",
+                  "id": "ID",
+                  "desync": "Desynchronizácia",
+                  "appliedValue": "{applied} ({percent} %)"
+                },
+                "button": {
+                  "enableDebug": "Povoliť režim ladenia",
+                  "disableDebug": "Zakázať režim ladenia"
+                },
+                "toast": {
+                  "debugEnabled": "Režim ladenia je povolený.",
+                  "debugDisabled": "Režim ladenia je vypnutý."
+                }
+              }
+            }
+          }
+        },
+        "settings": {
+          "title": "Nastavenia",
+          "tabs": {
+            "application": {
+              "title": "Aplikácia",
+              "page": {
+                "title": "Nastavenia aplikácie",
+                "form": {
+                  "icon": "Ikona",
+                  "iconLight": "Ikona (svetelný režim)",
+                  "banner": "Banner",
+                  "bannerLight": "Banner (svetlý režim)",
+                  "sessionCookie": "Súbor cookie relácie",
+                  "sessionDurationSeconds": "Trvanie relácie (sekundy)",
+                  "twoFactorRequirement": "Požiadavka dvojfaktorovej autentifikácie",
+                  "telemetryEnabled": "Povoliť telemetriu",
+                  "telemetryEnabledDescription": "Umožnite Calagopusu zhromažďovať obmedzené a anonymné údaje o používaní, ktoré pomôžu zlepšiť aplikáciu.",
+                  "registrationEnabled": "Povoliť registráciu"
+                },
+                "enum": {
+                  "twoFactorRequirement": {
+                    "admins": "Správcovia",
+                    "allUsers": "Všetci používatelia",
+                    "none": "žiadne"
+                  }
+                },
+                "button": {
+                  "previewTelemetry": "Náhľad telemetrie"
+                },
+                "toast": {
+                  "updated": "Nastavenia aplikácie boli aktualizované."
+                },
+                "modal": {
+                  "disableTelemetry": {
+                    "title": "Potvrďte vypnutie telemetrie",
+                    "content": "Naozaj chcete zakázať telemetriu? Telemetria nám pomáha zlepšovať Calagopus poskytovaním anonymných údajov o používaní. Vypnutím telemetrie zabránite odosielaniu akýchkoľvek údajov."
+                  },
+                  "enableRegistration": {
+                    "title": "Potvrďte povolenie registrácie",
+                    "content": "Naozaj chcete povoliť registráciu? Povolenie registrácie umožňuje komukoľvek vytvoriť si účet na tomto paneli. Ak nemáte nakonfigurovaný captcha, môže to byť chyba."
+                  },
+                  "telemetryPreview": {
+                    "title": "Ukážka telemetrie"
+                  }
+                }
+              }
+            },
+            "storage": {
+              "title": "Skladovanie",
+              "page": {
+                "title": "Nastavenia úložiska",
+                "form": {
+                  "driver": "Vodič"
+                },
+                "enum": {
+                  "driver": {
+                    "filesystem": "Súborový systém",
+                    "s3": "S3"
+                  }
+                },
+                "toast": {
+                  "updated": "Nastavenia úložiska boli aktualizované."
+                },
+                "modal": {
+                  "changeStorageType": {
+                    "title": "Potvrďte zmenu typu úložiska",
+                    "content": "Naozaj chcete zmeniť typ úložiska? Zmena typu úložiska spôsobí, že aplikácia bude hľadať aktíva (napr. profilové obrázky) na inom mieste, čo môže mať za následok chýbajúce aktíva, ak nie sú manuálne presunuté do nového umiestnenia."
+                  }
+                },
+                "s3": {
+                  "alert": {
+                    "permissionsTitle": "Poznámka k povoleniam",
+                    "permissionsIntro": "Aby ste sa uistili, že backend úložiska funguje správne, uistite sa, že nasledujúce podadresáre sú verejne prístupné cez „Verejnú adresu URL“, ktorú ste poskytli:",
+                    "permissionsAssets": "Tu budú uložené všetky aktíva správcu (napr. ikony).",
+                    "permissionsAvatars": "Tu budú uložené všetky používateľské avatary.",
+                    "permissionsPublicData": "Toto je miesto, kde môžu rozšírenia ukladať verejné údaje (napr. obrázky)."
+                  },
+                  "form": {
+                    "pathStyleOn": "Používanie adries URL v štýle cesty",
+                    "pathStyleOff": "Používanie adries URL v štýle virtuálneho hosťovania"
+                  }
+                }
+              }
+            },
+            "mail": {
+              "title": "Mail",
+              "page": {
+                "title": "Nastavenia e-mailu",
+                "enum": {
+                  "provider": {
+                    "none": "žiadne",
+                    "smtp": "SMTP",
+                    "sendmail": "Príkaz Sendmail",
+                    "filesystem": "Súborový systém"
+                  },
+                  "tlsMode": {
+                    "none": "žiadne",
+                    "startTls": "STARTTLS",
+                    "implicitTls": "Implicitné TLS"
+                  }
+                },
+                "toast": {
+                  "updated": "Nastavenia e-mailu boli aktualizované."
+                },
+                "modal": {
+                  "sendTestEmail": {
+                    "title": "Odoslať testovací e-mail",
+                    "toast": {
+                      "sent": "Skúšobný e-mail bol úspešne odoslaný."
+                    }
+                  }
+                },
+                "smtp": {
+                  "form": {
+                    "tlsMode": "Režim TLS",
+                    "skipCertValidation": "Preskočiť overenie certifikátu"
+                  }
+                }
+              }
+            },
+            "mailTemplates": {
+              "title": "Šablóny pošty",
+              "page": {
+                "title": "Nastavenia šablóny e-mailu",
+                "sidebar": {
+                  "templates": "Šablóny",
+                  "loading": "Načítava sa...",
+                  "availableVariables": "Dostupné premenné"
+                },
+                "alert": {
+                  "syntaxBefore": "Šablóny používajú",
+                  "syntaxLink": "MiniJinja",
+                  "syntaxMiddle": "syntax šablóny. Na premenné sa odkazuje s",
+                  "syntaxAnd": "a kontrolné štruktúry ako",
+                  "syntaxOr": "a",
+                  "syntaxAfter": "sú podporované."
+                },
+                "empty": "Vyberte šablónu z bočného panela a upravte ju.",
+                "loadingTemplate": "Načítava sa šablóna...",
+                "form": {
+                  "subject": "Predmet"
+                },
+                "toast": {
+                  "saved": "Šablóna e-mailu bola uložená.",
+                  "reset": "Šablóna e-mailu bola obnovená na predvolenú hodnotu."
+                },
+                "modal": {
+                  "reset": {
+                    "title": "Obnoviť predvolené nastavenie",
+                    "content": "Týmto sa zahodí vaša vlastná šablóna pre **{identifier}** a obnoví sa vstavaná predvolená hodnota. Toto sa nedá vrátiť späť."
+                  }
+                }
+              }
+            },
+            "captcha": {
+              "title": "Captcha",
+              "page": {
+                "title": "Nastavenia captcha",
+                "toast": {
+                  "updated": "Nastavenia captcha boli aktualizované."
+                },
+                "recaptcha": {
+                  "form": {
+                    "v3": "V3"
+                  }
+                }
+              }
+            },
+            "webauthn": {
+              "title": "WebAuthn",
+              "page": {
+                "title": "Nastavenia WebAuthn",
+                "form": {
+                  "rpId": "RP Id",
+                  "rpOrigin": "Pôvod RP"
+                },
+                "button": {
+                  "autofill": "Automatické dopĺňanie"
+                },
+                "toast": {
+                  "updated": "Nastavenia WebAuthn boli aktualizované.",
+                  "ipNotAllowed": "Nie je možné použiť WebAuthn na IP adrese."
+                },
+                "modal": {
+                  "changeRpId": {
+                    "title": "Potvrďte zmenu ID RP",
+                    "content": "Naozaj chcete zmeniť ID RP? Zmena RP Id poruší všetky existujúce poverenia WebAuthn a bude vyžadovať, aby používatelia znova zaregistrovali svoje zariadenia. Môže to mať závažné dôsledky, preto sa pred pokračovaním uistite, že rozumiete dôsledkom."
+                  }
+                }
+              }
+            },
+            "server": {
+              "title": "Server",
+              "page": {
+                "title": "Nastavenia servera",
+                "form": {
+                  "maxFileManagerViewSize": "Maximálna veľkosť zobrazenia správcu súborov",
+                  "maxScheduleStepCount": "Maximálny rozvrh krokov",
+                  "maxFileManagerContentSearchSize": "Maximálna veľkosť vyhľadávania obsahu správcu súborov",
+                  "maxFileManagerSearchResults": "Maximálne výsledky vyhľadávania správcu súborov",
+                  "maxSubuserCount": "Maximálny počet podužívateľov",
+                  "allowOverwritingCustomDockerImage": "Povoliť prepísanie vlastného obrázka dockera",
+                  "allowOverwritingCustomDockerImageDescription": "Ak je táto možnosť povolená, používatelia budú môcť prepísať obrázok Docker zadaný v konfigurácii servera pomocou zoznamu vajec, aj keď správca nastavil vlastný obrázok Docker.",
+                  "allowViewingInstallationLogs": "Povoliť zobrazenie denníkov inštalácie",
+                  "allowViewingInstallationLogsDescription": "Ak je táto možnosť povolená, používatelia s oprávneniami na čítanie z konzoly si budú môcť prezerať denníky inštalácie aj prostredníctvom pripojenia cez websocket. Ak je táto možnosť vypnutá, denníky inštalácie budú dostupné iba pre správcov.",
+                  "allowAcknowledgingInstallationFailure": "Povoliť potvrdenie zlyhania inštalácie",
+                  "allowAcknowledgingInstallationFailureDescription": "Ak je táto možnosť povolená, používatelia budú môcť potvrdiť zlyhania inštalácie serverov, ktoré sú v stave „Inštalácia zlyhala“, čo im umožní pokúsiť sa spustiť server namiesto toho, aby museli čakať na správcu. Ak je táto možnosť zakázaná, zlyhania inštalácie budú môcť potvrdiť iba správcovia.",
+                  "allowViewingTransferProgress": "Povoliť sledovanie priebehu prenosu",
+                  "allowViewingTransferProgressDescription": "Ak je táto možnosť povolená, používatelia s oprávneniami na čítanie z konzoly si budú môcť prezerať aj protokoly priebehu prenosu prostredníctvom pripojenia websocket. Ak je táto možnosť zakázaná, denníky priebehu prenosu budú dostupné iba pre správcov.",
+                  "containerPrelude": "Predohra kontajnera",
+                  "containerPreludeDescription": "Predohra terminálu používaná pre niektoré správy súvisiace so stavom v konzole servera."
+                },
+                "toast": {
+                  "updated": "Nastavenia servera boli aktualizované."
+                }
+              }
+            },
+            "user": {
+              "title": "Používateľ",
+              "page": {
+                "title": "Používateľské nastavenia",
+                "form": {
+                  "maxServerGroupCount": "Maximálny počet skupín serverov",
+                  "maxApiKeyCount": "Maximálny počet kľúčov API",
+                  "maxCommandSnippetCount": "Maximálne úryvky príkazov",
+                  "maxSecurityKeyCount": "Maximálny počet bezpečnostných kľúčov",
+                  "maxSshKeyCount": "Maximálny počet kľúčov SSH",
+                  "allowChangingLanguage": "Povoliť zmenu jazyka",
+                  "allowChangingLanguageDescription": "Ak je táto možnosť povolená, používatelia budú môcť zmeniť svoje jazykové predvoľby."
+                },
+                "routeOrder": {
+                  "title": "Objednávka trasy klienta"
+                },
+                "toast": {
+                  "updated": "Používateľské nastavenia boli aktualizované."
+                }
+              }
+            },
+            "activity": {
+              "title": "Aktivita",
+              "page": {
+                "title": "Nastavenia aktivity",
+                "form": {
+                  "adminLogRetentionDays": "Dni uchovávania činnosti správcu",
+                  "userLogRetentionDays": "Dni uchovávania aktivity používateľa",
+                  "serverLogRetentionDays": "Dni uchovávania aktivity servera",
+                  "adminLogRetentionCount": "Počet uchovávaných aktivít správcu",
+                  "userLogRetentionCount": "Počet zachovania aktivity používateľa",
+                  "serverLogRetentionCount": "Počet zachovania aktivity servera",
+                  "serverLogAdminActivity": "Zaznamenať aktivitu správcu servera",
+                  "serverLogAdminActivityDescription": "Povoľte alebo zakážte zaznamenávanie aktivít správcu na serveroch, kde správca nie je vlastníkom ani podpoužívateľom.",
+                  "serverLogScheduleActivity": "Zaznamenávať aktivitu plánov servera",
+                  "serverLogScheduleActivityDescription": "Povoliť alebo zakázať zaznamenávanie aktivít vykonaných plánmi servera."
+                },
+                "toast": {
+                  "updated": "Nastavenia aktivity boli aktualizované."
+                }
+              }
+            },
+            "ratelimits": {
+              "title": "Sadzobné limity",
+              "page": {
+                "title": "Nastavenia limitu sadzby",
+                "form": {
+                  "hits": "Hity",
+                  "hitsDescription": "Maximálny povolený počet žiadostí na okno.",
+                  "windowSeconds": "okno",
+                  "windowSecondsDescription": "Trvanie okna v sekundách."
+                },
+                "toast": {
+                  "updated": "Nastavenia limitu sadzby boli aktualizované."
+                }
+              }
+            }
+          }
+        },
+        "announcements": {
+          "title": "Oznamy",
+          "resourceName": "Oznámenie",
+          "tabs": {
+            "general": {
+              "page": {
+                "modal": {
+                  "delete": {
+                    "title": "Potvrďte vymazanie oznámenia",
+                    "content": "Naozaj chcete odstrániť **{title}**?"
+                  }
+                },
+                "form": {
+                  "dismissibleEnd": "Dismisable End",
+                  "enabledStart": "Povolené Štart",
+                  "enabledEnd": "Enabled End",
+                  "locations": "Miesta",
+                  "locationsDescription": "Ak chcete použiť všetky miesta, nechajte prázdne.",
+                  "nodes": "Uzly",
+                  "nodesDescription": "Ak chcete použiť všetky uzly, nechajte prázdne.",
+                  "backupConfigurations": "Záložné konfigurácie",
+                  "backupConfigurationsDescription": "Ak chcete použiť všetky konfigurácie zálohovania, nechajte prázdne.",
+                  "eggsPlaceholder": "Vyberte vajcia",
+                  "dismissible": "Odvolateľné"
+                },
+                "titleCreate": "Vytvoriť oznámenie",
+                "titleUpdate": "Aktualizovať oznámenie"
+              }
+            }
+          },
+          "enum": {
+            "announcementType": {
+              "info": "Info",
+              "success": "Úspech",
+              "warning": "Upozornenie",
+              "error": "Chyba"
+            }
+          }
+        },
+        "assets": {
+          "title": "Aktíva",
+          "button": {
+            "newDirectory": "Nový adresár",
+            "upload": "Nahrať",
+            "copyLink": "Kopírovať odkaz"
+          },
+          "dropzone": {
+            "title": "Sem presuňte súbory na odovzdanie",
+            "subtitle": "Uvoľnením spustíte nahrávanie"
+          },
+          "operations": {
+            "waiting": "Čakanie:",
+            "uploading": "Nahráva sa:"
+          },
+          "toast": {
+            "assetDeleted": "Dielo bolo odstránené.",
+            "assetsDeleted": "{assets} vymazané."
+          },
+          "modal": {
+            "createDirectory": {
+              "title": "Nový adresár",
+              "createdAs": "Vytvorí sa o"
+            },
+            "deleteAssets": {
+              "title": "Potvrďte vymazanie aktív",
+              "content": "Naozaj chcete odstrániť aktíva `{count}`?"
+            },
+            "deleteAsset": {
+              "title": "Odstrániť aktívum",
+              "content": "Naozaj chcete odstrániť toto dielo? Túto akciu nie je možné vrátiť späť."
+            }
+          }
+        },
+        "extensions": {
+          "title": "Rozšírenia",
+          "unknownExtension": "Neznáme rozšírenie",
+          "alert": {
+            "noExtensions": "Nie sú nainštalované žiadne rozšírenia.",
+            "heavyImageMissing": "Zdá sa, že nepoužívate ťažký obraz potrebný na inštaláciu rozšírení. Pozrite si [tu]({docsUrl}), ako naň prejsť."
+          },
+          "button": {
+            "viewBuildLogs": "Zobraziť denníky zostavovania",
+            "install": "Nainštalovať rozšírenie",
+            "rebuild": "Obnoviť rozšírenia",
+            "configure": "Konfigurovať",
+            "back": "Späť na Rozšírenia",
+            "accept": "Prijať",
+            "decline": "Odmietnuť"
+          },
+          "tooltip": {
+            "building": "Panel momentálne vytvára kód rozšírenia. Čakajte prosím.",
+            "noPendingBuild": "Žiadne čakajúce rozšírenia na zostavenie.",
+            "noBackend": "Na konfiguráciu tohto rozšírenia sa vyžaduje koncové rozšírenie.",
+            "noConfigurationPage": "Toto rozšírenie nemá definovanú konfiguračnú stránku.",
+            "removeExtension": "Odstrániť rozšírenie"
+          },
+          "badge": {
+            "frontendMissing": "Chýba frontend",
+            "backendMissing": "Chýba backend",
+            "pendingBuild": "Čaká sa na zostavenie",
+            "pendingRemoval": "Čaká sa na odstránenie"
+          },
+          "card": {
+            "version": "Verzia",
+            "authors": "Autori"
+          },
+          "section": {
+            "pendingExtensions": "Nespracované rozšírenia",
+            "noPendingExtensions": "Žiadne čakajúce rozšírenia."
+          },
+          "dropzone": {
+            "title": "Sem presuňte niektoré súbory, ktoré chcete nainštalovať ako rozšírenia",
+            "subtitle": "Uvoľnením spustíte inštaláciu"
+          },
+          "toast": {
+            "buildStarted": "Prestavba rozšírenia sa úspešne spustila.",
+            "buildCompleted": "Zostavenie rozšírenia je dokončené. Možno budete musieť obnoviť stránku.",
+            "added": "Rozšírenie `{packageName}` bolo úspešne pridané.",
+            "removed": "Rozšírenie `{packageName}` bolo úspešne odstránené."
+          },
+          "notFound": {
+            "title": "Rozšírenie sa nenašlo",
+            "content": "Rozšírenie s názvom balíka \"{packageName}\" sa nenašlo."
+          },
+          "configure": {
+            "title": "Nakonfigurujte {packageName}",
+            "noConfigurationPage": "Toto rozšírenie nemá konfiguračnú stránku."
+          },
+          "modal": {
+            "buildLogs": {
+              "title": "Vytváranie denníkov",
+              "empty": "Nenašli sa žiadne denníky."
+            },
+            "license": {
+              "title": "Licenčná zmluva",
+              "description": "Rozšírenie `{packageName}` vyžaduje, aby ste pred inštaláciou prijali nasledujúcu licenciu."
+            },
+            "remove": {
+              "title": "Odstráňte rozšírenie",
+              "content": "Naozaj chcete odstrániť rozšírenie `{packageName}`? Túto akciu nie je možné vrátiť späť.",
+              "form": {
+                "removeMigrations": "Chcete odstrániť a vrátiť späť migrácie databázy tohto rozšírenia?"
+              }
+            }
+          }
+        },
+        "users": {
+          "title": "Používatelia",
+          "resourceName": "Používateľ",
+          "tooltip": {
+            "admin": "Admin",
+            "twoFactorEnabled": "2FA povolené",
+            "twoFactorDisabled": "2FA Vypnuté"
+          },
+          "table": {
+            "columns": {
+              "role": "Rola"
+            }
+          },
+          "tabs": {
+            "general": {
+              "page": {
+                "tooltip": {
+                  "cannotImpersonateSelf": "Nemôžete sa vydávať za seba."
+                },
+                "button": {
+                  "disableTwoFactor": "Zakázať dva faktory",
+                  "sendPasswordResetEmail": "Odoslať e-mail na obnovenie hesla",
+                  "impersonate": "Zosobniť sa"
+                },
+                "form": {
+                  "admin": "Admin",
+                  "adminDescription": "Správcovskí používatelia majú úplný a neobmedzený prístup ku všetkému na paneli.",
+                  "frozen": "Zmrazené",
+                  "frozenDescription": "Zmrazení používatelia nemôžu vykonávať žiadne zmeny informácií o svojom účte.",
+                  "suspended": "Pozastavené",
+                  "suspendedDescription": "Pozastavení používatelia nemajú prístup k panelu žiadnym zmysluplným spôsobom.",
+                  "role": "Rola"
+                },
+                "modal": {
+                  "delete": {
+                    "title": "Potvrďte vymazanie používateľa",
+                    "content": "Naozaj chcete odstrániť **{username}**?"
+                  },
+                  "disableTwoFactor": {
+                    "title": "Zakázať používateľský dvojfaktor",
+                    "content": "Naozaj chcete odstrániť dva faktory **{username}**?",
+                    "toast": {
+                      "disabled": "Používateľský dvojfaktor je zakázaný."
+                    }
+                  },
+                  "sendPasswordResetEmail": {
+                    "title": "Odoslať e-mail na obnovenie hesla",
+                    "content": "Naozaj chcete poslať e-mail na obnovenie hesla na adresu **{email}**?",
+                    "toast": {
+                      "sent": "E-mail na obnovenie hesla bol odoslaný."
+                    }
+                  }
+                },
+                "titleCreate": "Vytvoriť používateľa",
+                "titleUpdate": "Aktualizovať používateľa"
+              }
+            },
+            "servers": {
+              "title": "Servery",
+              "page": {
+                "title": "Užívateľské servery",
+                "showOwnedOnly": "Zobraziť iba servery vlastnené používateľmi"
+              }
+            },
+            "oauthLinks": {
+              "title": "Odkazy OAuth",
+              "page": {
+                "title": "Používateľské prepojenia OAuth",
+                "toast": {
+                  "added": "Odkaz OAuth bol pridaný.",
+                  "removed": "Odkaz OAuth bol odstránený."
+                },
+                "modal": {
+                  "add": {
+                    "title": "Pridať odkaz OAuth",
+                    "form": {
+                      "oauthProvider": "Poskytovateľ OAuth"
+                    }
+                  },
+                  "delete": {
+                    "title": "Potvrďte vymazanie odkazu OAuth",
+                    "content": "Naozaj chcete odstrániť pripojenie **{provider}** z **{username}**?"
+                  }
+                }
+              }
+            },
+            "activity": {
+              "title": "Aktivita",
+              "page": {
+                "title": "Aktivita používateľa"
+              }
+            }
+          }
+        },
+        "locations": {
+          "title": "Miesta",
+          "resourceName": "Poloha",
+          "tabs": {
+            "general": {
+              "page": {
+                "form": {
+                  "flag": "Vlajka"
+                },
+                "modal": {
+                  "delete": {
+                    "title": "Potvrďte vymazanie polohy",
+                    "content": "Naozaj chcete odstrániť **{name}**?"
+                  }
+                },
+                "titleCreate": "Vytvoriť polohu",
+                "titleUpdate": "Aktualizovať polohu"
+              }
+            },
+            "databaseHosts": {
+              "title": "Hostitelia databázy",
+              "page": {
+                "title": "Hostitelia databázy miest",
+                "toast": {
+                  "created": "Hostiteľ databázy polohy bol vytvorený.",
+                  "deleted": "Hostiteľ databázy polohy bol odstránený."
+                },
+                "modal": {
+                  "create": {
+                    "title": "Vytvoriť hostiteľa databázy umiestnenia"
+                  },
+                  "delete": {
+                    "title": "Potvrďte vymazanie hostiteľa databázy polohy",
+                    "content": "Naozaj chcete odstrániť hostiteľa databázy **{name}** z **{location}**?"
+                  }
+                }
+              }
+            },
+            "nodes": {
+              "title": "Uzly",
+              "page": {
+                "title": "Lokalizačné uzly"
+              }
+            }
+          }
+        },
+        "nodes": {
+          "title": "Uzly",
+          "resourceName": "Uzol",
+          "tabs": {
+            "general": {
+              "page": {
+                "tooltip": {
+                  "deploymentEnabled": "Nasadenie povolené",
+                  "deploymentDisabled": "Deployment Disabled",
+                  "allInOneNode": "Uzol typu všetko v jednom",
+                  "errorWhileFetchingVersion": "Chyba pri načítavaní verzie",
+                  "updateAvailable": "{version} (dostupná aktualizácia)",
+                  "useWingsProxyUrl": "Použiť Wings Proxy URL"
+                },
+                "form": {
+                  "urlDescription": "Používa sa na internú komunikáciu s uzlom.",
+                  "publicUrlDescription": "Používa sa na pripojenie cez websocket a sťahovanie.",
+                  "backupConfigurationPlaceholder": "Zdediť z miesta"
+                },
+                "button": {
+                  "resetToken": "Resetovať token",
+                  "updateConfig": "Aktualizovať konfiguráciu"
+                },
+                "toast": {
+                  "tokenReset": "Obnovenie tokenu uzla."
+                },
+                "alert": {
+                  "noLocations": "Pred vytvorením uzlov musíte vytvoriť aspoň jedno umiestnenie. Polohy pomáhajú organizovať vaše uzly geograficky alebo logicky."
+                },
+                "titleCreate": "Vytvoriť uzol",
+                "titleUpdate": "Aktualizovať uzol"
+              }
+            },
+            "configuration": {
+              "title": "Konfigurácia",
+              "page": {
+                "title": "Konfigurácia",
+                "section": {
+                  "initialSetup": "Počiatočné nastavenie",
+                  "liveConfiguration": "Živá konfigurácia"
+                },
+                "description": {
+                  "placeFile": "Umiestnite to do konfiguračného súboru na `/etc/pterodactyl/config.yml` alebo spustite"
+                },
+                "tooltip": {
+                  "copyCommand": "Kopírovať príkaz"
+                },
+                "form": {
+                  "panelUrl": "Adresa URL panela",
+                  "apiPort": "API port"
+                },
+                "button": {
+                  "save": "Uložiť konfiguráciu"
+                },
+                "alert": {
+                  "couldNotReach": "Nepodarilo sa dosiahnuť uzol: {error}"
+                },
+                "toast": {
+                  "applied": "Konfigurácia bola úspešne použitá.",
+                  "submittedNotApplied": "Konfigurácia bola odoslaná, ale nebola použitá.",
+                  "invalidYaml": "Neplatný YAML: {error}"
+                }
+              }
+            },
+            "statistics": {
+              "title": "Štatistiky",
+              "page": {
+                "title": "Štatistika uzlov",
+                "card": {
+                  "resources": "Zdroje",
+                  "graphs": "Grafy"
+                },
+                "toast": {
+                  "connectionLost": "Stratilo sa pripojenie k streamu štatistík uzla."
+                },
+                "label": {
+                  "cpu": "CPU",
+                  "memory": "pamäť",
+                  "disk": "Disk",
+                  "network": "sieť",
+                  "cpuThreads": "{model} (vlákna {threads})",
+                  "usedByWings": "{size} používané spoločnosťou Wings",
+                  "networkIn": "Dnu: {in}",
+                  "networkOut": "Von: {out}"
+                },
+                "chart": {
+                  "cpuLoad": "Zaťaženie procesora",
+                  "memoryUsage": "Využitie pamäte",
+                  "diskIo": "Disk I/O",
+                  "networkTraffic": "Sieťová prevádzka",
+                  "diskRead": "Čítanie disku",
+                  "diskWrite": "Zápis na disk",
+                  "inbound": "Prichádzajúce",
+                  "outbound": "Odchádzajúci",
+                  "networkInLabel": "Sieť dnu",
+                  "networkOutLabel": "Sieť von"
+                }
+              }
+            },
+            "logs": {
+              "title": "Denníky",
+              "page": {
+                "title": "Denníky uzlov",
+                "form": {
+                  "logFile": "Súbor denníka"
+                },
+                "button": {
+                  "download": "Stiahnite si celý denník"
+                }
+              }
+            },
+            "allocations": {
+              "title": "Alokácie",
+              "page": {
+                "title": "Pridelenie uzlov",
+                "tooltip": {
+                  "clearSelection": "Vymazať výber"
+                },
+                "form": {
+                  "ipAlias": "Alias ​​IP"
+                },
+                "table": {
+                  "columns": {
+                    "ipAlias": "Alias ​​IP"
+                  }
+                },
+                "modal": {
+                  "create": {
+                    "title": "Vytvoriť alokácie uzlov",
+                    "button": {
+                      "create": "Vytvoriť {count}"
+                    },
+                    "toast": {
+                      "created": "{allocations} vytvorené."
+                    }
+                  },
+                  "update": {
+                    "title": "Aktualizujte pridelenie uzlov",
+                    "toast": {
+                      "updated": "Aktualizované {allocations}."
+                    }
+                  },
+                  "delete": {
+                    "title": "Potvrďte vymazanie alokácií uzlov",
+                    "content": "Naozaj chcete odstrániť pridelenia `{count}` z **{name}**?",
+                    "toast": {
+                      "deleted": "{allocations} vymazané."
+                    }
+                  }
+                }
+              }
+            },
+            "mounts": {
+              "title": "Držiaky",
+              "page": {
+                "title": "Upevnenia uzlov",
+                "toast": {
+                  "added": "Bol pridaný Node Mount.",
+                  "removed": "Node Mount bol odstránený."
+                },
+                "modal": {
+                  "add": {
+                    "title": "Pridať Node Mount"
+                  },
+                  "remove": {
+                    "title": "Potvrďte odstránenie uzla",
+                    "content": "Naozaj chcete odstrániť držiak **{mount}** z **{name}**?"
+                  }
+                }
+              }
+            },
+            "backups": {
+              "title": "Zálohy",
+              "page": {
+                "title": "Zálohy uzlov",
+                "input": {
+                  "detachedOnly": "Zobraziť iba oddelené zálohy"
+                },
+                "tooltip": {
+                  "backupNotOnSameNode": "Táto záloha nie je na rovnakom uzle ako server. Nie je možné ho zobraziť z klientskeho rozhrania API."
+                },
+                "toast": {
+                  "downloadStarted": "Sťahovanie začalo.",
+                  "detached": "Záloha bola úspešne odpojená.",
+                  "reattached": "Záloha bola úspešne pripojená k {name}.",
+                  "restoring": "Obnovuje sa záloha do {name}...",
+                  "deleted": "Záloha uzla bola odstránená."
+                },
+                "modal": {
+                  "detach": {
+                    "title": "Potvrďte záložné oddelenie",
+                    "content": "Naozaj chcete odpojiť túto zálohu od jej servera? Neodstráni sa a neskôr sa dá znova pripojiť."
+                  },
+                  "reattach": {
+                    "title": "Znovu pripojte zálohu uzla",
+                    "description": "Opätovné pripojenie zálohy uzla ju prepojí so serverom. Je to užitočné, ak je záloha odpojená alebo ju chcete prepojiť s iným serverom. Upozorňujeme, že toto nie je nástroj na prenos, pokiaľ sa záloha nepovažuje za vzdialenú (môže k nej pristupovať viacero uzlov), server musí patriť do rovnakého uzla ako záloha."
+                  },
+                  "restore": {
+                    "title": "Obnoviť zálohu uzla",
+                    "form": {
+                      "truncateDirectory": "Chcete pred obnovením zálohy vyprázdniť súborový systém tohto servera?"
+                    }
+                  },
+                  "delete": {
+                    "title": "Potvrďte vymazanie zálohy uzla",
+                    "form": {
+                      "force": "Chcete násilne odstrániť túto zálohu uzla?"
+                    }
+                  }
+                }
+              }
+            },
+            "servers": {
+              "title": "Servery",
+              "page": {
+                "title": "Servery uzlov",
+                "modal": {
+                  "transfer": {
+                    "title": "Prenosové servery",
+                    "form": {
+                      "allocationMode": "Režim prideľovania",
+                      "transferBackups": "Preneste zálohy",
+                      "transferBackupsDescription": "Či sa majú prenášať zálohy spolu so servermi."
+                    },
+                    "toast": {
+                      "started": "Prenos {servers} bol spustený."
+                    },
+                    "confirm": {
+                      "title": "Potvrďte prenosy servera",
+                      "content": "Naozaj chcete preniesť servery `{count}` z **{from}** na **{to}**? Túto akciu nie je možné vrátiť späť."
+                    },
+                    "enum": {
+                      "allocationMode": {
+                        "none": "Žiadne (zrušte všetky alokácie, serveru nebudú automaticky priradené nové alokácie v cieľovom uzle)",
+                        "randomPrimary": "Randomizácia primárnej alokácie (odstráni ďalšie alokácie)",
+                        "randomAll": "Randomizujte všetky alokácie (odporúča sa, aby ste sa vyhli problémom s nekompatibilitou s cieľovým uzlom)",
+                        "eggConfigDeployment": "Priraďte alokácie na základe konfigurácie nasadenia Egg (funguje iba vtedy, ak má Egg konfiguráciu nasadenia a cieľový uzol má kompatibilné alokácie)",
+                        "eggConfigSelfAssignRange": "Samopriradenie nových alokácií na základe rozsahu portov Egg (funguje iba vtedy, ak má Egg rozsah portov a cieľový uzol má kompatibilné alokácie)"
+                      }
+                    }
+                  }
+                }
+              }
+            },
+            "transfers": {
+              "title": "Odchádzajúce prevody",
+              "page": {
+                "title": "Prenosy uzlov",
+                "table": {
+                  "columns": {
+                    "progress": "Pokrok",
+                    "archiveRate": "Archívna rýchlosť",
+                    "networkRate": "Sieťová rýchlosť"
+                  }
+                }
+              }
+            }
+          },
+          "modal": {
+            "delete": {
+              "title": "Potvrďte vymazanie uzla",
+              "content": "Naozaj chcete odstrániť **{name}**?"
+            },
+            "bulkConfig": {
+              "title": "Aktualizovať konfiguráciu - {nodes}",
+              "button": {
+                "apply": "Použiť na {nodes}"
+              },
+              "toast": {
+                "applied": "Konfigurácia použitá na {nodes}."
+              },
+              "error": {
+                "invalidYaml": "Neplatný YAML: {error}"
+              }
+            }
+          }
+        },
+        "servers": {
+          "title": "Servery",
+          "resourceName": "Server",
+          "tabs": {
+            "general": {
+              "page": {
+                "titleCreate": "Vytvoriť server",
+                "titleUpdate": "Aktualizovať server",
+                "card": {
+                  "basicInformation": "Základné informácie",
+                  "serverAssignment": "Priradenie servera",
+                  "resourceLimits": "Limity zdrojov",
+                  "serverConfiguration": "Konfigurácia servera",
+                  "featureLimits": "Obmedzenia funkcií",
+                  "allocations": "Alokácie",
+                  "variables": "Premenné"
+                },
+                "alert": {
+                  "suspended": "Tento server je pozastavený.",
+                  "selectEggForVariables": "Pred konfiguráciou premenných vyberte vajíčko."
+                },
+                "badge": {
+                  "serverSuspended": "Server je pozastavený"
+                },
+                "form": {
+                  "serverNamePlaceholder": "Môj herný server",
+                  "externalIdPlaceholder": "Voliteľný externý identifikátor",
+                  "descriptionPlaceholder": "Popis servera",
+                  "owner": "Vlastník",
+                  "egg": "Vajcia",
+                  "backupConfigurationPlaceholder": "Zdediť z uzla/umiestnenia",
+                  "cpuLimit": "Limit CPU (%)",
+                  "cpuLimitDescription": "Limit CPU v %, ktorý môže server použiť, 1 vlákno = 100 %.",
+                  "swap": "Vymeňte",
+                  "swapDescription": "Množstvo swapu, ktoré má tento server poskytnúť, -1 nenastaví limit.",
+                  "memoryDescription": "Limit pamäte kontajnera servera, 0, nenastaví limit.",
+                  "memoryOverhead": "Pamäťová réžia",
+                  "memoryOverheadDescription": "Skrytá pamäť, ktorá bude pridaná do kontajnera.",
+                  "diskSpace": "Priestor na disku",
+                  "diskSpaceDescription": "Diskový limit servera. Toto je mäkký limit, pokiaľ nie je na Wings nakonfigurovaný obmedzovač disku.",
+                  "ioWeight": "Hmotnosť IO",
+                  "ioWeightDescription": "Relatívna IO hmotnosť kontajnera servera v porovnaní s inými kontajnermi, 0-1000. Nemusí fungovať na všetkých systémoch.",
+                  "pinnedCpus": "Pripnuté CPU",
+                  "pinnedCpusDescription": "Jadrá CPU (podľa indexu, napr. 0, 1, 2), ku ktorým je tento server pripojený. Nechajte prázdne, aby boli všetky jadrá.",
+                  "dockerImagePlaceholder": "ghcr.io/...",
+                  "predefinedDockerImages": "Preddefinované obrázky Docker",
+                  "predefinedDockerImagesPlaceholder": "Nie je vybratý žiadny preddefinovaný obrázok",
+                  "timezonePlaceholder": "Európa/Amsterdam",
+                  "startupCommandPlaceholder": "npm štart",
+                  "startupCommandCustom": "Vlastné",
+                  "startOnCompletion": "Začnite pri dokončení",
+                  "startOnCompletionDescription": "Po dokončení inštalácie spustite server.",
+                  "skipInstaller": "Preskočiť inštalačný program",
+                  "skipInstallerDescription": "Preskočte spustenie inštalačného skriptu.",
+                  "hugepagesPassthroughEnabled": "Povoliť prechod cez obrovské stránky",
+                  "hugepagesPassthroughEnabledDescription": "Povolí prechod pre server hugepages (pripojí /dev/hugepages do kontajnera).",
+                  "kvmPassthroughEnabled": "Povoliť KVM Passthrough",
+                  "kvmPassthroughEnabledDescription": "Povoliť KVM priechod pre server (umožňuje prístup k /dev/kvm vnútri kontajnera).",
+                  "allocationsLimit": "Alokácie",
+                  "databasesLimit": "databázy",
+                  "backupsLimit": "Zálohy",
+                  "schedulesLimit": "Rozvrhy"
+                },
+                "modal": {
+                  "confirmNoAllocation": {
+                    "title": "Nie je priradené žiadne primárne pridelenie",
+                    "content": "Vytvárate server bez priradenia akejkoľvek primárnej alokácie. Naozaj chcete pokračovať?",
+                    "button": {
+                      "confirm": "Napriek tomu vytvorte"
+                    }
+                  }
+                }
+              }
+            },
+            "allocations": {
+              "title": "Alokácie",
+              "page": {
+                "title": "Pridelenie servera",
+                "table": {
+                  "columns": {
+                    "ipAlias": "Alias ​​IP"
+                  }
+                },
+                "form": {
+                  "notesPlaceholder": "Poznámky"
+                },
+                "toast": {
+                  "updated": "Pridelenie bolo aktualizované.",
+                  "setPrimary": "Pridelenie nastavené ako primárne.",
+                  "unsetPrimary": "Pridelenie bolo zrušené ako primárne.",
+                  "removed": "Pridelenie bolo odstránené.",
+                  "added": "Pridané pridelenia {count}."
+                },
+                "modal": {
+                  "add": {
+                    "title": "Pridať pridelenie servera",
+                    "form": {
+                      "allocations": "Alokácie"
+                    },
+                    "button": {
+                      "add": "Pridať {count}"
+                    }
+                  },
+                  "remove": {
+                    "title": "Potvrďte odstránenie pridelenia",
+                    "content": "Naozaj chcete odstrániť **{allocation}**?"
+                  }
+                }
+              }
+            },
+            "variables": {
+              "title": "Premenné",
+              "page": {
+                "title": "Serverové premenné",
+                "toast": {
+                  "updated": "Serverové premenné boli aktualizované."
+                }
+              }
+            },
+            "mounts": {
+              "title": "Držiaky",
+              "page": {
+                "title": "Serverové držiaky",
+                "toast": {
+                  "added": "Server Mount bol pridaný.",
+                  "deleted": "Pripojenie servera bolo odstránené."
+                },
+                "modal": {
+                  "add": {
+                    "title": "Pridať Server Mount"
+                  },
+                  "remove": {
+                    "title": "Potvrďte odstránenie pripojenia servera",
+                    "content": "Naozaj chcete odstrániť držiak **{mount}** z **{name}**?"
+                  }
+                }
+              }
+            },
+            "backups": {
+              "title": "Zálohy",
+              "page": {
+                "title": "Zálohy servera",
+                "input": {
+                  "partiallyDetachedOnly": "Zobraziť iba čiastočne oddelené zálohy"
+                }
+              }
+            },
+            "logs": {
+              "title": "Denníky",
+              "page": {
+                "title": "Denníky servera",
+                "form": {
+                  "logType": "Typ denníka"
+                },
+                "enum": {
+                  "logType": {
+                    "console": "Konzola",
+                    "install": "Inštalovať"
+                  }
+                }
+              }
+            },
+            "management": {
+              "title": "Manažment",
+              "page": {
+                "title": "Správa servera",
+                "transfer": {
+                  "title": "Prenos",
+                  "content": "Preneste tento server a jeho údaje do iného uzla v rámci tohto systému.",
+                  "toast": {
+                    "started": "Prenos servera sa začal."
+                  },
+                  "modal": {
+                    "title": "Prenos servera",
+                    "form": {
+                      "backupsToTransfer": "Zálohy na prenos"
+                    },
+                    "tooltip": {
+                      "aioNotSupported": "Prenosy do uzla All-In-One nie sú podporované."
+                    },
+                    "confirm": {
+                      "title": "Potvrďte prenos servera",
+                      "content": "Naozaj chcete preniesť **{name}** z **{from}** na **{to}**?",
+                      "alert": {
+                        "notAllBackupsSelected": "Nevybrali ste všetky zálohy na prenos. Ak sa prenos úspešne dokončí, zostávajúce zálohy sa čiastočne odpoja."
+                      }
+                    }
+                  }
+                },
+                "suspend": {
+                  "title": "Pozastaviť",
+                  "content": "Toto pozastaví server, zastaví všetky spustené procesy a okamžite zablokuje používateľovi prístup k svojim súborom alebo inej správe servera prostredníctvom panela alebo rozhrania API.",
+                  "button": "Pozastaviť",
+                  "toast": {
+                    "suspended": "Server pozastavený."
+                  },
+                  "modal": {
+                    "title": "Potvrďte pozastavenie servera",
+                    "content": "Naozaj chcete pozastaviť **{name}**? Toto zastaví server a zabráni jeho spusteniu. Všetky spustené procesy budú zastavené a používateľ nebude môcť pristupovať k svojim súborom ani inak spravovať server cez panel alebo API."
+                  }
+                },
+                "unsuspend": {
+                  "title": "Zrušiť pozastavenie",
+                  "content": "Toto zruší pozastavenie servera a umožní mu znova spustiť. Používateľ bude môcť pristupovať k svojim súborom a inak spravovať server cez panel alebo API.",
+                  "button": "Zrušiť pozastavenie",
+                  "toast": {
+                    "unsuspended": "Pozastavenie servera bolo zrušené."
+                  },
+                  "modal": {
+                    "title": "Potvrďte zrušenie pozastavenia servera",
+                    "content": "Naozaj chcete zrušiť pozastavenie **{name}**? To umožní serveru znova spustiť. Používateľ bude môcť pristupovať k svojim súborom a inak spravovať server cez panel alebo API."
+                  }
+                },
+                "clearState": {
+                  "title": "Jasný stav",
+                  "content": "Tým sa vymaže stav servera, ktorý panel pozná.",
+                  "button": "Jasný stav",
+                  "toast": {
+                    "cleared": "Stav servera vymazaný."
+                  },
+                  "modal": {
+                    "title": "Potvrďte vymazanie stavu servera",
+                    "content": "Naozaj chcete vymazať stav **{name}**? Týmto sa vymažú všetky známe čakajúce prenosy a zlyhania stavu. Pred kliknutím bezdôvodne sa uistite, že je to bezpečné."
+                  }
+                },
+                "delete": {
+                  "title": "Odstrániť",
+                  "content": "Tým sa odstráni server a všetky jeho údaje. Túto akciu nie je možné vrátiť späť.",
+                  "toast": {
+                    "deleted": "Server odstránený."
+                  },
+                  "modal": {
+                    "title": "Potvrďte vymazanie servera",
+                    "description": "Chystáte sa odstrániť **{name}**. si si istý?",
+                    "form": {
+                      "force": "Chcete násilne odstrániť tento server?",
+                      "deleteBackups": "Chcete vymazať zálohy tohto servera?",
+                      "confirmServerName": "Potvrďte názov servera",
+                      "confirmServerNamePlaceholder": "Názov servera"
+                    }
+                  }
+                }
+              }
+            },
+            "viewClient": {
+              "title": "Zobraziť v klientskej časti"
+            }
+          }
+        },
+        "nests": {
+          "title": "Hniezda",
+          "resourceName": "Nest",
+          "tabs": {
+            "general": {
+              "page": {
+                "titleCreate": "Vytvoriť hniezdo",
+                "titleUpdate": "Aktualizujte Nest",
+                "modal": {
+                  "delete": {
+                    "title": "Potvrďte odstránenie zariadenia Nest",
+                    "content": "Naozaj chcete odstrániť **{name}**?"
+                  }
+                }
+              }
+            },
+            "eggs": {
+              "title": "Vajcia",
+              "page": {
+                "title": "Vajcia",
+                "resourceName": "Vajcia",
+                "dropzone": {
+                  "title": "Sem presuňte nejaké súbory, ktoré chcete importovať ako vajcia",
+                  "subtitle": "Uvoľnením spustíte import"
+                },
+                "button": {
+                  "updateFromRepository": "Aktualizácia z úložiska"
+                },
+                "toast": {
+                  "imported": "Vajcia dovezené.",
+                  "moved": "Vajíčko sa pohlo.",
+                  "movedBulk": "{eggs} presunuté.",
+                  "deletedBulk": "{eggs} vymazané.",
+                  "updatedFromRepository": "{eggs} sa úspešne aktualizovali pomocou ich príslušného úložiska.",
+                  "parseFailed": "Nepodarilo sa analyzovať vajíčko: {error}"
+                },
+                "modal": {
+                  "move": {
+                    "title": "Presuňte vajíčko"
+                  },
+                  "moveBulk": {
+                    "title": "Presuňte vajcia",
+                    "confirm": "Presuňte {eggs}"
+                  },
+                  "deleteBulk": {
+                    "title": "Potvrďte vymazanie vajíčka",
+                    "content": "Naozaj chcete odstrániť vajíčka `{count}`?"
+                  }
+                },
+                "tabs": {
+                  "general": {
+                    "page": {
+                      "titleCreate": "Vytvoriť vajíčko",
+                      "titleUpdate": "Aktualizovať vajíčko",
+                      "card": {
+                        "startupConfiguration": "Konfigurácia spustenia",
+                        "stopConfiguration": "Zastaviť konfiguráciu",
+                        "configFiles": "Konfigurácia konfiguračných súborov"
+                      },
+                      "form": {
+                        "eggRepository": "Úložisko vajec",
+                        "eggRepositoryEgg": "Úložisko vajec Vajcia",
+                        "startupDone": "Spustenie Hotovo",
+                        "startupDoneDescription": "Správa konzoly oznamujúca dokončenie spustenia.",
+                        "stripAnsi": "Odstráňte ANSI zo správ pri spustení",
+                        "stripAnsiDescription": "Odstráni riadiace znaky ANSI z výstupu konzoly pred dokončením spustenia.",
+                        "stopType": "Typ zastavenia",
+                        "stopCommand": "Zastaviť príkaz",
+                        "stopSignal": "Stop signál",
+                        "parser": "Analyzátor",
+                        "createNewFile": "Vytvoriť nový súbor",
+                        "createNewFileDescription": "Ak je povolené, súbor sa vytvorí, ak neexistuje. Ak je zakázaná, súbor už musí existovať, inak nahradenie zlyhá.",
+                        "match": "Zápas",
+                        "ifValue": "Ak hodnota",
+                        "replaceWith": "Nahradiť čím",
+                        "insertNew": "Vložiť nový",
+                        "insertNewDescription": "Ak je táto možnosť povolená a žiadna existujúca hodnota nezodpovedá poľu „Zhoda“, do súboru sa vloží hodnota „Nahradiť“. Ak je zakázaná, ak sa nenájde žiadna zhoda, v súbore sa nevykonajú žiadne zmeny.",
+                        "updateExisting": "Aktualizovať existujúce",
+                        "updateExistingDescription": "Ak je povolená, ak sa nájde zhoda, nahradí sa hodnotou „Nahradiť čím“. Ak je zakázaná, nahradenie vloží iba nové hodnoty a zlyhá, ak sa nájde zhoda.",
+                        "startupCommands": "Príkazy pri spustení",
+                        "forceOutgoingIp": "Vynútiť odchádzajúce IP",
+                        "separatePort": "Samostatná IP a port",
+                        "separatePortDescription": "Oddeľuje primárnu adresu IP a port na stránke konzoly namiesto toho, aby ich spájal znakom „:“.",
+                        "features": "Vlastnosti",
+                        "featurePlaceholder": "Funkcia",
+                        "fileDenylist": "Zoznam odmietnutých súborov",
+                        "dockerImages": "Obrázky Docker"
+                      },
+                      "enum": {
+                        "stopType": {
+                          "command": "Odoslať príkaz",
+                          "signal": "Odoslať signál",
+                          "docker": "Docker Stop"
+                        }
+                      },
+                      "emptyConfigFiles": "Nie sú definované žiadne konfiguračné súbory.",
+                      "emptyReplacements": "Nie sú definované žiadne náhrady.",
+                      "button": {
+                        "addReplacement": "Pridať náhradu",
+                        "addConfigFile": "Pridať konfiguračný súbor",
+                        "fromFile": "zo súboru",
+                        "fromRepository": "z Úložiska"
+                      },
+                      "toast": {
+                        "exported": "Vajcia vyvezené.",
+                        "updated": "Vajíčko aktualizované."
+                      },
+                      "modal": {
+                        "delete": {
+                          "title": "Potvrďte vymazanie vajíčka",
+                          "content": "Naozaj chcete odstrániť **{name}**?"
+                        }
+                      }
+                    }
+                  },
+                  "installationScript": {
+                    "title": "Inštalačný skript",
+                    "page": {
+                      "title": "Inštalačný skript vajíčka",
+                      "form": {
+                        "container": "Inštalačný kontajner",
+                        "entrypoint": "Vstupný bod kontajnera"
+                      },
+                      "toast": {
+                        "updated": "Skript Egg bol aktualizovaný."
+                      }
+                    }
+                  },
+                  "variables": {
+                    "title": "Premenné",
+                    "page": {
+                      "title": "Vaječné premenné",
+                      "form": {
+                        "supportsMarkdown": "Podporuje formátovanie Markdown.",
+                        "defaultValue": "Predvolená hodnota",
+                        "defaultValuePlaceholder": "server.jar",
+                        "userViewable": "Viditeľné používateľom",
+                        "userEditable": "Upraviteľné používateľom",
+                        "secret": "Tajomstvo",
+                        "rules": "pravidlá",
+                        "rulesDescription": "Dostupné pravidlá overenia nájdete na https://laravel.com/docs/12.x/validation#available-validation-rules."
+                      },
+                      "toast": {
+                        "created": "Premenná vajíčka bola vytvorená.",
+                        "updated": "Premenná vajec bola aktualizovaná.",
+                        "deleted": "Premenná vajíčka bola odstránená."
+                      },
+                      "modal": {
+                        "delete": {
+                          "title": "Potvrďte odstránenie variabilného vajíčka",
+                          "content": "Naozaj chcete odstrániť **{variable}**?",
+                          "emptyVariable": "túto prázdnu premennú"
+                        }
+                      }
+                    }
+                  },
+                  "mounts": {
+                    "title": "Držiaky",
+                    "page": {
+                      "title": "Držiaky na vajíčka",
+                      "toast": {
+                        "added": "Pridaný držiak na vajcia.",
+                        "deleted": "Držiak na vajcia bol odstránený."
+                      },
+                      "modal": {
+                        "add": {
+                          "title": "Pridajte držiak na vajcia"
+                        },
+                        "delete": {
+                          "title": "Potvrďte odstránenie držiaka na vajíčka",
+                          "content": "Naozaj chcete odstrániť držiak **{mount}** z **{egg}**?"
+                        }
+                      }
+                    }
+                  },
+                  "servers": {
+                    "title": "Servery",
+                    "page": {
+                      "title": "Vaječné servery"
+                    }
+                  }
+                }
+              }
+            }
+          }
+        },
+        "eggConfigurations": {
+          "title": "Konfigurácie vajec",
+          "resourceName": "Konfigurácia vajec",
+          "table": {
+            "columns": {
+              "order": "Objednať"
+            }
+          },
+          "tabs": {
+            "general": {
+              "page": {
+                "titleCreate": "Vytvoriť konfiguráciu vajec",
+                "titleUpdate": "Aktualizujte konfiguráciu vajíčka",
+                "form": {
+                  "order": "Objednať",
+                  "eggs": "Vajcia",
+                  "eggsPlaceholder": "Vyberte vajcia"
+                },
+                "enum": {
+                  "deploymentType": {
+                    "random": "Náhodný",
+                    "range": "Port Range",
+                    "addPrimary": "Pridať do hlavného",
+                    "subtractPrimary": "Odpočítať od primárnych",
+                    "multiplyPrimary": "Násobiť primárne",
+                    "dividePrimary": "Rozdeliť primárne"
+                  }
+                },
+                "allocation": {
+                  "title": "Konfigurácia pridelenia",
+                  "form": {
+                    "userSelfAssign": "Vlastné priradenie používateľa",
+                    "userSelfAssignDescription": "Umožnite používateľom vytvoriť si vlastné priradenia zo zadaného rozsahu portov.",
+                    "requirePrimaryAllocation": "Vyžadovať primárne pridelenie",
+                    "requirePrimaryAllocationDescription": "Či používatelia musia mať vždy primárne pridelenie.",
+                    "automaticAllocationStart": "Spustenie automatického prideľovania",
+                    "automaticAllocationEnd": "Koniec automatického prideľovania",
+                    "dedicatedIp": "Vyhradená IP",
+                    "dedicatedIpDescription": "Priraďte vyhradenú IP adresu serverom pomocou tejto konfigurácie vajíčka.",
+                    "primaryAllocation": "Primárne pridelenie",
+                    "primaryAllocationDescription": "Nakonfigurujte priradenie primárneho portu pre nasadenie.",
+                    "primaryStartPort": "Primárny štartovací port",
+                    "primaryEndPort": "Primárny koncový port",
+                    "assignToVariable": "Priradiť k premennej",
+                    "assignToVariablePlaceholder": "napr. SERVER_PORT",
+                    "assignToVariableDescription": "Voliteľná premenná prostredia na príjem priradeného primárneho portu."
+                  },
+                  "divider": {
+                    "deployment": "Nasadenie"
+                  },
+                  "additionalPorts": {
+                    "title": "Ďalšie porty",
+                    "button": "Pridať pravidlo",
+                    "empty": "Nie sú nakonfigurované žiadne ďalšie pravidlá portu."
+                  },
+                  "deployment": {
+                    "form": {
+                      "startPort": "Štart Port",
+                      "endPort": "End Port",
+                      "assignToVariable": "Priradiť k premennej",
+                      "assignToVariableDescription": "Voliteľná premenná prostredia na získanie priradeného portu z tohto pravidla.",
+                      "assignToVariablePlaceholder": "napr. SERVER_PORT"
+                    },
+                    "removeRule": "Odstrániť pravidlo nasadenia"
+                  }
+                },
+                "startup": {
+                  "title": "Konfigurácia spustenia",
+                  "form": {
+                    "allowCustomStartupCommand": "Povoliť vlastný príkaz na spustenie",
+                    "allowCustomStartupCommandDescription": "Umožnite používateľom nastaviť svoje vlastné, nepreddefinované príkazy na spustenie."
+                  }
+                },
+                "modal": {
+                  "delete": {
+                    "title": "Potvrďte vymazanie konfigurácie vajec",
+                    "content": "Naozaj chcete odstrániť **{name}**?"
+                  }
+                }
+              }
+            }
+          }
+        },
+        "eggRepositories": {
+          "title": "Úschovne vajec",
+          "resourceName": "Úložisko vajec",
+          "table": {
+            "columns": {
+              "gitRepository": "Úložisko Git"
+            }
+          },
+          "tabs": {
+            "general": {
+              "page": {
+                "titleCreate": "Vytvoriť úložisko vajíčok",
+                "titleUpdate": "Aktualizujte úložisko vajec",
+                "form": {
+                  "gitRepository": "Úložisko Git"
+                },
+                "button": {
+                  "sync": "Synchronizovať"
+                },
+                "toast": {
+                  "synced": "Úložisko vajec bolo synchronizované, nájdené {eggs}."
+                },
+                "modal": {
+                  "delete": {
+                    "title": "Potvrďte vymazanie úložiska vajec",
+                    "content": "Naozaj chcete odstrániť **{name}**?"
+                  }
+                }
+              }
+            },
+            "eggs": {
+              "title": "Vajcia",
+              "page": {
+                "title": "Úložisko vajec Vajcia",
+                "table": {
+                  "columns": {
+                    "path": "Cesta"
+                  }
+                },
+                "toast": {
+                  "installed": "Vajíčko nainštalované.",
+                  "installedBulk": "{eggs} nainštalované."
+                },
+                "modal": {
+                  "install": {
+                    "title": "Nainštalovať vajce z úložiska vajec"
+                  },
+                  "installBulk": {
+                    "title": "Nainštalovať vajce z úložiska vajecs",
+                    "button": "Nainštalovať {eggs}"
+                  }
+                }
+              }
+            }
+          }
+        },
+        "databaseHosts": {
+          "title": "Hostitelia databázy",
+          "resourceName": "Hostiteľ databázy",
+          "tabs": {
+            "general": {
+              "page": {
+                "titleCreate": "Vytvoriť hostiteľa databázy",
+                "titleUpdate": "Aktualizácia hostiteľa databázy",
+                "form": {
+                  "publicHost": "Verejný hostiteľ",
+                  "publicPort": "Verejný prístav",
+                  "connectionCredentials": "Prihlasovacie údaje",
+                  "credentialType": "Typ poverenia",
+                  "connectionString": "Pripojovací reťazec",
+                  "connectionStringPlaceholder": "mysql://username:password@host:port"
+                },
+                "enum": {
+                  "credentialType": {
+                    "connectionString": "Pripojovací reťazec",
+                    "details": "Podrobnosti"
+                  }
+                },
+                "button": {
+                  "testConnection": "Test pripojenia"
+                },
+                "toast": {
+                  "tested": "Test úspešne dokončený."
+                },
+                "modal": {
+                  "delete": {
+                    "title": "Potvrďte vymazanie hostiteľa databázy",
+                    "content": "Naozaj chcete odstrániť **{name}**?"
+                  }
+                }
+              }
+            },
+            "databases": {
+              "title": "databázy",
+              "page": {
+                "title": "Hostiteľské databázy"
+              }
+            }
+          }
+        },
+        "oAuthProviders": {
+          "title": "Poskytovatelia OAuth",
+          "resourceName": "Poskytovateľ OAuth",
+          "dropzone": {
+            "title": "Sem presuňte niektoré súbory, ktoré chcete importovať ako poskytovatelia OAuth",
+            "subtitle": "Uvoľnením spustíte import"
+          },
+          "table": {
+            "columns": {
+              "loginOnly": "Len prihlásenie",
+              "linkViewable": "Odkaz je viditeľný",
+              "userManageable": "Spravovateľné používateľom"
+            }
+          },
+          "toast": {
+            "imported": "Importovaný poskytovateľ OAuth.",
+            "parseFailed": "Nepodarilo sa analyzovať poskytovateľa OAuth: {error}"
+          },
+          "tabs": {
+            "general": {
+              "page": {
+                "titleCreate": "Vytvoriť poskytovateľa OAuth",
+                "titleUpdate": "Aktualizujte poskytovateľa OAuth",
+                "card": {
+                  "redirectUrl": {
+                    "title": "Adresa URL presmerovania",
+                    "unavailable": "Dostupné po vytvorení"
+                  }
+                },
+                "form": {
+                  "clientId": "ID klienta",
+                  "clientSecret": "Tajomstvo klienta",
+                  "authUrl": "Overovacia adresa URL",
+                  "tokenUrl": "Adresa URL tokenu",
+                  "infoUrl": "Info URL",
+                  "basicAuth": "Basic Auth",
+                  "basicAuthDescription": "Používa základné overenie HTTP na prenos ID klienta a tajomstva, ktoré už nie je bežné.",
+                  "scopes": "Rozsahy",
+                  "scopesDescription": "Rozsahy protokolu OAuth2, ktoré chcete vyžiadať, nezabudnite v prípade potreby zahrnúť rozsahy pre e-mailové a profilové informácie.",
+                  "identifierPath": "Cesta k identifikátoru",
+                  "identifierPathDescription": "Cesta použitá na extrahovanie jedinečného identifikátora používateľa z odpovede Info URL (https://serdejsonpath.live).",
+                  "emailPath": "Cesta e-mailu",
+                  "emailPathDescription": "Cesta použitá na extrahovanie e-mailu z odpovede Info URL (https://serdejsonpath.live).",
+                  "usernamePath": "Cesta používateľského mena",
+                  "usernamePathDescription": "Cesta použitá na extrahovanie používateľského mena z odpovede Info URL (https://serdejsonpath.live).",
+                  "nameFirstPath": "Cesta krstného mena",
+                  "nameFirstPathPlaceholder": "Adresa URL mena",
+                  "nameFirstPathDescription": "Cesta použitá na extrahovanie krstného mena z odpovede Info URL (https://serdejsonpath.live).",
+                  "nameLastPath": "Cesta k priezvisku",
+                  "nameLastPathDescription": "Cesta použitá na extrahovanie priezviska z odpovede Info URL (https://serdejsonpath.live).",
+                  "loginOnly": "Povoliť iba prihlásenie",
+                  "loginBypass2fa": "Obíďte 2FA pri prihlásení",
+                  "loginBypass2faDescription": "Umožňuje používateľom, ktorí sa prihlásia u tohto poskytovateľa, obísť ich panel 2FA.",
+                  "linkViewable": "Odkaz je viditeľný pre používateľa",
+                  "linkViewableDescription": "Umožňuje používateľovi vidieť pripojenie a jeho identifikátor v používateľskom rozhraní klienta.",
+                  "userManageable": "Odkaz je spravovateľný používateľom",
+                  "userManageableDescription": "Umožňuje používateľovi pripojiť sa a odpojiť sa od tohto poskytovateľa."
+                },
+                "toast": {
+                  "exported": "Poskytovateľ OAuth bol exportovaný."
+                },
+                "modal": {
+                  "delete": {
+                    "title": "Potvrďte vymazanie poskytovateľa OAuth",
+                    "content": "Naozaj chcete odstrániť **{name}**?"
+                  }
+                }
+              }
+            },
+            "mappings": {
+              "title": "Mapovania",
+              "page": {
+                "title": "Mapovania poskytovateľa OAuth",
+                "table": {
+                  "columns": {
+                    "scopes": "Rozsahy"
+                  }
+                },
+                "enum": {
+                  "mappingType": {
+                    "role": "Rola",
+                    "serverSubuser": "Podužívateľ servera"
+                  }
+                },
+                "toast": {
+                  "created": "Mapovanie poskytovateľa OAuth bolo vytvorené.",
+                  "updated": "Mapovanie poskytovateľa OAuth bolo aktualizované.",
+                  "deleted": "Mapovanie poskytovateľa OAuth bolo odstránené."
+                },
+                "form": {
+                  "scopes": "Rozsahy",
+                  "scopesDescription": "Rozsahy OAuth potrebné na použitie tohto mapovania.",
+                  "mappingType": "Typ mapovania",
+                  "role": "Rola",
+                  "permissions": "Povolenia"
+                },
+                "modal": {
+                  "add": {
+                    "title": "Pridajte mapovanie poskytovateľa OAuth"
+                  },
+                  "edit": {
+                    "title": "Upravte mapovanie poskytovateľa OAuth"
+                  },
+                  "delete": {
+                    "title": "Odstrániť mapovanie poskytovateľa OAuth",
+                    "content": "Naozaj chcete odstrániť toto mapovanie? Túto akciu nie je možné vrátiť späť."
+                  }
+                }
+              }
+            },
+            "users": {
+              "title": "Používatelia",
+              "page": {
+                "title": "Používatelia poskytovateľa OAuth",
+                "table": {
+                  "columns": {
+                    "user": "Používateľ"
+                  }
+                }
+              }
+            }
+          }
+        },
+        "backupConfigurations": {
+          "title": "Záložné konfigurácie",
+          "resourceName": "Záložná konfigurácia",
+          "table": {
+            "columns": {
+              "disk": "Disk"
+            }
+          },
+          "tabs": {
+            "general": {
+              "page": {
+                "titleCreate": "Vytvoriť záložnú konfiguráciu",
+                "titleUpdate": "Aktualizujte konfiguráciu zálohy",
+                "alert": {
+                  "ddupBak": "Ddup-Bak je softvér Technology Preview, technicky sa neodporúča na produkčné použitie. Ak to uznáte, plavte sa vpred, ako chcete.",
+                  "btrfs": "Btrfs vyžaduje dodatočné nastavenie na uzle, aby fungovalo. Ďalšie podrobnosti nájdete v dokumentácii ({docsUrl}).",
+                  "zfs": "ZFS vyžaduje dodatočné nastavenie na uzle, aby fungovalo. Ďalšie podrobnosti nájdete v dokumentácii ({docsUrl})."
+                },
+                "form": {
+                  "backupDisk": "Záložný disk",
+                  "maintenanceEnabledDescription": "Ak je povolené, žiadny server používajúci túto konfiguráciu zálohy nebude môcť vytvárať nové zálohy ani spravovať existujúce.",
+                  "shared": "Zdieľané",
+                  "sharedDescription": "Ak je táto možnosť povolená, zálohy na tejto konfigurácii zálohy sa medzi uzlami nebudú prenášať, bude sa predpokladať, že sú dostupné pre všetky uzly."
+                },
+                "modal": {
+                  "delete": {
+                    "title": "Potvrďte vymazanie konfigurácie zálohy",
+                    "content": "Naozaj chcete odstrániť **{name}**?"
+                  }
+                },
+                "s3": {
+                  "title": "Nastavenia S3",
+                  "form": {
+                    "partSize": "Veľkosť dielu",
+                    "pathStyle": "Používanie adries URL v štýle cesty"
+                  }
+                },
+                "restic": {
+                  "title": "Restic Settings",
+                  "form": {
+                    "repository": "Úložisko",
+                    "retryLockSeconds": "Opakovať uzamknutie sekúnd",
+                    "environmentVariables": "Premenné prostredia",
+                    "cronSchedule": "Rozvrh Cron",
+                    "cronScheduleDescription": "Formát: druhá minúta hodina deň mesiac pracovný deň.",
+                    "nodes": "Uzly",
+                    "nodesPlaceholder": "Vyberte uzly"
+                  },
+                  "pruneJobs": {
+                    "title": "Prune Jobs",
+                    "description": "Plánované restické slivky. Každá úloha beží na nakonfigurovaných uzloch podľa svojho plánu cron.",
+                    "button": {
+                      "add": "Pridajte Prune Job"
+                    }
+                  }
+                }
+              }
+            },
+            "stats": {
+              "title": "Štatistiky",
+              "page": {
+                "title": "Štatistika konfigurácie zálohy",
+                "card": {
+                  "title": "Štatistika zálohovania"
+                },
+                "period": {
+                  "allTime": "Všetky časy",
+                  "today": "Dnes",
+                  "week": "Tento týždeň",
+                  "month": "Tento mesiac"
+                },
+                "periodLabel": {
+                  "allTime": "celý čas",
+                  "today": "dnes",
+                  "week": "tento týždeň",
+                  "month": "tento mesiac"
+                },
+                "stat": {
+                  "total": "Celkový počet záloh {period}",
+                  "successful": "Úspešné zálohy {period}",
+                  "failed": "Zálohovanie zlyhalo {period}",
+                  "deleted": "Odstránené zálohy {period}"
+                }
+              }
+            },
+            "backups": {
+              "title": "Zálohy",
+              "page": {
+                "title": "Zálohovanie konfigurácie Zálohy",
+                "toast": {
+                  "downloadStarted": "Sťahovanie začalo."
+                }
+              }
+            },
+            "locations": {
+              "title": "Miesta",
+              "page": {
+                "title": "Umiestnenia konfigurácie zálohy"
+              }
+            },
+            "nodes": {
+              "title": "Uzly",
+              "page": {
+                "title": "Záložné konfiguračné uzly"
+              }
+            },
+            "servers": {
+              "title": "Servery",
+              "page": {
+                "title": "Záložné konfiguračné servery"
+              }
+            }
+          }
+        },
+        "mounts": {
+          "title": "Držiaky",
+          "resourceName": "Mount",
+          "tabs": {
+            "general": {
+              "page": {
+                "titleCreate": "Vytvoriť Mount",
+                "titleUpdate": "Aktualizovať Mount",
+                "alert": "Držiaky sú výkonnou a potenciálne nebezpečnou funkciou. Nesprávne použitie môže viesť k strate údajov alebo bezpečnostným zraniteľnostiam (vrátane únikov kontajnerov). Pred ich vytvorením alebo aktualizáciou sa uistite, že rozumiete dôsledkom používania držiakov.",
+                "form": {
+                  "source": "Zdroj",
+                  "target": "Cieľ",
+                  "readOnly": "Iba na čítanie",
+                  "userMountable": "Montovateľné používateľom"
+                },
+                "modal": {
+                  "delete": {
+                    "title": "Potvrďte vymazanie pripojenia",
+                    "content": "Naozaj chcete odstrániť **{name}**?"
+                  }
+                }
+              }
+            },
+            "eggs": {
+              "title": "Vajcia",
+              "page": {
+                "title": "Mount Eggs",
+                "toast": {
+                  "added": "Pridané Mount Egg.",
+                  "removed": "Mount Egg bol odstránený."
+                },
+                "modal": {
+                  "add": {
+                    "title": "Pridajte Mount Egg",
+                    "form": {
+                      "egg": "Vajcia"
+                    }
+                  },
+                  "remove": {
+                    "title": "Potvrďte odstránenie Mount Egg",
+                    "content": "Naozaj chcete odstrániť držiak **{mount}** z **{name}**?"
+                  }
+                }
+              }
+            },
+            "nodes": {
+              "title": "Uzly",
+              "page": {
+                "title": "Mount Nodes",
+                "toast": {
+                  "added": "Bol pridaný Mount Node.",
+                  "removed": "Mount Node bol odstránený."
+                },
+                "modal": {
+                  "add": {
+                    "title": "Pridajte Mount Node"
+                  },
+                  "remove": {
+                    "title": "Potvrďte odstránenie uzla pripojenia",
+                    "content": "Naozaj chcete odstrániť držiak **{mount}** z **{name}**?"
+                  }
+                }
+              }
+            },
+            "servers": {
+              "title": "Servery",
+              "page": {
+                "title": "Pripojiť servery"
+              }
+            }
+          }
+        },
+        "roles": {
+          "title": "Roly",
+          "resourceName": "Rola",
+          "table": {
+            "columns": {
+              "serverPermissions": "Povolenia servera",
+              "adminPermissions": "Povolenia správcu"
+            }
+          },
+          "tabs": {
+            "general": {
+              "page": {
+                "titleCreate": "Vytvoriť rolu",
+                "titleUpdate": "Aktualizovať rolu",
+                "alert": {
+                  "impersonate": "Táto rola má povolenie `users.impersonate`, ktoré umožňuje používateľom s touto rolou vydávať sa za akéhokoľvek iného používateľa vrátane správcov. Pri prideľovaní tohto povolenia rolám s menej dôveryhodnými používateľmi buďte opatrní."
+                },
+                "form": {
+                  "requireTwoFactor": "Vyžadovať dva faktory",
+                  "requireTwoFactorDescription": "Vyžadovať, aby používatelia s touto rolou používali dvojfaktorové overenie.",
+                  "serverPermissions": "Povolenia servera",
+                  "adminPermissions": "Povolenia správcu"
+                },
+                "modal": {
+                  "delete": {
+                    "title": "Potvrďte vymazanie roly",
+                    "content": "Naozaj chcete odstrániť **{name}**?"
+                  }
+                }
+              }
+            },
+            "users": {
+              "title": "Používatelia",
+              "page": {
+                "title": "Rola Users"
+              }
+            }
+          }
+        },
+        "activity": {
+          "title": "Aktivita"
+        }
+      },
+      "server": {
+        "viewAdmin": {
+          "title": "Zobraziť v oblasti správcu"
+        },
+        "console": {
+          "title": "Konzola",
+          "input": {
+            "placeholder": "Zadajte príkaz...",
+            "ariaLabel": "Vstup príkazu konzoly."
+          },
+          "toast": {
+            "installCancelled": "Inštalácia servera bola zrušená.",
+            "transferCancelled": "Prenos servera bol zrušený."
+          },
+          "modal": {
+            "sshDetails": {
+              "title": "Podrobnosti SSH",
+              "form": {
+                "command": "Príkaz SSH"
+              },
+              "launch": "Spustiť"
+            }
+          },
+          "notification": {
+            "suspended": "Váš server je momentálne pozastavený. Kým sa pozastavenie nezruší, nemožno vykonať žiadne akcie.",
+            "suspendedAdmin": "Tento server je momentálne pozastavený. Keďže ste správcom, stále máte prístup k serveru, ale akcie sú obmedzené.",
+            "nodeMaintenance": "Váš server je na uzle, ktorý je momentálne v údržbe.",
+            "transferring": "Váš server sa momentálne prenáša do iného uzla.",
+            "restoringBackup": "Váš server sa momentálne obnovuje zo zálohy. Čakajte prosím...",
+            "installing": "Váš server sa práve inštaluje. Čakajte prosím...",
+            "pendingRestart": "Váš server má čakajúce zmeny, ktoré vyžadujú reštart. Ak chcete použiť tieto zmeny, reštartujte svoj server."
+          },
+          "message": {
+            "serverMarkedAs": "Server označený ako {state}...",
+            "installFailed": "Inštalácia zlyhala.",
+            "installCompleted": "Inštalácia bola úspešne dokončená.",
+            "transferFailed": "Prenos zlyhal.",
+            "transferCompleted": "Prenos bol úspešne dokončený. Opätovné pripojenie k serveru...",
+            "pullingImage": "Váš server momentálne sťahuje svoj docker image. Čakajte prosím...",
+            "pulling": "Ťahanie",
+            "extracting": "Extrakcia"
+          },
+          "tooltip": {
+            "search": "Hľadať",
+            "sshDetails": "Podrobnosti SSH",
+            "commandHistory": "História príkazov",
+            "decreaseFontSize": "Zmenšiť veľkosť písma",
+            "increaseFontSize": "Zväčšiť veľkosť písma"
+          },
+          "drawer": {
+            "commandHistory": {
+              "title": "História príkazov",
+              "detailTitle": "Podrobnosti príkazu",
+              "noCommands": "Nenašli sa žiadne príkazy.",
+              "copyButton": "Kopírovať príkaz",
+              "sendButton": "Odoslať príkaz",
+              "commandSent": "Príkaz bol úspešne odoslaný."
+            }
+          },
+          "feature": {
+            "eula": {
+              "title": "Minecraft EULA dohoda",
+              "content": "Server Minecraft vyžaduje, aby ste pred spustením prijali [Licenčnú zmluvu koncového používateľa Minecraft](https://minecraft.net/eula).",
+              "contentDetails": "Kliknutím na „Prijať EULA“ súhlasíte s podmienkami Minecraft EULA a súbor **eula.txt** bude aktualizovaný na **eula=true**.",
+              "toast": {
+                "accepted": "EULA bola úspešne prijatá."
+              },
+              "button": {
+                "accept": "Prijmite EULA"
+              }
+            }
+          },
+          "details": {
+            "address": "Adresa",
+            "port": "Port",
+            "uptime": "Doba prevádzky",
+            "cpuLoad": "Zaťaženie procesora",
+            "memoryLoad": "Zaťaženie pamäte",
+            "diskUsage": "Využitie disku",
+            "networkIn": "Sieť (dnu)",
+            "networkOut": "Sieť (von)",
+            "normalizeCpuLoad": "Normalizovať zaťaženie procesora (posunuté na maximum 100%)"
+          },
+          "power": {
+            "modal": {
+              "forceStop": {
+                "title": "Nútene zastaviť proces",
+                "content": "Násilné zastavenie servera môže viesť k poškodeniu údajov."
+              }
+            }
+          },
+          "stats": {
+            "cpuLoad": "Zaťaženie procesora",
+            "memoryLoad": "Zaťaženie pamäte",
+            "network": "sieť",
+            "inbound": "Prichádzajúce",
+            "outbound": "Odchádzajúci"
+          },
+          "socketConnected": "Pripojené ({ping}ms ping)",
+          "socketDisconnected": "Odpojené"
+        },
+        "files": {
+          "title": "Súbory",
+          "titleEditorViewing": "Zobrazuje sa {file}",
+          "titleEditorPlaying": "Prehráva sa {file}",
+          "titleEditorEditing": "Úprava {file}",
+          "titleEditorNew": "Nový súbor",
+          "titleDiffRevisionVsCurrent": "{file} – Revízia č. {revision} vs.",
+          "titleDiffRevisionVsRevision": "{file} – Revízia #{previousRevision} vs #{revision}",
+          "table": {
+            "columns": {
+              "modified": "Upravené"
+            }
+          },
+          "button": {
+            "new": "Nové",
+            "sftpDetails": "Podrobnosti SFTP",
+            "openInNewWindow": "Otvoriť v novom okne",
+            "rename": "Premenovať",
+            "copy": "Kopírovať",
+            "fingerprint": "Odtlačok prsta",
+            "permissions": "Povolenia",
+            "unarchive": "Zrušiť archiváciu",
+            "archive": "Archív",
+            "more": "Viac",
+            "remoteCopy": "Diaľkové kopírovanie",
+            "search": "Hľadať",
+            "exitBackup": "Ukončite zálohovanie",
+            "fileFromEditor": "Súbor z editora",
+            "directory": "Adresár",
+            "fileFromPull": "Súbor z Pull",
+            "fileFromUpload": "Súbor z nahrávania",
+            "directoryFromUpload": "Adresár z Upload"
+          },
+          "actionBar": {
+            "copyHere": "Skopírujte sem {files}",
+            "moveHere": "Presuňte {files} sem"
+          },
+          "searchBanner": {
+            "resultsTitle": "Výsledky vyhľadávania (nájdený počet {files})",
+            "query": "dotaz:",
+            "excluded": "Vylúčené:",
+            "content": "Obsah:",
+            "size": "Veľkosť:",
+            "min": "min:",
+            "max": "Max:"
+          },
+          "operations": {
+            "uploadingFolder": "Priečinok nahrávania: {folder} ({files})",
+            "waiting": "Čakanie:",
+            "uploading": "Nahráva sa:",
+            "compressing": "Kompresia {files} zo {path}",
+            "decompressing": "Dekompresia {path}",
+            "pulling": "Ťahanie {destination}",
+            "copying": "Kopíruje sa {path} do {destination}",
+            "copyingMany": "Kopíruje sa {files}",
+            "receivingRemote": "Prijímanie {files} zo vzdialeného servera",
+            "sendingRemote": "Odosielanie {files} na vzdialený server",
+            "rateLimited": "Rýchlosť nahrávania bola obmedzená. Čakanie...",
+            "cancelAllUploads": "Zrušiť všetky nahrávania",
+            "cancelAllOperations": "Zrušiť všetky operácie"
+          },
+          "dropzone": {
+            "title": "Sem presuňte súbory na odovzdanie",
+            "subtitle": "Uvoľnením spustíte nahrávanie"
+          },
+          "settings": {
+            "clickOnce": "Jedným kliknutím otvoríte súbor alebo priečinok",
+            "preferPhysicalSize": "Zobraziť fyzickú veľkosť namiesto logickej veľkosti",
+            "editorMinimap": "Zobraziť minimapu súboru",
+            "editorLineOverflow": "Pretečenie zalamovacej čiary",
+            "imageViewerSmoothing": "Vyhladenie obrazu (vyhladzovanie)"
+          },
+          "toast": {
+            "operationCancelled": "Operácia zrušená",
+            "allOperationsCancelled": "Všetky operácie boli zrušené.",
+            "copyingStarted": "{files} spustilo kopírovanie.",
+            "filesCouldNotBeMoved": "Súbory nebolo možné presunúť.",
+            "filesMoved": "{files} presunuté.",
+            "downloadStarted": "Sťahovanie začalo.",
+            "filesDeleted": "Súbory boli odstránené.",
+            "archiveCreationStarted": "Vytváranie archívu sa začalo.",
+            "fileCopyingStarted": "Kopírovanie súboru sa začalo.",
+            "fileInfoRetrieved": "Informácie o súbore boli úspešne načítané.",
+            "filePullingStarted": "Sťahovanie súboru sa začalo.",
+            "fileRenamed": "Súbor bol premenovaný.",
+            "fileCouldNotBeRenamed": "Súbor sa nepodarilo premenovať.",
+            "permissionsUpdated": "Povolenia boli aktualizované.",
+            "permissionsUpdatedMany": "Povolenia boli aktualizované pre {files}.",
+            "permissionsCouldNotBeUpdated": "Povolenia sa nepodarilo aktualizovať.",
+            "fileSaved": "Súbor bol uložený."
+          },
+          "tooltip": {
+            "fileHistory": "História súborov",
+            "largestDirectories": "Analyzujte veľkosti adresárov",
+            "back": "Späť {seconds} sekúnd",
+            "forward": "Vpred {seconds} sekúnd",
+            "play": "Hrať",
+            "pause": "Pauza",
+            "mute": "Stlmiť",
+            "unmute": "Zapnúť zvuk"
+          },
+          "drawer": {
+            "revisions": {
+              "title": "História súborov",
+              "noRevisions": "Pre tento súbor sa nenašli žiadne revízie.",
+              "restored": "Revízia bola obnovená do editora.",
+              "badge": {
+                "fullSnapshot": "Úplná snímka"
+              },
+              "tooltip": {
+                "restore": "Obnovte túto revíziu do editora",
+                "viewDiff": "Zobraziť rozdiel oproti aktuálnemu súboru",
+                "compareToPrevious": "Porovnajte s predchádzajúcou revíziou"
+              },
+              "diff": {
+                "original": "Revízia",
+                "current": "Aktuálne"
+              }
+            }
+          },
+          "modal": {
+            "activeUploads": {
+              "title": "Aktívne nahrávania",
+              "content": "Naozaj chcete opustiť túto stránku? Máte aktívne nahrané súbory {files}. Ak opustíte túto stránku, nahrávanie súborov sa preruší."
+            },
+            "unsavedChanges": {
+              "title": "Neuložené zmeny",
+              "content": "V editore súborov máte neuložené zmeny. Naozaj chcete opustiť túto stránku? Ak odídete, vaše zmeny sa stratia."
+            },
+            "draftRestore": {
+              "title": "Obnoviť koncept",
+              "content": "Vo vašom prehliadači sa našiel koncept tohto súboru. Chcete ho obnoviť?",
+              "contentHashMismatch": "Od uloženia tohto konceptu bol súbor na serveri upravený. Obnovenie konceptu môže tieto zmeny prepísať."
+            },
+            "createArchive": {
+              "title": "Vytvoriť archív",
+              "form": {
+                "format": "Formátovať"
+              },
+              "createdAs": "Tento archív bude vytvorený ako"
+            },
+            "createDirectory": {
+              "title": "Vytvoriť adresár",
+              "createdAs": "Tento adresár bude vytvorený ako"
+            },
+            "copyFile": {
+              "title": "Kopírovať súbor",
+              "createdAs": "Tento súbor bude vytvorený ako"
+            },
+            "copyRemote": {
+              "title": "Vzdialené kopírovanie súborov",
+              "form": {
+                "server": "Server"
+              },
+              "createdAs": "Tieto súbory budú vytvorené na vzdialenom serveri pod"
+            },
+            "fileFingerprints": {
+              "title": "Súbor odtlačkov prstov",
+              "form": {
+                "algorithm": "Algoritmus",
+                "fingerprint": "Odtlačok prsta"
+              },
+              "button": {
+                "calculate": "Vypočítajte odtlačok prsta"
+              }
+            },
+            "deleteFile": {
+              "title": "Odstrániť súbor",
+              "singleFileWarning": "Po odstránení už nebudete môcť obnoviť obsah {file}.",
+              "multipleFilesWarning": "Po odstránení už nebudete môcť obnoviť obsah nasledujúcich súborov."
+            },
+            "createFile": {
+              "title": "Vytvoriť súbor"
+            },
+            "details": {
+              "title": "Podrobnosti súboru",
+              "path": "Cesta",
+              "mode": "Režim",
+              "logicalSize": "Logická veľkosť",
+              "physicalSize": "Fyzická veľkosť",
+              "mimeType": "Typ MIME",
+              "lastModifiedAt": "Naposledy upravené o",
+              "createdAt": "Vytvorené o"
+            },
+            "filePermissions": {
+              "title": "Povolenia súboru",
+              "form": {
+                "recursive": "Aplikujte zmeny rekurzívne na všetky súbory a podadresáre v tomto adresári"
+              },
+              "symbolic": "Symbolické:",
+              "octal": "Osmičková:",
+              "owner": "Vlastník",
+              "group": "Skupina",
+              "other": "Iné",
+              "breakdown": "Rozdelenie povolení",
+              "readPermission": "Povolenie na čítanie (4)",
+              "writePermission": "Povolenie na zápis (2)",
+              "executePermission": "Vykonať povolenie (1)"
+            },
+            "renameFile": {
+              "title": "Premenovať súbor"
+            },
+            "largestDirectories": {
+              "title": "Najväčšie adresáre",
+              "empty": "Nenašli sa žiadne adresáre."
+            },
+            "searchFiles": {
+              "title": "Hľadať v súboroch",
+              "placeholder": "Hľadať súbory...",
+              "advancedFilters": "Pokročilé filtre",
+              "pathPatterns": "Vzory ciest",
+              "include": "Zahrnúť",
+              "exclude": "Vylúčiť",
+              "caseInsensitive": "Nerozlišujú sa malé a veľké písmená",
+              "fileContent": "Obsah súboru",
+              "searchText": "Vyhľadajte text",
+              "maxFileSize": "Maximálna veľkosť súboru",
+              "includeOversized": "Zahrňte príliš veľké súbory",
+              "includeOversizedDescription": "Zahŕňa súbory, ktoré zodpovedajú iným filtrom, ale sú príliš veľké na vyhľadávanie.",
+              "fileSize": "Veľkosť súboru",
+              "minimum": "Minimum",
+              "maximum": "Maximálne"
+            },
+            "pullFile": {
+              "title": "Vytiahnite súbor",
+              "form": {
+                "fileUrl": "URL súboru",
+                "query": "Dopyt"
+              },
+              "createdAs": "Tento súbor bude vytvorený ako",
+              "pull": "SEM"
+            },
+            "sftpDetails": {
+              "title": "Podrobnosti SFTP",
+              "launch": "Spustiť"
+            }
+          }
+        },
+        "databases": {
+          "title": "databázy",
+          "subtitle": "{current} z maximálneho počtu {max} vytvorených databáz.",
+          "tooltip": {
+            "limitReached": "Tento server je obmedzený na databázy {max}."
+          },
+          "table": {
+            "columns": {
+              "locked": "Zamknuté?"
+            }
+          },
+          "button": {
+            "rotatePassword": "Zmeniť heslo"
+          },
+          "form": {
+            "databaseName": "Názov databázy"
+          },
+          "modal": {
+            "createDatabase": {
+              "title": "Vytvoriť databázu",
+              "toast": {
+                "created": "Databáza vytvorená."
+              },
+              "form": {
+                "noHostsFound": "Nenašli sa žiadni hostitelia"
+              }
+            },
+            "editDatabase": {
+              "title": "Upraviť databázu",
+              "toast": {
+                "updated": "Databáza aktualizovaná."
+              }
+            },
+            "databaseDetails": {
+              "title": "Podrobnosti o pripojení k databáze",
+              "toast": {
+                "passwordRotated": "Heslo bolo zmenené."
+              },
+              "form": {
+                "jdbcConnectionString": "Pripojovací reťazec JDBC"
+              }
+            },
+            "recreateDatabase": {
+              "title": "Potvrďte obnovenie databázy",
+              "content": "Opätovným vytvorením databázy sa natrvalo odstránia všetky údaje v databáze **{name}** a vytvorí sa nová s rovnakými podrobnosťami o pripojení.",
+              "toast": {
+                "recreated": "Databáza bola znovu vytvorená."
+              }
+            },
+            "deleteDatabase": {
+              "title": "Potvrďte vymazanie databázy",
+              "content": "Vymazanie databázy je trvalá akcia, nedá sa vrátiť späť. Týmto natrvalo vymažete databázu **{name}** a odstránite všetky súvisiace údaje.",
+              "toast": {
+                "deleted": "Databáza vymazaná."
+              }
+            }
+          }
+        },
+        "schedules": {
+          "title": "Rozvrhy",
+          "subtitle": "Bolo vytvorených {current} z maximálnych plánov {max}.",
+          "dropzone": {
+            "title": "Sem presuňte nejaké súbory, aby ste ich importovali ako plány",
+            "subtitle": "Uvoľnením spustíte import"
+          },
+          "tooltip": {
+            "limitReached": "Tento server je obmedzený na plány {max}."
+          },
+          "table": {
+            "columns": {
+              "lastRun": "Posledný beh",
+              "lastFailure": "Posledné zlyhanie",
+              "status": "Stav"
+            }
+          },
+          "button": {
+            "trigger": "Spúšťač",
+            "triggerWithCondition": "Spúšťač (nepreskočiť podmienku)",
+            "triggerSkipCondition": "Spúšťač (podmienka preskočenia)",
+            "addTrigger": "Pridať spúšťač",
+            "addCondition": "Pridať podmienku",
+            "addStep": "Pridať krok",
+            "createFirstStep": "Vytvoriť Prvý krok",
+            "addOutput": "Pridať výstup",
+            "addFile": "Pridať súbor",
+            "exitEditor": "Ukončite editor"
+          },
+          "toast": {
+            "imported": "Plán bol importovaný.",
+            "created": "Rozvrh vytvorený.",
+            "updated": "Rozvrh bol aktualizovaný.",
+            "deleted": "Rozvrh bol odstránený.",
+            "triggered": "Rozvrh bol spustený.",
+            "exported": "Rozvrh exportovaný.",
+            "parseError": "Nepodarilo sa analyzovať plán: {error}",
+            "step": {
+              "created": "Krok plánu bol vytvorený.",
+              "updated": "Krok plánu bol aktualizovaný.",
+              "deleted": "Krok plánu bol odstránený."
+            }
+          },
+          "enum": {
+            "schedulePreConditionType": {
+              "none": "žiadne",
+              "and": "A (všetko musí byť pravda)",
+              "or": "ALEBO (všetky musia byť pravdivé)",
+              "not": "NIE (Nemusí to byť pravda)",
+              "serverState": "Stav servera",
+              "uptime": "Doba prevádzky",
+              "cpuUsage": "Využitie CPU",
+              "memoryUsage": "Využitie pamäte",
+              "diskUsage": "Využitie disku",
+              "fileExists": "Súbor existuje"
+            },
+            "scheduleConditionType": {
+              "none": "žiadne",
+              "and": "A (všetko musí byť pravda)",
+              "or": "ALEBO (všetky musia byť pravdivé)",
+              "not": "NIE (Nemusí to byť pravda)",
+              "variableExists": "Premenná existuje",
+              "variableContains": "Premenná Obsahuje",
+              "variableEquals": "Premenná sa rovná",
+              "variableStartsWith": "Premenná začína na",
+              "variableEndsWith": "Premenná končí na"
+            },
+            "scheduleComparator": {
+              "smallerThan": "Menšie ako",
+              "smallerThanOrEqual": "Menšie alebo rovné",
+              "equal": "Rovná sa",
+              "greaterThanOrEqual": "Väčšie alebo rovné",
+              "greaterThan": "Väčšie ako"
+            }
+          },
+          "modal": {
+            "createSchedule": {
+              "title": "Vytvoriť plán"
+            },
+            "updateSchedule": {
+              "title": "Aktualizovať plán"
+            },
+            "deleteSchedule": {
+              "title": "Potvrďte vymazanie plánu",
+              "content": "Naozaj chcete odstrániť {name} z tohto servera?"
+            },
+            "createStep": {
+              "title": "Vytvoriť krok plánu"
+            },
+            "editStep": {
+              "title": "Upraviť krok plánu"
+            },
+            "deleteStep": {
+              "title": "Potvrďte vymazanie kroku plánu",
+              "content": "Naozaj chcete odstrániť tento krok plánu?"
+            }
+          },
+          "view": {
+            "badge": {
+              "running": "Spustený"
+            },
+            "tooltip": {
+              "cannotTrigger": "Nedá sa spustiť zakázaný plán"
+            },
+            "tabs": {
+              "actions": "Akcie",
+              "conditions": "Podmienky",
+              "triggers": "Spúšťače"
+            },
+            "sections": {
+              "actions": "Naplánovať akcie",
+              "preConditions": "Naplánujte si predbežné podmienky",
+              "triggers": "Naplánovať spúšťače"
+            },
+            "alert": {
+              "noActions": "Pre tento plán nie sú nakonfigurované žiadne akcie",
+              "noTriggers": "Pre tento plán nie sú nakonfigurované žiadne spúšťače"
+            }
+          },
+          "form": {
+            "scheduleName": "Názov plánu",
+            "triggersList": "Spúšťače",
+            "triggerNumber": "Spúšť {number}",
+            "actionType": "Typ akcie",
+            "conditionType": "Typ stavu",
+            "serverState": "Stav servera",
+            "comparator": "Porovnávač",
+            "rootPath": "Koreňová cesta",
+            "outputInto": "Výstup do",
+            "caseInsensitive": "Nerozlišujú sa malé a veľké písmená",
+            "ignoreFailure": "Ignorovať zlyhanie",
+            "runInForeground": "Spustiť v popredí"
+          },
+          "condition": {
+            "variable": "Variabilné",
+            "equals": "Rovná sa",
+            "contains": "Obsahuje",
+            "startsWith": "Začína s",
+            "endsWith": "Končí s",
+            "allMustBeTrue": "Všetky podmienky musia byť splnené:",
+            "anyMustBeTrue": "Každá podmienka musí byť pravdivá:",
+            "mustNotBeTrue": "Podmienka nemusí byť pravdivá:"
+          },
+          "preCondition": {
+            "valueSeconds": "Hodnota (sekundy)",
+            "valuePercent": "Hodnota (%)",
+            "value": "Hodnota"
+          },
+          "triggers": {
+            "cron": {
+              "title": "Cron",
+              "form": {
+                "cronSchedule": "Rozvrh Cron"
+              },
+              "card": {
+                "content": "V intervale Cron {schedule} je ďalšie spustenie {timestamp} – posledné spustenie bolo {lastTimestamp}."
+              },
+              "invalidCron": "Neplatný výraz cron"
+            },
+            "powerAction": {
+              "title": "Akcia napájania",
+              "card": {
+                "content": "Keď sa požaduje akcia napájania `{action}`."
+              }
+            },
+            "serverState": {
+              "title": "Stav servera",
+              "card": {
+                "content": "Keď sa dosiahne stav servera `{state}`."
+              }
+            },
+            "backupStatus": {
+              "title": "Stav zálohovania",
+              "form": {
+                "backupStatus": "Stav zálohovania"
+              },
+              "card": {
+                "content": "Keď záloha dosiahne stav `{status}`."
+              }
+            },
+            "consoleLine": {
+              "title": "Konzolová linka",
+              "card": {
+                "content": "Keď výstup konzoly dosiahne riadok, ktorý obsahuje `{contains}`"
+              }
+            },
+            "crash": {
+              "title": "Zrútiť sa",
+              "card": {
+                "content": "Keď server zlyhá."
+              }
+            }
+          },
+          "renderer": {
+            "noActionSelected": "Vyberte typ akcie, ktorú chcete nakonfigurovať",
+            "noActionDetails": "Podrobnosti o akcii nie sú k dispozícii",
+            "ignoreFailure": "Ignorovať poruchu: {value}",
+            "foreground": "Popredie: {value}"
+          },
+          "steps": {
+            "empty": {
+              "title": "Nie sú nakonfigurované žiadne kroky",
+              "description": "Tento plán zatiaľ neobsahuje žiadne kroky. Ak chcete začať, pridajte niekoľko akcií."
+            },
+            "sleep": {
+              "title": "Spánok",
+              "form": {
+                "duration": "Trvanie (milisekundy)"
+              },
+              "renderer": {
+                "compact": "Spať na {duration}ms"
+              }
+            },
+            "ensure": {
+              "title": "Zaistite",
+              "renderer": {
+                "compact": "Zabezpečte, aby sa podmienka zhodovala"
+              }
+            },
+            "format": {
+              "title": "Formátovať",
+              "form": {
+                "formatString": "Formátovať reťazec",
+                "formatStringDescription": "Formátovací reťazec. Premenné môžu byť zahrnuté ich zabalením do {wrapper}."
+              },
+              "renderer": {
+                "compact": "Naformátujte reťazec na {outputInto}"
+              }
+            },
+            "matchRegex": {
+              "title": "Zhoda s regulárnym výrazom",
+              "form": {
+                "input": "Vstup",
+                "regex": "Regex",
+                "outputs": "Výstupy",
+                "outputNumber": "Výstup {number}"
+              },
+              "renderer": {
+                "compact": "Zhoda {input} s regulárnym výrazom {regex}"
+              }
+            },
+            "waitForConsoleLine": {
+              "title": "Počkajte na linku konzoly",
+              "form": {
+                "timeout": "Časový limit (milisekundy)"
+              },
+              "renderer": {
+                "compact": "Počkajte {timeout} na konzolový riadok obsahujúci {contains}",
+                "detail": {
+                  "lineContains": "Riadok musí obsahovať: {contains}",
+                  "caseInsensitive": "Nerozlišujú sa malé a veľké písmená: {value}",
+                  "timeout": "Časový limit: {timeout}"
+                }
+              }
+            },
+            "sendCommand": {
+              "title": "Odoslať príkaz",
+              "renderer": {
+                "compact": "Spustite {command}",
+                "detail": {
+                  "command": "Príkaz: {command}"
+                }
+              }
+            },
+            "sendPower": {
+              "title": "Odoslať signál napájania",
+              "renderer": {
+                "compact": "Urobte {action}",
+                "detail": {
+                  "powerAction": "Výkon: {action}"
+                }
+              }
+            },
+            "createBackup": {
+              "title": "Vytvoriť zálohu",
+              "form": {
+                "backupName": "Názov zálohy"
+              },
+              "renderer": {
+                "compact": "Vytvoriť {name}",
+                "detail": {
+                  "backupName": "Názov zálohy: {name}",
+                  "ignoredFiles": "Ignorované súbory: {files}"
+                }
+              }
+            },
+            "createDirectory": {
+              "title": "Vytvoriť adresár",
+              "renderer": {
+                "compact": "Vytvoriť {name} v {root}",
+                "detail": {
+                  "directory": "Adresár: {name}",
+                  "root": "Koreň: {root}"
+                }
+              }
+            },
+            "writeFile": {
+              "title": "Napíšte súbor",
+              "form": {
+                "content": "Obsah",
+                "appendToFile": "Pripojiť k súboru"
+              },
+              "renderer": {
+                "compact": "Napíšte na {file}",
+                "detail": {
+                  "file": "Súbor: {file}",
+                  "append": "Pripojiť: {value}"
+                }
+              }
+            },
+            "copyFile": {
+              "title": "Kopírovať súbor",
+              "form": {
+                "sourceFile": "Zdrojový súbor"
+              },
+              "renderer": {
+                "compact": "Skopírujte {file} do {destination}",
+                "detail": {
+                  "from": "Od: {file}",
+                  "to": "Komu: {destination}"
+                }
+              }
+            },
+            "deleteFiles": {
+              "title": "Odstrániť súbory",
+              "form": {
+                "filesToDelete": "Súbory na vymazanie"
+              },
+              "renderer": {
+                "compact": "Odstrániť {files}",
+                "detail": {
+                  "root": "Koreň: {root}",
+                  "files": "Súbory: {files}"
+                }
+              }
+            },
+            "renameFiles": {
+              "title": "Premenovať súbory",
+              "form": {
+                "files": "Súbory",
+                "from": "od",
+                "to": "do"
+              },
+              "renderer": {
+                "compact": "Premenujte {files}",
+                "detail": {
+                  "root": "Koreň: {root}",
+                  "files": "Súbory: {files}"
+                }
+              }
+            },
+            "compressFiles": {
+              "title": "Komprimovať súbory",
+              "form": {
+                "filesToCompress": "Súbory na kompresiu"
+              },
+              "renderer": {
+                "compact": "Komprimujte {files} v {root} na {name}",
+                "detail": {
+                  "output": "Výstup: {name}",
+                  "root": "Koreň: {root}",
+                  "format": "Formát: {format}",
+                  "files": "Súbory: {files}"
+                }
+              }
+            },
+            "decompressFile": {
+              "title": "Dekomprimovať súbor",
+              "form": {
+                "file": "Súbor"
+              },
+              "renderer": {
+                "compact": "Dekomprimovať {file} na {root}",
+                "detail": {
+                  "file": "Súbor: {file}",
+                  "root": "Koreň: {root}"
+                }
+              }
+            },
+            "updateStartupVariable": {
+              "title": "Aktualizovať premennú spustenia",
+              "renderer": {
+                "compact": "Nastavte {variable} na {value}",
+                "detail": {
+                  "variable": "Premenná: {variable}",
+                  "value": "Hodnota: {value}"
+                }
+              }
+            },
+            "updateStartupCommand": {
+              "title": "Aktualizovať príkaz na spustenie",
+              "renderer": {
+                "compact": "Nastaviť na {command}",
+                "detail": {
+                  "command": "Príkaz: {command}"
+                }
+              }
+            },
+            "updateStartupDockerImage": {
+              "title": "Aktualizujte obrázok Docker",
+              "renderer": {
+                "compact": "Nastaviť na {image}",
+                "detail": {
+                  "image": "Obrázok: {image}"
+                }
+              }
+            }
+          }
+        },
+        "subusers": {
+          "title": "Podužívatelia",
+          "subtitle": "Bolo vytvorených {current} maximálneho počtu podužívateľov {max}.",
+          "tooltip": {
+            "limitReached": "Tento server je obmedzený na {max} podužívateľov."
+          },
+          "table": {
+            "columns": {
+              "twoFactorEnabled": "2FA povolené",
+              "permissions": "Povolenia",
+              "ignoredFiles": "Ignorované súbory"
+            }
+          },
+          "modal": {
+            "createSubuser": {
+              "title": "Vytvoriť podužívateľa",
+              "toast": {
+                "created": "Podužívateľ bol vytvorený."
+              },
+              "form": {
+                "emailPlaceholder": "Zadajte e-mail, pod ktorým má byť tento podužívateľ uložený.",
+                "permissions": "Povolenia",
+                "ignoredFilesDescription": "Súbory a adresáre zodpovedajúce týmto vzorom budú pred týmto podužívateľom skryté. Používa vzory glob v štýle gitignore (napr. `*.env`, `secrets/`). Pred vzor sa umiestni `!`, aby sa skryla cesta, ktorú by širší vzor inak vylúčil."
+              }
+            },
+            "updateSubuser": {
+              "title": "Aktualizovať podpoužívateľa",
+              "toast": {
+                "updated": "Podužívateľ bol aktualizovaný."
+              }
+            },
+            "removeSubuser": {
+              "title": "Potvrďte odstránenie podužívateľa",
+              "content": "Naozaj chcete odstrániť **{username}** z tohto servera?",
+              "toast": {
+                "removed": "Podužívateľ bol odstránený."
+              }
+            }
+          }
+        },
+        "backups": {
+          "title": "Zálohy",
+          "subtitle": "Vytvorené maximálne zálohy {current} z maximálneho počtu {max}.",
+          "tooltip": {
+            "limitReached": "Tento server je obmedzený na zálohy {max}."
+          },
+          "table": {
+            "columns": {
+              "checksum": "Kontrolný súčet",
+              "files": "Súbory",
+              "locked": "Zamknuté?"
+            }
+          },
+          "button": {
+            "browse": "Prehľadávať"
+          },
+          "toast": {
+            "downloadStarted": "Sťahovanie začalo.",
+            "restoringBackup": "Obnovuje sa záloha..."
+          },
+          "modal": {
+            "createBackup": {
+              "title": "Vytvoriť zálohu",
+              "toast": {
+                "created": "Záloha bola vytvorená."
+              }
+            },
+            "editBackup": {
+              "title": "Upraviť zálohu",
+              "toast": {
+                "updated": "Záloha bola aktualizovaná."
+              }
+            },
+            "restoreBackup": {
+              "title": "Obnoviť zálohu"
+            },
+            "deleteBackup": {
+              "title": "Potvrďte vymazanie zálohy",
+              "content": "Naozaj chcete odstrániť **{name}** z tohto servera?",
+              "toast": {
+                "deleted": "Záloha bola odstránená."
+              }
+            },
+            "viewMetadata": {
+              "title": "Metadáta zálohy"
+            }
+          }
+        },
+        "network": {
+          "title": "sieť",
+          "subtitle": "Pridelené maximálne pridelenia {current} z {max}.",
+          "tooltip": {
+            "limitReached": "Tento server je obmedzený na pridelenie {max}."
+          },
+          "table": {
+            "columns": {
+              "hostname": "Názov hostiteľa",
+              "port": "Port"
+            }
+          },
+          "toast": {
+            "created": "Pridelenie vytvorené.",
+            "updated": "Pridelenie bolo aktualizované.",
+            "removed": "Pridelenie bolo odstránené.",
+            "setPrimary": "Pridelenie nastavené ako primárne.",
+            "unsetPrimary": "Pridelenie bolo zrušené ako primárne."
+          },
+          "modal": {
+            "editAllocation": {
+              "title": "Upraviť pridelenie"
+            },
+            "removeAllocation": {
+              "title": "Potvrďte odstránenie pridelenia",
+              "content": "Naozaj chcete odstrániť **{allocation}** z tohto servera?"
+            }
+          }
+        },
+        "startup": {
+          "title": "Spustenie",
+          "variables": "Premenné",
+          "dockerImageDescription": "Obraz Docker použitý na spustenie tohto servera. Toto je možné zmeniť a použiť iný obrázok.",
+          "dockerImageDescriptionCustom": "Obraz Docker použitý na spustenie tohto servera. Toto nastavil správca a nedá sa zmeniť.",
+          "toast": {
+            "startupCommandUpdated": "Príkaz na spustenie bol aktualizovaný.",
+            "dockerImageUpdated": "Obrázok Docker bol aktualizovaný.",
+            "variablesUpdated": "Premenné aktualizované."
+          },
+          "modal": {
+            "unsavedChanges": {
+              "title": "Neuložené zmeny",
+              "content": "Máte neuložené zmeny spúšťacích premenných. Naozaj chcete opustiť túto stránku? Ak odídete, vaše zmeny sa stratia."
+            }
+          },
+          "noVariables": "Pre tento server sa nenašli žiadne spúšťacie premenné."
+        },
+        "mounts": {
+          "title": "Držiaky",
+          "table": {
+            "columns": {
+              "target": "Cieľ",
+              "mounted": "Namontované",
+              "readOnly": "Iba na čítanie"
+            }
+          },
+          "button": {
+            "attach": "Priložiť",
+            "detach": "Odpojiť"
+          },
+          "modal": {
+            "attachMount": {
+              "title": "Pripojte držiak",
+              "content": "Chcete pripojiť **{name}** k `{target}`?",
+              "toast": {
+                "attached": "{name} bol pripojený k vášmu serveru."
+              }
+            },
+            "detachMount": {
+              "title": "Odpojte držiak",
+              "content": "Chcete odpojiť **{name}** od `{target}`?",
+              "toast": {
+                "detached": "{name} bol odstránený z vášho servera."
+              }
+            }
+          }
+        },
+        "settings": {
+          "title": "Nastavenia",
+          "debugInformation": {
+            "title": "Informácie o ladení",
+            "form": {
+              "nodeName": "Uzol (UUID)",
+              "locationName": "Poloha (UUID)",
+              "serverUuid": "UUID servera"
+            }
+          },
+          "rename": {
+            "title": "Premenovať server",
+            "toast": {
+              "renamed": "Server bol premenovaný."
+            }
+          },
+          "timezone": {
+            "title": "Časové pásmo",
+            "toast": {
+              "updated": "Časové pásmo servera bolo aktualizované."
+            }
+          },
+          "autokill": {
+            "title": "Auto-Kill",
+            "form": {
+              "secondsUntilAutoKill": "Sekundy do automatického zabitia"
+            },
+            "toast": {
+              "updated": "Aktualizované automatické zabíjanie servera."
+            }
+          },
+          "autostart": {
+            "title": "Auto-Start",
+            "form": {
+              "behavior": "Správanie"
+            },
+            "toast": {
+              "updated": "Správanie automatického spustenia servera bolo aktualizované."
+            }
+          },
+          "reinstall": {
+            "title": "Preinštalujte server",
+            "button": "Preinštalujte server",
+            "content": "Preinštalovaním servera ho zastavíte a potom znova spustite inštalačný skript, ktorý ho pôvodne nastavil. **Niektoré súbory môžu byť počas tohto procesu odstránené alebo upravené. Pred pokračovaním si zálohujte svoje údaje.**",
+            "modal": {
+              "title": "Preinštalujte server",
+              "button": "Preinštalujte",
+              "toast": {
+                "reinstalling": "Prebieha preinštalovanie servera..."
+              }
+            }
+          }
+        },
+        "activity": {
+          "title": "Aktivita",
+          "button": {
+            "clearUserFilter": "Vymazať používateľský filter"
+          }
+        }
+      }
+    }
+  }
+}
