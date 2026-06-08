@@ -1,16 +1,22 @@
 use super::State;
 use axum::{
-    extract::ws::WebSocketUpgrade,
+    extract::{Path, Query, ws::WebSocketUpgrade},
     http::{HeaderMap, StatusCode},
     routing::any,
 };
 use futures_util::{SinkExt, StreamExt};
+use serde::Deserialize;
 use shared::{
     GetIp, GetState,
     models::{node::GetNode, user::GetPermissionManager},
     response::ApiResponse,
 };
 use utoipa_axum::router::OpenApiRouter;
+
+#[derive(Deserialize)]
+pub struct Params {
+    lines: Option<u64>,
+}
 
 pub fn router(state: &State) -> OpenApiRouter<State> {
     OpenApiRouter::new()
@@ -21,8 +27,15 @@ pub fn router(state: &State) -> OpenApiRouter<State> {
                  permissions: GetPermissionManager,
                  node: GetNode,
                  ip: GetIp,
+                 Path((_node, file)): Path<(uuid::Uuid, String)>,
+                 Query(params): Query<Params>,
                  ws: WebSocketUpgrade| async move {
                     permissions.has_admin_permission("nodes.read")?;
+
+                    let endpoint = match params.lines {
+                        Some(lines) => format!("/api/system/logs/{file}/ws?lines={lines}"),
+                        None => format!("/api/system/logs/{file}/ws"),
+                    };
 
                     let mut headers = HeaderMap::new();
                     headers.insert("X-Real-Ip", ip.to_string().parse()?);
@@ -30,7 +43,7 @@ pub fn router(state: &State) -> OpenApiRouter<State> {
                     let upstream = match node
                         .api_client(&state.database)
                         .await?
-                        .open_websocket("/api/system/stats/ws", headers)
+                        .open_websocket(endpoint, headers)
                         .await
                     {
                         Ok(stream) => stream,

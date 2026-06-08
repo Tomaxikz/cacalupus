@@ -2056,10 +2056,14 @@
               "page": {
                 "title": "Node Logs",
                 "form": {
-                  "logFile": "Log-Datei"
+                  "logFile": "Log-Datei",
+                  "follow": "Folgen"
                 },
                 "button": {
                   "download": "Vollständiges Log herunterladen"
+                },
+                "toast": {
+                  "connectionLost": "Verbindung zum Node-Log-Stream verloren."
                 }
               }
             },

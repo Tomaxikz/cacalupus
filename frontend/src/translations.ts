@@ -2047,9 +2047,13 @@ const baseTranslations = defineTranslations({
                 title: 'Node Logs',
                 form: {
                   logFile: 'Log File',
+                  follow: 'Follow',
                 },
                 button: {
                   download: 'Download Full Log',
+                },
+                toast: {
+                  connectionLost: 'Lost connection to the node log stream.',
                 },
               },
             },
