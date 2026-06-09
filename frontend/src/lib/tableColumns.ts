@@ -18,6 +18,7 @@ export const assetTableColumns = (): string[] => {
     t('common.table.columns.name', {}),
     t('common.table.columns.size', {}),
     t('common.table.columns.created', {}),
+    '',
   ];
 };
 

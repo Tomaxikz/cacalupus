@@ -129,8 +129,17 @@ const NodeRow = forwardRef<HTMLTableRowElement, NodeRowProps>(function NodeRow(
       </TableData>
 
       <TableData>
-        <TableLink to={`/admin/locations/${node.location.uuid}`}>
-          <Code>{node.location.name}</Code>
+        <TableLink to={`/admin/locations/${node.location.uuid}`} className='block w-fit'>
+          <Code className='flex flex-row items-center w-fit'>
+            {node.location.flag && (
+              <img
+                src={`/flags/${node.location.flag}.svg`}
+                alt={node.location.name}
+                className='w-5 h-5 mr-1 rounded-md shrink-0 my-auto'
+              />
+            )}{' '}
+            {node.location.name}
+          </Code>
         </TableLink>
       </TableData>
 

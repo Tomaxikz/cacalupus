@@ -2076,6 +2076,14 @@ pub mod system_config {
                             pub authentication_pubkey_attempts: u64,
                             #[schema(inline)]
                             pub authentication_cooldown: u64,
+                            #[schema(inline)]
+                            pub max_connections_per_user: u64,
+                            #[schema(inline)]
+                            pub max_channels_per_connection: u64,
+                            #[schema(inline)]
+                            pub max_handles_per_channel: u64,
+                            #[schema(inline)]
+                            pub max_handles_total: u64,
                         },
 
                         #[schema(inline)]
