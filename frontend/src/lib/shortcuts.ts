@@ -95,8 +95,13 @@ export function bindingsEqual(a: ShortcutBinding | null, b: ShortcutBinding | nu
   return a.modifiers.every((m) => b.modifiers.includes(m));
 }
 
+function eventKey(event: KeyboardEvent): string {
+  if (event.code === 'Space') return ' ';
+  return event.key;
+}
+
 export function bindingFromEvent(event: KeyboardEvent): ShortcutBinding | null {
-  if (['Control', 'Meta', 'Shift', 'Alt'].includes(event.key)) return null;
+  if (['Control', 'Meta', 'Shift', 'Alt', 'AltGraph'].includes(event.key)) return null;
 
   const modifiers: ModifierKey[] = [];
   if (event.ctrlKey) modifiers.push('ctrl');
@@ -104,7 +109,7 @@ export function bindingFromEvent(event: KeyboardEvent): ShortcutBinding | null {
   if (event.altKey) modifiers.push('alt');
   if (event.shiftKey) modifiers.push('shift');
 
-  return { key: event.key, modifiers };
+  return { key: eventKey(event), modifiers };
 }
 
 function modifiersMatch(event: KeyboardEvent, modifiers: ModifierKey[]): boolean {
@@ -126,7 +131,7 @@ function modifiersMatch(event: KeyboardEvent, modifiers: ModifierKey[]): boolean
 }
 
 export function eventMatchesBinding(event: KeyboardEvent, binding: ShortcutBinding): boolean {
-  if (event.key.toLowerCase() !== binding.key.toLowerCase()) return false;
+  if (eventKey(event).toLowerCase() !== binding.key.toLowerCase()) return false;
   return modifiersMatch(event, binding.modifiers);
 }
 

@@ -1607,7 +1607,7 @@ impl Server {
                             Some(threads)
                         }
                     },
-                    oom_disabled: true,
+                    oom_disabled: false,
                 },
                 mounts: mounts
                     .into_iter()
