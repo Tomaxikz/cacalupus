@@ -16,6 +16,13 @@ pub struct UpdateArgs {
     skip_version_check: bool,
 }
 
+async fn remove_dir_all_if_exists(path: &Path) -> std::io::Result<()> {
+    match tokio::fs::remove_dir_all(path).await {
+        Err(err) if err.kind() == std::io::ErrorKind::NotFound => Ok(()),
+        other => other,
+    }
+}
+
 pub struct UpdateCommand;
 
 impl shared::extensions::commands::CliCommand<UpdateArgs> for UpdateCommand {
@@ -91,15 +98,15 @@ impl shared::extensions::commands::CliCommand<UpdateArgs> for UpdateCommand {
 
                 let frontend_path = Path::new("frontend/extensions")
                     .join(extension_distr.metadata_toml.get_package_identifier());
-                tokio::fs::remove_dir_all(&frontend_path).await?;
+                remove_dir_all_if_exists(&frontend_path).await?;
                 tokio::fs::create_dir_all(&frontend_path).await?;
                 let backend_path = Path::new("backend-extensions")
                     .join(extension_distr.metadata_toml.get_package_identifier());
-                tokio::fs::remove_dir_all(&backend_path).await?;
+                remove_dir_all_if_exists(&backend_path).await?;
                 tokio::fs::create_dir_all(&backend_path).await?;
                 let migrations_path = Path::new("database/extension-migrations")
                     .join(extension_distr.metadata_toml.get_package_identifier());
-                tokio::fs::remove_dir_all(&migrations_path).await?;
+                remove_dir_all_if_exists(&migrations_path).await?;
                 tokio::fs::create_dir_all(&migrations_path).await?;
 
                 let mut extension_distr = tokio::task::spawn_blocking(move || {
