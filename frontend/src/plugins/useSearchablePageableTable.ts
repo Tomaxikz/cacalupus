@@ -45,9 +45,28 @@ export function useSearchablePaginatedTable<T>({
   const [debouncedSearch, setDebouncedSearch] = useState(search);
 
   useEffect(() => {
-    if (modifyParams) {
-      setSearchParams({ page: page.toString(), search });
-    }
+    if (!modifyParams) return;
+
+    setSearchParams(
+      (prev) => {
+        const next = new URLSearchParams(prev);
+
+        if (page !== initialPage) {
+          next.set('page', page.toString());
+        } else {
+          next.delete('page');
+        }
+
+        if (search) {
+          next.set('search', search);
+        } else {
+          next.delete('search');
+        }
+
+        return next;
+      },
+      { replace: true },
+    );
   }, [modifyParams, page, search]);
 
   const updateDebouncedSearch = useCallback(
