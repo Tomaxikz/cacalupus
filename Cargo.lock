@@ -1026,6 +1026,7 @@ dependencies = [
  "rsa 0.9.10",
  "rule-validator",
  "russh",
+ "rustls 0.23.40",
  "semver",
  "sentry",
  "sentry-tower",

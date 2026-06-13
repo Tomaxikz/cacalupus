@@ -182,6 +182,10 @@ pub async fn handle_startup() -> (
     shared::env::EnvGuard,
     shared::State,
 ) {
+    rustls::crypto::aws_lc_rs::default_provider()
+        .install_default()
+        .expect("failed to install default crypto provider");
+
     let env = shared::env::Env::parse();
     let extensions = Arc::clone(EXTENSIONS.get().expect("Extensions not initialized"));
 
