@@ -20,6 +20,7 @@ import Select from '@/elements/input/Select.tsx';
 import SizeInput from '@/elements/input/SizeInput.tsx';
 import Switch from '@/elements/input/Switch.tsx';
 import TextInput from '@/elements/input/TextInput.tsx';
+import ConfirmationModal from '@/elements/modals/ConfirmationModal.tsx';
 import Stack from '@/elements/Stack.tsx';
 import Text from '@/elements/Text.tsx';
 import Title from '@/elements/Title.tsx';
@@ -43,6 +44,7 @@ export default function OobeServer({ onNext, onBack, canGoBack, skipFrom, data }
   const [error, setError] = useState('');
   const [createdNest, setCreatedNest] = useState<z.infer<typeof adminNestSchema> | null>(null);
   const [installedEgg, setInstalledEgg] = useState<z.infer<typeof adminEggSchema> | null>(null);
+  const [openModal, setOpenModal] = useState<'confirm-no-allocation' | null>(null);
 
   const node = data.nodes[0] ?? null;
   const existingServer = data.servers[0] ?? null;
@@ -81,7 +83,7 @@ export default function OobeServer({ onNext, onBack, canGoBack, skipFrom, data }
       image: '',
       startOnCompletion: true,
       featureLimits: { allocations: 5, databases: 5, backups: 5, schedules: 5 },
-      allocationUuid: '',
+      allocationUuid: null,
       allocationUuids: [],
     },
     validateInputOnBlur: true,
@@ -161,6 +163,16 @@ export default function OobeServer({ onNext, onBack, canGoBack, skipFrom, data }
 
   return (
     <Stack gap='lg'>
+      <ConfirmationModal
+        opened={openModal === 'confirm-no-allocation'}
+        onClose={() => setOpenModal(null)}
+        title={t('pages.admin.servers.tabs.general.page.modal.confirmNoAllocation.title', {})}
+        confirm={t('pages.admin.servers.tabs.general.page.modal.confirmNoAllocation.button.confirm', {})}
+        onConfirmed={() => onSubmit()}
+      >
+        {t('pages.admin.servers.tabs.general.page.modal.confirmNoAllocation.content', {})}
+      </ConfirmationModal>
+
       <Title order={2}>{t('pages.oobe.server.title', {})}</Title>
 
       {error && <AlertError error={error} setError={setError} />}
@@ -341,7 +353,7 @@ export default function OobeServer({ onNext, onBack, canGoBack, skipFrom, data }
                 <div className='flex flex-col sm:flex-row gap-2'>
                   <Select
                     className='flex-1'
-                    label='Primary Allocation'
+                    label={t('common.form.primaryAllocation', {})}
                     data={availablePrimaryAllocations.items
                       .filter((alloc) => !form.getValues().allocationUuids.includes(alloc.uuid))
                       .map((alloc) => ({
@@ -394,7 +406,7 @@ export default function OobeServer({ onNext, onBack, canGoBack, skipFrom, data }
               type='submit'
               disabled={!selectedEgg || !form.isValid()}
               loading={loading}
-              onClick={() => onSubmit()}
+              onClick={() => (!form.getValues().allocationUuid ? setOpenModal('confirm-no-allocation') : onSubmit())}
             >
               {t('pages.oobe.server.button.create', {})}
             </Button>
