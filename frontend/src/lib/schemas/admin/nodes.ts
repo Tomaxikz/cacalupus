@@ -38,6 +38,20 @@ export const adminNodeTokenSchema = z.object({
   token: z.string(),
 });
 
+export const adminNodeCapacitySchema = z.object({
+  limits: z.object({
+    memory: z.number(),
+    disk: z.number(),
+  }),
+  allocated: z.object({
+    servers: z.number(),
+    cpu: z.number(),
+    memory: z.number(),
+    memoryOverhead: z.number(),
+    disk: z.number(),
+  }),
+});
+
 export const adminNodeUpdateSchema = z.lazy(() =>
   adminNodeSchema
     .omit({

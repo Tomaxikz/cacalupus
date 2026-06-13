@@ -2104,6 +2104,33 @@
                 }
               }
             },
+            "capacity": {
+              "title": "Capacity",
+              "page": {
+                "title": "Deployment Capacity",
+                "subtitle": "Resources allocated to servers on this node, measured against the limits configured in node settings, not the physical machine capacity. Deployment only checks memory and disk.",
+                "card": {
+                  "resources": "Allocated Resources"
+                },
+                "status": {
+                  "deploymentEnabled": "Deployment Enabled",
+                  "deploymentDisabled": "Deployment Disabled",
+                  "maintenanceEnabled": "Under Maintenance",
+                  "maintenanceDisabled": "Not Under Maintenance"
+                },
+                "label": {
+                  "cpu": "CPU",
+                  "memory": "Memory",
+                  "disk": "Disk",
+                  "memoryOverhead": "Memory Overhead",
+                  "servers": "Servers",
+                  "noLimit": "No node limit",
+                  "free": "{size} free",
+                  "overhead": "+ {size} reserved overhead",
+                  "cores": "{cores} cores allocated"
+                }
+              }
+            },
             "logs": {
               "title": "Logs",
               "page": {

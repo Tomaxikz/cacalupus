@@ -2104,6 +2104,33 @@
                 }
               }
             },
+            "capacity": {
+              "title": "Kapazität",
+              "page": {
+                "title": "Deployment-Kapazität",
+                "subtitle": "Ressourcen, die Servern auf diesem Node zugewiesen sind, gemessen an den in den Node-Einstellungen konfigurierten Limits, nicht an der physischen Kapazität der Maschine. Das Deployment prüft nur Arbeitsspeicher und Festplatte.",
+                "card": {
+                  "resources": "Zugewiesene Ressourcen"
+                },
+                "status": {
+                  "deploymentEnabled": "Deployment aktiviert",
+                  "deploymentDisabled": "Deployment deaktiviert",
+                  "maintenanceEnabled": "In Wartung",
+                  "maintenanceDisabled": "Nicht in Wartung"
+                },
+                "label": {
+                  "cpu": "CPU",
+                  "memory": "Arbeitsspeicher",
+                  "disk": "Festplatte",
+                  "memoryOverhead": "Arbeitsspeicher-Overhead",
+                  "servers": "Server",
+                  "noLimit": "Kein Node-Limit",
+                  "free": "{size} frei",
+                  "overhead": "+ {size} reservierter Overhead",
+                  "cores": "{cores} Kerne zugewiesen"
+                }
+              }
+            },
             "logs": {
               "title": "Logs",
               "page": {

@@ -1,6 +1,7 @@
 import {
   faArchive,
   faArrowUpLong,
+  faChartPie,
   faCog,
   faComputer,
   faFileLines,
@@ -20,6 +21,7 @@ import { queryKeys } from '@/lib/queryKeys.ts';
 import { useTranslations } from '@/providers/TranslationProvider.tsx';
 import AdminNodeAllocations from './allocations/AdminNodeAllocations.tsx';
 import AdminNodeBackups from './backups/AdminNodeBackups.tsx';
+import AdminNodeCapacity from './capacity/AdminNodeCapacity.tsx';
 import AdminNodeConfiguration from './configuration/AdminNodeConfiguration.tsx';
 import AdminNodeLogs from './logs/AdminNodeLogs.tsx';
 import AdminNodeMounts from './mounts/AdminNodeMounts.tsx';
@@ -62,6 +64,12 @@ export default function NodeView() {
             icon: faInfoCircle,
             path: `/statistics`,
             element: <AdminNodeStatistics node={node} />,
+          },
+          {
+            name: t('pages.admin.nodes.tabs.capacity.title', {}),
+            icon: faChartPie,
+            path: `/capacity`,
+            element: <AdminNodeCapacity node={node} />,
           },
           {
             name: t('pages.admin.nodes.tabs.logs.title', {}),

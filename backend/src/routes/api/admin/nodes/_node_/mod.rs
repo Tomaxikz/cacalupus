@@ -14,6 +14,7 @@ use utoipa_axum::{router::OpenApiRouter, routes};
 
 mod allocations;
 mod backups;
+mod capacity;
 mod config;
 mod mounts;
 mod reset_token;
@@ -237,6 +238,7 @@ pub fn router(state: &State) -> OpenApiRouter<State> {
         .nest("/token", token::router(state))
         .nest("/allocations", allocations::router(state))
         .nest("/system", system::router(state))
+        .nest("/capacity", capacity::router(state))
         .nest("/servers", servers::router(state))
         .nest("/mounts", mounts::router(state))
         .nest("/backups", backups::router(state))

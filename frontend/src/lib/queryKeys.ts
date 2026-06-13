@@ -17,6 +17,7 @@ const admin = {
     all: () => ['admin', 'nodes'] as const,
     detail: (uuid: string) => ['admin', 'nodes', { uuid }] as const,
     token: (uuid: string) => ['admin', 'nodes', uuid, 'token'] as const,
+    capacity: (nodeUuid: string) => ['admin', 'nodes', nodeUuid, 'capacity'] as const,
     allocations: (nodeUuid: string) => ['admin', 'nodes', nodeUuid, 'allocations'] as const,
     backups: (nodeUuid: string) => ['admin', 'nodes', nodeUuid, 'backups'] as const,
     mounts: (nodeUuid: string) => ['admin', 'nodes', nodeUuid, 'mounts'] as const,

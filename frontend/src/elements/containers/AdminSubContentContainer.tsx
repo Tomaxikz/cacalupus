@@ -1,6 +1,6 @@
 import { faSearch } from '@fortawesome/free-solid-svg-icons';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
-import { Group, Title, TitleOrder } from '@mantine/core';
+import { Group, Text, Title, TitleOrder } from '@mantine/core';
 import { Dispatch, ReactNode, SetStateAction, useMemo } from 'react';
 import { ContainerRegistry, makeComponentHookable } from 'shared';
 import { useTranslations } from '@/providers/TranslationProvider.tsx';
@@ -10,6 +10,7 @@ import ContentContainer from './ContentContainer.tsx';
 
 export type Props<P = {}> = {
   title: string;
+  subtitle?: string;
   hideTitleComponent?: boolean;
   titleOrder?: TitleOrder;
   search?: string;
@@ -33,6 +34,7 @@ function AdminSubContentContainer<P>(props: Props<P>) {
 
   const {
     title,
+    subtitle,
     hideTitleComponent = false,
     titleOrder = 1,
     search,
@@ -56,6 +58,11 @@ function AdminSubContentContainer<P>(props: Props<P>) {
         <Group justify='space-between' mb='md'>
           <div>
             <Title order={titleOrder}>{title}</Title>
+            {subtitle ? (
+              <Text size='xs' c='dimmed'>
+                {subtitle}
+              </Text>
+            ) : null}
           </div>
           <Group>
             <TextInput
@@ -72,12 +79,22 @@ function AdminSubContentContainer<P>(props: Props<P>) {
         <Group justify='space-between' mb='md'>
           <div>
             <Title order={titleOrder}>{title}</Title>
+            {subtitle ? (
+              <Text size='xs' c='dimmed'>
+                {subtitle}
+              </Text>
+            ) : null}
           </div>
           <Group>{contentRight}</Group>
         </Group>
       ) : (
         <div className='mb-4'>
           <Title order={titleOrder}>{title}</Title>
+          {subtitle ? (
+            <Text size='xs' c='dimmed'>
+              {subtitle}
+            </Text>
+          ) : null}
         </div>
       )}
       {registry?.prependedContentComponents.map((Component, index) => (
