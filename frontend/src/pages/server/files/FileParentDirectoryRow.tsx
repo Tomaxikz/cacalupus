@@ -1,9 +1,8 @@
-import { faFolder } from '@fortawesome/free-solid-svg-icons';
-import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import classNames from 'classnames';
 import { join } from 'pathe';
 import { useSearchParams } from 'react-router';
 import { TableData, TableRow } from '@/elements/Table.tsx';
+import FileRowIcon from '@/pages/server/files/FileRowIcon.tsx';
 import { useDraggedFileMove } from '@/pages/server/files/hooks/useDraggedFileMove.ts';
 import { useFileManager } from '@/providers/contexts/fileManagerContext.ts';
 
@@ -31,8 +30,7 @@ function FileParentDirectoryRow() {
 
       <TableData className='w-full max-w-0'>
         <span className='flex items-center gap-4 min-w-0' title='..'>
-          <span className='inline-flex h-6 w-4 shrink-0' />
-          <FontAwesomeIcon className='shrink-0 text-(--mantine-color-dimmed)' icon={faFolder} />
+          <FileRowIcon className='shrink-0' directory />
           <span className={classNames('truncate', parentIsDropTarget && 'font-medium')}>..</span>
         </span>
       </TableData>
