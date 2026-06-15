@@ -71,6 +71,22 @@
       "few": "{count} eggy",
       "many": "{count} eggu",
       "other": "{count} eggov"
+    },
+    "shortcut": {
+      "zero": "{count} skratiek",
+      "one": "{count} skratka",
+      "two": "{count} skratky",
+      "few": "{count} skratky",
+      "many": "{count} skratiek",
+      "other": "{count} skratiek"
+    },
+    "line": {
+      "zero": "{count} riadkov",
+      "one": "{count} riadok",
+      "two": "{count} riadky",
+      "few": "{count} riadky",
+      "many": "{count} riadkov",
+      "other": "{count} riadkov"
     }
   },
   "translations": {
@@ -147,6 +163,7 @@
         "password": "Heslo",
         "host": "Hostiteľ",
         "username": "Používateľské meno",
+        "usernameOrEmail": "Používateľské meno/e-mail",
         "server": "Server",
         "url": "URL",
         "email": "E-mail",
@@ -752,6 +769,10 @@
           "step": {
             "username": {
               "title": "Prihlásenie",
+              "subtitle": "Zadajte používateľské meno alebo e-mailovú adresu a pokračujte",
+              "form": {
+                "usernameOrEmailPlaceholder": "Vaše používateľské meno alebo e-mailová adresa"
+              },
               "link": {
                 "forgotPassword": "Zabudnuté heslo",
                 "notRegistered": "Nie ste zaregistrovaný?",
@@ -875,6 +896,13 @@
                     "noServers": "Všetky servery sú už v tejto skupine.",
                     "toast": {
                       "added": "Server bol pridaný do skupiny."
+                    }
+                  },
+                  "removeServerFromGroup": {
+                    "title": "Potvrdiť odstránenie servera",
+                    "content": "Naozaj chcete odstrániť **{server}** zo skupiny **{group}**?",
+                    "toast": {
+                      "removed": "Server bol odstránený zo skupiny."
                     }
                   }
                 },
@@ -1053,6 +1081,23 @@
           "subtitle": "Použite tieto klávesové skratky na efektívnejšiu navigáciu a prácu s panelom.",
           "detectedMac": "Zistený macOS",
           "detectedWindows": "Zistený Windows/Linux",
+          "label": {
+            "disabled": "Vypnuté",
+            "modified": "Upravené",
+            "recording": "Stlačte klávesy..."
+          },
+          "button": {
+            "rebind": "Zmeniť skratku",
+            "resetAll": "Obnoviť všetko",
+            "copy": "Kopírovať všetko",
+            "paste": "Prilepiť"
+          },
+          "toast": {
+            "imported": "Aktualizované: {shortcuts}.",
+            "importedNone": "Neboli zmenené žiadne skratky.",
+            "importErrors": "Ignorované: {unknown} a {invalid}.",
+            "resetAll": "Všetky skratky boli obnovené na predvolené hodnoty."
+          },
           "fileManager": {
             "title": "Správca súborov",
             "selectAll": "Vybrať všetky súbory",
@@ -1233,6 +1278,19 @@
             "userPermissions": "Používateľské povolenia",
             "serverPermissions": "Povolenia servera",
             "adminPermissions": "Povolenia správcu"
+          },
+          "create": {
+            "title": "Vytvoriť kľúč API",
+            "subtitle": "Aplikácia žiada o vytvorenie kľúča API pre váš účet.",
+            "alert": {
+              "adminPermissions": "Tento kľúč API žiada o **správcovské povolenia**. Každý, kto bude mať tento kľúč, bude môcť vo vašom mene vykonávať správcovské akcie v tomto paneli. Pokračujte iba vtedy, ak žiadajúcej aplikácii úplne dôverujete.",
+              "callbackUrl": "Po vytvorení bude nový kľúč API odoslaný na **{url}**."
+            },
+            "noPermissions": "Tento kľúč API nebude mať žiadne povolenia.",
+            "keyCreated": "Váš nový kľúč API bol vytvorený. Nezabudnite si ho teraz skopírovať, pretože sa už znova nezobrazí.",
+            "button": {
+              "goToApiKeys": "Prejsť na kľúče API"
+            }
           }
         },
         "activity": {
@@ -2047,15 +2105,46 @@
                 }
               }
             },
+            "capacity": {
+              "title": "Kapacita",
+              "page": {
+                "title": "Kapacita nasadenia",
+                "subtitle": "Prostriedky pridelené serverom na tomto uzle, merané voči limitom nastaveným v nastaveniach uzla, nie voči fyzickej kapacite stroja. Nasadenie kontroluje iba pamäť a disk.",
+                "card": {
+                  "resources": "Pridelené prostriedky"
+                },
+                "status": {
+                  "deploymentEnabled": "Nasadenie povolené",
+                  "deploymentDisabled": "Nasadenie vypnuté",
+                  "maintenanceEnabled": "V údržbe",
+                  "maintenanceDisabled": "Nie je v údržbe"
+                },
+                "label": {
+                  "cpu": "CPU",
+                  "memory": "Pamäť",
+                  "disk": "Disk",
+                  "memoryOverhead": "Réžia pamäte",
+                  "servers": "Servery",
+                  "noLimit": "Žiadny limit uzla",
+                  "free": "{size} voľné",
+                  "overhead": "+ {size} vyhradená réžia",
+                  "cores": "Pridelené jadrá: {cores}"
+                }
+              }
+            },
             "logs": {
               "title": "Denníky",
               "page": {
                 "title": "Denníky uzlov",
                 "form": {
-                  "logFile": "Súbor denníka"
+                  "logFile": "Súbor denníka",
+                  "follow": "Sledovať"
                 },
                 "button": {
                   "download": "Stiahnuť celý denník"
+                },
+                "toast": {
+                  "connectionLost": "Pripojenie k streamu denníka uzla sa stratilo."
                 }
               }
             },
@@ -2188,6 +2277,10 @@
                         "eggConfigSelfAssignRange": "Automaticky priradiť nové alokácie podľa rozsahu portov eggu (funguje iba vtedy, ak má egg rozsah portov a cieľový uzol má kompatibilné alokácie)"
                       }
                     }
+                  },
+                  "powerAction": {
+                    "title": "Potvrdiť akciu napájania",
+                    "content": "Naozaj chcete vykonať akciu **{action}** pre {servers}?"
                   }
                 }
               }
@@ -2485,7 +2578,10 @@
                 "modal": {
                   "delete": {
                     "title": "Potvrdiť odstránenie nestu",
-                    "content": "Naozaj chcete odstrániť **{name}**?"
+                    "content": "Naozaj chcete odstrániť **{name}**?",
+                    "form": {
+                      "deleteEggs": "Chcete odstrániť všetky eggy v tomto neste?"
+                    }
                   }
                 }
               }
@@ -3265,6 +3361,17 @@
               "button": {
                 "accept": "Prijať EULA"
               }
+            },
+            "javaVersion": {
+              "title": "Nepodporovaná verzia Javy",
+              "content": "Tento server momentálne používa nepodporovanú verziu Javy a nie je možné ho spustiť.",
+              "contentDetails": "Vyberte podporovaný obraz Docker zo zoznamu nižšie a pokračujte v spustení servera.",
+              "toast": {
+                "updated": "Obraz Docker bol úspešne aktualizovaný."
+              },
+              "button": {
+                "update": "Aktualizovať obraz Docker"
+              }
             }
           },
           "details": {
@@ -3311,6 +3418,9 @@
           },
           "button": {
             "new": "Nové",
+            "connect": "Pripojiť",
+            "connectSftp": "cez SFTP",
+            "connectVscode": "cez VS Code",
             "openInNewWindow": "Otvoriť v novom okne",
             "rename": "Premenovať",
             "copy": "Kopírovať",
@@ -3365,6 +3475,7 @@
             "preferPhysicalSize": "Zobraziť fyzickú veľkosť namiesto logickej veľkosti",
             "editorMinimap": "Zobraziť minimapu súboru",
             "editorLineOverflow": "Zalamovať príliš dlhé riadky",
+            "vscodeUriScheme": "Schéma URI pre VS Code",
             "imageViewerSmoothing": "Vyhladzovanie obrázkov (anti-aliasing)"
           },
           "toast": {
@@ -3381,6 +3492,7 @@
             "filePullingStarted": "Sťahovanie súboru sa začalo.",
             "fileRenamed": "Súbor bol premenovaný.",
             "fileCouldNotBeRenamed": "Súbor sa nepodarilo premenovať.",
+            "filesRenamed": "{files} premenované.",
             "permissionsUpdated": "Povolenia boli aktualizované.",
             "permissionsUpdatedMany": "Povolenia boli aktualizované pre {files}.",
             "permissionsCouldNotBeUpdated": "Povolenia sa nepodarilo aktualizovať.",
@@ -3496,6 +3608,62 @@
             },
             "renameFile": {
               "title": "Premenovať súbor"
+            },
+            "massRename": {
+              "title": "Premenovať súbory",
+              "find": "Nájsť",
+              "findPlaceholder": "Text na nájdenie",
+              "replace": "Nahradiť za",
+              "replacePlaceholder": "Náhradný text",
+              "scope": "Použiť na",
+              "scopeName": "Názov",
+              "scopeExtension": "Prípona",
+              "scopeFull": "Celý názov",
+              "section": {
+                "matchOptions": "Možnosti zhody",
+                "affixes": "Predpona a prípona",
+                "caseConversion": "Zmena veľkosti písmen",
+                "numbering": "Číslovanie"
+              },
+              "affix": {
+                "prefix": "Predpona",
+                "suffix": "Prípona",
+                "help": "Obe môžu obsahovať {token} pre číslo; sufix pridá počet ku každému názvu."
+              },
+              "option": {
+                "regex": "Použiť regulárny výraz",
+                "regexDescription": "Zaobchádzať s hľadaným textom ako s regulárnym výrazom; v náhrade použite skupiny ako $1, $2.",
+                "caseSensitive": "Rozlišovať veľkosť písmen",
+                "allOccurrences": "Nahradiť všetky výskyty"
+              },
+              "case": {
+                "label": "Zmeniť veľkosť písmen",
+                "none": "Bez zmeny",
+                "lower": "malé písmená",
+                "upper": "VEĽKÉ PÍSMENÁ",
+                "title": "Každé Slovo Veľkým Písmenom",
+                "capitalize": "Prvé písmeno veľké"
+              },
+              "numbering": {
+                "enable": "Povoliť číslovanie",
+                "help": "Vložte {token} do hľadaného textu, náhrady, prefixu alebo sufixu tam, kde má byť číslo.",
+                "start": "Začať od",
+                "step": "Krok",
+                "padding": "Minimálny počet číslic"
+              },
+              "preview": {
+                "title": "Náhľad",
+                "original": "Pôvodný",
+                "newName": "Nový názov",
+                "unchanged": "Bez zmeny",
+                "conflict": "Názov sa už používa",
+                "duplicate": "Duplicitný cieľ",
+                "invalid": "Neplatný názov",
+                "invalidRegex": "Neplatný regulárny výraz",
+                "empty": "Nie sú vybrané žiadne súbory."
+              },
+              "summary": "Premenovaných bude {changed} z {total}",
+              "conflictWarning": "Pred premenovaním vyriešte zvýraznené konflikty názvov."
             },
             "largestDirectories": {
               "title": "Najväčšie adresáre",
