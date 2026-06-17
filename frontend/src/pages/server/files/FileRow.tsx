@@ -190,7 +190,7 @@ const FileRow = forwardRef<HTMLTableRowElement, FileRowProps>(function FileRow(
                   <span
                     draggable={canDragFile}
                     className={classNames(
-                      'flex w-fit max-w-full min-w-0 items-center gap-4 rounded-sm',
+                      'flex w-fit max-w-full min-w-0 items-center gap-4 rounded-sm py-0.5 leading-5',
                       canDragFile && 'cursor-grab active:cursor-grabbing',
                     )}
                     title={file.name}

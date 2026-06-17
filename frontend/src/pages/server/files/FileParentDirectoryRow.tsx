@@ -29,7 +29,7 @@ function FileParentDirectoryRow() {
       <td className='pl-4 relative w-10 py-2'></td>
 
       <TableData className='w-full max-w-0'>
-        <span className='flex items-center gap-4 min-w-0' title='..'>
+        <span className='flex items-center gap-4 min-w-0 py-0.5 leading-5' title='..'>
           <FileRowIcon className='shrink-0' directory />
           <span className={classNames('truncate', parentIsDropTarget && 'font-medium')}>..</span>
         </span>
