@@ -165,7 +165,7 @@ impl BackupConfigsRestic {
     }
 }
 
-fn validate_pbs_fingerprint(
+fn validate_fingerprint(
     fingerprint: &compact_str::CompactString,
     _context: &(),
 ) -> Result<(), garde::Error> {
@@ -222,7 +222,7 @@ pub struct BackupConfigsPbs {
     #[garde(length(chars, min = 1, max = 255))]
     #[schema(min_length = 1, max_length = 255)]
     pub token_secret: compact_str::CompactString,
-    #[garde(custom(validate_pbs_fingerprint))]
+    #[garde(custom(validate_fingerprint))]
     #[schema(min_length = 64, max_length = 95)]
     pub fingerprint: compact_str::CompactString,
     #[garde(inner(length(chars, min = 1, max = 255)))]
@@ -260,6 +260,94 @@ impl BackupConfigsPbs {
     }
 }
 
+fn validate_kopia_username(
+    username: &compact_str::CompactString,
+    _context: &(),
+) -> Result<(), garde::Error> {
+    static KOPIA_USERNAME_REGEX: std::sync::LazyLock<regex::Regex> =
+        std::sync::LazyLock::new(|| {
+            regex::Regex::new(r"^[a-z0-9][a-z0-9._-]*@[a-z0-9][a-z0-9._-]*$").unwrap()
+        });
+
+    if !KOPIA_USERNAME_REGEX.is_match(username) {
+        return Err(garde::Error::new("username must be in the form user@host"));
+    }
+
+    Ok(())
+}
+
+fn validate_kopia_tags(
+    tags: &IndexMap<compact_str::CompactString, compact_str::CompactString>,
+    _context: &(),
+) -> Result<(), garde::Error> {
+    if tags.len() > 50 {
+        return Err(garde::Error::new("cannot have more than 50 tags"));
+    }
+
+    for (key, value) in tags.iter() {
+        if key.is_empty() || key.len() > 255 {
+            return Err(garde::Error::new(
+                "tag keys must be between 1 and 255 characters",
+            ));
+        }
+        if value.is_empty() || value.len() > 255 {
+            return Err(garde::Error::new(
+                "tag values must be between 1 and 255 characters",
+            ));
+        }
+    }
+
+    Ok(())
+}
+
+#[derive(ToSchema, Serialize, Deserialize, Validate, Clone)]
+pub struct BackupConfigKopia {
+    #[garde(length(chars, min = 1, max = 255), url)]
+    #[schema(min_length = 1, max_length = 255, format = "uri")]
+    pub url: compact_str::CompactString,
+    #[garde(length(chars, min = 1, max = 255), custom(validate_kopia_username))]
+    #[schema(min_length = 1, max_length = 255)]
+    pub username: compact_str::CompactString,
+    #[garde(length(chars, min = 1, max = 255))]
+    #[schema(min_length = 1, max_length = 255)]
+    pub password: compact_str::CompactString,
+    #[garde(custom(validate_fingerprint))]
+    #[schema(min_length = 64, max_length = 95)]
+    pub fingerprint: compact_str::CompactString,
+    #[garde(custom(validate_kopia_tags))]
+    pub tags: IndexMap<compact_str::CompactString, compact_str::CompactString>,
+}
+
+impl BackupConfigKopia {
+    pub async fn encrypt(
+        &mut self,
+        database: &crate::database::Database,
+    ) -> Result<(), anyhow::Error> {
+        self.password = base32::encode(
+            base32::Alphabet::Z,
+            &database.encrypt(self.password.clone()).await?,
+        )
+        .into();
+
+        Ok(())
+    }
+
+    pub async fn decrypt(
+        &mut self,
+        database: &crate::database::Database,
+    ) -> Result<(), anyhow::Error> {
+        if let Some(decoded) = base32::decode(base32::Alphabet::Z, &self.password) {
+            self.password = database.decrypt(decoded).await?;
+        }
+
+        Ok(())
+    }
+
+    pub fn censor(&mut self) {
+        self.password = "".into();
+    }
+}
+
 #[derive(ToSchema, Serialize, Deserialize, Default, Validate, Clone)]
 pub struct BackupConfigs {
     #[garde(dive)]
@@ -268,6 +356,8 @@ pub struct BackupConfigs {
     pub restic: Option<BackupConfigsRestic>,
     #[garde(dive)]
     pub pbs: Option<BackupConfigsPbs>,
+    #[garde(dive)]
+    pub kopia: Option<BackupConfigKopia>,
 }
 
 impl BackupConfigs {
@@ -283,6 +373,9 @@ impl BackupConfigs {
         }
         if let Some(pbs) = &mut self.pbs {
             pbs.encrypt(database).await?;
+        }
+        if let Some(kopia) = &mut self.kopia {
+            kopia.encrypt(database).await?;
         }
 
         Ok(())
@@ -301,6 +394,9 @@ impl BackupConfigs {
         if let Some(pbs) = &mut self.pbs {
             pbs.decrypt(database).await?;
         }
+        if let Some(kopia) = &mut self.kopia {
+            kopia.decrypt(database).await?;
+        }
 
         Ok(())
     }
@@ -314,6 +410,9 @@ impl BackupConfigs {
         }
         if let Some(pbs) = &mut self.pbs {
             pbs.censor();
+        }
+        if let Some(kopia) = &mut self.kopia {
+            kopia.censor();
         }
     }
 }

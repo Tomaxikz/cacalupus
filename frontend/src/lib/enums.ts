@@ -144,6 +144,7 @@ export const backupDiskLabelMapping: Record<z.infer<typeof adminBackupConfigurat
   zfs: 'ZFS',
   restic: 'Restic',
   'proxmox-backup-server': 'Proxmox Backup Server',
+  kopia: 'Kopia',
 };
 
 export const storageDriverTypeLabelMapping: Record<z.infer<typeof adminSettingsStorageSchema>['type'], () => string> = {

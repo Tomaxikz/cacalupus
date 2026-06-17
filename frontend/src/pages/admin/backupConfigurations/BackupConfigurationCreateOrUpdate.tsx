@@ -20,6 +20,7 @@ import ConfirmationModal from '@/elements/modals/ConfirmationModal.tsx';
 import { backupDiskLabelMapping } from '@/lib/enums.ts';
 import { queryKeys } from '@/lib/queryKeys.ts';
 import {
+  adminBackupConfigurationKopiaSchema,
   adminBackupConfigurationPbsSchema,
   adminBackupConfigurationResticSchema,
   adminBackupConfigurationS3Schema,
@@ -31,6 +32,7 @@ import BackupRestic from '@/pages/admin/backupConfigurations/forms/BackupRestic.
 import BackupS3 from '@/pages/admin/backupConfigurations/forms/BackupS3.tsx';
 import { useResourceForm } from '@/plugins/useResourceForm.ts';
 import { useTranslations } from '@/providers/TranslationProvider.tsx';
+import BackupKopia from './forms/BackupKopia.tsx';
 
 export default function BackupConfigurationCreateOrUpdate({
   contextBackupConfiguration,
@@ -91,6 +93,18 @@ export default function BackupConfigurationCreateOrUpdate({
     validate: zod4Resolver(adminBackupConfigurationPbsSchema),
   });
 
+  const backupConfigKopiaForm = useForm<z.infer<typeof adminBackupConfigurationKopiaSchema>>({
+    initialValues: {
+      url: '',
+      username: '',
+      password: '',
+      fingerprint: '',
+      tags: {},
+    },
+    validateInputOnBlur: true,
+    validate: zod4Resolver(adminBackupConfigurationKopiaSchema),
+  });
+
   const { loading, doCreateOrUpdate, doDelete } = useResourceForm<
     Partial<z.infer<typeof adminBackupConfigurationUpdateSchema>>,
     z.infer<typeof adminBackupConfigurationSchema>
@@ -109,6 +123,9 @@ export default function BackupConfigurationCreateOrUpdate({
           pbs: backupConfigPbsForm.isDirty()
             ? adminBackupConfigurationPbsSchema.parse(backupConfigPbsForm.getValues())
             : null,
+          kopia: backupConfigKopiaForm.isDirty()
+            ? adminBackupConfigurationKopiaSchema.parse(backupConfigKopiaForm.getValues())
+            : null,
         },
       }),
     updateFn: contextBackupConfiguration
@@ -124,6 +141,9 @@ export default function BackupConfigurationCreateOrUpdate({
                 : null,
               pbs: backupConfigPbsForm.isDirty()
                 ? adminBackupConfigurationPbsSchema.parse(backupConfigPbsForm.getValues())
+                : null,
+              kopia: backupConfigKopiaForm.isDirty()
+                ? adminBackupConfigurationKopiaSchema.parse(backupConfigKopiaForm.getValues())
                 : null,
             },
           })
@@ -157,6 +177,12 @@ export default function BackupConfigurationCreateOrUpdate({
           ...contextBackupConfiguration.backupConfigs.pbs,
           namespace: contextBackupConfiguration.backupConfigs.pbs.namespace ?? '',
           backupIdPrefix: contextBackupConfiguration.backupConfigs.pbs.backupIdPrefix ?? '',
+        });
+      }
+      if (contextBackupConfiguration.backupConfigs?.kopia) {
+        backupConfigKopiaForm.setValues({
+          ...contextBackupConfiguration.backupConfigs.kopia,
+          tags: contextBackupConfiguration.backupConfigs.kopia.tags ?? {},
         });
       }
     }
@@ -266,7 +292,9 @@ export default function BackupConfigurationCreateOrUpdate({
                 ((form.getValues().backupDisk === 'restic' || backupConfigResticForm.isDirty()) &&
                   !backupConfigResticForm.isValid()) ||
                 ((form.getValues().backupDisk === 'proxmox-backup-server' || backupConfigPbsForm.isDirty()) &&
-                  !backupConfigPbsForm.isValid())
+                  !backupConfigPbsForm.isValid()) ||
+                ((form.getValues().backupDisk === 'kopia' || backupConfigKopiaForm.isDirty()) &&
+                  !backupConfigKopiaForm.isValid())
               }
               loading={loading}
             >
@@ -280,7 +308,11 @@ export default function BackupConfigurationCreateOrUpdate({
                   ((form.getValues().backupDisk === 's3' || backupConfigS3Form.isDirty()) &&
                     !backupConfigS3Form.isValid()) ||
                   ((form.getValues().backupDisk === 'restic' || backupConfigResticForm.isDirty()) &&
-                    !backupConfigResticForm.isValid())
+                    !backupConfigResticForm.isValid()) ||
+                  ((form.getValues().backupDisk === 'proxmox-backup-server' || backupConfigPbsForm.isDirty()) &&
+                    !backupConfigPbsForm.isValid()) ||
+                  ((form.getValues().backupDisk === 'kopia' || backupConfigKopiaForm.isDirty()) &&
+                    !backupConfigKopiaForm.isValid())
                 }
                 loading={loading}
               >
@@ -315,6 +347,9 @@ export default function BackupConfigurationCreateOrUpdate({
         {(form.getValues().backupDisk === 'proxmox-backup-server' ||
           backupConfigPbsForm.isDirty() ||
           backupConfigPbsForm.isTouched()) && <BackupPBS form={backupConfigPbsForm} />}
+        {(form.getValues().backupDisk === 'kopia' ||
+          backupConfigKopiaForm.isDirty() ||
+          backupConfigKopiaForm.isTouched()) && <BackupKopia form={backupConfigKopiaForm} />}
       </form>
     </AdminContentContainer>
   );

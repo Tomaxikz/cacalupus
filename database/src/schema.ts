@@ -57,6 +57,7 @@ export const backupDiskEnum = pgEnum('backup_disk', [
   'ZFS',
   'RESTIC',
   'PROXMOX_BACKUP_SERVER',
+  'KOPIA',
 ]);
 export const userToastPositionEnum = pgEnum('user_toast_position', [
   'TOP_LEFT',

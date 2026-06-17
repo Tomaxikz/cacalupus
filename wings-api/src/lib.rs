@@ -70,6 +70,8 @@ pub enum BackupAdapter {
     Restic,
     #[serde(rename = "proxmox-backup-server")]
     ProxmoxBackupServer,
+    #[serde(rename = "kopia")]
+    Kopia,
 }
 
 #[derive(Debug, ToSchema, Deserialize, Serialize, Clone, Copy)]

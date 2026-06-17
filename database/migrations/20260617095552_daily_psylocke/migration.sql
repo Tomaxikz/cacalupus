@@ -1,0 +1,1 @@
+ALTER TYPE "backup_disk" ADD VALUE 'KOPIA';

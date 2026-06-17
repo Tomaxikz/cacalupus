@@ -4,6 +4,7 @@ use utoipa_axum::{router::OpenApiRouter, routes};
 mod get {
     use crate::routes::api::remote::backups::_backup_::GetBackup;
     use axum::http::StatusCode;
+    use indexmap::IndexMap;
     use serde::Serialize;
     use shared::{
         ApiError, GetState,
@@ -15,15 +16,10 @@ mod get {
     #[derive(ToSchema, Serialize)]
     struct Response {
         url: compact_str::CompactString,
-        datastore: compact_str::CompactString,
-        namespace: Option<compact_str::CompactString>,
-        token_id: compact_str::CompactString,
-        token_secret: compact_str::CompactString,
+        username: compact_str::CompactString,
+        password: compact_str::CompactString,
         fingerprint: compact_str::CompactString,
-        backup_id_prefix: Option<compact_str::CompactString>,
-
-        server_uuid: Option<uuid::Uuid>,
-        backup_created: chrono::DateTime<chrono::Utc>,
+        tags: IndexMap<compact_str::CompactString, compact_str::CompactString>,
     }
 
     #[utoipa::path(get, path = "/", responses(
@@ -37,8 +33,8 @@ mod get {
         ),
     ))]
     pub async fn route(state: GetState, backup: GetBackup) -> ApiResponseResult {
-        if backup.disk != BackupDisk::ProxmoxBackupServer {
-            return ApiResponse::error("backup is not stored on proxmox backup server")
+        if backup.disk != BackupDisk::Kopia {
+            return ApiResponse::error("backup is not stored on kopia")
                 .with_status(StatusCode::EXPECTATION_FAILED)
                 .ok();
         }
@@ -54,26 +50,22 @@ mod get {
             }
         };
 
-        let mut pbs_configuration = match backup_configuration.backup_configs.pbs {
+        let mut kopia_configuration = match backup_configuration.backup_configs.kopia {
             Some(config) => config,
             None => {
-                return ApiResponse::error("proxmox backup server configuration not found")
+                return ApiResponse::error("kopia configuration not found")
                     .with_status(StatusCode::EXPECTATION_FAILED)
                     .ok();
             }
         };
-        pbs_configuration.decrypt(&state.database).await?;
+        kopia_configuration.decrypt(&state.database).await?;
 
         ApiResponse::new_serialized(Response {
-            url: pbs_configuration.url,
-            datastore: pbs_configuration.datastore,
-            namespace: pbs_configuration.namespace,
-            token_id: pbs_configuration.token_id,
-            token_secret: pbs_configuration.token_secret,
-            fingerprint: pbs_configuration.fingerprint,
-            backup_id_prefix: pbs_configuration.backup_id_prefix,
-            server_uuid: backup.0.server.map(|server| server.uuid),
-            backup_created: backup.0.created.and_utc(),
+            url: kopia_configuration.url,
+            username: kopia_configuration.username,
+            password: kopia_configuration.password,
+            fingerprint: kopia_configuration.fingerprint,
+            tags: kopia_configuration.tags,
         })
         .ok()
     }

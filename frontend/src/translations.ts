@@ -3150,6 +3150,14 @@ const baseTranslations = defineTranslations({
                     backupIdPrefix: 'Backup ID Prefix',
                   },
                 },
+                kopia: {
+                  title: 'Kopia Settings',
+                  form: {
+                    url: 'Kopia Server URL',
+                    fingerprint: 'TLS Certificate Fingerprint',
+                    tags: 'Backup Tags',
+                  },
+                },
               },
             },
             stats: {

@@ -29,6 +29,7 @@ pub enum BackupDisk {
     Zfs,
     Restic,
     ProxmoxBackupServer,
+    Kopia,
 }
 
 impl BackupDisk {
@@ -42,6 +43,7 @@ impl BackupDisk {
             BackupDisk::Zfs => wings_api::BackupAdapter::Zfs,
             BackupDisk::Restic => wings_api::BackupAdapter::Restic,
             BackupDisk::ProxmoxBackupServer => wings_api::BackupAdapter::ProxmoxBackupServer,
+            BackupDisk::Kopia => wings_api::BackupAdapter::Kopia,
         }
     }
 }

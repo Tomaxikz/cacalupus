@@ -19,6 +19,12 @@ export default async (
               }
             : null,
           pbs: data.backupConfigs.pbs ? transformKeysToSnakeCase(data.backupConfigs.pbs) : null,
+          kopia: data.backupConfigs.kopia
+            ? {
+                ...transformKeysToSnakeCase(data.backupConfigs.kopia),
+                tags: data.backupConfigs.kopia.tags,
+              }
+            : null,
         }
       : null,
   });

@@ -45,18 +45,36 @@ export const adminBackupConfigurationPbsSchema = z.object({
   backupIdPrefix: z.preprocess(nullableString, z.string().max(255).nullable()),
 });
 
+export const adminBackupConfigurationKopiaSchema = z.object({
+  url: z.url({ protocol: /^https?$/ }),
+  username: z
+    .string()
+    .min(1)
+    .max(255)
+    .regex(/^[a-z0-9][a-z0-9._-]*@[a-z0-9][a-z0-9._-]*$/, 'Must be in the form user@host'),
+  password: z.string().min(1).max(255),
+  fingerprint: z
+    .string()
+    .regex(
+      /^(?:[0-9a-fA-F]{2}:){31}[0-9a-fA-F]{2}$|^[0-9a-fA-F]{64}$/,
+      'Must be a SHA-256 fingerprint (64 hex characters, colons optional)',
+    ),
+  tags: z.record(z.string().min(1).max(255), z.string().min(1).max(255)),
+});
+
 export const adminBackupConfigurationSchema = z.object({
   uuid: z.string(),
   name: z.string().min(1).max(255),
   description: z.preprocess(nullableString, z.string().max(1024).nullable()),
   maintenanceEnabled: z.boolean(),
   shared: z.boolean(),
-  backupDisk: z.enum(['local', 's3', 'ddup-bak', 'btrfs', 'zfs', 'restic', 'proxmox-backup-server']),
+  backupDisk: z.enum(['local', 's3', 'ddup-bak', 'btrfs', 'zfs', 'restic', 'proxmox-backup-server', 'kopia']),
   backupConfigs: z
     .object({
       s3: adminBackupConfigurationS3Schema.nullable(),
       restic: adminBackupConfigurationResticSchema.nullable(),
       pbs: adminBackupConfigurationPbsSchema.nullable(),
+      kopia: adminBackupConfigurationKopiaSchema.nullable(),
     })
     .optional(),
   created: z.date(),

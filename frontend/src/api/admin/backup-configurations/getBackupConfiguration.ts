@@ -15,6 +15,12 @@ export default async (backupConfigUuid: string): Promise<z.infer<typeof adminBac
             environment: data.backup_configuration.backup_configs.restic.environment,
           }
         : null,
+      kopia: data.backup_configuration.backup_configs.kopia
+        ? {
+            ...transformKeysToCamelCase(data.backup_configuration.backup_configs.kopia),
+            tags: data.backup_configuration.backup_configs.kopia.tags,
+          }
+        : null,
     },
   } as z.infer<typeof adminBackupConfigurationSchema>;
 };
