@@ -165,12 +165,109 @@ impl BackupConfigsRestic {
     }
 }
 
+fn validate_pbs_fingerprint(
+    fingerprint: &compact_str::CompactString,
+    _context: &(),
+) -> Result<(), garde::Error> {
+    let normalized = normalize_pbs_fingerprint(fingerprint);
+
+    if normalized.len() != 64 || !normalized.bytes().all(|b| b.is_ascii_hexdigit()) {
+        return Err(garde::Error::new(
+            "fingerprint must be a SHA-256 hash (64 hex characters, colons optional)",
+        ));
+    }
+
+    Ok(())
+}
+
+pub fn normalize_pbs_fingerprint(fingerprint: &str) -> compact_str::CompactString {
+    fingerprint
+        .chars()
+        .filter(|c| !c.is_whitespace() && *c != ':')
+        .map(|c| c.to_ascii_lowercase())
+        .collect()
+}
+
+fn validate_pbs_token_id(
+    token_id: &compact_str::CompactString,
+    _context: &(),
+) -> Result<(), garde::Error> {
+    static TOKEN_ID_REGEX: std::sync::LazyLock<regex::Regex> = std::sync::LazyLock::new(|| {
+        regex::Regex::new(r"^[^\s:/!@]+@[A-Za-z][A-Za-z0-9._-]*![A-Za-z0-9._-]+$").unwrap()
+    });
+
+    if !TOKEN_ID_REGEX.is_match(token_id) {
+        return Err(garde::Error::new(
+            "token id must be in the form user@realm!token-name",
+        ));
+    }
+
+    Ok(())
+}
+
+#[derive(ToSchema, Serialize, Deserialize, Validate, Clone)]
+pub struct BackupConfigsPbs {
+    #[garde(length(chars, min = 1, max = 255), url)]
+    #[schema(min_length = 1, max_length = 255, format = "uri")]
+    pub url: compact_str::CompactString,
+    #[garde(length(chars, min = 1, max = 255))]
+    #[schema(min_length = 1, max_length = 255)]
+    pub datastore: compact_str::CompactString,
+    #[garde(inner(length(chars, min = 1, max = 255)))]
+    #[schema(min_length = 1, max_length = 255)]
+    pub namespace: Option<compact_str::CompactString>,
+    #[garde(length(chars, min = 1, max = 255), custom(validate_pbs_token_id))]
+    #[schema(min_length = 1, max_length = 255)]
+    pub token_id: compact_str::CompactString,
+    #[garde(length(chars, min = 1, max = 255))]
+    #[schema(min_length = 1, max_length = 255)]
+    pub token_secret: compact_str::CompactString,
+    #[garde(custom(validate_pbs_fingerprint))]
+    #[schema(min_length = 64, max_length = 95)]
+    pub fingerprint: compact_str::CompactString,
+    #[garde(inner(length(chars, min = 1, max = 255)))]
+    #[schema(min_length = 1, max_length = 255)]
+    pub backup_id_prefix: Option<compact_str::CompactString>,
+}
+
+impl BackupConfigsPbs {
+    pub async fn encrypt(
+        &mut self,
+        database: &crate::database::Database,
+    ) -> Result<(), anyhow::Error> {
+        self.token_secret = base32::encode(
+            base32::Alphabet::Z,
+            &database.encrypt(self.token_secret.clone()).await?,
+        )
+        .into();
+
+        Ok(())
+    }
+
+    pub async fn decrypt(
+        &mut self,
+        database: &crate::database::Database,
+    ) -> Result<(), anyhow::Error> {
+        if let Some(decoded) = base32::decode(base32::Alphabet::Z, &self.token_secret) {
+            self.token_secret = database.decrypt(decoded).await?;
+        }
+
+        Ok(())
+    }
+
+    pub fn censor(&mut self) {
+        self.token_secret = "".into();
+    }
+}
+
 #[derive(ToSchema, Serialize, Deserialize, Default, Validate, Clone)]
 pub struct BackupConfigs {
     #[garde(dive)]
     pub s3: Option<BackupConfigsS3>,
     #[garde(dive)]
     pub restic: Option<BackupConfigsRestic>,
+    #[garde(dive)]
+    pub pbs: Option<BackupConfigsPbs>,
 }
 
 impl BackupConfigs {
@@ -183,6 +280,9 @@ impl BackupConfigs {
         }
         if let Some(restic) = &mut self.restic {
             restic.encrypt(database).await?;
+        }
+        if let Some(pbs) = &mut self.pbs {
+            pbs.encrypt(database).await?;
         }
 
         Ok(())
@@ -198,6 +298,9 @@ impl BackupConfigs {
         if let Some(restic) = &mut self.restic {
             restic.decrypt(database).await?;
         }
+        if let Some(pbs) = &mut self.pbs {
+            pbs.decrypt(database).await?;
+        }
 
         Ok(())
     }
@@ -208,6 +311,9 @@ impl BackupConfigs {
         }
         if let Some(restic) = &mut self.restic {
             restic.censor();
+        }
+        if let Some(pbs) = &mut self.pbs {
+            pbs.censor();
         }
     }
 }
