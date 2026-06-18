@@ -56,7 +56,7 @@ export default function PullFileModal({ ...props }: ModalProps) {
       .then((data) => {
         addToast(t('pages.server.files.toast.fileInfoRetrieved', {}), 'success');
         setQueryResult(data);
-        form.setFieldValue('name', data.fileName ?? form.values.url.split('/').pop() ?? '');
+        form.setFieldValue('name', data.fileName || form.values.url.split('/').pop() || '');
       })
       .catch((msg) => {
         addToast(msg?.message ?? String(msg), 'error');
