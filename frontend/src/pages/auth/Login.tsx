@@ -365,7 +365,6 @@ export default function Login() {
                   autoFocus
                   {...passwordForm.getInputProps('password')}
                 />
-                <Captcha ref={captchaRef} />
                 <Button
                   onClick={doSubmitPassword}
                   disabled={!passwordForm.isValid()}
@@ -388,6 +387,7 @@ export default function Login() {
             </Card>
           </>
         ) : null}
+        <Captcha ref={captchaRef} />
       </Stack>
     </AuthWrapper>
   );
