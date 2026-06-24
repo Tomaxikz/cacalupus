@@ -1522,8 +1522,7 @@
                     "permissionsPublicData": "Hier können Erweiterungen öffentliche Daten (z. B. Bilder) speichern."
                   },
                   "form": {
-                    "pathStyleOn": "Pfad-Stil-URLs verwenden",
-                    "pathStyleOff": "Virtual-Hosted-Stil-URLs verwenden"
+                    "pathStyle": "Pfad-Stil-URLs verwenden"
                   }
                 }
               }
