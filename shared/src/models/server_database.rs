@@ -6,7 +6,7 @@ use crate::{
     prelude::*,
 };
 use garde::Validate;
-use rand::distr::SampleString;
+use rand::{RngExt, distr::SampleString};
 use serde::{Deserialize, Serialize};
 use sqlx::{Row, postgres::PgRow};
 use std::{
@@ -265,11 +265,45 @@ impl ServerDatabase {
         .await
     }
 
+    #[inline]
+    pub fn generate_database_name(server_uuid: uuid::Uuid, name: &str) -> String {
+        let server_id = format!("{:08x}", server_uuid.as_u128() >> 96);
+        format!("s{}_{}", server_id, name)
+    }
+
+    #[inline]
+    pub fn generate_username(server_uuid: uuid::Uuid) -> String {
+        let server_id = format!("{:08x}", server_uuid.as_u128() >> 96);
+        format!(
+            "u{}_{}",
+            server_id,
+            rand::distr::Alphanumeric.sample_string(&mut rand::rng(), 10)
+        )
+    }
+
+    #[inline]
+    pub fn generate_password() -> String {
+        const PASSWORD_SPECIAL_CHARS: &[u8] = b"!@#$%^&*()<>-_";
+
+        let mut rng = rand::rng();
+        let mut password = rand::distr::Alphanumeric
+            .sample_string(&mut rng, 24)
+            .into_bytes();
+
+        for _ in 0..rng.random_range(1..=5) {
+            let pos = rng.random_range(0..password.len());
+            password[pos] =
+                PASSWORD_SPECIAL_CHARS[rng.random_range(0..PASSWORD_SPECIAL_CHARS.len())];
+        }
+
+        String::from_utf8(password).unwrap()
+    }
+
     pub async fn rotate_password(
         &mut self,
         database: &crate::database::Database,
     ) -> Result<String, anyhow::Error> {
-        let new_password = rand::distr::Alphanumeric.sample_string(&mut rand::rng(), 24);
+        let new_password = Self::generate_password();
 
         match self.database_host.get_connection(database).await? {
             crate::models::database_host::DatabasePool::Mysql(pool) => {
@@ -597,14 +631,9 @@ impl CreatableModel for ServerDatabase {
     ) -> Result<Self, crate::database::DatabaseError> {
         options.validate()?;
 
-        let server_id = format!("{:08x}", options.server.uuid_short);
-        let name = format!("s{}_{}", server_id, options.name);
-        let username = format!(
-            "u{}_{}",
-            server_id,
-            rand::distr::Alphanumeric.sample_string(&mut rand::rng(), 10)
-        );
-        let password = rand::distr::Alphanumeric.sample_string(&mut rand::rng(), 24);
+        let name = Self::generate_database_name(options.server.uuid, &options.name);
+        let username = Self::generate_username(options.server.uuid);
+        let password = Self::generate_password();
 
         let db_transaction: DatabaseTransaction = match options
             .database_host
