@@ -664,6 +664,12 @@ pub async fn handle_startup() -> Result<
                 }
 
                 if !path.starts_with("/api") {
+                    if state.env.app_disable_frontend {
+                        return ApiResponse::error("route not found")
+                            .with_status(StatusCode::NOT_FOUND)
+                            .ok();
+                    }
+
                     let path = urlencoding::decode(&path[1.min(path.len())..])?;
 
                     let (is_index, entry) = match FRONTEND_ASSETS.get_entry(&*path) {
