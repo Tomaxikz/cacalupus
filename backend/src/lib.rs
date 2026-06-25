@@ -177,17 +177,20 @@ pub async fn handle_postprocessing(req: Request, next: Next) -> Result<Response,
     Ok(response)
 }
 
-pub async fn handle_startup() -> (
-    sentry::ClientInitGuard,
-    shared::env::EnvGuard,
-    shared::State,
-) {
+pub async fn handle_startup() -> Result<
+    (
+        sentry::ClientInitGuard,
+        shared::env::EnvGuard,
+        shared::State,
+    ),
+    anyhow::Error,
+> {
     rustls::crypto::aws_lc_rs::default_provider()
         .install_default()
-        .expect("failed to install default crypto provider");
+        .map_err(|_| anyhow::anyhow!("failed to install default crypto provider"))?;
 
     let env = shared::env::Env::parse();
-    let extensions = Arc::clone(EXTENSIONS.get().expect("Extensions not initialized"));
+    let extensions = Arc::clone(EXTENSIONS.get().context("extensions not initialized")?);
 
     let cli = CliCommandGroupBuilder::new(
         "panel-rs",
@@ -204,7 +207,7 @@ pub async fn handle_startup() -> (
 
     if debug && let Ok((env, _)) = &env {
         env.set_debug(true)
-            .expect("failed to set debug mode from cli argument");
+            .context("failed to set debug mode from cli argument")?;
     }
 
     match matches.remove_subcommand() {
@@ -256,13 +259,7 @@ pub async fn handle_startup() -> (
         }
     }
 
-    let (env, _env_guard) = match env {
-        Ok((env, env_guard)) => (env, env_guard),
-        Err(err) => {
-            eprintln!("{}: {err:#?}", "failed to parse environment".red());
-            std::process::exit(1);
-        }
-    };
+    let (env, _env_guard) = env.context("failed to parse environment")?;
 
     let _guard = sentry::init((
         env.sentry_url.clone(),
@@ -310,12 +307,9 @@ pub async fn handle_startup() -> (
                     "applying migration"
                 );
 
-                if let Err(err) =
-                    database_migrator::run_migration(database.write(), &migration).await
-                {
-                    eprintln!("{}: {}", "failed to apply migration".red(), err);
-                    std::process::exit(1);
-                }
+                database_migrator::run_migration(database.write(), &migration)
+                    .await
+                    .with_context(|| format!("failed to apply migration {}", migration.name))?;
 
                 tracing::info!(name = %migration.name, "successfully applied migration");
                 tracing::info!("");
@@ -358,18 +352,14 @@ pub async fn handle_startup() -> (
                         "applying extension migration"
                     );
 
-                    if let Err(err) =
-                        database_migrator::run_extension_migration(database.write(), &migration)
-                            .await
-                    {
-                        eprintln!(
-                            "{}: {} (extension: {})",
-                            "failed to apply extension migration".red(),
-                            err,
-                            extension.package_name
-                        );
-                        std::process::exit(1);
-                    }
+                    database_migrator::run_extension_migration(database.write(), &migration)
+                        .await
+                        .with_context(|| {
+                            format!(
+                                "failed to apply extension migration {} (extension: {})",
+                                migration.name, extension.package_name
+                            )
+                        })?;
 
                     tracing::info!(
                         name = %migration.name,
@@ -390,19 +380,10 @@ pub async fn handle_startup() -> (
             Ok(())
         };
 
-        match run().await {
-            Ok(()) => {
-                tracing::info!("database migrations complete.");
-            }
-            Err(err) => {
-                eprintln!(
-                    "{}: {:#?}",
-                    "an error occurred while running database migrations".red(),
-                    err
-                );
-                std::process::exit(1);
-            }
-        }
+        run()
+            .await
+            .context("an error occurred while running database migrations")?;
+        tracing::info!("database migrations complete.");
     }
 
     let background_tasks =
@@ -412,8 +393,7 @@ pub async fn handle_startup() -> (
     let settings = Arc::new(
         shared::settings::Settings::new(database.clone())
             .await
-            .context("failed to load settings")
-            .unwrap(),
+            .context("failed to load settings")?,
     );
     let storage = Arc::new(shared::storage::Storage::new(settings.clone()));
     let captcha = Arc::new(shared::captcha::Captcha::new(settings.clone()));
@@ -427,7 +407,7 @@ pub async fn handle_startup() -> (
         client: reqwest::ClientBuilder::new()
             .user_agent(format!("github.com/calagopus/panel {}", shared::VERSION))
             .build()
-            .unwrap(),
+            .context("failed to build http client")?,
         app_router: RwLock::new(None),
 
         extensions: extensions.clone(),
@@ -848,13 +828,7 @@ pub async fn handle_startup() -> (
         .route_layer(SentryHttpLayer::new().enable_transaction())
         .with_state(state.clone());
 
-    let settings = match settings.get().await {
-        Ok(settings) => settings,
-        Err(err) => {
-            tracing::error!("failed to load settings: {:#?}", err);
-            std::process::exit(1);
-        }
-    };
+    let settings = settings.get().await.context("failed to load settings")?;
 
     let (router, mut openapi) = app.split_for_parts();
     openapi.info.version = "1.0.0".into();
@@ -867,7 +841,10 @@ pub async fn handle_startup() -> (
         utoipa::openapi::Server::new(settings.app.url.clone()),
     ]);
 
-    let components = openapi.components.as_mut().unwrap();
+    let components = openapi
+        .components
+        .as_mut()
+        .context("openapi components missing")?;
     components.add_security_scheme(
         "cookie",
         SecurityScheme::ApiKey(ApiKey::Cookie(ApiKeyValue::new(
@@ -916,5 +893,5 @@ pub async fn handle_startup() -> (
 
     *state.app_router.write().await = Some(router);
 
-    (_guard, _env_guard, state)
+    Ok((_guard, _env_guard, state))
 }

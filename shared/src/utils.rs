@@ -1,6 +1,12 @@
 use crate::models::user::{AuthMethod, GetAuthMethod};
+use colored::Colorize;
 use compact_str::ToCompactString;
 use garde::Validate;
+
+pub fn handle_startup_error<T>(err: anyhow::Error) -> T {
+    eprintln!("{}: {err:#?}", "an error occurred during startup".red());
+    std::process::exit(1);
+}
 
 #[inline]
 pub fn slice_up_to(s: &str, max_len: usize) -> &str {

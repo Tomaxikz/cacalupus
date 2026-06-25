@@ -18,7 +18,9 @@ async fn main() {
         ))
         .ok();
 
-    let (_guard, _env_guard, state) = backend::handle_startup().await;
+    let (_guard, _env_guard, state) = backend::handle_startup()
+        .await
+        .unwrap_or_else(shared::utils::handle_startup_error);
 
     let router = state
         .app_router
