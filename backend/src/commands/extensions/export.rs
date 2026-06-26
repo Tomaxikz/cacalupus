@@ -1,7 +1,14 @@
+use super::apply::which;
+use anyhow::Context;
 use clap::{Args, FromArgMatches};
 use colored::Colorize;
+use dialoguer::{Confirm, theme::ColorfulTheme};
 use shared::extensions::distr::{ExtensionDistrFile, ExtensionDistrFileBuilder, MetadataToml};
-use std::{io::Write, path::Path};
+use std::{
+    io::{IsTerminal, Write},
+    path::{Path, PathBuf},
+};
+use tokio::process::Command;
 
 #[derive(Args)]
 pub struct ExportArgs {
@@ -78,6 +85,77 @@ impl shared::extensions::commands::CliCommand<ExportArgs> for ExportCommand {
                         "directory, make sure you are in the panel root.".red()
                     );
                     return Ok(1);
+                }
+
+                if std::io::stdout().is_terminal()
+                    && Confirm::with_theme(&ColorfulTheme::default())
+                        .with_prompt("Check your extension before exporting?")
+                        .default(true)
+                        .interact()?
+                {
+                    let cargo_bin = which("cargo")
+                        .await
+                        .context("unable to find `cargo` binary")?;
+                    let pnpm_bin = which("pnpm")
+                        .await
+                        .context("unable to find `pnpm` binary, this can usually be installed using `npm i -g pnpm`")?;
+
+                    struct Check {
+                        name: &'static str,
+                        bin: PathBuf,
+                        args: &'static [&'static str],
+                        dir: &'static str,
+                    }
+
+                    let checks = [
+                        Check {
+                            name: "cargo fmt --check",
+                            bin: cargo_bin.clone(),
+                            args: &["fmt", "--check"],
+                            dir: ".",
+                        },
+                        Check {
+                            name: "cargo clippy",
+                            bin: cargo_bin,
+                            args: &["clippy"],
+                            dir: ".",
+                        },
+                        Check {
+                            name: "pnpm biome:validate",
+                            bin: pnpm_bin.clone(),
+                            args: &["biome:validate"],
+                            dir: "frontend",
+                        },
+                        Check {
+                            name: "pnpm build:ci",
+                            bin: pnpm_bin,
+                            args: &["build:ci"],
+                            dir: "frontend",
+                        },
+                    ];
+
+                    for check in checks {
+                        println!();
+                        println!("running {}...", check.name.bright_black());
+
+                        let status = Command::new(&check.bin)
+                            .args(check.args)
+                            .current_dir(check.dir)
+                            .status()
+                            .await?;
+                        if !status.success() {
+                            eprintln!(
+                                "{} {}",
+                                check.name.bright_red(),
+                                "did not run successfully, aborting export.".red()
+                            );
+                            return Ok(1);
+                        }
+                    }
+
+                    println!();
+                    println!("{}", "all checks passed.".green());
+                    println!();
                 }
 
                 let migrations_path =

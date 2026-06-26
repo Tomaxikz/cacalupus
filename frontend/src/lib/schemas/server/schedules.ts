@@ -232,7 +232,10 @@ export const serverScheduleUpdateSchema = z.lazy(() =>
 
 export const serverScheduleStepSleepSchema = z.object({
   type: z.literal('sleep'),
-  duration: z.number().min(0).max(24 * 60 * 60 * 1000),
+  duration: z
+    .number()
+    .min(0)
+    .max(24 * 60 * 60 * 1000),
 });
 
 export const serverScheduleStepEnsureSchema = z.object({
@@ -258,7 +261,10 @@ export const serverScheduleStepWaitForConsoleLineSchema = z.object({
   ignoreFailure: z.boolean(),
   contains: serverScheduleStepDynamicSchema,
   caseInsensitive: z.boolean(),
-  timeout: z.number().min(0).max(24 * 60 * 60 * 1000),
+  timeout: z
+    .number()
+    .min(0)
+    .max(24 * 60 * 60 * 1000),
   outputInto: serverScheduleStepVariableSchema.nullable(),
 });
 
