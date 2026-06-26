@@ -19,7 +19,7 @@ export default function DirectoryNameModal({ ...props }: ModalProps) {
   const { t } = useTranslations();
   const [_, setSearchParams] = useSearchParams();
   const { server } = useServerStore();
-  const { browsingDirectory } = useFileManager();
+  const { browsingDirectory, invalidateFilemanager } = useFileManager();
 
   const { form, handleClose, handleSubmit, loading, isDirty } = useModalForm<
     z.infer<typeof serverFilesDirectoryCreateSchema>
@@ -31,6 +31,7 @@ export default function DirectoryNameModal({ ...props }: ModalProps) {
     onClose: props.onClose,
     onSubmit: async (values) => {
       await createDirectory(server.uuid, browsingDirectory, values.name);
+      invalidateFilemanager();
       setSearchParams({ directory: join(browsingDirectory, values.name) });
     },
   });
