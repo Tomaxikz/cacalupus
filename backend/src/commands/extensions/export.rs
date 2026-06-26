@@ -100,9 +100,9 @@ impl shared::extensions::commands::CliCommand<ExportArgs> for ExportCommand {
                         .await
                         .context("unable to find `pnpm` binary, this can usually be installed using `npm i -g pnpm`")?;
 
-                    struct Check {
+                    struct Check<'a> {
                         name: &'static str,
-                        bin: PathBuf,
+                        bin: &'a PathBuf,
                         args: &'static [&'static str],
                         dir: &'static str,
                     }
@@ -110,25 +110,25 @@ impl shared::extensions::commands::CliCommand<ExportArgs> for ExportCommand {
                     let checks = [
                         Check {
                             name: "cargo fmt --check",
-                            bin: cargo_bin.clone(),
+                            bin: &cargo_bin,
                             args: &["fmt", "--check"],
                             dir: ".",
                         },
                         Check {
                             name: "cargo clippy",
-                            bin: cargo_bin,
+                            bin: &cargo_bin,
                             args: &["clippy"],
                             dir: ".",
                         },
                         Check {
                             name: "pnpm biome:validate",
-                            bin: pnpm_bin.clone(),
+                            bin: &pnpm_bin,
                             args: &["biome:validate"],
                             dir: "frontend",
                         },
                         Check {
                             name: "pnpm build:ci",
-                            bin: pnpm_bin,
+                            bin: &pnpm_bin,
                             args: &["build:ci"],
                             dir: "frontend",
                         },
@@ -138,7 +138,7 @@ impl shared::extensions::commands::CliCommand<ExportArgs> for ExportCommand {
                         println!();
                         println!("running {}...", check.name.bright_black());
 
-                        let status = Command::new(&check.bin)
+                        let status = Command::new(check.bin)
                             .args(check.args)
                             .current_dir(check.dir)
                             .status()

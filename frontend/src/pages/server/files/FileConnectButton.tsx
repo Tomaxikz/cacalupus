@@ -20,40 +20,44 @@ export default function FileConnectButton({ file }: { file?: string }) {
     (file ? `&file=${encodeURIComponent(file)}` : '');
 
   return (
-    <ServerCan action='files.sftp'>
-      <SftpDetailsModal opened={sftpDetailsOpen} onClose={() => setSftpDetailsOpen(false)} />
-      <ContextMenu
-        menuProps={{ position: 'bottom-start' }}
-        items={[
-          {
-            icon: faServer,
-            label: t('pages.server.files.button.connectSftp', {}),
-            onClick: () => setSftpDetailsOpen(true),
-            color: 'gray',
-          },
-          {
-            icon: faCode,
-            label: t('pages.server.files.button.connectVscode', {}),
-            onClick: () => window.open(vscodeUrl),
-            color: 'gray',
-          },
-        ]}
-      >
-        {({ openMenu }) => (
-          <Button
-            variant='outline'
-            leftSection={<FontAwesomeIcon icon={faServer} />}
-            rightSection={<FontAwesomeIcon icon={faChevronDown} />}
-            onClick={(e) => {
-              e.stopPropagation();
-              const rect = e.currentTarget.getBoundingClientRect();
-              openMenu(rect.left, rect.bottom);
-            }}
-          >
-            {t('pages.server.files.button.connect', {})}
-          </Button>
-        )}
-      </ContextMenu>
-    </ServerCan>
+    <>
+      <ServerCan action='files.sftp'>
+        <SftpDetailsModal opened={sftpDetailsOpen} onClose={() => setSftpDetailsOpen(false)} />
+      </ServerCan>
+      <ServerCan action='files.read-content'>
+        <ContextMenu
+          menuProps={{ position: 'bottom-start' }}
+          items={[
+            {
+              icon: faServer,
+              label: t('pages.server.files.button.connectSftp', {}),
+              onClick: () => setSftpDetailsOpen(true),
+              color: 'gray',
+            },
+            {
+              icon: faCode,
+              label: t('pages.server.files.button.connectVscode', {}),
+              onClick: () => window.open(vscodeUrl),
+              color: 'gray',
+            },
+          ]}
+        >
+          {({ openMenu }) => (
+            <Button
+              variant='outline'
+              leftSection={<FontAwesomeIcon icon={faServer} />}
+              rightSection={<FontAwesomeIcon icon={faChevronDown} />}
+              onClick={(e) => {
+                e.stopPropagation();
+                const rect = e.currentTarget.getBoundingClientRect();
+                openMenu(rect.left, rect.bottom);
+              }}
+            >
+              {t('pages.server.files.button.connect', {})}
+            </Button>
+          )}
+        </ContextMenu>
+      </ServerCan>
+    </>
   );
 }
