@@ -30,6 +30,7 @@ import { queryKeys } from '@/lib/queryKeys.ts';
 import { adminBackupConfigurationSchema } from '@/lib/schemas/admin/backupConfigurations.ts';
 import { adminLocationSchema } from '@/lib/schemas/admin/locations.ts';
 import { adminNodeSchema, adminNodeUpdateSchema } from '@/lib/schemas/admin/nodes.ts';
+import NodeDuplicateModal from '@/pages/admin/nodes/modals/NodeDuplicateModal.tsx';
 import { useResourceForm } from '@/plugins/useResourceForm.ts';
 import { useSearchableResource } from '@/plugins/useSearchableResource.ts';
 import { useToast } from '@/providers/ToastProvider.tsx';
@@ -41,7 +42,7 @@ export default function NodeCreateOrUpdate({ contextNode }: { contextNode?: z.in
   const queryClient = useQueryClient();
 
   const [isValid, setIsValid] = useState(false);
-  const [openModal, setOpenModal] = useState<'delete' | null>(null);
+  const [openModal, setOpenModal] = useState<'delete' | 'duplicate' | null>(null);
 
   const form = useForm<z.infer<typeof adminNodeUpdateSchema>>({
     mode: 'uncontrolled',
@@ -144,6 +145,10 @@ export default function NodeCreateOrUpdate({ contextNode }: { contextNode?: z.in
       >
         {t('pages.admin.nodes.modal.delete.content', { name: form.getValues().name }).md()}
       </ConfirmationModal>
+
+      {contextNode && (
+        <NodeDuplicateModal node={contextNode} opened={openModal === 'duplicate'} onClose={() => setOpenModal(null)} />
+      )}
 
       <form onSubmit={form.onSubmit(() => doCreateOrUpdate(false, queryKeys.admin.nodes.all()))}>
         <div className='grid grid-cols-1 md:grid-cols-2 gap-4'>
@@ -286,6 +291,11 @@ export default function NodeCreateOrUpdate({ contextNode }: { contextNode?: z.in
                   disabled={isNodeAIO(contextNode)}
                 >
                   {t('pages.admin.nodes.tabs.general.page.button.resetToken', {})}
+                </Button>
+              </AdminCan>
+              <AdminCan action='nodes.create'>
+                <Button variant='default' onClick={() => setOpenModal('duplicate')} loading={loading}>
+                  {t('common.button.duplicate', {})}
                 </Button>
               </AdminCan>
               <AdminCan action='nodes.delete' cantDelete>

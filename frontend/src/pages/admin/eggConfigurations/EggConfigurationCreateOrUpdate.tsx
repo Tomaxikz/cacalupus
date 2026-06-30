@@ -37,6 +37,7 @@ import {
   EggConfigurationDeployment,
 } from '@/lib/schemas/admin/eggConfigurations.ts';
 import { eggConfigurationRouteItemSchema } from '@/lib/schemas/generic.ts';
+import EggConfigurationDuplicateModal from '@/pages/admin/eggConfigurations/modals/EggConfigurationDuplicateModal.tsx';
 import { useResourceForm } from '@/plugins/useResourceForm.ts';
 import { useToast } from '@/providers/ToastProvider.tsx';
 import { useTranslations } from '@/providers/TranslationProvider.tsx';
@@ -173,7 +174,7 @@ export default function EggConfigurationCreateOrUpdate({
   const { t } = useTranslations();
   const { languages } = useGlobalStore();
 
-  const [openModal, setOpenModal] = useState<'delete' | null>(null);
+  const [openModal, setOpenModal] = useState<'delete' | 'duplicate' | null>(null);
   const [eggs, setEggs] = useState<{ group: string; items: { label: string; value: string }[] }[]>([]);
   const [defaultRoutes, setDefaultRoutes] = useState<{
     order: z.infer<typeof eggConfigurationRouteItemSchema>[];
@@ -316,6 +317,14 @@ export default function EggConfigurationCreateOrUpdate({
           name: form.getValues().name,
         }).md()}
       </ConfirmationModal>
+
+      {contextEggConfiguration && (
+        <EggConfigurationDuplicateModal
+          eggConfiguration={contextEggConfiguration}
+          opened={openModal === 'duplicate'}
+          onClose={() => setOpenModal(null)}
+        />
+      )}
 
       <form onSubmit={form.onSubmit(() => doCreateOrUpdate(false, queryKeys.admin.eggConfigurations.all()))}>
         <div className='grid grid-cols-1 md:grid-cols-2 gap-4'>
@@ -595,6 +604,13 @@ export default function EggConfigurationCreateOrUpdate({
                 </Button>
               )}
             </AdminCan>
+            {contextEggConfiguration && (
+              <AdminCan action='egg-configurations.create'>
+                <Button variant='default' onClick={() => setOpenModal('duplicate')} loading={loading}>
+                  {t('common.button.duplicate', {})}
+                </Button>
+              </AdminCan>
+            )}
             {contextEggConfiguration && (
               <AdminCan action='egg-configurations.delete' cantDelete>
                 <Button color='red' onClick={() => setOpenModal('delete')} loading={loading}>

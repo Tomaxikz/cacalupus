@@ -12,6 +12,8 @@ use shared::{
 };
 use utoipa_axum::{router::OpenApiRouter, routes};
 
+mod duplicate;
+
 mod database_hosts;
 mod nodes;
 
@@ -220,6 +222,7 @@ pub fn router(state: &State) -> OpenApiRouter<State> {
         .routes(routes!(patch::route))
         .nest("/nodes", nodes::router(state))
         .nest("/database-hosts", database_hosts::router(state))
+        .nest("/duplicate", duplicate::router(state))
         .route_layer(axum::middleware::from_fn_with_state(state.clone(), auth))
         .with_state(state.clone())
 }

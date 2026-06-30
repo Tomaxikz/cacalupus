@@ -18,6 +18,7 @@ import ConfirmationModal from '@/elements/modals/ConfirmationModal.tsx';
 import { queryKeys } from '@/lib/queryKeys.ts';
 import { adminBackupConfigurationSchema } from '@/lib/schemas/admin/backupConfigurations.ts';
 import { adminLocationSchema, adminLocationUpdateSchema } from '@/lib/schemas/admin/locations.ts';
+import LocationDuplicateModal from '@/pages/admin/locations/modals/LocationDuplicateModal.tsx';
 import { useAdminCan } from '@/plugins/usePermissions.ts';
 import { useResourceForm } from '@/plugins/useResourceForm.ts';
 import { useSearchableResource } from '@/plugins/useSearchableResource.ts';
@@ -29,7 +30,7 @@ export default ({ contextLocation }: { contextLocation?: z.infer<typeof adminLoc
   const { t, language } = useTranslations();
 
   const canReadBackupConfigurations = useAdminCan('backup-configurations.read');
-  const [openModal, setOpenModal] = useState<'delete' | null>(null);
+  const [openModal, setOpenModal] = useState<'delete' | 'duplicate' | null>(null);
 
   const form = useForm<z.infer<typeof adminLocationUpdateSchema>>({
     initialValues: {
@@ -95,6 +96,14 @@ export default ({ contextLocation }: { contextLocation?: z.infer<typeof adminLoc
       >
         {t('pages.admin.locations.tabs.general.page.modal.delete.content', { name: form.getValues().name }).md()}
       </ConfirmationModal>
+
+      {contextLocation && (
+        <LocationDuplicateModal
+          location={contextLocation}
+          opened={openModal === 'duplicate'}
+          onClose={() => setOpenModal(null)}
+        />
+      )}
 
       <form onSubmit={form.onSubmit(() => doCreateOrUpdate(false, queryKeys.admin.locations.all()))}>
         <div className='grid grid-cols-1 md:grid-cols-2 gap-4'>
@@ -167,6 +176,13 @@ export default ({ contextLocation }: { contextLocation?: z.infer<typeof adminLoc
               </Button>
             )}
           </AdminCan>
+          {contextLocation && (
+            <AdminCan action='locations.create'>
+              <Button variant='default' onClick={() => setOpenModal('duplicate')} loading={loading}>
+                {t('common.button.duplicate', {})}
+              </Button>
+            </AdminCan>
+          )}
           {contextLocation && (
             <AdminCan action='locations.delete' cantDelete>
               <Button color='red' onClick={() => setOpenModal('delete')} loading={loading}>

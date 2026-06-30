@@ -1,9 +1,11 @@
 import { useForm } from '@mantine/form';
 import { zod4Resolver } from 'mantine-form-zod-resolver';
 import { useEffect, useState } from 'react';
+import { useNavigate } from 'react-router';
 import { z } from 'zod';
 import createAnnouncement from '@/api/admin/announcements/createAnnouncement.ts';
 import deleteAnnouncement from '@/api/admin/announcements/deleteAnnouncement.ts';
+import duplicateAnnouncement from '@/api/admin/announcements/duplicateAnnouncement.ts';
 import updateAnnouncement from '@/api/admin/announcements/updateAnnouncement.ts';
 import getBackupConfigurations from '@/api/admin/backup-configurations/getBackupConfigurations.ts';
 import getLocations from '@/api/admin/locations/getLocations.ts';
@@ -49,7 +51,8 @@ export default function AnnouncementCreateOrUpdate({
   const canReadNodes = useAdminCan('nodes.read');
   const canReadBackupConfigurations = useAdminCan('backup-configurations.read');
 
-  const [openModal, setOpenModal] = useState<'delete' | null>(null);
+  const [openModal, setOpenModal] = useState<'delete' | 'duplicate' | null>(null);
+  const navigate = useNavigate();
   const [eggs, setEggs] = useState<{ group: string; items: { label: string; value: string }[] }[]>([]);
 
   const form = useForm<z.infer<typeof adminAnnouncementUpdateSchema>>({
@@ -73,7 +76,7 @@ export default function AnnouncementCreateOrUpdate({
     validate: zod4Resolver(adminAnnouncementUpdateSchema),
   });
 
-  const { loading, doCreateOrUpdate, doDelete } = useResourceForm<
+  const { loading, setLoading, doCreateOrUpdate, doDelete } = useResourceForm<
     z.infer<typeof adminAnnouncementUpdateSchema>,
     z.infer<typeof adminAnnouncementSchema>
   >({
@@ -108,6 +111,26 @@ export default function AnnouncementCreateOrUpdate({
       });
     }
   }, [contextAnnouncement]);
+
+  const doDuplicate = () => {
+    if (!contextAnnouncement) {
+      return;
+    }
+
+    setLoading(true);
+
+    duplicateAnnouncement(contextAnnouncement.uuid)
+      .then((duplicated) => {
+        addToast(
+          t('common.toast.duplicated', { resource: t('pages.admin.announcements.resourceName', {}) }),
+          'success',
+        );
+        setOpenModal(null);
+        navigate(`/admin/announcements/${duplicated.uuid}`);
+      })
+      .catch((msg) => addToast(httpErrorToHuman(msg), 'error'))
+      .finally(() => setLoading(false));
+  };
 
   useEffect(() => {
     getAllEggs()
@@ -162,6 +185,18 @@ export default function AnnouncementCreateOrUpdate({
         onConfirmed={doDelete}
       >
         {tReact('pages.admin.announcements.tabs.general.page.modal.delete.content', { title: form.getValues().title })}
+      </ConfirmationModal>
+
+      <ConfirmationModal
+        opened={openModal === 'duplicate'}
+        onClose={() => setOpenModal(null)}
+        title={t('common.modal.duplicate.title', { resource: t('pages.admin.announcements.resourceName', {}) })}
+        confirm={t('common.button.duplicate', {})}
+        onConfirmed={doDuplicate}
+      >
+        {t('pages.admin.announcements.tabs.general.page.modal.duplicate.content', {
+          title: form.getValues().title,
+        }).md()}
       </ConfirmationModal>
 
       <form onSubmit={form.onSubmit(() => doCreateOrUpdate(false, [queryKeys.admin.announcements.all()]))}>
@@ -290,6 +325,13 @@ export default function AnnouncementCreateOrUpdate({
               </Button>
             )}
           </AdminCan>
+          {contextAnnouncement && (
+            <AdminCan action='announcements.create'>
+              <Button variant='default' onClick={() => setOpenModal('duplicate')} loading={loading}>
+                {t('common.button.duplicate', {})}
+              </Button>
+            </AdminCan>
+          )}
           {contextAnnouncement && (
             <AdminCan action='announcements.delete' cantDelete>
               <Button color='red' onClick={() => setOpenModal('delete')} loading={loading}>

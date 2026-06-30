@@ -18,12 +18,13 @@ import TextInput from '@/elements/input/TextInput.tsx';
 import ConfirmationModal from '@/elements/modals/ConfirmationModal.tsx';
 import { queryKeys } from '@/lib/queryKeys.ts';
 import { adminMountSchema, adminMountUpdateSchema } from '@/lib/schemas/admin/mounts.ts';
+import MountDuplicateModal from '@/pages/admin/mounts/modals/MountDuplicateModal.tsx';
 import { useResourceForm } from '@/plugins/useResourceForm.ts';
 import { useTranslations } from '@/providers/TranslationProvider.tsx';
 
 export default function MountCreateOrUpdate({ contextMount }: { contextMount?: z.infer<typeof adminMountSchema> }) {
   const { t } = useTranslations();
-  const [openModal, setOpenModal] = useState<'delete' | null>(null);
+  const [openModal, setOpenModal] = useState<'delete' | 'duplicate' | null>(null);
 
   const form = useForm<z.infer<typeof adminMountUpdateSchema>>({
     initialValues: {
@@ -87,6 +88,14 @@ export default function MountCreateOrUpdate({ contextMount }: { contextMount?: z
         {t('pages.admin.mounts.tabs.general.page.modal.delete.content', { name: form.getValues().name }).md()}
       </ConfirmationModal>
 
+      {contextMount && (
+        <MountDuplicateModal
+          mount={contextMount}
+          opened={openModal === 'duplicate'}
+          onClose={() => setOpenModal(null)}
+        />
+      )}
+
       <Alert color='yellow' icon={<FontAwesomeIcon icon={faExclamationTriangle} />} mb='md'>
         {t('pages.admin.mounts.tabs.general.page.alert', {})}
       </Alert>
@@ -142,6 +151,13 @@ export default function MountCreateOrUpdate({ contextMount }: { contextMount?: z
               </Button>
             )}
           </AdminCan>
+          {contextMount && (
+            <AdminCan action='mounts.create'>
+              <Button variant='default' onClick={() => setOpenModal('duplicate')} loading={loading}>
+                {t('common.button.duplicate', {})}
+              </Button>
+            </AdminCan>
+          )}
           {contextMount && (
             <AdminCan action='mounts.delete' cantDelete>
               <Button color='red' onClick={() => setOpenModal('delete')} loading={loading}>
