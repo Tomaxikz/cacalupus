@@ -12,7 +12,7 @@ const baseTranslations = defineTranslations({
     byte: defineEnglishItem('Byte', 'Bytes'),
     user: defineEnglishItem('User', 'Users'),
     file: defineEnglishItem('File', 'Files'),
-    folder: defineEnglishItem('Folder', 'Folders'),
+    directory: defineEnglishItem('Directory', 'Directories'),
     server: defineEnglishItem('Server', 'Servers'),
     sshKey: defineEnglishItem('SSH Key', 'SSH Keys'),
     asset: defineEnglishItem('Asset', 'Assets'),

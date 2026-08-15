@@ -73,7 +73,7 @@ function FileActionBar() {
   const [conflicts, setConflicts] = useState<FileConflict[] | null>(null);
   const [conflictLoading, setConflictLoading] = useState(false);
 
-  const actingFilesItemKey = actingFiles.values().every((f) => f.directory) ? 'folder' : 'file';
+  const actingFilesItemKey = actingFiles.values().every((f) => f.directory) ? 'directory' : 'file';
 
   const doCopy = () => {
     setLoading(true);

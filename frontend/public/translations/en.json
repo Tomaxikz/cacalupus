@@ -24,13 +24,13 @@
       "many": "{count} Files",
       "other": "{count} Files"
     },
-    "folder": {
-      "zero": "{count} Folders",
-      "one": "{count} Folder",
-      "two": "{count} Folders",
-      "few": "{count} Folders",
-      "many": "{count} Folders",
-      "other": "{count} Folders"
+    "directory": {
+      "zero": "{count} Directories",
+      "one": "{count} Directory",
+      "two": "{count} Directories",
+      "few": "{count} Directories",
+      "many": "{count} Directories",
+      "other": "{count} Directories"
     },
     "server": {
       "zero": "{count} Servers",
