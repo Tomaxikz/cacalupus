@@ -4807,10 +4807,6 @@ const baseTranslations = defineTranslations({
         databases: {
           title: 'Databases',
           subtitle: '{current} of {max} maximum databases created.',
-          classic: {
-            title: 'Classic Databases',
-            subtitle: '{current} databases created.',
-          },
           tooltip: {
             limitReached: 'This server is limited to {max} databases.',
           },
@@ -4988,7 +4984,6 @@ const baseTranslations = defineTranslations({
           },
           instance: {
             title: 'Managed Databases',
-            subtitle: '{current} managed databases created.',
             updateAvailable: 'Update Available',
             button: {
               applyUpdate: 'Apply Update',

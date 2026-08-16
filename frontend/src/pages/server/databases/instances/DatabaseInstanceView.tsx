@@ -340,7 +340,7 @@ export default function DatabaseInstanceView() {
               instance={instance}
               opened={openModal === 'delete'}
               onClose={() => setOpenModal(null)}
-              onDeleted={() => navigate(`/server/${server.uuidShort}/databases`)}
+              onDeleted={() => navigate(`/server/${server.uuidShort}/databases/instances`)}
             />
             {instance.type === 'redis' && (
               <>

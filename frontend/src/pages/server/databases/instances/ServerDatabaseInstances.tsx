@@ -1,7 +1,7 @@
 import { faPlus } from '@fortawesome/free-solid-svg-icons';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { useState } from 'react';
-import getDatabases from '@/api/server/databases/getDatabases.ts';
+import getDatabaseInstances from '@/api/server/databases/instances/getDatabaseInstances.ts';
 import Button from '@/elements/Button.tsx';
 import { ServerCan } from '@/elements/Can.tsx';
 import ConditionalTooltip from '@/elements/ConditionalTooltip.tsx';
@@ -11,31 +11,26 @@ import { queryKeys } from '@/lib/queryKeys.ts';
 import { useSearchablePaginatedTable } from '@/plugins/useSearchablePaginatedTable.ts';
 import { useTranslations } from '@/providers/TranslationProvider.tsx';
 import { useServerStore } from '@/stores/server.ts';
-import DatabaseRow from './DatabaseRow.tsx';
-import DatabasesSubNavigation from './DatabasesSubNavigation.tsx';
-import ServerDatabaseInstances from './instances/ServerDatabaseInstances.tsx';
-import DatabaseCreateModal from './modals/DatabaseCreateModal.tsx';
-import { useDatabaseRelevance } from './useDatabaseRelevance.ts';
+import DatabasesSubNavigation from '../DatabasesSubNavigation.tsx';
+import { useDatabaseRelevance } from '../useDatabaseRelevance.ts';
+import DatabaseInstanceRow from './DatabaseInstanceRow.tsx';
+import DatabaseInstanceCreateModal from './modals/DatabaseInstanceCreateModal.tsx';
 
-export default function ServerDatabases() {
+export default function ServerDatabaseInstances() {
   const { t } = useTranslations();
   const server = useServerStore((state) => state.server);
 
   const [createOpen, setCreateOpen] = useState(false);
 
-  const { canReadClassic, used, full, databaseHosts, classicRelevant, agentRelevant, settled } = useDatabaseRelevance();
+  const { canReadAgent, used, full, agentTemplates } = useDatabaseRelevance();
 
   const { data, loading, error, search, setSearch, setPage } = useSearchablePaginatedTable({
-    queryKey: queryKeys.server(server.uuid).databases.all(),
-    fetcher: (page, search) => getDatabases(server.uuid, page, search),
-    canRequest: canReadClassic,
+    queryKey: queryKeys.server(server.uuid).databases.instances.all(),
+    fetcher: (page, search) => getDatabaseInstances(server.uuid, page, search),
+    canRequest: canReadAgent,
   });
 
-  if (settled && !classicRelevant && agentRelevant) {
-    return <ServerDatabaseInstances />;
-  }
-
-  const disabled = full || databaseHosts.length === 0;
+  const disabled = full || agentTemplates.length === 0;
 
   return (
     <ServerContentContainer
@@ -47,7 +42,7 @@ export default function ServerDatabases() {
       search={search}
       setSearch={setSearch}
       contentRight={
-        <ServerCan action='databases.create'>
+        <ServerCan action='database-instances.create'>
           <ConditionalTooltip
             enabled={disabled}
             label={
@@ -55,7 +50,7 @@ export default function ServerDatabases() {
                 ? t('pages.server.databases.tooltip.limitReached', {
                     max: server.featureLimits.databases,
                   })
-                : t('pages.server.databases.modal.createDatabase.form.noHostsFound', {})
+                : t('pages.server.databases.instance.modal.createDatabaseInstance.form.noTemplatesFound', {})
             }
           >
             <Button
@@ -69,9 +64,9 @@ export default function ServerDatabases() {
           </ConditionalTooltip>
         </ServerCan>
       }
-      registry={window.extensionContext.extensionRegistry.pages.server.databases.container}
+      registry={window.extensionContext.extensionRegistry.pages.server.databases.instances.container}
     >
-      <DatabaseCreateModal opened={createOpen} onClose={() => setCreateOpen(false)} />
+      <DatabaseInstanceCreateModal opened={createOpen} onClose={() => setCreateOpen(false)} />
 
       <DatabasesSubNavigation />
 
@@ -80,8 +75,8 @@ export default function ServerDatabases() {
           t('common.table.columns.name', {}),
           t('common.table.columns.type', {}),
           t('common.table.columns.address', {}),
-          t('common.table.columns.username', {}),
-          t('common.table.columns.size', {}),
+          t('common.form.memory', {}),
+          t('common.form.disk', {}),
           t('pages.server.databases.table.columns.locked', {}),
           '',
         ]}
@@ -90,8 +85,8 @@ export default function ServerDatabases() {
         onPageSelect={setPage}
         error={error}
       >
-        {data?.data.map((database) => (
-          <DatabaseRow database={database} key={database.uuid} />
+        {data?.data.map((instance) => (
+          <DatabaseInstanceRow instance={instance} key={instance.uuid} />
         ))}
       </Table>
     </ServerContentContainer>

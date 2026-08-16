@@ -19,6 +19,7 @@ import ServerSystemBackups from '@/pages/server/backups/system/ServerSystemBacku
 import DatabaseExplorerView from '@/pages/server/databases/explorer/DatabaseExplorerView.tsx';
 import DatabaseInstanceExplorerView from '@/pages/server/databases/instances/DatabaseInstanceExplorerView.tsx';
 import DatabaseInstanceView from '@/pages/server/databases/instances/DatabaseInstanceView.tsx';
+import ServerDatabaseInstances from '@/pages/server/databases/instances/ServerDatabaseInstances.tsx';
 import ServerDatabases from '@/pages/server/databases/ServerDatabases.tsx';
 import ServerFilesEditor from '@/pages/server/files/FileEditor.tsx';
 import FileRevisionDiff from '@/pages/server/files/FileRevisionDiff.tsx';
@@ -75,6 +76,12 @@ const routes: ServerRouteDefinition[] = [
     path: '/databases',
     element: ServerDatabases,
     permission: ['databases.read', 'database-instances.read'],
+  },
+  {
+    name: undefined,
+    path: '/databases/instances',
+    element: ServerDatabaseInstances,
+    permission: 'database-instances.read',
   },
   {
     name: undefined,

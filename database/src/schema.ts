@@ -1006,7 +1006,7 @@ export const serverSubusersTable = pgTable(
     user_uuid: uuid()
       .references(() => usersTable.uuid, { onDelete: 'cascade' })
       .notNull(),
-    permissions: varchar({ length: 32 }).array().notNull(),
+    permissions: varchar({ length: 64 }).array().notNull(),
     ignored_files: text().array().notNull(),
     created: timestamp().defaultNow().notNull(),
   },

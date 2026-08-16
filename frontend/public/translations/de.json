@@ -4786,8 +4786,7 @@
           "title": "Datenbanken",
           "subtitle": "{current} von maximal {max} Datenbanken erstellt.",
           "classic": {
-            "title": "Klassische Datenbanken",
-            "subtitle": "{current} Datenbanken erstellt."
+            "title": "Klassische Datenbanken"
           },
           "tooltip": {
             "limitReached": "Dieser Server ist auf {max} Datenbanken limitiert."
@@ -4963,7 +4962,6 @@
           },
           "instance": {
             "title": "Verwaltete Datenbanken",
-            "subtitle": "{current} verwaltete Datenbanken erstellt.",
             "updateAvailable": "Update verfügbar",
             "button": {
               "applyUpdate": "Update anwenden"
