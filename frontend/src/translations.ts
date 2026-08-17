@@ -997,9 +997,6 @@ const baseTranslations = defineTranslations({
             noGroup: 'This server is not in any group',
             foreign: 'This server is owned by another user, you have access to it as a subuser or administrator',
           },
-          badge: {
-            foreign: 'Foreign',
-          },
           tabs: {
             groupedServers: {
               title: 'Grouped Servers',

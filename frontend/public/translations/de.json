@@ -24,6 +24,14 @@
       "many": "{count} Dateien",
       "other": "{count} Dateien"
     },
+    "directory": {
+      "zero": "{count} Verzeichnisse",
+      "one": "{count} Verzeichnis",
+      "two": "{count} Verzeichnisse",
+      "few": "{count} Verzeichnisse",
+      "many": "{count} Verzeichnisse",
+      "other": "{count} Verzeichnisse"
+    },
     "server": {
       "zero": "{count} Server",
       "one": "{count} Server",
@@ -575,6 +583,30 @@
           "themeLight": "Hell"
         }
       },
+      "quickActions": {
+        "trigger": "Schnellaktionen...",
+        "placeholder": "Nach Aktionen und Seiten suchen...",
+        "category": {
+          "navigation": "Navigation",
+          "power": "Energie",
+          "account": "Konto",
+          "servers": "Server",
+          "page": "Diese Seite",
+          "math": "Rechner"
+        },
+        "math": {
+          "calculating": "Berechne...",
+          "unsolvable": "Dieser Ausdruck kann nicht gelöst werden",
+          "copyResult": "Ergebnis kopieren"
+        },
+        "hint": {
+          "navigate": "zum Navigieren",
+          "select": "zum Auswählen",
+          "close": "zum Schließen",
+          "calculate": "zum Berechnen",
+          "pages": "nur für Seiten"
+        }
+      },
       "permissionSelector": {
         "button": {
           "copyPermissions": "Berechtigungen kopieren",
@@ -1067,9 +1099,6 @@
             "noGroup": "Dieser Server ist noch in keiner Gruppe",
             "foreign": "Dieser Server gehört einem anderen Benutzer, du hast als Unterbenutzer oder Administrator Zugriff darauf"
           },
-          "badge": {
-            "foreign": "Fremd"
-          },
           "tabs": {
             "groupedServers": {
               "title": "Gruppierte Server",
@@ -1312,7 +1341,8 @@
           },
           "general": {
             "title": "Allgemein",
-            "undo": "Letzte Aktion rückgängig machen"
+            "undo": "Letzte Aktion rückgängig machen",
+            "quickActions": "Schnellaktionen öffnen"
           },
           "fileManager": {
             "title": "Dateimanager",
@@ -4479,6 +4509,33 @@
             "loadDisk": "Festplattenversion laden",
             "keepEditor": "Editor-Version behalten"
           },
+          "quickAction": {
+            "newFile": "Neue Datei",
+            "newDirectory": "Neues Verzeichnis",
+            "pullFile": "Datei von URL laden",
+            "uploadFiles": "Dateien hochladen",
+            "uploadDirectory": "Verzeichnis hochladen",
+            "search": "Dateien suchen",
+            "largestDirectories": "Verzeichnisgrößen analysieren",
+            "parentDirectory": "Zum übergeordneten Verzeichnis",
+            "copyPath": "Aktuellen Pfad kopieren",
+            "exitBackup": "Backup-Ansicht verlassen",
+            "connectSftp": "Über SFTP verbinden",
+            "connectVscode": "In VS Code öffnen",
+            "cancelPaste": "Ausstehendes Kopieren oder Verschieben abbrechen",
+            "downloadSelection": "Auswahl herunterladen",
+            "copySelection": "Auswahl kopieren",
+            "moveSelection": "Auswahl verschieben",
+            "remoteCopySelection": "Auswahl auf anderen Server kopieren",
+            "archiveSelection": "Auswahl archivieren",
+            "extractSelection": "Archiv entpacken",
+            "renameSelection": "Auswahl umbenennen",
+            "permissionsSelection": "Berechtigungen ändern",
+            "fingerprintSelection": "Dateifingerabdruck anzeigen",
+            "deleteSelection": "Auswahl löschen",
+            "saveFile": "Datei speichern",
+            "createFile": "Datei erstellen"
+          },
           "actionBar": {
             "copyHere": "Kopiere {files} hierhin",
             "moveHere": "Verschiebe {files} hierhin"
@@ -4785,9 +4842,6 @@
         "databases": {
           "title": "Datenbanken",
           "subtitle": "{current} von maximal {max} Datenbanken erstellt.",
-          "classic": {
-            "title": "Klassische Datenbanken"
-          },
           "tooltip": {
             "limitReached": "Dieser Server ist auf {max} Datenbanken limitiert."
           },
