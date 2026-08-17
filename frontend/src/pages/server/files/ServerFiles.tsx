@@ -31,7 +31,7 @@ import FileSearchBanner from '@/pages/server/files/FileSearchBanner.tsx';
 import FileSettings from '@/pages/server/files/FileSettings.tsx';
 import FileToolbar from '@/pages/server/files/FileToolbar.tsx';
 import FileUpload from '@/pages/server/files/FileUpload.tsx';
-import { useFileBrowserQuickActions } from '@/pages/server/files/hooks/useFileBrowserQuickActions.ts';
+import { useFileBrowserQuickActions } from '@/pages/server/files/hooks/useFileBrowserQuickActions.tsx';
 import { useKeyboardShortcuts } from '@/plugins/useKeyboardShortcuts.ts';
 import { useServerCan } from '@/plugins/usePermissions.ts';
 import { useSelectionArea } from '@/plugins/useSelectionArea.ts';

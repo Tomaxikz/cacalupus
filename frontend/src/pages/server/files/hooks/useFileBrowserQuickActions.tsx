@@ -10,6 +10,7 @@ import {
   faMagnifyingGlassChart,
   faSearch,
 } from '@fortawesome/free-solid-svg-icons';
+import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { join } from 'pathe';
 import { createSearchParams, useNavigate, useSearchParams } from 'react-router';
 import { handleRawCopyToClipboard } from '@/lib/copy.ts';
@@ -36,7 +37,7 @@ export function useFileBrowserQuickActions() {
       id: 'files.newFile',
       category: page,
       label: () => t('pages.server.files.quickAction.newFile', {}),
-      icon: faFileCirclePlus,
+      icon: <FontAwesomeIcon icon={faFileCirclePlus} fixedWidth />,
       permission: 'files.create',
       isVisible: isWritable,
       perform: () =>
@@ -49,7 +50,7 @@ export function useFileBrowserQuickActions() {
       category: page,
       label: () => t('pages.server.files.quickAction.newDirectory', {}),
       keywords: ['folder', 'mkdir'],
-      icon: faFolderPlus,
+      icon: <FontAwesomeIcon icon={faFolderPlus} fixedWidth />,
       permission: 'files.create',
       isVisible: isWritable,
       perform: () => store.getState().doOpenModal('nameDirectory'),
@@ -59,7 +60,7 @@ export function useFileBrowserQuickActions() {
       category: page,
       label: () => t('pages.server.files.quickAction.pullFile', {}),
       keywords: ['url', 'download', 'wget'],
-      icon: faDownload,
+      icon: <FontAwesomeIcon icon={faDownload} fixedWidth />,
       permission: 'files.create',
       isVisible: isWritable,
       perform: () => store.getState().doOpenModal('pullFile'),
@@ -68,7 +69,7 @@ export function useFileBrowserQuickActions() {
       id: 'files.uploadFiles',
       category: page,
       label: () => t('pages.server.files.quickAction.uploadFiles', {}),
-      icon: faFileUpload,
+      icon: <FontAwesomeIcon icon={faFileUpload} fixedWidth />,
       permission: 'files.create',
       isVisible: isWritable,
       perform: () => store.getState().fileInputRef.current?.click(),
@@ -78,7 +79,7 @@ export function useFileBrowserQuickActions() {
       category: page,
       label: () => t('pages.server.files.quickAction.uploadDirectory', {}),
       keywords: ['folder'],
-      icon: faFolderOpen,
+      icon: <FontAwesomeIcon icon={faFolderOpen} fixedWidth />,
       permission: 'files.create',
       isVisible: isWritable,
       perform: () => store.getState().folderInputRef.current?.click(),
@@ -88,7 +89,7 @@ export function useFileBrowserQuickActions() {
       category: page,
       label: () => t('pages.server.files.quickAction.search', {}),
       keywords: ['find', 'grep'],
-      icon: faSearch,
+      icon: <FontAwesomeIcon icon={faSearch} fixedWidth />,
       permission: 'files.read',
       perform: () => store.getState().doOpenModal('search'),
     },
@@ -97,7 +98,7 @@ export function useFileBrowserQuickActions() {
       category: page,
       label: () => t('pages.server.files.quickAction.largestDirectories', {}),
       keywords: ['largest', 'disk', 'usage', 'size'],
-      icon: faMagnifyingGlassChart,
+      icon: <FontAwesomeIcon icon={faMagnifyingGlassChart} fixedWidth />,
       permission: 'files.read',
       isVisible: () => store.getState().browsingPrimaryFilesystem,
       perform: () => store.getState().doOpenModal('largestDirectories'),
@@ -107,7 +108,7 @@ export function useFileBrowserQuickActions() {
       category: page,
       label: () => t('pages.server.files.quickAction.parentDirectory', {}),
       keywords: ['up', 'back'],
-      icon: faArrowUp,
+      icon: <FontAwesomeIcon icon={faArrowUp} fixedWidth />,
       perform: () => setSearchParams({ directory: join(store.getState().browsingDirectory, '..') }),
       isVisible: () => {
         const { browsingDirectory, browsingBackup, searchInfo } = store.getState();
@@ -121,14 +122,14 @@ export function useFileBrowserQuickActions() {
       category: page,
       label: () => t('pages.server.files.quickAction.copyPath', {}),
       keywords: ['clipboard', 'directory'],
-      icon: faClipboard,
+      icon: <FontAwesomeIcon icon={faClipboard} fixedWidth />,
       perform: () => handleRawCopyToClipboard(join('/', store.getState().browsingDirectory), addToast),
     },
     {
       id: 'files.exitBackup',
       category: page,
       label: () => t('pages.server.files.quickAction.exitBackup', {}),
-      icon: faDoorOpen,
+      icon: <FontAwesomeIcon icon={faDoorOpen} fixedWidth />,
       isVisible: () => store.getState().browsingBackup !== null,
       perform: () => navigate(`/server/${server.uuidShort}/files`),
     },

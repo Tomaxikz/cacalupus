@@ -35,26 +35,31 @@ export function buildCoreQuickActionCategories(): Record<string, QuickActionCate
       id: CORE_QUICK_ACTION_CATEGORIES.navigation,
       label: () => getTranslations().t('elements.quickActions.category.navigation', {}),
       icon: <FontAwesomeIcon icon={faCompass} size='sm' />,
+      order: 50,
     },
     power: {
       id: CORE_QUICK_ACTION_CATEGORIES.power,
       label: () => getTranslations().t('elements.quickActions.category.power', {}),
       icon: <FontAwesomeIcon icon={faPowerOff} size='sm' />,
+      order: 30,
     },
     account: {
       id: CORE_QUICK_ACTION_CATEGORIES.account,
       label: () => getTranslations().t('elements.quickActions.category.account', {}),
       icon: <FontAwesomeIcon icon={faUserCog} size='sm' />,
+      order: 60,
     },
     page: {
       id: CORE_QUICK_ACTION_CATEGORIES.page,
       label: () => getTranslations().t('elements.quickActions.category.page', {}),
       icon: <FontAwesomeIcon icon={faFileLines} size='sm' />,
+      order: 20,
     },
     math: {
       id: CORE_QUICK_ACTION_CATEGORIES.math,
       label: () => getTranslations().t('elements.quickActions.category.math', {}),
       icon: <FontAwesomeIcon icon={faCalculator} size='sm' />,
+      order: 10,
     },
   };
 }
@@ -90,12 +95,12 @@ function buildCoreQuickActionModes(): QuickActionMode[] {
         return [
           {
             key: 'math:result',
-            categoryId: CORE_QUICK_ACTION_CATEGORIES.math,
+            category: CORE_QUICK_ACTION_CATEGORIES.math,
             label: !math
               ? getTranslations().t('elements.quickActions.math.calculating', {})
               : (result ?? getTranslations().t('elements.quickActions.math.unsolvable', {})),
             description: result ? getTranslations().t('elements.quickActions.math.copyResult', {}) : undefined,
-            icon: faEquals,
+            icon: <FontAwesomeIcon icon={faEquals} fixedWidth />,
             onSelect: () => {
               if (!result) return;
 
@@ -111,7 +116,7 @@ function buildCoreQuickActionModes(): QuickActionMode[] {
       prefix: '/',
       hint: () => getTranslations().t('elements.quickActions.hint.pages', {}),
       map: (item, ctx) => {
-        if (item.categoryId !== CORE_QUICK_ACTION_CATEGORIES.navigation) return null;
+        if (item.category !== CORE_QUICK_ACTION_CATEGORIES.navigation) return null;
 
         const term = ctx.term.toLowerCase();
         if (term && !item.label.toLowerCase().includes(term) && !item.path?.toLowerCase().includes(term)) return null;
@@ -130,7 +135,7 @@ function buildCoreQuickActionDefinitions(): QuickActionDefinition[] {
       id: 'general.goHome',
       category: navigation,
       label: () => getTranslations().t('pages.account.home.title', {}),
-      icon: faServer,
+      icon: <FontAwesomeIcon icon={faServer} fixedWidth />,
       scopes: ['dashboard', 'server'],
       perform: (ctx) => ctx.navigate('/'),
     },
@@ -138,7 +143,7 @@ function buildCoreQuickActionDefinitions(): QuickActionDefinition[] {
       id: 'general.goAdmin',
       category: navigation,
       label: () => getTranslations().t('pages.account.admin.title', {}),
-      icon: faGraduationCap,
+      icon: <FontAwesomeIcon icon={faGraduationCap} fixedWidth />,
       scopes: ['dashboard', 'server'],
       adminPermission: true,
       perform: (ctx) => ctx.navigate('/admin'),
@@ -147,7 +152,7 @@ function buildCoreQuickActionDefinitions(): QuickActionDefinition[] {
       id: 'general.goBack',
       category: navigation,
       label: () => getTranslations().t('common.button.back', {}),
-      icon: faReply,
+      icon: <FontAwesomeIcon icon={faReply} fixedWidth />,
       scopes: ['admin'],
       perform: (ctx) => ctx.navigate('/'),
     },
@@ -155,7 +160,7 @@ function buildCoreQuickActionDefinitions(): QuickActionDefinition[] {
       id: 'server.start',
       category: power,
       label: () => getTranslations().t('common.enum.serverPowerAction.start', {}),
-      icon: faPlay,
+      icon: <FontAwesomeIcon icon={faPlay} fixedWidth />,
       scopes: ['server'],
       permission: 'control.start',
       isVisible: (ctx) => ctx.serverState === 'offline',
@@ -165,7 +170,7 @@ function buildCoreQuickActionDefinitions(): QuickActionDefinition[] {
       id: 'server.stop',
       category: power,
       label: () => getTranslations().t('common.enum.serverPowerAction.stop', {}),
-      icon: faStop,
+      icon: <FontAwesomeIcon icon={faStop} fixedWidth />,
       scopes: ['server'],
       permission: 'control.stop',
       isVisible: (ctx) => ctx.serverState !== 'offline' && ctx.serverState !== 'stopping',
@@ -175,7 +180,7 @@ function buildCoreQuickActionDefinitions(): QuickActionDefinition[] {
       id: 'server.restart',
       category: power,
       label: () => getTranslations().t('common.enum.serverPowerAction.restart', {}),
-      icon: faRotateRight,
+      icon: <FontAwesomeIcon icon={faRotateRight} fixedWidth />,
       scopes: ['server'],
       permission: 'control.restart',
       isVisible: (ctx) => ctx.serverState === 'running',
@@ -185,7 +190,7 @@ function buildCoreQuickActionDefinitions(): QuickActionDefinition[] {
       id: 'server.kill',
       category: power,
       label: () => getTranslations().t('common.enum.serverPowerAction.kill', {}),
-      icon: faSkull,
+      icon: <FontAwesomeIcon icon={faSkull} fixedWidth />,
       danger: true,
       scopes: ['server'],
       permission: 'control.stop',
@@ -196,7 +201,7 @@ function buildCoreQuickActionDefinitions(): QuickActionDefinition[] {
       id: 'general.logout',
       category: account,
       label: () => getTranslations().t('elements.sidebar.button.logout', {}),
-      icon: faArrowRightFromBracket,
+      icon: <FontAwesomeIcon icon={faArrowRightFromBracket} fixedWidth />,
       danger: true,
       perform: (ctx) => ctx.doLogout(),
     },

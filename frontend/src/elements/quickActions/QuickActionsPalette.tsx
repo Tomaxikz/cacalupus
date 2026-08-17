@@ -43,7 +43,7 @@ import { useQuickActionsStore } from '@/stores/quickActions.ts';
 import { useServerStore } from '@/stores/server.ts';
 
 const SERVERS_CATEGORY_ID = 'servers';
-const CATEGORY_ORDER = ['math', 'page', 'power', 'servers', 'navigation', 'account'];
+const DEFAULT_CATEGORY_ORDER = 100;
 
 export default function QuickActionsPalette() {
   const { t } = useTranslations();
@@ -158,8 +158,9 @@ export default function QuickActionsPalette() {
     .filter((definition) => !definition.isVisible || definition.isVisible(actionContext))
     .map((definition) => ({
       key: `action:${definition.id}`,
-      categoryId: definition.category,
+      category: definition.category,
       label: resolveString(definition.label),
+      description: resolveString(definition.description),
       keywords: definition.keywords,
       icon: definition.icon,
       danger: definition.danger,
@@ -187,10 +188,10 @@ export default function QuickActionsPalette() {
 
         return {
           key: `nav:${route.path}`,
-          categoryId: CORE_QUICK_ACTION_CATEGORIES.navigation,
+          category: CORE_QUICK_ACTION_CATEGORIES.navigation,
           label: resolveString(route.name)!,
           path,
-          icon: route.icon,
+          icon: route.icon ? <FontAwesomeIcon icon={route.icon} fixedWidth /> : undefined,
           onSelect: () => {
             close();
             navigate(path);
@@ -214,10 +215,10 @@ export default function QuickActionsPalette() {
 
         return {
           key: `nav:${route.path}`,
-          categoryId: CORE_QUICK_ACTION_CATEGORIES.navigation,
+          category: CORE_QUICK_ACTION_CATEGORIES.navigation,
           label: resolveString(route.name)!,
           path,
-          icon: route.icon,
+          icon: route.icon ? <FontAwesomeIcon icon={route.icon} fixedWidth /> : undefined,
           onSelect: () => {
             close();
             navigate(path);
@@ -238,10 +239,10 @@ export default function QuickActionsPalette() {
 
         return {
           key: `nav:${route.path}`,
-          categoryId: CORE_QUICK_ACTION_CATEGORIES.navigation,
+          category: CORE_QUICK_ACTION_CATEGORIES.navigation,
           label: resolveString(route.name)!,
           path,
-          icon: route.icon,
+          icon: route.icon ? <FontAwesomeIcon icon={route.icon} fixedWidth /> : undefined,
           onSelect: () => {
             close();
             navigate(path);
@@ -263,9 +264,9 @@ export default function QuickActionsPalette() {
           .slice(0, 6)
           .map((s) => ({
             key: `server:${s.uuid}`,
-            categoryId: SERVERS_CATEGORY_ID,
+            category: SERVERS_CATEGORY_ID,
             label: s.name,
-            icon: faServer,
+            icon: <FontAwesomeIcon icon={faServer} fixedWidth />,
             onSelect: () => {
               close();
               navigate(`/server/${s.uuid.slice(0, 8)}`);
@@ -289,26 +290,26 @@ export default function QuickActionsPalette() {
       id: SERVERS_CATEGORY_ID,
       label: () => t('elements.quickActions.category.servers', {}),
       icon: <FontAwesomeIcon icon={faServer} size='sm' />,
+      order: 40,
     },
     ...window.extensionContext.extensionRegistry.quickActions.categories,
   };
 
-  const categoryLabel = (id: string) => categories[id]?.label() ?? id;
+  const categoryLabel = (id: string) => resolveString(categories[id]?.label) ?? id;
   const categoryIconOf = (id: string): ReactNode => categories[id]?.icon;
 
   const byCategory = new Map<string, QuickActionItem[]>();
   for (const item of allItems) {
-    const list = byCategory.get(item.categoryId) ?? [];
+    const list = byCategory.get(item.category) ?? [];
     list.push(item);
-    byCategory.set(item.categoryId, list);
+    byCategory.set(item.category, list);
   }
 
-  const orderedCategoryIds = [
-    ...CATEGORY_ORDER.filter((id) => byCategory.has(id)),
-    ...Array.from(byCategory.keys())
-      .filter((id) => !CATEGORY_ORDER.includes(id))
-      .sort((a, b) => categoryLabel(a).localeCompare(categoryLabel(b))),
-  ];
+  const categoryOrder = (id: string) => categories[id]?.order ?? DEFAULT_CATEGORY_ORDER;
+
+  const orderedCategoryIds = Array.from(byCategory.keys()).sort(
+    (a, b) => categoryOrder(a) - categoryOrder(b) || categoryLabel(a).localeCompare(categoryLabel(b)),
+  );
 
   const grouped = orderedCategoryIds.map((id) => ({
     id,
@@ -395,7 +396,7 @@ export default function QuickActionsPalette() {
                         mod={item.danger ? { danger: true } : undefined}
                       >
                         <Group gap='sm' wrap='nowrap'>
-                          {item.icon && <FontAwesomeIcon icon={item.icon} fixedWidth />}
+                          {item.icon}
                           <Text size='sm' c='inherit'>
                             {item.label}
                           </Text>

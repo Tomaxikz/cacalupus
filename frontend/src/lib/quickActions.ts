@@ -1,4 +1,3 @@
-import type { IconDefinition } from '@fortawesome/free-solid-svg-icons';
 import type { ReactNode } from 'react';
 import type { NavigateFunction } from 'react-router';
 import type { z } from 'zod';
@@ -12,8 +11,10 @@ export type QuickActionScope = 'dashboard' | 'server' | 'admin';
 
 export interface QuickActionCategory {
   id: string;
-  label: () => string;
+  label: LazyString;
   icon?: ReactNode;
+  /** Lower sorts first; categories without one fall back to alphabetical order by label. */
+  order?: number;
 }
 
 export interface QuickActionContext {
@@ -31,12 +32,12 @@ export interface QuickActionContext {
 
 export interface QuickActionItem {
   key: string;
-  categoryId: string;
+  category: string;
   label: string;
   description?: string;
   path?: string;
   keywords?: string[];
-  icon?: IconDefinition;
+  icon?: ReactNode;
   danger?: boolean;
   onSelect: () => void;
 }
@@ -61,8 +62,9 @@ export interface QuickActionDefinition {
   id: string;
   category: string;
   label: LazyString;
+  description?: LazyString;
   keywords?: string[];
-  icon?: IconDefinition;
+  icon?: ReactNode;
   scopes?: QuickActionScope[];
   permission?: string | string[];
   adminPermission?: string | true;

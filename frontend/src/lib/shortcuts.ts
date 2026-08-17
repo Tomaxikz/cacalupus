@@ -10,7 +10,7 @@ export interface ShortcutBinding {
 
 export interface ShortcutCategory {
   id: string;
-  label: () => string;
+  label: LazyString;
   icon?: ReactNode;
 }
 

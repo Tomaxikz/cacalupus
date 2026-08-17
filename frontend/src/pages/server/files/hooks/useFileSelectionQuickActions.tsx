@@ -12,6 +12,7 @@ import {
   faPen,
   faTrash,
 } from '@fortawesome/free-solid-svg-icons';
+import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { CORE_QUICK_ACTION_CATEGORIES } from '@/lib/coreQuickActions.tsx';
 import { isArchiveType } from '@/lib/files.ts';
 import { canMoveFilesToDirectory } from '@/pages/server/files/fileMove.ts';
@@ -64,7 +65,7 @@ export function useFileSelectionQuickActions({
           },
         );
       },
-      icon: faAnglesDown,
+      icon: <FontAwesomeIcon icon={faAnglesDown} fixedWidth />,
       permission: actingMode === 'copy' ? 'files.create' : 'files.update',
       isVisible: () => {
         const { actingFiles, actingFilesSource, actingMode, browsingDirectory, browsingWritableDirectory } =
@@ -83,7 +84,7 @@ export function useFileSelectionQuickActions({
       id: 'files.cancelPaste',
       category: page,
       label: () => t('pages.server.files.quickAction.cancelPaste', {}),
-      icon: faBan,
+      icon: <FontAwesomeIcon icon={faBan} fixedWidth />,
       isVisible: () => store.getState().actingFiles.size > 0,
       perform: () => store.getState().clearActingFiles(),
     },
@@ -91,7 +92,7 @@ export function useFileSelectionQuickActions({
       id: 'files.downloadSelection',
       category: page,
       label: () => t('pages.server.files.quickAction.downloadSelection', {}),
-      icon: faFileDownload,
+      icon: <FontAwesomeIcon icon={faFileDownload} fixedWidth />,
       permission: 'files.read-content',
       isVisible: hasSelection,
       perform: doDownload,
@@ -100,7 +101,7 @@ export function useFileSelectionQuickActions({
       id: 'files.copySelection',
       category: page,
       label: () => t('pages.server.files.quickAction.copySelection', {}),
-      icon: faCopy,
+      icon: <FontAwesomeIcon icon={faCopy} fixedWidth />,
       permission: 'files.create',
       isVisible: hasSelection,
       perform: () => {
@@ -114,7 +115,7 @@ export function useFileSelectionQuickActions({
       category: page,
       label: () => t('pages.server.files.quickAction.moveSelection', {}),
       keywords: ['cut'],
-      icon: faAnglesUp,
+      icon: <FontAwesomeIcon icon={faAnglesUp} fixedWidth />,
       permission: 'files.update',
       isVisible: hasWritableSelection,
       perform: () => {
@@ -128,7 +129,7 @@ export function useFileSelectionQuickActions({
       category: page,
       label: () => t('pages.server.files.quickAction.remoteCopySelection', {}),
       keywords: ['transfer'],
-      icon: faClone,
+      icon: <FontAwesomeIcon icon={faClone} fixedWidth />,
       permission: 'files.read-content',
       isVisible: hasSelection,
       perform: () => {
@@ -141,7 +142,7 @@ export function useFileSelectionQuickActions({
       category: page,
       label: () => t('pages.server.files.quickAction.archiveSelection', {}),
       keywords: ['compress', 'zip', 'tar'],
-      icon: faArchive,
+      icon: <FontAwesomeIcon icon={faArchive} fixedWidth />,
       permission: 'files.archive',
       isVisible: hasWritableSelection,
       perform: () => {
@@ -154,7 +155,7 @@ export function useFileSelectionQuickActions({
       category: page,
       label: () => t('pages.server.files.quickAction.extractSelection', {}),
       keywords: ['decompress', 'unzip'],
-      icon: faEnvelopesBulk,
+      icon: <FontAwesomeIcon icon={faEnvelopesBulk} fixedWidth />,
       permission: 'files.archive',
       isVisible: () => {
         const file = singleSelected();
@@ -166,7 +167,7 @@ export function useFileSelectionQuickActions({
       id: 'files.renameSelection',
       category: page,
       label: () => t('pages.server.files.quickAction.renameSelection', {}),
-      icon: faPen,
+      icon: <FontAwesomeIcon icon={faPen} fixedWidth />,
       permission: 'files.update',
       isVisible: hasWritableSelection,
       perform: () => {
@@ -181,7 +182,7 @@ export function useFileSelectionQuickActions({
       category: page,
       label: () => t('pages.server.files.quickAction.permissionsSelection', {}),
       keywords: ['chmod'],
-      icon: faFileShield,
+      icon: <FontAwesomeIcon icon={faFileShield} fixedWidth />,
       permission: 'files.update',
       isVisible: () => hasSelection() && singleSelected() !== null,
       perform: () => store.getState().doOpenModal('permissions', [singleSelected()!]),
@@ -191,7 +192,7 @@ export function useFileSelectionQuickActions({
       category: page,
       label: () => t('pages.server.files.quickAction.fingerprintSelection', {}),
       keywords: ['hash', 'checksum', 'sha256', 'md5'],
-      icon: faFingerprint,
+      icon: <FontAwesomeIcon icon={faFingerprint} fixedWidth />,
       permission: 'files.read-content',
       isVisible: () => hasSelection() && (singleSelected()?.file ?? false),
       perform: () => store.getState().doOpenModal('fingerprint', [singleSelected()!]),
@@ -200,7 +201,7 @@ export function useFileSelectionQuickActions({
       id: 'files.deleteSelection',
       category: page,
       label: () => t('pages.server.files.quickAction.deleteSelection', {}),
-      icon: faTrash,
+      icon: <FontAwesomeIcon icon={faTrash} fixedWidth />,
       danger: true,
       permission: 'files.delete',
       isVisible: hasWritableSelection,
