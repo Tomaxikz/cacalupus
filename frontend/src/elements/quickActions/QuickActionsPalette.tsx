@@ -27,7 +27,7 @@ import type {
   QuickActionModeContext,
   QuickActionScope,
 } from '@/lib/quickActions.ts';
-import { to } from '@/lib/routes.ts';
+import { getAccessibleRoutePaths, to } from '@/lib/routes.ts';
 import { useKeyboardShortcuts } from '@/plugins/useKeyboardShortcuts.ts';
 import { checkPermissions } from '@/plugins/usePermissions.ts';
 import { useSearchableResource } from '@/plugins/useSearchableResource.ts';
@@ -38,6 +38,7 @@ import { useTranslations } from '@/providers/TranslationProvider.tsx';
 import accountRoutesBase from '@/routers/routes/accountRoutes.ts';
 import adminRoutesBase from '@/routers/routes/adminRoutes.ts';
 import serverRoutesBase from '@/routers/routes/serverRoutes.ts';
+import { useGlobalStore } from '@/stores/global.ts';
 import { useQuickActionsStore } from '@/stores/quickActions.ts';
 import { useServerStore } from '@/stores/server.ts';
 
@@ -54,6 +55,7 @@ export default function QuickActionsPalette() {
   const open = useQuickActionsStore((state) => state.open);
   const setOpen = useQuickActionsStore((state) => state.setOpen);
   const pageActions = useQuickActionsStore((state) => state.pageActions);
+  const userRouteOrder = useGlobalStore((state) => state.settings.user?.routeOrder);
 
   useKeyboardShortcuts({
     shortcuts: [{ id: 'general.quickActions', callback: () => setOpen(true) }],
@@ -175,8 +177,11 @@ export default function QuickActionsPalette() {
       interceptor(routes);
     }
 
+    const accessibleRoutePaths = getAccessibleRoutePaths(routes, userRouteOrder);
+
     navItems = routes
       .filter((route) => route.name && (!route.filter || route.filter()))
+      .filter((route) => !accessibleRoutePaths || accessibleRoutePaths.has(route.path))
       .map((route) => {
         const path = to(route.path, '/account');
 
@@ -198,9 +203,12 @@ export default function QuickActionsPalette() {
       interceptor(routes);
     }
 
+    const accessibleRoutePaths = getAccessibleRoutePaths(routes, server?.eggConfiguration?.routeOrder);
+
     navItems = routes
       .filter((route) => route.name && (!route.filter || route.filter()))
       .filter((route) => !route.permission || canServer(route.permission))
+      .filter((route) => !accessibleRoutePaths || accessibleRoutePaths.has(route.path))
       .map((route) => {
         const path = to(route.path, `/server/${serverId}`);
 
