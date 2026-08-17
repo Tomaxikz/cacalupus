@@ -590,12 +590,21 @@
           "navigation": "Navigation",
           "power": "Power",
           "account": "Account",
-          "servers": "Servers"
+          "servers": "Servers",
+          "page": "This Page",
+          "math": "Calculator"
+        },
+        "math": {
+          "calculating": "Calculating...",
+          "unsolvable": "This expression cannot be solved",
+          "copyResult": "Copy result"
         },
         "hint": {
           "navigate": "to navigate",
           "select": "to select",
-          "close": "to close"
+          "close": "to close",
+          "calculate": "to calculate",
+          "pages": "for pages only"
         }
       },
       "permissionSelector": {
@@ -4502,6 +4511,33 @@
             "viewDiff": "View Diff",
             "loadDisk": "Load Disk Version",
             "keepEditor": "Keep Editor Version"
+          },
+          "quickAction": {
+            "newFile": "New File",
+            "newDirectory": "New Directory",
+            "pullFile": "Pull File from URL",
+            "uploadFiles": "Upload Files",
+            "uploadDirectory": "Upload Directory",
+            "search": "Search Files",
+            "largestDirectories": "Analyze Directory Sizes",
+            "parentDirectory": "Go to Parent Directory",
+            "copyPath": "Copy Current Path",
+            "exitBackup": "Exit Backup Browsing",
+            "connectSftp": "Connect via SFTP",
+            "connectVscode": "Open in VS Code",
+            "cancelPaste": "Cancel Pending Copy or Move",
+            "downloadSelection": "Download Selection",
+            "copySelection": "Copy Selection",
+            "moveSelection": "Move Selection",
+            "remoteCopySelection": "Copy Selection to another Server",
+            "archiveSelection": "Archive Selection",
+            "extractSelection": "Extract Archive",
+            "renameSelection": "Rename Selection",
+            "permissionsSelection": "Change Permissions",
+            "fingerprintSelection": "Show File Fingerprint",
+            "deleteSelection": "Delete Selection",
+            "saveFile": "Save File",
+            "createFile": "Create File"
           },
           "actionBar": {
             "copyHere": "Copy {files} here",

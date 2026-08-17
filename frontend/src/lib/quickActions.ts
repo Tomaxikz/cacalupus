@@ -6,6 +6,7 @@ import type { LazyString } from '@/lib/lazy.ts';
 import type { serverPowerState, serverSchema } from '@/lib/schemas/server/server.ts';
 import type { fullUserSchema } from '@/lib/schemas/user.ts';
 import type { Websocket } from '@/plugins/Websocket.ts';
+import type { AddToast } from '@/providers/contexts/toastContext.ts';
 
 export type QuickActionScope = 'dashboard' | 'server' | 'admin';
 
@@ -28,17 +29,42 @@ export interface QuickActionContext {
   requestServerKill: () => void;
 }
 
+export interface QuickActionItem {
+  key: string;
+  categoryId: string;
+  label: string;
+  description?: string;
+  path?: string;
+  keywords?: string[];
+  icon?: IconDefinition;
+  danger?: boolean;
+  onSelect: () => void;
+}
+
+export interface QuickActionModeContext {
+  term: string;
+  close: () => void;
+  addToast: AddToast;
+  refresh: () => void;
+}
+
+export interface QuickActionMode {
+  id: string;
+  prefix: string;
+  hint: LazyString;
+  prepare?: (ctx: QuickActionModeContext) => void;
+  items?: (ctx: QuickActionModeContext) => QuickActionItem[];
+  map?: (item: QuickActionItem, ctx: QuickActionModeContext) => QuickActionItem | null;
+}
+
 export interface QuickActionDefinition {
   id: string;
   category: string;
   label: LazyString;
   keywords?: string[];
   icon?: IconDefinition;
-  /** Scopes this action can appear in. Omit to allow it everywhere. */
   scopes?: QuickActionScope[];
-  /** Server permission(s) required. */
   permission?: string | string[];
-  /** `true` requires only the admin flag, a string requires that specific admin permission. */
   adminPermission?: string | true;
   danger?: boolean;
   isVisible?: (ctx: QuickActionContext) => boolean;

@@ -1,4 +1,10 @@
-import { faArrowsRotate, faClockRotateLeft, faTriangleExclamation } from '@fortawesome/free-solid-svg-icons';
+import {
+  faArrowsRotate,
+  faClockRotateLeft,
+  faFileCirclePlus,
+  faFloppyDisk,
+  faTriangleExclamation,
+} from '@fortawesome/free-solid-svg-icons';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { Audio } from '@gfazioli/mantine-audio';
 import { AvatarGroup } from '@mantine/core';
@@ -26,9 +32,11 @@ import ScreenBlock from '@/elements/ScreenBlock.tsx';
 import Spinner from '@/elements/Spinner.tsx';
 import Title from '@/elements/Title.tsx';
 import Tooltip from '@/elements/Tooltip.tsx';
+import { CORE_QUICK_ACTION_CATEGORIES } from '@/lib/coreQuickActions.tsx';
 import { registerHoconLanguage, registerTomlLanguage } from '@/lib/monaco.ts';
 import { useBlocker } from '@/plugins/useBlocker.ts';
 import { useServerCan } from '@/plugins/usePermissions.ts';
+import { useQuickActions } from '@/plugins/useQuickActions.ts';
 import { visualViewportBottomInset } from '@/plugins/useVisualViewport.ts';
 import { useCurrentWindow } from '@/providers/CurrentWindowProvider.tsx';
 import { FileManagerProvider, useFileManager } from '@/providers/FileManagerProvider.tsx';
@@ -492,6 +500,48 @@ function FileEditorComponent() {
         addToast(httpErrorToHuman(msg), 'error');
       });
   };
+
+  useQuickActions([
+    {
+      id: 'files.editor.save',
+      category: CORE_QUICK_ACTION_CATEGORIES.page,
+      label: () => t('pages.server.files.quickAction.saveFile', {}),
+      icon: faFloppyDisk,
+      permission: collab.active ? 'files.update' : 'files.create',
+      isVisible: () => params.action === 'edit' && !!fileName && browsingWritableDirectory && !saving,
+      perform: () => saveFile(),
+    },
+    {
+      id: 'files.editor.create',
+      category: CORE_QUICK_ACTION_CATEGORIES.page,
+      label: () => t('pages.server.files.quickAction.createFile', {}),
+      icon: faFileCirclePlus,
+      permission: 'files.create',
+      isVisible: () => params.action === 'new' && browsingWritableDirectory && !saving,
+      perform: () => setNameModalOpen(true),
+    },
+    {
+      id: 'files.editor.revisions',
+      category: CORE_QUICK_ACTION_CATEGORIES.page,
+      label: () => t('pages.server.files.tooltip.fileHistory', {}),
+      keywords: ['revisions', 'versions'],
+      icon: faClockRotateLeft,
+      permission: 'files.read-content',
+      isVisible: () => params.action === 'edit' && !!fileName && browsingPrimaryFilesystem,
+      perform: () => setRevisionsOpen(true),
+    },
+    {
+      id: 'files.editor.revertToDisk',
+      category: CORE_QUICK_ACTION_CATEGORIES.page,
+      label: () => t('pages.server.files.tooltip.revertToDisk', {}),
+      keywords: ['revert', 'discard'],
+      icon: faArrowsRotate,
+      permission: collab.active ? 'files.update' : 'files.read-content',
+      isVisible: () =>
+        dirty && params.action === 'edit' && !!fileName && browsingWritableDirectory && !collab.conflict?.deleted,
+      perform: () => setRevertConfirm(true),
+    },
+  ]);
 
   if (!matchedFileEditorAction && !['new', 'edit', 'image', 'audio'].includes(params.action!)) {
     return (

@@ -30,6 +30,7 @@ export type ModalType =
   | 'pullFile'
   | 'search'
   | 'largestDirectories'
+  | 'sftp'
   | null;
 
 export interface SearchInfo {
