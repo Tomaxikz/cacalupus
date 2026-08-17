@@ -31,6 +31,7 @@ export default function NodeMountRow({
   const doRemove = async () => {
     await deleteNodeMount(node.uuid, mount.mount.uuid)
       .then(() => {
+        setOpenModal(null);
         queryClient.invalidateQueries({ queryKey: queryKeys.admin.mountAssignments.all() });
         addToast(t('pages.admin.nodes.tabs.mounts.page.toast.removed', {}), 'success');
       })

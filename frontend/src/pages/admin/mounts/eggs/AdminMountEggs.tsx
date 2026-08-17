@@ -42,6 +42,7 @@ function MountEggRow({
   const doRemove = async () => {
     await deleteEggMount(nest.uuid, egg.uuid, mount.uuid)
       .then(() => {
+        setOpenModal(null);
         addToast(t('pages.admin.mounts.tabs.eggs.page.toast.removed', {}), 'success');
         queryClient.invalidateQueries({ queryKey: queryKeys.admin.mountAssignments.all() });
       })
