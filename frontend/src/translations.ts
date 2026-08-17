@@ -757,10 +757,8 @@ const baseTranslations = defineTranslations({
           form: {
             name: 'Name',
             namePlaceholder: 'My Server',
-            urlPlaceholder: 'https://node.example.com:8080',
             urlDescription: 'used for internal communication with the node',
             publicUrl: 'Public URL',
-            publicUrlPlaceholder: 'https://node.example.com:8080',
             publicUrlDescription: 'used for websocket/downloads',
             sftpHostPlaceholder: 'SFTP Host',
             sftpPortPlaceholder: 'SFTP Port',
@@ -795,7 +793,6 @@ const baseTranslations = defineTranslations({
             applicationNamePlaceholder: 'Calagopus',
             languagePlaceholder: 'Language',
             applicationUrl: 'Application URL',
-            applicationUrlPlaceholder: 'https://calagop.us',
             registration: 'Enable Registration',
             registrationDescription: 'Allow new users to register their own account.',
             securityKeys: 'Enable Security Keys',
@@ -1441,7 +1438,6 @@ const baseTranslations = defineTranslations({
           },
           form: {
             allowedIps: 'Allowed IPs',
-            allowedIpsPlaceholder: 'e.g. 192.168.1.1, 2001:db8::1',
             userPermissions: 'User Permissions',
             serverPermissions: 'Server Permissions',
             adminPermissions: 'Admin Permissions',
@@ -2344,7 +2340,6 @@ const baseTranslations = defineTranslations({
                 },
                 form: {
                   urlDescription: 'Used for internal communication with the node.',
-                  urlPlaceholder: 'https://node.example.com:8080',
                   publicUrlDescription: 'Used for websocket connections and downloads.',
                   backupConfigurationPlaceholder: 'Inherit from Location',
                   memoryDescription: 'The total memory available for servers on this node.',
@@ -2850,11 +2845,8 @@ const baseTranslations = defineTranslations({
                   pinnedCpus: 'Pinned CPUs',
                   pinnedCpusDescription: 'The CPU cores this server is pinned to.',
                   pinnedCpusTooltip: 'By index, e.g. 0, 1, 2. Leave empty to allow all cores.',
-                  dockerImagePlaceholder: 'ghcr.io/...',
                   predefinedDockerImages: 'Predefined Docker Images',
                   predefinedDockerImagesPlaceholder: 'No predefined image selected',
-                  timezonePlaceholder: 'Europe/Amsterdam',
-                  startupCommandPlaceholder: 'npm start',
                   startupCommandCustom: 'Custom',
                   predefinedStartupCommands: 'Predefined Startup Commands',
                   startOnCompletion: 'Start on Completion',
@@ -3223,7 +3215,6 @@ const baseTranslations = defineTranslations({
                       form: {
                         supportsMarkdown: 'Supports Markdown formatting.',
                         defaultValue: 'Default Value',
-                        defaultValuePlaceholder: 'server.jar',
                         userViewable: 'User Viewable',
                         userEditable: 'User Editable',
                         secret: 'Secret',
@@ -3385,7 +3376,6 @@ const baseTranslations = defineTranslations({
                   credentialType: 'Credential Type',
                   password: 'Password or Access Token',
                   privateKey: 'Private Key',
-                  privateKeyPlaceholder: '-----BEGIN OPENSSH PRIVATE KEY-----',
                   passphrase: 'Passphrase',
                 },
                 enum: {
@@ -3452,7 +3442,6 @@ const baseTranslations = defineTranslations({
                   connectionCredentials: 'Connection Credentials',
                   credentialType: 'Credential Type',
                   connectionString: 'Connection String',
-                  connectionStringPlaceholder: 'mysql://username:password@host:port',
                 },
                 enum: {
                   credentialType: {
@@ -3508,7 +3497,6 @@ const baseTranslations = defineTranslations({
                 titleCreate: 'Create Database Agent Host',
                 titleUpdate: 'Update Database Agent Host',
                 form: {
-                  urlPlaceholder: 'https://agent.example.com:8080',
                   typeEnabled: 'Enabled',
                   typePublicHost: 'Public Host',
                   typePublicPort: 'Public Port',

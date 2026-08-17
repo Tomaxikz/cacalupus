@@ -867,10 +867,8 @@
           "form": {
             "name": "Name",
             "namePlaceholder": "Mein Server",
-            "urlPlaceholder": "https://node.example.com:8080",
             "urlDescription": "wird für die interne Kommunikation mit der Node verwendet",
             "publicUrl": "Öffentliche URL",
-            "publicUrlPlaceholder": "https://node.example.com:8080",
             "publicUrlDescription": "wird für Websocket/Downloads verwendet",
             "sftpHostPlaceholder": "SFTP Host",
             "sftpPortPlaceholder": "SFTP Port",
@@ -903,7 +901,6 @@
             "applicationNamePlaceholder": "Calagopus",
             "languagePlaceholder": "Sprache",
             "applicationUrl": "Anwendungs-URL",
-            "applicationUrlPlaceholder": "https://calagop.us",
             "registration": "Registrierung aktivieren",
             "registrationDescription": "Erlaube neuen Benutzern, ihren eigenen Account zu registrieren.",
             "securityKeys": "Sicherheitsschlüssel aktivieren",
@@ -1532,7 +1529,6 @@
           },
           "form": {
             "allowedIps": "Erlaubte IPs",
-            "allowedIpsPlaceholder": "z.B. 192.168.1.1, 2001:db8::1",
             "userPermissions": "Benutzer-Berechtigungen",
             "serverPermissions": "Server-Berechtigungen",
             "adminPermissions": "Admin-Berechtigungen"
@@ -2407,7 +2403,6 @@
                 },
                 "form": {
                   "urlDescription": "Wird für die interne Kommunikation mit dem Node verwendet.",
-                  "urlPlaceholder": "https://node.example.com:8080",
                   "publicUrlDescription": "Wird für WebSocket-Verbindungen und Downloads verwendet.",
                   "backupConfigurationPlaceholder": "Vom Standort übernehmen",
                   "memoryDescription": "Der gesamte für Server auf diesem Node verfügbare Arbeitsspeicher.",
@@ -2897,11 +2892,8 @@
                   "pinnedCpus": "Angeheftete CPUs",
                   "pinnedCpusDescription": "Die CPU-Kerne, an die dieser Server angeheftet ist.",
                   "pinnedCpusTooltip": "Nach Index, z. B. 0, 1, 2. Leer lassen, um alle Kerne zuzulassen.",
-                  "dockerImagePlaceholder": "ghcr.io/...",
                   "predefinedDockerImages": "Vordefinierte Docker-Images",
                   "predefinedDockerImagesPlaceholder": "Kein vordefiniertes Image ausgewählt",
-                  "timezonePlaceholder": "Europe/Berlin",
-                  "startupCommandPlaceholder": "npm start",
                   "startupCommandCustom": "Benutzerdefiniert",
                   "predefinedStartupCommands": "Vordefinierte Startbefehle",
                   "startOnCompletion": "Nach Abschluss starten",
@@ -3255,7 +3247,6 @@
                       "form": {
                         "supportsMarkdown": "Unterstützt Markdown-Formatierung.",
                         "defaultValue": "Standardwert",
-                        "defaultValuePlaceholder": "server.jar",
                         "userViewable": "Für Benutzer sichtbar",
                         "userEditable": "Für Benutzer bearbeitbar",
                         "secret": "Geheim",
@@ -3413,7 +3404,6 @@
                   "credentialType": "Art der Zugangsdaten",
                   "password": "Passwort oder Zugriffstoken",
                   "privateKey": "Privater Schlüssel",
-                  "privateKeyPlaceholder": "-----BEGIN OPENSSH PRIVATE KEY-----",
                   "passphrase": "Passphrase"
                 },
                 "enum": {
@@ -3479,8 +3469,7 @@
                   "publicPort": "Öffentlicher Port",
                   "connectionCredentials": "Verbindungs-Anmeldedaten",
                   "credentialType": "Anmeldedaten-Typ",
-                  "connectionString": "Verbindungszeichenfolge",
-                  "connectionStringPlaceholder": "mysql://username:password@host:port"
+                  "connectionString": "Verbindungszeichenfolge"
                 },
                 "enum": {
                   "credentialType": {
@@ -3534,7 +3523,6 @@
                 "titleCreate": "Datenbank-Agent-Host erstellen",
                 "titleUpdate": "Datenbank-Agent-Host aktualisieren",
                 "form": {
-                  "urlPlaceholder": "https://agent.example.com:8080",
                   "typeEnabled": "Aktiviert",
                   "typePublicHost": "Öffentlicher Host",
                   "typePublicPort": "Öffentlicher Port"

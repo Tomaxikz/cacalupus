@@ -867,10 +867,8 @@
           "form": {
             "name": "Name",
             "namePlaceholder": "My Server",
-            "urlPlaceholder": "https://node.example.com:8080",
             "urlDescription": "used for internal communication with the node",
             "publicUrl": "Public URL",
-            "publicUrlPlaceholder": "https://node.example.com:8080",
             "publicUrlDescription": "used for websocket/downloads",
             "sftpHostPlaceholder": "SFTP Host",
             "sftpPortPlaceholder": "SFTP Port",
@@ -903,7 +901,6 @@
             "applicationNamePlaceholder": "Calagopus",
             "languagePlaceholder": "Language",
             "applicationUrl": "Application URL",
-            "applicationUrlPlaceholder": "https://calagop.us",
             "registration": "Enable Registration",
             "registrationDescription": "Allow new users to register their own account.",
             "securityKeys": "Enable Security Keys",
@@ -1532,7 +1529,6 @@
           },
           "form": {
             "allowedIps": "Allowed IPs",
-            "allowedIpsPlaceholder": "e.g. 192.168.1.1, 2001:db8::1",
             "userPermissions": "User Permissions",
             "serverPermissions": "Server Permissions",
             "adminPermissions": "Admin Permissions"
@@ -2407,7 +2403,6 @@
                 },
                 "form": {
                   "urlDescription": "Used for internal communication with the node.",
-                  "urlPlaceholder": "https://node.example.com:8080",
                   "publicUrlDescription": "Used for websocket connections and downloads.",
                   "backupConfigurationPlaceholder": "Inherit from Location",
                   "memoryDescription": "The total memory available for servers on this node.",
@@ -2897,11 +2892,8 @@
                   "pinnedCpus": "Pinned CPUs",
                   "pinnedCpusDescription": "The CPU cores this server is pinned to.",
                   "pinnedCpusTooltip": "By index, e.g. 0, 1, 2. Leave empty to allow all cores.",
-                  "dockerImagePlaceholder": "ghcr.io/...",
                   "predefinedDockerImages": "Predefined Docker Images",
                   "predefinedDockerImagesPlaceholder": "No predefined image selected",
-                  "timezonePlaceholder": "Europe/Amsterdam",
-                  "startupCommandPlaceholder": "npm start",
                   "startupCommandCustom": "Custom",
                   "predefinedStartupCommands": "Predefined Startup Commands",
                   "startOnCompletion": "Start on Completion",
@@ -3255,7 +3247,6 @@
                       "form": {
                         "supportsMarkdown": "Supports Markdown formatting.",
                         "defaultValue": "Default Value",
-                        "defaultValuePlaceholder": "server.jar",
                         "userViewable": "User Viewable",
                         "userEditable": "User Editable",
                         "secret": "Secret",
@@ -3413,7 +3404,6 @@
                   "credentialType": "Credential Type",
                   "password": "Password or Access Token",
                   "privateKey": "Private Key",
-                  "privateKeyPlaceholder": "-----BEGIN OPENSSH PRIVATE KEY-----",
                   "passphrase": "Passphrase"
                 },
                 "enum": {
@@ -3479,8 +3469,7 @@
                   "publicPort": "Public Port",
                   "connectionCredentials": "Connection Credentials",
                   "credentialType": "Credential Type",
-                  "connectionString": "Connection String",
-                  "connectionStringPlaceholder": "mysql://username:password@host:port"
+                  "connectionString": "Connection String"
                 },
                 "enum": {
                   "credentialType": {
@@ -3534,7 +3523,6 @@
                 "titleCreate": "Create Database Agent Host",
                 "titleUpdate": "Update Database Agent Host",
                 "form": {
-                  "urlPlaceholder": "https://agent.example.com:8080",
                   "typeEnabled": "Enabled",
                   "typePublicHost": "Public Host",
                   "typePublicPort": "Public Port"
