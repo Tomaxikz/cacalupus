@@ -2677,7 +2677,7 @@
                   "reattached": "Backup erfolgreich an {name} wieder angehängt.",
                   "restoring": "Backup wird auf {name} wiederhergestellt...",
                   "exporting": "Backup wird in Dateien von {name} exportiert...",
-                  "deleted": "Node-Backup gelöscht."
+                  "deletionStarted": "Node-Backup-Löschung gestartet."
                 },
                 "modal": {
                   "export": {

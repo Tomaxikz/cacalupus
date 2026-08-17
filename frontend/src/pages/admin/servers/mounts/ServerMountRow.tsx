@@ -31,7 +31,7 @@ export default function ServerMountRow({
   const doDelete = async () => {
     await deleteServerMount(server.uuid, mount.mount.uuid)
       .then(() => {
-        queryClient.invalidateQueries({ queryKey: queryKeys.admin.servers.mounts(server.uuid) });
+        queryClient.invalidateQueries({ queryKey: queryKeys.admin.mountAssignments.all() });
         addToast(t('pages.admin.servers.tabs.mounts.page.toast.deleted', {}), 'success');
       })
       .catch((msg) => {

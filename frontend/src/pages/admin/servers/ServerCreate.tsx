@@ -153,7 +153,7 @@ export default function ServerCreate() {
   });
   const availablePrimaryAllocations = useSearchableResource<z.infer<typeof adminNodeAllocationSchema>>({
     queryKey: selectedNodeUuid
-      ? queryKeys.admin.nodes.allocations(selectedNodeUuid)
+      ? queryKeys.admin.nodes.availableAllocations(selectedNodeUuid)
       : ['admin', 'nodes', 'primary-allocations'],
     fetcher: (search) =>
       selectedNodeUuid
@@ -164,7 +164,7 @@ export default function ServerCreate() {
   });
   const availableAllocations = useSearchableResource<z.infer<typeof adminNodeAllocationSchema>>({
     queryKey: selectedNodeUuid
-      ? queryKeys.admin.nodes.allocations(selectedNodeUuid)
+      ? queryKeys.admin.nodes.availableAllocations(selectedNodeUuid)
       : ['admin', 'nodes', 'allocations'],
     fetcher: (search) =>
       selectedNodeUuid

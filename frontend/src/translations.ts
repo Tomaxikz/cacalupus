@@ -2620,7 +2620,7 @@ const baseTranslations = defineTranslations({
                   reattached: 'Reattached backup to {name} successfully.',
                   restoring: 'Restoring backup to {name}...',
                   exporting: 'Exporting backup to files of {name}...',
-                  deleted: 'Node backup deleted.',
+                  deletionStarted: 'Node backup deletion started.',
                 },
                 modal: {
                   export: {

@@ -35,7 +35,7 @@ export default function EggMountRow({
   const doRemove = async () => {
     await deleteEggMount(nest.uuid, egg.uuid, mount.mount.uuid)
       .then(() => {
-        queryClient.invalidateQueries({ queryKey: queryKeys.admin.eggs.mounts(egg.uuid) });
+        queryClient.invalidateQueries({ queryKey: queryKeys.admin.mountAssignments.all() });
         addToast(t('pages.admin.nests.tabs.eggs.page.tabs.mounts.page.toast.deleted', {}), 'success');
       })
       .catch((msg) => {

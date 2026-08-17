@@ -7,6 +7,7 @@ import { getEmptyPaginationSet } from '@/api/axios.ts';
 import { DirectoryResponse } from '@/api/server/files/loadDirectory.ts';
 import searchFiles from '@/api/server/files/searchFiles.ts';
 import { ObjectSet } from '@/lib/objectSet.ts';
+import { queryKeys } from '@/lib/queryKeys.ts';
 import { serverBackupSchema } from '@/lib/schemas/server/backups.ts';
 import {
   serverDirectoryEntrySchema,
@@ -261,7 +262,7 @@ export const createFileManagerStore = (
 
         queryClient
           .invalidateQueries({
-            queryKey: ['server', serverUuid, 'files'],
+            queryKey: queryKeys.server(serverUuid).files.all(),
           })
           .catch((e) => console.error(e));
       },
