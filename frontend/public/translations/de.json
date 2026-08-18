@@ -2577,10 +2577,16 @@
               "page": {
                 "title": "Node Allocations",
                 "tooltip": {
-                  "clearSelection": "Auswahl löschen"
+                  "clearSelection": "Auswahl löschen",
+                  "selectAllMatching": "Alle {count} passenden auswählen"
                 },
                 "form": {
-                  "ipAlias": "IP Alias"
+                  "ipAlias": "IP Alias",
+                  "portFrom": "Port von",
+                  "portTo": "Port bis",
+                  "assigned": "Zuweisung",
+                  "assignedOnly": "Nur zugewiesene",
+                  "unassignedOnly": "Nur nicht zugewiesene"
                 },
                 "table": {
                   "columns": {
@@ -2599,15 +2605,23 @@
                   },
                   "update": {
                     "title": "Node Allocations aktualisieren",
+                    "button": {
+                      "update": "{count} aktualisieren"
+                    },
                     "toast": {
-                      "updated": "{allocations} aktualisiert."
+                      "updated": "{allocations} aktualisiert.",
+                      "updatedPartial": "{allocations} aktualisiert. {skipped} übersprungen, da dieser Port auf der Ziel-IP bereits vergeben ist."
                     }
                   },
                   "delete": {
                     "title": "Löschen der Node Allocations bestätigen",
-                    "content": "Bist du sicher, dass du `{count}` Allocations von **{name}** löschen möchtest?",
+                    "content": "Bist du sicher, dass du {allocations} von **{name}** löschen möchtest?",
+                    "alert": {
+                      "forceWarning": "Erzwungenes Löschen entfernt auch Allocations, die einem Server zugewiesen sind, einschließlich Servern, die gerade übertragen werden. Betroffene Server verlieren die Allocation sofort und starten nach ihrem nächsten Neustart nicht mehr korrekt."
+                    },
                     "toast": {
-                      "deleted": "{allocations} gelöscht."
+                      "deleted": "{allocations} gelöscht.",
+                      "deletedPartial": "{allocations} gelöscht. {skipped} übersprungen, da sie einem Server zugewiesen sind."
                     }
                   }
                 }

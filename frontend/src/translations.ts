@@ -2520,9 +2520,15 @@ const baseTranslations = defineTranslations({
                 title: 'Node Allocations',
                 tooltip: {
                   clearSelection: 'Clear Selection',
+                  selectAllMatching: 'Select all {count} matching',
                 },
                 form: {
                   ipAlias: 'IP Alias',
+                  portFrom: 'Port from',
+                  portTo: 'Port to',
+                  assigned: 'Assignment',
+                  assignedOnly: 'Assigned only',
+                  unassignedOnly: 'Unassigned only',
                 },
                 table: {
                   columns: {
@@ -2541,15 +2547,26 @@ const baseTranslations = defineTranslations({
                   },
                   update: {
                     title: 'Update Node Allocations',
+                    button: {
+                      update: 'Update {count}',
+                    },
                     toast: {
                       updated: '{allocations} updated.',
+                      updatedPartial:
+                        '{allocations} updated. {skipped} skipped, because that port is already taken on the target IP.',
                     },
                   },
                   delete: {
                     title: 'Confirm Node Allocations Deletion',
-                    content: 'Are you sure you want to delete `{count}` allocations from **{name}**?',
+                    content: 'Are you sure you want to delete {allocations} from **{name}**?',
+                    alert: {
+                      forceWarning:
+                        'Force deletion removes allocations that are assigned to a server, including servers being transferred. Affected servers lose the allocation immediately and will not start correctly after their next restart.',
+                    },
                     toast: {
                       deleted: '{allocations} deleted.',
+                      deletedPartial:
+                        '{allocations} deleted. {skipped} skipped, because they are assigned to a server.',
                     },
                   },
                 },
