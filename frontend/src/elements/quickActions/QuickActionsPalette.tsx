@@ -49,7 +49,7 @@ export default function QuickActionsPalette() {
   const { t } = useTranslations();
   const navigate = useNavigate();
   const location = useLocation();
-  const { user, doLogout } = useAuth();
+  const { user, impersonating, doLogout } = useAuth();
   const { addToast } = useToast();
 
   const open = useQuickActionsStore((state) => state.open);
@@ -67,10 +67,15 @@ export default function QuickActionsPalette() {
 
   const [query, setQuery] = useState('');
   const [killConfirmOpen, setKillConfirmOpen] = useState(false);
+  const [logoutConfirmOpen, setLogoutConfirmOpen] = useState(false);
   const [, refresh] = useReducer((count: number) => count + 1, 0);
 
   const { server, socketInstance, serverState } = useServerStore(
-    useShallow((state) => ({ server: state.server, socketInstance: state.socketInstance, serverState: state.state })),
+    useShallow((state) => ({
+      server: state.server,
+      socketInstance: state.socketInstance,
+      serverState: state.state,
+    })),
   );
 
   const rawServerId = location.pathname.match(/^\/server\/([^/]+)/)?.[1];
@@ -142,6 +147,7 @@ export default function QuickActionsPalette() {
     doLogout,
     canServer,
     requestServerKill: () => setKillConfirmOpen(true),
+    requestLogout: () => (impersonating ? doLogout() : setLogoutConfirmOpen(true)),
   };
 
   const registryItems: QuickActionItem[] = [
@@ -191,7 +197,7 @@ export default function QuickActionsPalette() {
           category: CORE_QUICK_ACTION_CATEGORIES.navigation,
           label: resolveString(route.name)!,
           path,
-          icon: route.icon ? <FontAwesomeIcon icon={route.icon} fixedWidth /> : undefined,
+          icon: route.icon ? <FontAwesomeIcon icon={route.icon} /> : undefined,
           onSelect: () => {
             close();
             navigate(path);
@@ -218,7 +224,7 @@ export default function QuickActionsPalette() {
           category: CORE_QUICK_ACTION_CATEGORIES.navigation,
           label: resolveString(route.name)!,
           path,
-          icon: route.icon ? <FontAwesomeIcon icon={route.icon} fixedWidth /> : undefined,
+          icon: route.icon ? <FontAwesomeIcon icon={route.icon} /> : undefined,
           onSelect: () => {
             close();
             navigate(path);
@@ -242,7 +248,7 @@ export default function QuickActionsPalette() {
           category: CORE_QUICK_ACTION_CATEGORIES.navigation,
           label: resolveString(route.name)!,
           path,
-          icon: route.icon ? <FontAwesomeIcon icon={route.icon} fixedWidth /> : undefined,
+          icon: route.icon ? <FontAwesomeIcon icon={route.icon} /> : undefined,
           onSelect: () => {
             close();
             navigate(path);
@@ -266,7 +272,7 @@ export default function QuickActionsPalette() {
             key: `server:${s.uuid}`,
             category: SERVERS_CATEGORY_ID,
             label: s.name,
-            icon: <FontAwesomeIcon icon={faServer} fixedWidth />,
+            icon: <FontAwesomeIcon icon={faServer} />,
             onSelect: () => {
               close();
               navigate(`/server/${s.uuid.slice(0, 8)}`);
@@ -337,7 +343,11 @@ export default function QuickActionsPalette() {
         withCloseButton={false}
         padding={0}
         size='lg'
-        transitionProps={{ transition: 'pop', duration: 150, onEntered: () => combobox.selectFirstOption() }}
+        transitionProps={{
+          transition: 'pop',
+          duration: 150,
+          onEntered: () => combobox.selectFirstOption(),
+        }}
       >
         <Combobox store={combobox} onOptionSubmit={handleOptionSubmit} size='lg' withinPortal={false}>
           <style>{`
@@ -457,6 +467,19 @@ export default function QuickActionsPalette() {
         }}
       >
         {t('pages.server.console.power.modal.forceStop.content', {})}
+      </ConfirmationModal>
+
+      <ConfirmationModal
+        opened={logoutConfirmOpen}
+        onClose={() => setLogoutConfirmOpen(false)}
+        title={t('elements.sidebar.modal.logout.title', {})}
+        confirm={t('elements.sidebar.button.logout', {})}
+        onConfirmed={() => {
+          setLogoutConfirmOpen(false);
+          doLogout();
+        }}
+      >
+        {t('elements.sidebar.modal.logout.content', {})}
       </ConfirmationModal>
     </>
   );

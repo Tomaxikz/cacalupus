@@ -15,6 +15,7 @@ import {
   faUserCog,
 } from '@fortawesome/free-solid-svg-icons';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
+import { getImpersonatedUser } from '@/api/axios.ts';
 import { handleRawCopyToClipboard } from '@/lib/copy.ts';
 import type { QuickActionCategory, QuickActionDefinition, QuickActionMode } from '@/lib/quickActions.ts';
 import { evaluateMathExpression, getLoadedMath, loadMath } from '@/lib/quickActionsMath.ts';
@@ -100,7 +101,7 @@ function buildCoreQuickActionModes(): QuickActionMode[] {
               ? getTranslations().t('elements.quickActions.math.calculating', {})
               : (result ?? getTranslations().t('elements.quickActions.math.unsolvable', {})),
             description: result ? getTranslations().t('elements.quickActions.math.copyResult', {}) : undefined,
-            icon: <FontAwesomeIcon icon={faEquals} fixedWidth />,
+            icon: <FontAwesomeIcon icon={faEquals} />,
             onSelect: () => {
               if (!result) return;
 
@@ -135,7 +136,7 @@ function buildCoreQuickActionDefinitions(): QuickActionDefinition[] {
       id: 'general.goHome',
       category: navigation,
       label: () => getTranslations().t('pages.account.home.title', {}),
-      icon: <FontAwesomeIcon icon={faServer} fixedWidth />,
+      icon: <FontAwesomeIcon icon={faServer} />,
       scopes: ['dashboard', 'server'],
       perform: (ctx) => ctx.navigate('/'),
     },
@@ -143,7 +144,7 @@ function buildCoreQuickActionDefinitions(): QuickActionDefinition[] {
       id: 'general.goAdmin',
       category: navigation,
       label: () => getTranslations().t('pages.account.admin.title', {}),
-      icon: <FontAwesomeIcon icon={faGraduationCap} fixedWidth />,
+      icon: <FontAwesomeIcon icon={faGraduationCap} />,
       scopes: ['dashboard', 'server'],
       adminPermission: true,
       perform: (ctx) => ctx.navigate('/admin'),
@@ -152,7 +153,7 @@ function buildCoreQuickActionDefinitions(): QuickActionDefinition[] {
       id: 'general.goBack',
       category: navigation,
       label: () => getTranslations().t('common.button.back', {}),
-      icon: <FontAwesomeIcon icon={faReply} fixedWidth />,
+      icon: <FontAwesomeIcon icon={faReply} />,
       scopes: ['admin'],
       perform: (ctx) => ctx.navigate('/'),
     },
@@ -160,7 +161,7 @@ function buildCoreQuickActionDefinitions(): QuickActionDefinition[] {
       id: 'server.start',
       category: power,
       label: () => getTranslations().t('common.enum.serverPowerAction.start', {}),
-      icon: <FontAwesomeIcon icon={faPlay} fixedWidth />,
+      icon: <FontAwesomeIcon icon={faPlay} />,
       scopes: ['server'],
       permission: 'control.start',
       isVisible: (ctx) => ctx.serverState === 'offline',
@@ -170,7 +171,7 @@ function buildCoreQuickActionDefinitions(): QuickActionDefinition[] {
       id: 'server.stop',
       category: power,
       label: () => getTranslations().t('common.enum.serverPowerAction.stop', {}),
-      icon: <FontAwesomeIcon icon={faStop} fixedWidth />,
+      icon: <FontAwesomeIcon icon={faStop} />,
       scopes: ['server'],
       permission: 'control.stop',
       isVisible: (ctx) => ctx.serverState !== 'offline' && ctx.serverState !== 'stopping',
@@ -180,7 +181,7 @@ function buildCoreQuickActionDefinitions(): QuickActionDefinition[] {
       id: 'server.restart',
       category: power,
       label: () => getTranslations().t('common.enum.serverPowerAction.restart', {}),
-      icon: <FontAwesomeIcon icon={faRotateRight} fixedWidth />,
+      icon: <FontAwesomeIcon icon={faRotateRight} />,
       scopes: ['server'],
       permission: 'control.restart',
       isVisible: (ctx) => ctx.serverState === 'running',
@@ -190,7 +191,7 @@ function buildCoreQuickActionDefinitions(): QuickActionDefinition[] {
       id: 'server.kill',
       category: power,
       label: () => getTranslations().t('common.enum.serverPowerAction.kill', {}),
-      icon: <FontAwesomeIcon icon={faSkull} fixedWidth />,
+      icon: <FontAwesomeIcon icon={faSkull} />,
       danger: true,
       scopes: ['server'],
       permission: 'control.stop',
@@ -200,10 +201,13 @@ function buildCoreQuickActionDefinitions(): QuickActionDefinition[] {
     {
       id: 'general.logout',
       category: account,
-      label: () => getTranslations().t('elements.sidebar.button.logout', {}),
-      icon: <FontAwesomeIcon icon={faArrowRightFromBracket} fixedWidth />,
+      label: () =>
+        getImpersonatedUser()
+          ? getTranslations().t('elements.sidebar.button.stopImpersonating', {})
+          : getTranslations().t('elements.sidebar.button.logout', {}),
+      icon: <FontAwesomeIcon icon={faArrowRightFromBracket} />,
       danger: true,
-      perform: (ctx) => ctx.doLogout(),
+      perform: (ctx) => ctx.requestLogout(),
     },
   ];
 }

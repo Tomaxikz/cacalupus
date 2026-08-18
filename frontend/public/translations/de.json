@@ -581,6 +581,12 @@
           "themeAuto": "Automatisch",
           "themeDark": "Dunkel",
           "themeLight": "Hell"
+        },
+        "modal": {
+          "logout": {
+            "title": "Abmelden",
+            "content": "Bist du sicher, dass du dich abmelden möchtest?"
+          }
         }
       },
       "quickActions": {

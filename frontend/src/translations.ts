@@ -464,6 +464,12 @@ const baseTranslations = defineTranslations({
           themeDark: 'Dark',
           themeLight: 'Light',
         },
+        modal: {
+          logout: {
+            title: 'Logout',
+            content: 'Are you sure you want to log out?',
+          },
+        },
       },
       quickActions: {
         trigger: 'Quick actions...',

@@ -25,6 +25,7 @@ import Card from '@/elements/Card.tsx';
 import CloseButton from '@/elements/CloseButton.tsx';
 import MantineDivider from '@/elements/Divider.tsx';
 import Drawer from '@/elements/Drawer.tsx';
+import ConfirmationModal from '@/elements/modals/ConfirmationModal.tsx';
 import { isAdmin } from '@/lib/permissions.ts';
 import { getAccessibleRoutePaths } from '@/lib/routes.ts';
 import { openUrl } from '@/lib/url.ts';
@@ -189,6 +190,8 @@ function Footer() {
   const computedColorScheme = useComputedColorScheme('dark');
   const routeOrder = useGlobalStore((state) => state.settings.user?.routeOrder);
 
+  const [logoutConfirmOpen, setLogoutConfirmOpen] = useState(false);
+
   const accountRouteDisabled = useMemo(() => {
     const routes = [...accountRoutes, ...window.extensionContext.extensionRegistry.routes.accountRoutes];
 
@@ -248,119 +251,134 @@ function Footer() {
   };
 
   return (
-    <ContextMenu
-      items={[
-        {
-          type: 'action',
-          icon: faUserCog,
-          label: t('pages.account.account.title', {}),
-          hidden: accountHidden,
-          onClick: () => navigate('/account'),
-        },
-        {
-          type: 'divider',
-          hidden: accountHidden || adminHidden,
-        },
-        {
-          type: 'action',
-          icon: faGraduationCap,
-          label: t('pages.account.admin.title', {}),
-          hidden: adminHidden,
-          onClick: () => navigate('/admin'),
-        },
-        {
-          type: 'divider',
-          hidden: accountHidden && adminHidden,
-        },
-        {
-          type: 'action',
-          icon: faCircleHalfStroke,
-          label: t('elements.sidebar.button.theme', {}),
-          items: [
-            {
-              type: 'action',
-              icon: faCircleHalfStroke,
-              label: t('elements.sidebar.button.themeAuto', {}),
-              rightSection: colorScheme === 'auto' && <FontAwesomeIcon icon={faCheck} size='sm' />,
-              onClick: (e) => changeTheme(e, 'auto'),
-            },
-            {
-              type: 'action',
-              icon: faMoon,
-              label: t('elements.sidebar.button.themeDark', {}),
-              rightSection: colorScheme === 'dark' && <FontAwesomeIcon icon={faCheck} size='sm' />,
-              onClick: (e) => changeTheme(e, 'dark'),
-            },
-            {
-              type: 'action',
-              icon: faSun,
-              label: t('elements.sidebar.button.themeLight', {}),
-              rightSection: colorScheme === 'light' && <FontAwesomeIcon icon={faCheck} size='sm' />,
-              onClick: (e) => changeTheme(e, 'light'),
-            },
-          ],
-        },
-        {
-          type: 'divider',
-        },
-        {
-          type: 'action',
-          icon: faArrowRightFromBracket,
-          label: impersonating
-            ? t('elements.sidebar.button.stopImpersonating', {})
-            : t('elements.sidebar.button.logout', {}),
-          color: 'red',
-          onClick: doLogout,
-        },
-      ]}
-    >
-      {({ openMenu }) => (
-        <Card
-          className='flex flex-row! justify-between items-center min-h-fit'
-          p='xs'
-          hoverable={!accountHidden}
-          id='sidebar-account-card'
-          onContextMenu={(e) => {
-            e.preventDefault();
-            openMenu(e.clientX, e.clientY);
-          }}
-        >
-          {accountHidden ? (
-            <div className='flex items-center flex-1 min-w-0'>
-              <Avatar size={40} className='select-none shrink-0' src={user.avatar} name={user.username} />
-              <span className='font-sans font-normal text-sm whitespace-nowrap leading-tight ml-3 overflow-hidden text-ellipsis'>
-                {user.username}
-              </span>
-            </div>
-          ) : (
-            <NavLink
-              to='/account'
-              className='flex items-center flex-1 min-w-0'
-              onClick={(e) => {
-                e.preventDefault();
-                navigate('/account');
-              }}
-            >
-              <Avatar size={40} className='select-none shrink-0' src={user.avatar} name={user.username} />
-              <span className='font-sans font-normal text-sm whitespace-nowrap leading-tight ml-3 overflow-hidden text-ellipsis'>
-                {user.username}
-              </span>
-            </NavLink>
-          )}
-
-          <ActionIcon
-            variant='subtle'
-            className='shrink-0'
-            onClick={(e) => {
+    <>
+      <ContextMenu
+        items={[
+          {
+            type: 'action',
+            icon: faUserCog,
+            label: t('pages.account.account.title', {}),
+            hidden: accountHidden,
+            onClick: () => navigate('/account'),
+          },
+          {
+            type: 'divider',
+            hidden: accountHidden || adminHidden,
+          },
+          {
+            type: 'action',
+            icon: faGraduationCap,
+            label: t('pages.account.admin.title', {}),
+            hidden: adminHidden,
+            onClick: () => navigate('/admin'),
+          },
+          {
+            type: 'divider',
+            hidden: accountHidden && adminHidden,
+          },
+          {
+            type: 'action',
+            icon: faCircleHalfStroke,
+            label: t('elements.sidebar.button.theme', {}),
+            items: [
+              {
+                type: 'action',
+                icon: faCircleHalfStroke,
+                label: t('elements.sidebar.button.themeAuto', {}),
+                rightSection: colorScheme === 'auto' && <FontAwesomeIcon icon={faCheck} size='sm' />,
+                onClick: (e) => changeTheme(e, 'auto'),
+              },
+              {
+                type: 'action',
+                icon: faMoon,
+                label: t('elements.sidebar.button.themeDark', {}),
+                rightSection: colorScheme === 'dark' && <FontAwesomeIcon icon={faCheck} size='sm' />,
+                onClick: (e) => changeTheme(e, 'dark'),
+              },
+              {
+                type: 'action',
+                icon: faSun,
+                label: t('elements.sidebar.button.themeLight', {}),
+                rightSection: colorScheme === 'light' && <FontAwesomeIcon icon={faCheck} size='sm' />,
+                onClick: (e) => changeTheme(e, 'light'),
+              },
+            ],
+          },
+          {
+            type: 'divider',
+          },
+          {
+            type: 'action',
+            icon: faArrowRightFromBracket,
+            label: impersonating
+              ? t('elements.sidebar.button.stopImpersonating', {})
+              : t('elements.sidebar.button.logout', {}),
+            color: 'red',
+            onClick: () => (impersonating ? doLogout() : setLogoutConfirmOpen(true)),
+          },
+        ]}
+      >
+        {({ openMenu }) => (
+          <Card
+            className='flex flex-row! justify-between items-center min-h-fit'
+            p='xs'
+            hoverable={!accountHidden}
+            id='sidebar-account-card'
+            onContextMenu={(e) => {
               e.preventDefault();
               openMenu(e.clientX, e.clientY);
             }}
           >
-            <FontAwesomeIcon icon={faEllipsisVertical} />
-          </ActionIcon>
-        </Card>
-      )}
-    </ContextMenu>
+            {accountHidden ? (
+              <div className='flex items-center flex-1 min-w-0'>
+                <Avatar size={40} className='select-none shrink-0' src={user.avatar} name={user.username} />
+                <span className='font-sans font-normal text-sm whitespace-nowrap leading-tight ml-3 overflow-hidden text-ellipsis'>
+                  {user.username}
+                </span>
+              </div>
+            ) : (
+              <NavLink
+                to='/account'
+                className='flex items-center flex-1 min-w-0'
+                onClick={(e) => {
+                  e.preventDefault();
+                  navigate('/account');
+                }}
+              >
+                <Avatar size={40} className='select-none shrink-0' src={user.avatar} name={user.username} />
+                <span className='font-sans font-normal text-sm whitespace-nowrap leading-tight ml-3 overflow-hidden text-ellipsis'>
+                  {user.username}
+                </span>
+              </NavLink>
+            )}
+
+            <ActionIcon
+              variant='subtle'
+              className='shrink-0'
+              onClick={(e) => {
+                e.preventDefault();
+                openMenu(e.clientX, e.clientY);
+              }}
+            >
+              <FontAwesomeIcon icon={faEllipsisVertical} />
+            </ActionIcon>
+          </Card>
+        )}
+      </ContextMenu>
+
+      <ConfirmationModal
+        opened={logoutConfirmOpen}
+        onClose={() => setLogoutConfirmOpen(false)}
+        title={t('elements.sidebar.modal.logout.title', {})}
+        confirm={t('elements.sidebar.button.logout', {})}
+        onConfirmed={() => {
+          setLogoutConfirmOpen(false);
+          doLogout();
+        }}
+      >
+        {t('elements.sidebar.modal.logout.content', {})}
+      </ConfirmationModal>
+    </>
   );
 }
 

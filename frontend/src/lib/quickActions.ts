@@ -28,6 +28,7 @@ export interface QuickActionContext {
   doLogout: () => void;
   canServer: (action: string | string[], matchAny?: boolean) => boolean;
   requestServerKill: () => void;
+  requestLogout: () => void;
 }
 
 export interface QuickActionItem {
