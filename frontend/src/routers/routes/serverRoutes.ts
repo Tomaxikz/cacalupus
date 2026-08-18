@@ -21,8 +21,6 @@ import DatabaseInstanceExplorerView from '@/pages/server/databases/instances/Dat
 import DatabaseInstanceView from '@/pages/server/databases/instances/DatabaseInstanceView.tsx';
 import ServerDatabaseInstances from '@/pages/server/databases/instances/ServerDatabaseInstances.tsx';
 import ServerDatabases from '@/pages/server/databases/ServerDatabases.tsx';
-import ServerFilesEditor from '@/pages/server/files/FileEditor.tsx';
-import FileRevisionDiff from '@/pages/server/files/FileRevisionDiff.tsx';
 import FileSqliteQuery from '@/pages/server/files/FileSqliteQuery.tsx';
 import ServerFiles from '@/pages/server/files/ServerFiles.tsx';
 import ServerMounts from '@/pages/server/mounts/ServerMounts.tsx';
@@ -35,6 +33,8 @@ import ServerSubusers from '@/pages/server/subusers/ServerSubusers.tsx';
 import { getTranslations } from '@/providers/TranslationProvider.tsx';
 
 const ServerConsole = lazy(() => import('@/pages/server/console/ServerConsole.tsx'));
+const ServerFilesEditor = lazy(() => import('@/pages/server/files/FileEditor.tsx'));
+const FileRevisionDiff = lazy(() => import('@/pages/server/files/FileRevisionDiff.tsx'));
 
 const routes: ServerRouteDefinition[] = [
   {

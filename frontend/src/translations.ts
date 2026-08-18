@@ -4612,6 +4612,7 @@ const baseTranslations = defineTranslations({
             editorMinimap: 'Show File Minimap',
             editorLineOverflow: 'Wrap Line Overflow',
             editorFontSize: 'Editor Font Size',
+            editorEngine: 'Editor Engine',
             vscodeUriScheme: 'VS Code URI Scheme',
             imageViewerSmoothing: 'Smoothen Image (Anti-Aliasing)',
           },
