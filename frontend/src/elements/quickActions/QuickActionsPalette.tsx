@@ -71,6 +71,19 @@ function useScopeRoutes(scope: QuickActionScope, enabled: boolean) {
 }
 
 export default function QuickActionsPalette() {
+  const { user } = useAuth();
+  const setOpen = useQuickActionsStore((state) => state.setOpen);
+
+  useEffect(() => {
+    if (!user) setOpen(false);
+  }, [user]);
+
+  if (!user) return null;
+
+  return <Palette />;
+}
+
+function Palette() {
   const { t } = useTranslations();
   const navigate = useNavigate();
   const { user, impersonating, doLogout } = useAuth();

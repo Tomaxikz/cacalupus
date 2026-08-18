@@ -1,11 +1,11 @@
 export const to = (value: string, base: string = '') => {
-  if (value === '/' || value === '') {
-    return base;
-  }
-
   const clean = value
     .replace(/^\/+/, '') // remove leading slashes
-    .replace(/\/\*$/, ''); // remove /*
+    .replace(/\/?\*$/, ''); // remove trailing wildcard
+
+  if (!clean) {
+    return base;
+  }
 
   return `${base.replace(/\/+$/, '')}/${clean}`;
 };
