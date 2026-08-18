@@ -35,31 +35,31 @@ export function buildCoreQuickActionCategories(): Record<string, QuickActionCate
     navigation: {
       id: CORE_QUICK_ACTION_CATEGORIES.navigation,
       label: () => getTranslations().t('elements.quickActions.category.navigation', {}),
-      icon: <FontAwesomeIcon icon={faCompass} size='sm' />,
+      icon: <FontAwesomeIcon icon={faCompass} />,
       order: 50,
     },
     power: {
       id: CORE_QUICK_ACTION_CATEGORIES.power,
       label: () => getTranslations().t('elements.quickActions.category.power', {}),
-      icon: <FontAwesomeIcon icon={faPowerOff} size='sm' />,
+      icon: <FontAwesomeIcon icon={faPowerOff} />,
       order: 30,
     },
     account: {
       id: CORE_QUICK_ACTION_CATEGORIES.account,
       label: () => getTranslations().t('elements.quickActions.category.account', {}),
-      icon: <FontAwesomeIcon icon={faUserCog} size='sm' />,
+      icon: <FontAwesomeIcon icon={faUserCog} />,
       order: 60,
     },
     page: {
       id: CORE_QUICK_ACTION_CATEGORIES.page,
       label: () => getTranslations().t('elements.quickActions.category.page', {}),
-      icon: <FontAwesomeIcon icon={faFileLines} size='sm' />,
+      icon: <FontAwesomeIcon icon={faFileLines} />,
       order: 20,
     },
     math: {
       id: CORE_QUICK_ACTION_CATEGORIES.math,
       label: () => getTranslations().t('elements.quickActions.category.math', {}),
-      icon: <FontAwesomeIcon icon={faCalculator} size='sm' />,
+      icon: <FontAwesomeIcon icon={faCalculator} />,
       order: 10,
     },
   };
