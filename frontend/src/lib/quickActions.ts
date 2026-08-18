@@ -43,6 +43,7 @@ export interface QuickActionDefinition {
   description?: LazyString;
   /** Rendered under the label, for anything a string cannot express - an avatar, a badge, a status. */
   content?: ReactNode;
+  path?: string;
   keywords?: string[];
   icon?: ReactNode;
   scopes?: QuickActionScope[];

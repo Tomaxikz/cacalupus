@@ -1,13 +1,15 @@
 import { IconDefinition } from '@fortawesome/free-solid-svg-icons';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { Tabs } from '@mantine/core';
-import React, { ReactNode, useMemo } from 'react';
-import { NavLink, Route, Routes, useLocation } from 'react-router';
+import React, { createContext, ReactNode, useContext, useMemo } from 'react';
+import { NavLink, Route, Routes, useLocation, useNavigate } from 'react-router';
 import { HookableComponentBase, makeComponentHookable } from 'shared';
 import { SubNavigationRegistry } from 'shared/src/registries/slices/subNavigation.ts';
+import { pageNavigationCategoryId } from '@/lib/coreQuickActions.tsx';
 import { type LazyString, resolveString } from '@/lib/lazy.ts';
 import { to } from '@/lib/routes.ts';
 import { useAdminPermissions } from '@/plugins/usePermissions.ts';
+import { useQuickActions } from '@/plugins/useQuickActions.ts';
 import AdminPermissionGuard from '@/routers/guards/AdminPermissionGuard.tsx';
 
 interface BaseItemProp {
@@ -50,9 +52,34 @@ function useVisibleItems(items: ItemProp[]): ItemProp[] {
   });
 }
 
+const itemPath = (baseUrl: string, item: ItemProp) => item.link ?? to(item.path, baseUrl);
+
+const SubNavigationDepthContext = createContext(0);
+
+function useSubNavigationQuickActions(baseUrl: string, items: ItemProp[], enabled: boolean, depth: number) {
+  const navigate = useNavigate();
+  const base = baseUrl.replace(/\/+$/, '');
+
+  useQuickActions(
+    items.map((item) => {
+      const path = itemPath(baseUrl, item);
+
+      return {
+        id: `subNavigation:${path}`,
+        category: pageNavigationCategoryId(depth),
+        label: item.name,
+        path: path.startsWith(base) ? path.slice(base.length) || '/' : path,
+        icon: <FontAwesomeIcon icon={item.icon} />,
+        perform: () => navigate(path),
+      };
+    }),
+    enabled,
+  );
+}
+
 function SubNavigationItem({ baseUrl, item }: { baseUrl: string; item: ItemProp }) {
   return (
-    <NavLink key={resolveString(item.name)} to={item.link ?? to(item.path, baseUrl)} end={item.end ?? true}>
+    <NavLink key={resolveString(item.name)} to={itemPath(baseUrl, item)} end={item.end ?? true}>
       <Tabs.Tab
         key={resolveString(item.name)}
         value={resolveString(item.name)}
@@ -72,6 +99,7 @@ function SubNavigation<P>({
   registryProps,
 }: SubNavigationProps<P>) {
   const location = useLocation();
+  const depth = useContext(SubNavigationDepthContext) + 1;
 
   const items = useMemo(() => {
     const items = [...baseItems];
@@ -86,6 +114,9 @@ function SubNavigation<P>({
   }, [baseItems, registry, registryProps]);
 
   const visibleItems = useVisibleItems(items);
+  const tabsShown = !hideWhenSingle || visibleItems.length > 1;
+
+  useSubNavigationQuickActions(baseUrl, visibleItems, tabsShown, depth);
 
   const activeItem =
     items
@@ -109,8 +140,8 @@ function SubNavigation<P>({
       .sort((a, b) => (b.path?.length ?? b.link?.length ?? 0) - (a.path?.length ?? a.link?.length ?? 0))[0] ?? items[0];
 
   return (
-    <>
-      {(!hideWhenSingle || visibleItems.length > 1) && (
+    <SubNavigationDepthContext.Provider value={depth}>
+      {tabsShown && (
         <Tabs my='xs' value={resolveString(activeItem?.name) ?? resolveString(items[0].name)}>
           <Tabs.List>
             {visibleItems.map((item) => (
@@ -128,7 +159,7 @@ function SubNavigation<P>({
             </Route>
           ))}
       </Routes>
-    </>
+    </SubNavigationDepthContext.Provider>
   );
 }
 

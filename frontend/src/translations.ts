@@ -481,6 +481,7 @@ const baseTranslations = defineTranslations({
           servers: 'Servers',
           users: 'Users',
           page: 'This Page',
+          pageNavigation: 'Page Navigation',
           math: 'Calculator',
         },
         math: {

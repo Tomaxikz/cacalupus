@@ -599,6 +599,7 @@
           "servers": "Server",
           "users": "Benutzer",
           "page": "Diese Seite",
+          "pageNavigation": "Seitennavigation",
           "math": "Rechner"
         },
         "math": {

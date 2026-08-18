@@ -4,6 +4,7 @@ import {
   faCompass,
   faEquals,
   faFileLines,
+  faFolderTree,
   faGraduationCap,
   faPowerOff,
   faReply,
@@ -14,7 +15,7 @@ import {
 } from '@fortawesome/free-solid-svg-icons';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { useEffect, useState } from 'react';
-import { useNavigate } from 'react-router';
+import { useLocation, useNavigate } from 'react-router';
 import type { z } from 'zod';
 import getAdminServers from '@/api/admin/servers/getServers.ts';
 import getAdminUsers from '@/api/admin/users/getUsers.ts';
@@ -49,10 +50,28 @@ export const CORE_QUICK_ACTION_CATEGORIES = {
   power: 'power',
   account: 'account',
   page: 'page',
+  pageNavigation: 'pageNavigation',
   math: 'math',
   servers: 'servers',
   users: 'users',
 } as const;
+
+const PAGE_NAVIGATION_MAX_DEPTH = 4;
+
+export function pageNavigationCategoryId(depth: number): string {
+  const clamped = Math.min(Math.max(depth, 1), PAGE_NAVIGATION_MAX_DEPTH);
+
+  return clamped === 1
+    ? CORE_QUICK_ACTION_CATEGORIES.pageNavigation
+    : `${CORE_QUICK_ACTION_CATEGORIES.pageNavigation}:${clamped}`;
+}
+
+function isPageNavigationCategory(id: string): boolean {
+  return (
+    id === CORE_QUICK_ACTION_CATEGORIES.pageNavigation ||
+    id.startsWith(`${CORE_QUICK_ACTION_CATEGORIES.pageNavigation}:`)
+  );
+}
 
 const MATH_PREFIX = '=';
 const SERVERS_PREFIX = '#';
@@ -85,6 +104,21 @@ export function buildCoreQuickActionCategories(): Record<string, QuickActionCate
       icon: <FontAwesomeIcon icon={faFileLines} />,
       order: 20,
     },
+    ...Object.fromEntries(
+      Array.from({ length: PAGE_NAVIGATION_MAX_DEPTH }, (_, index): [string, QuickActionCategory] => {
+        const id = pageNavigationCategoryId(index + 1);
+
+        return [
+          id,
+          {
+            id,
+            label: () => getTranslations().t('elements.quickActions.category.pageNavigation', {}),
+            icon: <FontAwesomeIcon icon={faFolderTree} />,
+            order: 25 - index / 10,
+          },
+        ];
+      }),
+    ),
     math: {
       id: CORE_QUICK_ACTION_CATEGORIES.math,
       label: () => getTranslations().t('elements.quickActions.category.math', {}),
@@ -106,10 +140,24 @@ export function buildCoreQuickActionCategories(): Record<string, QuickActionCate
   };
 }
 
+export function useServerQuickActionTarget(): (server: z.infer<typeof serverSchema>) => string {
+  const location = useLocation();
+  const { scope, serverId } = useQuickActionLocation();
+
+  return (server) => {
+    const base = `/server/${server.uuidShort}`;
+
+    if (scope !== 'server' || server.uuidShort === serverId) return base;
+
+    return `${base}${location.pathname.replace(/^\/server\/[^/]+/, '')}${location.search}${location.hash}`;
+  };
+}
+
 export function buildServerQuickActionItem(
   server: z.infer<typeof serverSchema>,
   navigate: (path: string) => void,
   close: () => void,
+  path: string,
 ): QuickActionItem {
   return {
     key: `server:${server.uuid}`,
@@ -119,7 +167,7 @@ export function buildServerQuickActionItem(
     icon: <FontAwesomeIcon icon={faServer} />,
     onSelect: () => {
       close();
-      navigate(`/server/${server.uuidShort}`);
+      navigate(path);
     },
   };
 }
@@ -183,7 +231,7 @@ export function useCoreQuickActionModes(): QuickActionMode[] {
   const { addToast } = useToast();
   const { user } = useAuth();
   const navigate = useNavigate();
-  const { scope, serverId } = useQuickActionLocation();
+  const { scope } = useQuickActionLocation();
 
   const canAdmin = (permission: string) =>
     !!user?.admin || checkPermissions(user?.role?.adminPermissions ?? [], permission).some(Boolean);
@@ -237,6 +285,7 @@ export function useCoreQuickActionModes(): QuickActionMode[] {
   }, [usersTerm]);
 
   const close = () => setOpen(false);
+  const serverTarget = useServerQuickActionTarget();
   const mathResult = mathTerm && math ? evaluateMathExpression(math, mathTerm) : null;
 
   return [
@@ -272,9 +321,8 @@ export function useCoreQuickActionModes(): QuickActionMode[] {
       items: searchesAllServers
         ? adminServers.items.slice(0, 8).map((server) => buildAdminServerQuickActionItem(server, navigate, close))
         : servers.items
-            .filter((server) => server.uuidShort !== serverId)
             .slice(0, 8)
-            .map((server) => buildServerQuickActionItem(server, navigate, close)),
+            .map((server) => buildServerQuickActionItem(server, navigate, close, serverTarget(server))),
     },
     ...(canSearchUsers
       ? [
@@ -292,7 +340,9 @@ export function useCoreQuickActionModes(): QuickActionMode[] {
       prefix: NAVIGATION_PREFIX,
       hint: () => getTranslations().t('elements.quickActions.hint.pages', {}),
       map: (item) => {
-        if (item.category !== CORE_QUICK_ACTION_CATEGORIES.navigation) return null;
+        if (item.category !== CORE_QUICK_ACTION_CATEGORIES.navigation && !isPageNavigationCategory(item.category)) {
+          return null;
+        }
 
         if (
           navigationTerm &&

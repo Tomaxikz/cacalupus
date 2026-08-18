@@ -18,6 +18,7 @@ import {
   CORE_QUICK_ACTION_CATEGORIES,
   useCoreQuickActionDefinitions,
   useCoreQuickActionModes,
+  useServerQuickActionTarget,
 } from '@/lib/coreQuickActions.tsx';
 import { resolveString } from '@/lib/lazy.ts';
 import { isAdmin } from '@/lib/permissions.ts';
@@ -127,6 +128,7 @@ function Palette() {
   });
 
   const close = () => setOpen(false);
+  const serverTarget = useServerQuickActionTarget();
   const coreDefinitions = useCoreQuickActionDefinitions(() =>
     impersonating ? doLogout() : setLogoutConfirmOpen(true),
   );
@@ -179,6 +181,7 @@ function Palette() {
       label: resolveString(definition.label),
       description: resolveString(definition.description),
       content: definition.content,
+      path: definition.path,
       keywords: definition.keywords,
       icon: definition.icon,
       danger: definition.danger,
@@ -286,7 +289,7 @@ function Palette() {
       ? servers.items
           .filter((s) => !normalizedQuery || s.name.toLowerCase().includes(normalizedQuery))
           .slice(0, 6)
-          .map((s) => buildServerQuickActionItem(s, navigate, close))
+          .map((s) => buildServerQuickActionItem(s, navigate, close, serverTarget(s)))
       : [];
 
   const allItems = mode
@@ -384,13 +387,14 @@ function Palette() {
             <Combobox.Options>
               {flatItems.length === 0 && <Combobox.Empty>{t('elements.selectInput.noResults', {})}</Combobox.Empty>}
 
-              {grouped.map((group) => (
+              {grouped.map((group, index) => (
                 <Combobox.Group
                   key={group.id}
                   label={
                     <Group gap={6} wrap='nowrap'>
                       {group.icon}
-                      <span>{group.label}</span>
+                      {/* Stacked groups sharing a heading - a page's nested tab bars - only name the first. */}
+                      {grouped[index - 1]?.label !== group.label && <span>{group.label}</span>}
                     </Group>
                   }
                 >
