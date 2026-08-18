@@ -1,8 +1,10 @@
 import { type OnMount } from '@monaco-editor/react';
+import { type EditorChangeEvent } from '@pierre/diffs/edit';
 import { useCallback, useEffect, useRef, useState } from 'react';
 import { MonacoBinding } from 'y-monaco';
 import { Awareness, applyAwarenessUpdate, encodeAwarenessUpdate } from 'y-protocols/awareness';
 import * as Y from 'yjs';
+import { type PierreEditorHandle } from '@/elements/PierreEditor.tsx';
 import { SocketEvent, SocketRequest } from '@/plugins/useWebsocketEvent.ts';
 import { useAuth } from '@/providers/AuthProvider.tsx';
 import { useServerStore } from '@/stores/server.ts';
@@ -25,6 +27,7 @@ export interface CollabConflict {
 
 interface UseFileCollabOptions {
   enabled: boolean;
+  engine: 'monaco' | 'pierre';
   filePath: string;
   onActivated: (dirty: boolean) => void;
   onSaved: (payload: CollabSavedPayload) => void;
@@ -83,10 +86,90 @@ function updateCursorStyles(styleEl: HTMLStyleElement, awareness: Awareness): vo
   styleEl.textContent = rules.join('\n');
 }
 
+function offsetToPosition(text: string, offset: number): { line: number; character: number } {
+  let line = 0;
+  let lineStart = 0;
+  const max = Math.min(offset, text.length);
+  for (let i = 0; i < max; i++) {
+    if (text.charCodeAt(i) === 10) {
+      line++;
+      lineStart = i + 1;
+    }
+  }
+  return { line, character: offset - lineStart };
+}
+
+// Pierre has no equivalent of y-monaco's MonacoBinding, so remote Y.Text deltas are
+// translated into Pierre TextEdits by hand. There is no styled cursor overlay here
+// (Pierre does not support remote cursor decorations like Monaco does), just content sync.
+function bindPierreEditor(
+  pierreEditor: PierreEditorHandle,
+  ytext: Y.Text,
+  doc: Y.Doc,
+  changeHandlerRef: { current: ((event: EditorChangeEvent<undefined>) => void) | null },
+): { destroy: () => void } {
+  let applyingRemote = false;
+
+  const initial = ytext.toString();
+  if (pierreEditor.getValue() !== initial) {
+    applyingRemote = true;
+    pierreEditor.setValue(initial);
+    applyingRemote = false;
+  }
+
+  const observer = (event: Y.YTextEvent, transaction: Y.Transaction) => {
+    if (transaction.origin !== 'remote') return;
+
+    applyingRemote = true;
+    try {
+      let index = 0;
+      for (const op of event.delta) {
+        if (op.retain !== undefined) {
+          index += op.retain;
+        } else if (op.insert !== undefined) {
+          const insertText = op.insert as string;
+          const pos = offsetToPosition(pierreEditor.getValue(), index);
+          pierreEditor.applyEdits([{ range: { start: pos, end: pos }, newText: insertText }], false);
+          index += insertText.length;
+        } else if (op.delete !== undefined) {
+          const currentText = pierreEditor.getValue();
+          const startPos = offsetToPosition(currentText, index);
+          const endPos = offsetToPosition(currentText, index + op.delete);
+          pierreEditor.applyEdits([{ range: { start: startPos, end: endPos }, newText: '' }], false);
+        }
+      }
+    } finally {
+      applyingRemote = false;
+    }
+  };
+  ytext.observe(observer);
+
+  changeHandlerRef.current = (event) => {
+    if (applyingRemote || !event.changes.length) return;
+
+    doc.transact(() => {
+      [...event.changes]
+        .sort((a, b) => b.start - a.start)
+        .forEach((change) => {
+          ytext.delete(change.start, change.end - change.start);
+          ytext.insert(change.start, change.text);
+        });
+    }, 'pierre-local');
+  };
+
+  return {
+    destroy: () => {
+      ytext.unobserve(observer);
+      changeHandlerRef.current = null;
+    },
+  };
+}
+
 let editorSequence = 0;
 
 export default function useFileCollab({
   enabled,
+  engine,
   filePath,
   onActivated,
   onSaved,
@@ -101,13 +184,16 @@ export default function useFileCollab({
   const [participants, setParticipants] = useState<CollabParticipant[]>([]);
   const [conflict, setConflict] = useState<CollabConflict | null>(null);
 
-  const [editor, setEditor] = useState<Parameters<OnMount>[0] | null>(null);
+  const [monacoEditor, setMonacoEditor] = useState<Parameters<OnMount>[0] | null>(null);
+  const [pierreEditor, setPierreEditor] = useState<PierreEditorHandle | null>(null);
+  const editor = engine === 'monaco' ? monacoEditor : pierreEditor;
 
   const docRef = useRef<Y.Doc | null>(null);
   const awarenessRef = useRef<Awareness | null>(null);
-  const bindingRef = useRef<MonacoBinding | null>(null);
+  const bindingRef = useRef<{ destroy: () => void } | null>(null);
   const styleRef = useRef<HTMLStyleElement | null>(null);
   const subscribedRef = useRef(false);
+  const pierreChangeHandlerRef = useRef<((event: EditorChangeEvent<undefined>) => void) | null>(null);
 
   const callbacksRef = useRef({ onActivated, onSaved, onConflict, onError });
   useEffect(() => {
@@ -155,43 +241,58 @@ export default function useFileCollab({
     const onSync = (syncPath: string, state: string, meta?: string) => {
       if (normalizePath(syncPath) !== normalizePath(path)) return;
 
-      const model = editor.getModel();
-      if (!model) return;
+      const monacoEditor = engine === 'monaco' ? (editor as Parameters<OnMount>[0]) : null;
+      const model = monacoEditor?.getModel() ?? null;
+      if (engine === 'monaco' && !model) return;
 
       destroySession();
 
       const doc = new Y.Doc();
       Y.applyUpdate(doc, fromBase64(state), 'remote');
-
-      const awareness = new Awareness(doc);
-      awareness.setLocalStateField('user', {
-        name: user?.username ?? 'unknown',
-        color: cursorColor(doc.clientID),
-      });
-
-      const styleEl = document.createElement('style');
-      document.head.appendChild(styleEl);
-      awareness.on('change', () => updateCursorStyles(styleEl, awareness));
-
-      awareness.on(
-        'update',
-        ({ added, updated, removed }: { added: number[]; updated: number[]; removed: number[] }, origin: unknown) => {
-          if (origin === 'remote') return;
-          const changed = added.concat(updated, removed);
-          socket.send(SocketRequest.FILE_COLLAB_AWARENESS, [path, toBase64(encodeAwarenessUpdate(awareness, changed))]);
-        },
-      );
+      const text = doc.getText('content');
 
       doc.on('update', (update: Uint8Array, origin: unknown) => {
         if (origin === 'remote') return;
         sendUpdate(update);
       });
 
-      const text = doc.getText('content');
-      bindingRef.current = new MonacoBinding(text, model, new Set([editor]), awareness);
+      if (monacoEditor && model) {
+        const awareness = new Awareness(doc);
+        awareness.setLocalStateField('user', {
+          name: user?.username ?? 'unknown',
+          color: cursorColor(doc.clientID),
+        });
+
+        const styleEl = document.createElement('style');
+        document.head.appendChild(styleEl);
+        awareness.on('change', () => updateCursorStyles(styleEl, awareness));
+
+        awareness.on(
+          'update',
+          ({ added, updated, removed }: { added: number[]; updated: number[]; removed: number[] }, origin: unknown) => {
+            if (origin === 'remote') return;
+            const changed = added.concat(updated, removed);
+            socket.send(SocketRequest.FILE_COLLAB_AWARENESS, [
+              path,
+              toBase64(encodeAwarenessUpdate(awareness, changed)),
+            ]);
+          },
+        );
+
+        bindingRef.current = new MonacoBinding(text, model, new Set([monacoEditor]), awareness);
+        awarenessRef.current = awareness;
+        styleRef.current = styleEl;
+
+        socket.send(SocketRequest.FILE_COLLAB_AWARENESS, [
+          path,
+          toBase64(encodeAwarenessUpdate(awareness, [doc.clientID])),
+        ]);
+      } else {
+        // Pierre has no styled remote cursors, so no awareness/decorations are set up here.
+        bindingRef.current = bindPierreEditor(editor as PierreEditorHandle, text, doc, pierreChangeHandlerRef);
+      }
+
       docRef.current = doc;
-      awarenessRef.current = awareness;
-      styleRef.current = styleEl;
       setActive(true);
 
       let dirty = false;
@@ -205,11 +306,6 @@ export default function useFileCollab({
       }
       setConflict(syncConflict);
       callbacksRef.current.onActivated(dirty);
-
-      socket.send(SocketRequest.FILE_COLLAB_AWARENESS, [
-        path,
-        toBase64(encodeAwarenessUpdate(awareness, [doc.clientID])),
-      ]);
     };
 
     const onUpdate = (updatePath: string, update: string) => {
@@ -305,7 +401,7 @@ export default function useFileCollab({
         subscribedRef.current = false;
       }
     };
-  }, [enabled, socketConnected, socketInstance, editor, filePath]);
+  }, [enabled, engine, socketConnected, socketInstance, editor, filePath]);
 
   const save = useCallback(
     (force?: boolean, expectedHash?: string | null) => {
@@ -331,5 +427,18 @@ export default function useFileCollab({
     return true;
   }, [socketInstance, filePath]);
 
-  return { active, participants, conflict, save, reload, attachEditor: setEditor };
+  const handlePierreChangeEvent = useCallback((event: EditorChangeEvent<undefined>) => {
+    pierreChangeHandlerRef.current?.(event);
+  }, []);
+
+  return {
+    active,
+    participants,
+    conflict,
+    save,
+    reload,
+    attachEditor: setMonacoEditor,
+    attachPierreEditor: setPierreEditor,
+    handlePierreChangeEvent,
+  };
 }

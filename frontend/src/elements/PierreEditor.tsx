@@ -8,13 +8,14 @@ import {
   type FileOptions,
   parseDiffFromFile,
 } from '@pierre/diffs';
-import { Editor, type EditorOptions } from '@pierre/diffs/edit';
+import { Editor, type EditorChangeEvent, type EditorOptions, type TextEdit } from '@pierre/diffs/edit';
 import { EditProvider, File, FileDiff, Virtualizer } from '@pierre/diffs/react';
 import { type CSSProperties, forwardRef, memo, useEffect, useImperativeHandle, useMemo, useRef } from 'react';
 
 export interface PierreEditorHandle {
   getValue: () => string;
   setValue: (value: string) => void;
+  applyEdits: (edits: TextEdit[], updateHistory?: boolean) => void;
   focus: () => void;
 }
 
@@ -30,6 +31,7 @@ export interface PierreEditorProps extends CommonPierreProps {
   defaultValue: string;
   readOnly?: boolean;
   onChange?: (value: string) => void;
+  onChangeEvent?: (event: EditorChangeEvent<undefined>) => void;
   onMount?: (handle: PierreEditorHandle) => void;
 }
 
@@ -111,7 +113,18 @@ function useBaseOptions(colorScheme: 'dark' | 'light', wordWrap: boolean): BaseC
 
 export const PierreEditor = memo(
   forwardRef<PierreEditorHandle, PierreEditorProps>(function PierreEditor(
-    { path, defaultValue, readOnly = false, wordWrap = false, fontSize = 13, height, width, onChange, onMount },
+    {
+      path,
+      defaultValue,
+      readOnly = false,
+      wordWrap = false,
+      fontSize = 13,
+      height,
+      width,
+      onChange,
+      onChangeEvent,
+      onMount,
+    },
     ref,
   ) {
     const colorScheme = useComputedColorScheme('dark', { getInitialValueInEffect: false });
@@ -119,8 +132,8 @@ export const PierreEditor = memo(
     const style = usePierreStyle(height, width, fontSize, isDark);
     const baseOptions = useBaseOptions(colorScheme, wordWrap);
 
-    const callbacks = useRef({ onMount, onChange });
-    callbacks.current = { onMount, onChange };
+    const callbacks = useRef({ onMount, onChange, onChangeEvent });
+    callbacks.current = { onMount, onChange, onChangeEvent };
 
     const instanceRef = useRef<Editor<undefined> | null>(null);
     const defaultValueRef = useRef(defaultValue);
@@ -133,6 +146,9 @@ export const PierreEditor = memo(
         getValue: () => instanceRef.current?.getText() ?? defaultValueRef.current,
         setValue: (val) => {
           if (instanceRef.current) replaceBuffer(instanceRef.current, val);
+        },
+        applyEdits: (edits, updateHistory) => {
+          instanceRef.current?.applyEdits(edits, updateHistory);
         },
         focus: () => instanceRef.current?.focus(),
       }),
@@ -152,7 +168,10 @@ export const PierreEditor = memo(
           instanceRef.current = editor;
           callbacks.current.onMount?.(handle);
         },
-        onChange: (f) => callbacks.current.onChange?.(f.contents),
+        onChange: (f, _lineAnnotations, event) => {
+          callbacks.current.onChange?.(f.contents);
+          callbacks.current.onChangeEvent?.(event);
+        },
       }),
       [handle],
     );
@@ -206,6 +225,7 @@ export const PierreDiffEditor = memo(
         setValue: (val) => {
           modifiedRef.current = val;
         },
+        applyEdits: () => undefined,
         focus: () => undefined,
       }),
       [],

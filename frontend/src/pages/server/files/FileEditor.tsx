@@ -1,7 +1,6 @@
 import {
   faArrowsRotate,
   faClockRotateLeft,
-  faEllipsisVertical,
   faFileCirclePlus,
   faFloppyDisk,
   faTriangleExclamation,
@@ -23,7 +22,6 @@ import Alert from '@/elements/Alert.tsx';
 import Avatar from '@/elements/Avatar.tsx';
 import Button from '@/elements/Button.tsx';
 import { ServerCan } from '@/elements/Can.tsx';
-import ContextMenu from '@/elements/ContextMenu.tsx';
 import ServerContentContainer from '@/elements/containers/ServerContentContainer.tsx';
 import Group from '@/elements/Group.tsx';
 import Select from '@/elements/input/Select.tsx';
@@ -182,13 +180,8 @@ function FileEditorComponent() {
   const contentWrapRef = useRef<HTMLDivElement>(null);
 
   const collab = useFileCollab({
-    enabled:
-      editorEngine === 'monaco' &&
-      params.action === 'edit' &&
-      !!fileName &&
-      !!browsingDirectory &&
-      browsingPrimaryFilesystem &&
-      !loading,
+    enabled: params.action === 'edit' && !!fileName && !!browsingDirectory && browsingPrimaryFilesystem && !loading,
+    engine: editorEngine === 'pierre' ? 'pierre' : 'monaco',
     filePath: fileName && browsingDirectory ? join(browsingDirectory, fileName) : '',
     onActivated: (dirty) => {
       collabActiveRef.current = true;
@@ -203,7 +196,7 @@ function FileEditorComponent() {
       if (dirty) {
         setPendingDraft(null);
       } else {
-        savedContentRef.current = editorRef.current?.getValue() ?? savedContentRef.current;
+        savedContentRef.current = hasEditor() ? getEditorValue() : savedContentRef.current;
         originalHashRef.current = hashContent(savedContentRef.current);
       }
       setDirty(dirty);
@@ -212,7 +205,7 @@ function FileEditorComponent() {
       if (collabSaveTimerRef.current) clearTimeout(collabSaveTimerRef.current);
       if (draftTimerRef.current) clearTimeout(draftTimerRef.current);
       setDirty(false);
-      savedContentRef.current = editorRef.current?.getValue() ?? savedContentRef.current;
+      savedContentRef.current = hasEditor() ? getEditorValue() : savedContentRef.current;
       originalHashRef.current = hashContent(savedContentRef.current);
       localStorage.removeItem(draftKey(server.uuid, join(browsingDirectory, fileName)));
 
@@ -689,43 +682,6 @@ function FileEditorComponent() {
                 </Tooltip>
               </div>
             )}
-            {(showRevertAction || showHistoryAction) && (
-              <ContextMenu
-                items={[
-                  {
-                    type: 'action',
-                    icon: faArrowsRotate,
-                    label: t('pages.server.files.tooltip.revertToDisk', {}),
-                    hidden: !showRevertAction,
-                    color: 'gray',
-                    onClick: () => setRevertConfirm(true),
-                  },
-                  {
-                    type: 'action',
-                    icon: faClockRotateLeft,
-                    label: t('pages.server.files.tooltip.fileHistory', {}),
-                    hidden: !showHistoryAction,
-                    color: 'gray',
-                    onClick: () => setRevisionsOpen(true),
-                  },
-                ]}
-              >
-                {({ openMenu }) => (
-                  <ActionIcon
-                    size='sm'
-                    variant='subtle'
-                    color='gray'
-                    className='sm:hidden'
-                    onClick={(e) => {
-                      const rect = e.currentTarget.getBoundingClientRect();
-                      openMenu(rect.left, rect.bottom);
-                    }}
-                  >
-                    <FontAwesomeIcon icon={faEllipsisVertical} />
-                  </ActionIcon>
-                )}
-              </ContextMenu>
-            )}
 
             <div className='hidden sm:block'>
               <FileConnectButton file={fileName ? join(browsingDirectory, fileName) : undefined} />
@@ -1046,8 +1002,10 @@ function FileEditorComponent() {
                   wordWrap={editorLineOverflow}
                   fontSize={editorFontSize}
                   onChange={handleContentChange}
+                  onChangeEvent={collab.handlePierreChangeEvent}
                   onMount={(editor) => {
                     pierreEditorRef.current = editor;
+                    collab.attachPierreEditor(editor);
                   }}
                 />
               ) : (
