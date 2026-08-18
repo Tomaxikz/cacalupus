@@ -597,6 +597,7 @@
           "power": "Energie",
           "account": "Konto",
           "servers": "Server",
+          "users": "Benutzer",
           "page": "Diese Seite",
           "math": "Rechner"
         },
@@ -610,7 +611,9 @@
           "select": "zum Auswählen",
           "close": "zum Schließen",
           "calculate": "zum Berechnen",
-          "pages": "nur für Seiten"
+          "pages": "nur für Seiten",
+          "servers": "nur für Server",
+          "users": "nur für Benutzer"
         }
       },
       "permissionSelector": {
@@ -2063,6 +2066,11 @@
             "upload": "Hochladen",
             "copyLink": "Link kopieren"
           },
+          "quickAction": {
+            "uploadFiles": "Assets hochladen",
+            "parentDirectory": "Zum übergeordneten Verzeichnis",
+            "deleteSelection": "Auswahl löschen"
+          },
           "dropzone": {
             "title": "Dateien hier ablegen zum Hochladen",
             "subtitle": "Loslassen um den Upload zu starten"
@@ -2783,6 +2791,14 @@
         "servers": {
           "title": "Server",
           "resourceName": "Server",
+          "quickAction": {
+            "viewClient": "Server im Client-Bereich ansehen",
+            "transfer": "Server transferieren",
+            "suspend": "Server suspendieren",
+            "unsuspend": "Server entsuspendieren",
+            "clearState": "Serverstatus zurücksetzen",
+            "delete": "Server löschen"
+          },
           "externalIdLookup": {
             "button": "Über externe ID suchen",
             "modal": {
@@ -4396,6 +4412,10 @@
             "decreaseFontSize": "Schriftgröße verringern",
             "increaseFontSize": "Schriftgröße erhöhen",
             "copySelection": "Auswahl kopieren"
+          },
+          "quickAction": {
+            "search": "Konsole durchsuchen",
+            "scrollToBottom": "Nach unten scrollen"
           },
           "drawer": {
             "commandHistory": {

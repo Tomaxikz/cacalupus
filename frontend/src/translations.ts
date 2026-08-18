@@ -479,6 +479,7 @@ const baseTranslations = defineTranslations({
           power: 'Power',
           account: 'Account',
           servers: 'Servers',
+          users: 'Users',
           page: 'This Page',
           math: 'Calculator',
         },
@@ -493,6 +494,8 @@ const baseTranslations = defineTranslations({
           close: 'to close',
           calculate: 'to calculate',
           pages: 'for pages only',
+          servers: 'for servers only',
+          users: 'for users only',
         },
       },
       permissionSelector: {
@@ -1996,6 +1999,11 @@ const baseTranslations = defineTranslations({
             upload: 'Upload',
             copyLink: 'Copy Link',
           },
+          quickAction: {
+            uploadFiles: 'Upload Assets',
+            parentDirectory: 'Go to Parent Directory',
+            deleteSelection: 'Delete Selection',
+          },
           dropzone: {
             title: 'Drop files here to upload',
             subtitle: 'Release to start uploading',
@@ -2735,6 +2743,14 @@ const baseTranslations = defineTranslations({
         servers: {
           title: 'Servers',
           resourceName: 'Server',
+          quickAction: {
+            viewClient: 'View Server in Client Area',
+            transfer: 'Transfer Server',
+            suspend: 'Suspend Server',
+            unsuspend: 'Unsuspend Server',
+            clearState: 'Clear Server State',
+            delete: 'Delete Server',
+          },
           externalIdLookup: {
             button: 'Find by External ID',
             modal: {
@@ -4404,6 +4420,10 @@ const baseTranslations = defineTranslations({
             decreaseFontSize: 'Decrease Font Size',
             increaseFontSize: 'Increase Font Size',
             copySelection: 'Copy Selection',
+          },
+          quickAction: {
+            search: 'Search Console',
+            scrollToBottom: 'Scroll to Bottom',
           },
           drawer: {
             commandHistory: {
