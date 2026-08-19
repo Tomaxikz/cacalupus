@@ -1,4 +1,4 @@
-import { faExclamationTriangle } from '@fortawesome/free-solid-svg-icons';
+import { faExclamationTriangle, faKey } from '@fortawesome/free-solid-svg-icons';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { useForm } from '@mantine/form';
 import { zod4Resolver } from 'mantine-form-zod-resolver';
@@ -179,6 +179,7 @@ export default function LoginCheckpoint() {
                   label={t('pages.auth.login.step.totpRecovery.form.label', {})}
                   placeholder={t('pages.auth.login.step.totpRecovery.form.placeholder', {})}
                   onKeyDown={(e) => e.key === 'Enter' && doSubmit()}
+                  leftSection={<FontAwesomeIcon icon={faKey} />}
                   size='md'
                   autoFocus
                   {...form.getInputProps('code')}

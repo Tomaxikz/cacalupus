@@ -965,6 +965,13 @@ const baseTranslations = defineTranslations({
         register: {
           title: 'Register',
           subtitle: 'Please enter your details to register',
+          form: {
+            usernamePlaceholder: 'Your username',
+            emailPlaceholder: 'you@example.com',
+            firstNamePlaceholder: 'Your first name',
+            lastNamePlaceholder: 'Your last name',
+            passwordPlaceholder: 'Enter a strong password',
+          },
           button: {
             register: 'Register',
           },
@@ -972,6 +979,9 @@ const baseTranslations = defineTranslations({
         forgotPassword: {
           title: 'Forgot Password',
           subtitle: 'Enter your email to receive instructions on how to reset your password',
+          form: {
+            emailPlaceholder: 'you@example.com',
+          },
           button: {
             request: 'Request Password Reset',
           },
@@ -980,6 +990,10 @@ const baseTranslations = defineTranslations({
         resetPassword: {
           title: 'Reset Password',
           subtitle: 'Please enter your new password',
+          form: {
+            passwordPlaceholder: 'Enter a strong password',
+            confirmPasswordPlaceholder: 'Re-enter your password',
+          },
           button: {
             reset: 'Reset Password',
           },

@@ -1,4 +1,4 @@
-import { faExclamationTriangle, faFingerprint, faUser } from '@fortawesome/free-solid-svg-icons';
+import { faExclamationTriangle, faFingerprint, faLock, faUser } from '@fortawesome/free-solid-svg-icons';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { useForm } from '@mantine/form';
 import { zod4Resolver } from 'mantine-form-zod-resolver';
@@ -415,6 +415,7 @@ export default function Login() {
                   placeholder={t('pages.auth.login.step.password.form.passwordPlaceholder', {})}
                   autoComplete='current-password'
                   onKeyDown={(e) => e.key === 'Enter' && doSubmitPassword()}
+                  leftSection={<FontAwesomeIcon icon={faLock} />}
                   size='md'
                   autoFocus
                   {...passwordForm.getInputProps('password')}

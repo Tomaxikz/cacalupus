@@ -1,4 +1,4 @@
-import { faExclamationTriangle } from '@fortawesome/free-solid-svg-icons';
+import { faExclamationTriangle, faLock } from '@fortawesome/free-solid-svg-icons';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { useForm } from '@mantine/form';
 import { zod4Resolver } from 'mantine-form-zod-resolver';
@@ -81,9 +81,21 @@ export default function ResetPassword() {
         </div>
         <Card>
           <Stack>
-            <PasswordInput placeholder={t('common.form.password', {})} {...form.getInputProps('password')} />
             <PasswordInput
-              placeholder={t('common.form.confirmPassword', {})}
+              label={t('common.form.password', {})}
+              placeholder={t('pages.auth.resetPassword.form.passwordPlaceholder', {})}
+              autoComplete='new-password'
+              leftSection={<FontAwesomeIcon icon={faLock} />}
+              size='md'
+              autoFocus
+              {...form.getInputProps('password')}
+            />
+            <PasswordInput
+              label={t('common.form.confirmPassword', {})}
+              placeholder={t('pages.auth.resetPassword.form.confirmPasswordPlaceholder', {})}
+              autoComplete='new-password'
+              leftSection={<FontAwesomeIcon icon={faLock} />}
+              size='md'
               {...form.getInputProps('confirmPassword')}
             />
 

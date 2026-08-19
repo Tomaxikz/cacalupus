@@ -1,4 +1,4 @@
-import { faExclamationTriangle } from '@fortawesome/free-solid-svg-icons';
+import { faEnvelope, faExclamationTriangle, faLock, faUser } from '@fortawesome/free-solid-svg-icons';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { useForm } from '@mantine/form';
 import { zod4Resolver } from 'mantine-form-zod-resolver';
@@ -97,11 +97,47 @@ export default function Register() {
 
         <Card>
           <Stack>
-            <TextInput placeholder={t('common.form.username', {})} {...form.getInputProps('username')} />
-            <TextInput placeholder={t('common.form.email', {})} {...form.getInputProps('email')} />
-            <TextInput placeholder={t('common.form.firstName', {})} {...form.getInputProps('nameFirst')} />
-            <TextInput placeholder={t('common.form.lastName', {})} {...form.getInputProps('nameLast')} />
-            <PasswordInput placeholder={t('common.form.password', {})} {...form.getInputProps('password')} />
+            <TextInput
+              label={t('common.form.username', {})}
+              placeholder={t('pages.auth.register.form.usernamePlaceholder', {})}
+              autoComplete='username'
+              leftSection={<FontAwesomeIcon icon={faUser} />}
+              size='md'
+              autoFocus
+              {...form.getInputProps('username')}
+            />
+            <TextInput
+              label={t('common.form.email', {})}
+              placeholder={t('pages.auth.register.form.emailPlaceholder', {})}
+              autoComplete='email'
+              leftSection={<FontAwesomeIcon icon={faEnvelope} />}
+              size='md'
+              {...form.getInputProps('email')}
+            />
+            <TextInput
+              label={t('common.form.firstName', {})}
+              placeholder={t('pages.auth.register.form.firstNamePlaceholder', {})}
+              autoComplete='given-name'
+              leftSection={<FontAwesomeIcon icon={faUser} />}
+              size='md'
+              {...form.getInputProps('nameFirst')}
+            />
+            <TextInput
+              label={t('common.form.lastName', {})}
+              placeholder={t('pages.auth.register.form.lastNamePlaceholder', {})}
+              autoComplete='family-name'
+              leftSection={<FontAwesomeIcon icon={faUser} />}
+              size='md'
+              {...form.getInputProps('nameLast')}
+            />
+            <PasswordInput
+              label={t('common.form.password', {})}
+              placeholder={t('pages.auth.register.form.passwordPlaceholder', {})}
+              autoComplete='new-password'
+              leftSection={<FontAwesomeIcon icon={faLock} />}
+              size='md'
+              {...form.getInputProps('password')}
+            />
 
             <Button
               onClick={submit}

@@ -1,4 +1,4 @@
-import { faExclamationTriangle, faInfoCircle } from '@fortawesome/free-solid-svg-icons';
+import { faEnvelope, faExclamationTriangle, faInfoCircle } from '@fortawesome/free-solid-svg-icons';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { useForm } from '@mantine/form';
 import { zod4Resolver } from 'mantine-form-zod-resolver';
@@ -104,7 +104,15 @@ export default function ForgotPassword() {
 
         <Card>
           <Stack>
-            <TextInput placeholder={t('common.form.email', {})} {...form.getInputProps('email')} />
+            <TextInput
+              label={t('common.form.email', {})}
+              placeholder={t('pages.auth.forgotPassword.form.emailPlaceholder', {})}
+              autoComplete='email'
+              leftSection={<FontAwesomeIcon icon={faEnvelope} />}
+              size='md'
+              autoFocus
+              {...form.getInputProps('email')}
+            />
 
             <Button
               onClick={submit}
