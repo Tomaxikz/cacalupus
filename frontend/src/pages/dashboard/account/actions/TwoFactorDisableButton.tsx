@@ -30,7 +30,13 @@ export default function TwoFactorDisableButton() {
       password: '',
     },
     validateInputOnBlur: true,
-    validate: zod4Resolver(dashboardTwoFactorDisableSchema),
+    validate: zod4Resolver(
+      dashboardTwoFactorDisableSchema.extend({
+        password: user?.hasPassword
+          ? z.string().min(1, t('common.form.passwordRequired', {})).max(512)
+          : z.string().max(512),
+      }),
+    ),
   });
 
   useEffect(() => {
@@ -44,7 +50,10 @@ export default function TwoFactorDisableButton() {
     e.preventDefault();
     setLoading(true);
 
-    disableTwoFactor(form.values)
+    disableTwoFactor({
+      ...form.values,
+      password: user?.hasPassword ? form.values.password : 'aaa',
+    })
       .then(() => {
         addToast(t('pages.account.account.containers.twoFactor.toast.disabled', {}), 'success');
         setOpenModal(null);
@@ -76,12 +85,14 @@ export default function TwoFactorDisableButton() {
             {...form.getInputProps('code')}
           />
 
-          <PasswordInput
-            withAsterisk
-            label={t('common.form.password', {})}
-            autoComplete='current-password'
-            {...form.getInputProps('password')}
-          />
+          {user?.hasPassword && (
+            <PasswordInput
+              withAsterisk
+              label={t('common.form.password', {})}
+              autoComplete='current-password'
+              {...form.getInputProps('password')}
+            />
+          )}
 
           <ModalFooter>
             <Button color='red' type='submit' loading={loading} disabled={!form.isValid()}>

@@ -33,7 +33,13 @@ export default function EmailContainer({ requireTwoFactorActivation }: AccountCa
       password: '',
     },
     validateInputOnBlur: true,
-    validate: zod4Resolver(dashboardEmailSchema),
+    validate: zod4Resolver(
+      dashboardEmailSchema.extend({
+        password: user?.hasPassword
+          ? z.string().min(1, t('common.form.passwordRequired', {})).max(512)
+          : z.string().max(512),
+      }),
+    ),
   });
 
   useEffect(() => {

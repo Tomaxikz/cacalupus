@@ -33,7 +33,12 @@ export default function PasswordContainer({ requireTwoFactorActivation }: Accoun
       confirmNewPassword: '',
     },
     validateInputOnBlur: true,
-    validate: zod4Resolver(dashboardPasswordSchema),
+    validate: zod4Resolver(
+      dashboardPasswordSchema.refine((data) => !user?.hasPassword || data.currentPassword.length > 0, {
+        message: t('common.form.passwordRequired', {}),
+        path: ['currentPassword'],
+      }),
+    ),
   });
 
   const doUpdate = () => {

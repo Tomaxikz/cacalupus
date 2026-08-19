@@ -50,7 +50,13 @@ export default function TwoFactorSetupButton() {
       password: '',
     },
     validateInputOnBlur: true,
-    validate: zod4Resolver(dashboardTwoFactorEnableSchema),
+    validate: zod4Resolver(
+      dashboardTwoFactorEnableSchema.extend({
+        password: user?.hasPassword
+          ? z.string().min(1, t('common.form.passwordRequired', {})).max(512)
+          : z.string().max(512),
+      }),
+    ),
   });
 
   useEffect(() => {
@@ -82,7 +88,10 @@ export default function TwoFactorSetupButton() {
     e.preventDefault();
     setLoading(true);
 
-    enableTwoFactor(form.values)
+    enableTwoFactor({
+      ...form.values,
+      password: user?.hasPassword ? form.values.password : 'aaa',
+    })
       .then(({ recoveryCodes }) => {
         setRecoveryCodes(recoveryCodes);
         addToast(t('pages.account.account.containers.twoFactor.toast.enabled', {}), 'warning');
@@ -142,12 +151,14 @@ export default function TwoFactorSetupButton() {
               {...form.getInputProps('code')}
             />
 
-            <PasswordInput
-              withAsterisk
-              label={t('common.form.password', {})}
-              autoComplete='current-password'
-              {...form.getInputProps('password')}
-            />
+            {user?.hasPassword && (
+              <PasswordInput
+                withAsterisk
+                label={t('common.form.password', {})}
+                autoComplete='current-password'
+                {...form.getInputProps('password')}
+              />
+            )}
 
             <ModalFooter>
               <Button type='submit' loading={loading} disabled={!form.isValid()}>

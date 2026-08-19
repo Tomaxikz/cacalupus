@@ -212,6 +212,7 @@ const baseTranslations = defineTranslations({
         portRangesPlaceholder: 'Port Ranges (eg. 3000-4000)',
         currentPassword: 'Current Password',
         confirmPassword: 'Confirm Password',
+        passwordRequired: 'Password is required',
         authenticationCode: 'Authentication Code',
         restoreStartup: 'Restore the startup command, image, and variables from this backup.',
         lineContains: 'Line Contains',
