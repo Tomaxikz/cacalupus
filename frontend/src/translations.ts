@@ -3267,6 +3267,9 @@ const baseTranslations = defineTranslations({
                     title: 'Variables',
                     page: {
                       title: 'Egg Variables',
+                      aria: {
+                        reorder: 'Reorder variable',
+                      },
                       form: {
                         supportsMarkdown: 'Supports Markdown formatting.',
                         defaultValue: 'Default Value',

@@ -1,9 +1,12 @@
-import { useEffect, useState } from 'react';
+import { faGripVertical } from '@fortawesome/free-solid-svg-icons';
+import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
+import { ComponentProps, useEffect, useState } from 'react';
 import { z } from 'zod';
 import createEggVariable from '@/api/admin/nests/eggs/variables/createEggVariable.ts';
 import deleteEggVariable from '@/api/admin/nests/eggs/variables/deleteEggVariable.ts';
 import updateEggVariable from '@/api/admin/nests/eggs/variables/updateEggVariable.ts';
 import { httpErrorToHuman } from '@/api/axios.ts';
+import ActionIcon from '@/elements/ActionIcon.tsx';
 import Button from '@/elements/Button.tsx';
 import { AdminCan } from '@/elements/Can.tsx';
 import Card from '@/elements/Card.tsx';
@@ -27,6 +30,7 @@ export default function EggVariableContainer({
   eggVariables,
   setEggVariables,
   removeEggVariable,
+  dragHandleProps,
 }: {
   contextNest: z.infer<typeof adminNestSchema>;
   contextEgg: z.infer<typeof adminEggSchema>;
@@ -34,6 +38,7 @@ export default function EggVariableContainer({
   eggVariables: z.infer<typeof adminEggVariableSchema>[];
   setEggVariables: (variables: z.infer<typeof adminEggVariableSchema>[]) => void;
   removeEggVariable: (variable: z.infer<typeof adminEggVariableSchema>) => void;
+  dragHandleProps?: ComponentProps<'button'>;
 }) {
   const { addToast } = useToast();
   const { languages } = useGlobalStore();
@@ -221,6 +226,21 @@ export default function EggVariableContainer({
       )}
 
       <Card className='flex flex-col justify-between h-full'>
+        {dragHandleProps && (
+          <div className='flex justify-end -mt-1 -mr-1 mb-1'>
+            <ActionIcon
+              size='md'
+              variant='subtle'
+              color='gray'
+              style={{ cursor: 'grab', flexShrink: 0 }}
+              className='text-gray-400! light:text-gray-500!'
+              aria-label={t('pages.admin.nests.tabs.eggs.page.tabs.variables.page.aria.reorder', {})}
+              {...dragHandleProps}
+            >
+              <FontAwesomeIcon icon={faGripVertical} style={{ fontSize: 16 }} />
+            </ActionIcon>
+          </div>
+        )}
         <form onSubmit={form.onSubmit(doCreateOrUpdate)} className='flex flex-col flex-1'>
           <FormEngine form={form} fields={fields} />
 

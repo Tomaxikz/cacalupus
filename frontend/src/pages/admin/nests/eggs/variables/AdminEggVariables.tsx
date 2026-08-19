@@ -1,7 +1,7 @@
 import { rectSortingStrategy } from '@dnd-kit/sortable';
 import { faPlus } from '@fortawesome/free-solid-svg-icons';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
-import { memo, startTransition, useEffect, useMemo, useState } from 'react';
+import { ComponentProps, memo, startTransition, useEffect, useMemo, useState } from 'react';
 import { z } from 'zod';
 import getEggVariables from '@/api/admin/nests/eggs/variables/getEggVariables.ts';
 import updateEggVariableOrder from '@/api/admin/nests/eggs/variables/updateEggVariableOrder.ts';
@@ -140,17 +140,16 @@ export default function AdminEggVariables({
                   id={variable.id}
                   disabled={!canUpdate}
                   renderItem={({ dragHandleProps }) => (
-                    <div {...dragHandleProps} className='h-full'>
-                      <MemoizedEggVariableContainer
-                        key={variable.uuid ?? index}
-                        contextNest={contextNest}
-                        contextEgg={contextEgg}
-                        contextVariable={variable}
-                        eggVariables={eggVariables}
-                        setEggVariables={setEggVariables}
-                        removeEggVariable={(v) => setEggVariables((prev) => prev.filter((x) => x.uuid !== v.uuid))}
-                      />
-                    </div>
+                    <MemoizedEggVariableContainer
+                      key={variable.uuid ?? index}
+                      contextNest={contextNest}
+                      contextEgg={contextEgg}
+                      contextVariable={variable}
+                      eggVariables={eggVariables}
+                      setEggVariables={setEggVariables}
+                      removeEggVariable={(v) => setEggVariables((prev) => prev.filter((x) => x.uuid !== v.uuid))}
+                      dragHandleProps={dragHandleProps as unknown as ComponentProps<'button'>}
+                    />
                   )}
                 />
               ))}
