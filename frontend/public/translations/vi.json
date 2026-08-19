@@ -158,7 +158,7 @@
       "button": {
         "create": "Tạo",
         "add": "Thêm",
-        "addDefaultPort": "{count} Hàng",
+        "addDefaultPort": "Thêm :{port}",
         "save": "Lưu",
         "saveAndStay": "Lưu &Ở lại",
         "edit": "Chỉnh sửa",
@@ -420,7 +420,7 @@
           "restoringBackup": "Khôi phục Backup",
           "installing": "Đang cài đặt",
           "installFailed": "Lỗi cài đặt máy chủ",
-          "backupRestoreFailed": "{count} Egg"
+          "backupRestoreFailed": "Backup Restore Failed"
         }
       },
       "enum": {
@@ -4661,7 +4661,7 @@
             "collabEditing": "{user} đang chỉnh sửa tệp này",
             "largestDirectories": "Phân tích kích thước thư mục",
             "dragToMove": "Kéo để di chuyển",
-            "virtual": "Sao chép {files}",
+            "virtual": "This item is virtual and does not exist on disk",
             "back": "Lùi {seconds} giây",
             "forward": "Tiến {seconds} giây",
             "play": "Phát",
@@ -4946,7 +4946,7 @@
             "modal": {
               "deleteRows": {
                 "title": "Xác Nhận Xóa Hàng",
-                "content": "Bạn có chắc chắn muốn xóa người dùng **{rows}** không? Hành động này không thể hoàn tác."
+                "content": "Bạn có chắc chắn muốn xóa {rows} khỏi **{table}** không? Thao tác này không thể hoàn tác được."
               },
               "createTable": {
                 "title": "Tạo bảng",
