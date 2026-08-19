@@ -83,6 +83,16 @@ export default defineConfig({
     cssCodeSplit: true,
     rolldownOptions: {
       external: ['monaco-editor'],
+      checks: {
+        pluginTimings: false,
+      },
+      onLog(level, log, defaultHandler) {
+        if (log.code === 'IMPORT_IS_UNDEFINED' && log.message?.includes('rrule/dist/esm/index.js')) {
+          return;
+        }
+
+        defaultHandler(level, log);
+      },
       output: {
         entryFileNames: 'assets/[name].[hash].js',
         chunkFileNames: 'assets/[name].[hash].js',
