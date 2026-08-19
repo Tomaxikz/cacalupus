@@ -1,5 +1,6 @@
 import { faImage } from '@fortawesome/free-solid-svg-icons';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
+import { useMutation } from '@tanstack/react-query';
 import classNames from 'classnames';
 import { useRef, useState } from 'react';
 import AvatarEditor, { AvatarEditorRef } from 'react-avatar-editor';
@@ -20,44 +21,35 @@ export default function AvatarContainer({ requireTwoFactorActivation }: AccountC
   const { t } = useTranslations();
   const { addToast } = useToast();
   const { user, setUser } = useAuth();
-
   const [file, setFile] = useState<File | null>(null);
-  const [loading, setLoading] = useState(false);
-
   const editor = useRef<AvatarEditorRef>(null);
 
-  const doUpdate = () => {
-    setLoading(true);
+  const onError = (err: unknown) => addToast(httpErrorToHuman(err), 'error');
 
-    try {
-      editor.current?.getImageScaledToCanvas().toBlob((blob) => {
-        updateAvatar(blob ?? new Blob())
-          .then((avatar) => {
-            addToast(t('pages.account.account.containers.avatar.toast.updated', {}), 'success');
-
-            setUser({ ...user!, avatar });
-          })
-          .catch((msg) => {
-            addToast(httpErrorToHuman(msg), 'error');
-          })
-          .finally(() => setLoading(false));
-      });
-    } catch (err) {
-      setLoading(false);
-      console.error(err);
-    }
+  const onMutationSuccess = (avatar: string | null, message: string) => {
+    addToast(message, 'success');
+    setUser({ ...user!, avatar });
+    setFile(null);
   };
 
-  const doRemove = () => {
-    removeAvatar()
-      .then(() => {
-        addToast(t('pages.account.account.containers.avatar.toast.removed', {}), 'success');
+  const updateMutation = useMutation({
+    mutationFn: updateAvatar,
+    onSuccess: (avatar) => onMutationSuccess(avatar, t('pages.account.account.containers.avatar.toast.updated', {})),
+    onError,
+  });
 
-        setUser({ ...user!, avatar: null });
-      })
-      .catch((msg) => {
-        addToast(httpErrorToHuman(msg), 'error');
-      });
+  const removeMutation = useMutation({
+    mutationFn: removeAvatar,
+    onSuccess: () => onMutationSuccess(null, t('pages.account.account.containers.avatar.toast.removed', {})),
+    onError,
+  });
+
+  const isPending = updateMutation.isPending || removeMutation.isPending;
+
+  const doUpdate = () => {
+    if (!file || isPending) return;
+
+    editor.current?.getImageScaledToCanvas().toBlob((blob) => blob && updateMutation.mutate(blob), 'image/webp', 0.9);
   };
 
   return (
@@ -71,11 +63,19 @@ export default function AvatarContainer({ requireTwoFactorActivation }: AccountC
     >
       <Group className='h-full'>
         <AvatarEditor
+          key={file ? `${file.name}-${file.lastModified}` : (user?.avatar ?? 'empty')}
           ref={editor}
-          image={file ?? user!.avatar ?? undefined}
+          image={file ?? user?.avatar ?? undefined}
           height={512}
           width={512}
           showGrid
+          onLoadFailure={() => {
+            setFile((current) => {
+              if (!current) return null;
+              addToast(t('pages.account.account.containers.avatar.toast.loadFailed', {}), 'error');
+              return null;
+            });
+          }}
           style={{ width: 256, height: 256, borderRadius: '0.25rem' }}
         />
 
@@ -83,16 +83,22 @@ export default function AvatarContainer({ requireTwoFactorActivation }: AccountC
           <FileInput
             label={t('pages.account.account.containers.avatar.form.avatar', {})}
             value={file}
-            onChange={(file) => setFile(file)}
+            onChange={setFile}
             accept='image/*'
+            disabled={isPending}
             clearable
           />
 
           <Group>
-            <Button loading={loading} disabled={!file} onClick={doUpdate}>
+            <Button loading={updateMutation.isPending} disabled={!file || isPending} onClick={doUpdate}>
               {t('common.button.update', {})}
             </Button>
-            <Button color='red' loading={loading} disabled={!user!.avatar} onClick={doRemove}>
+            <Button
+              color='red'
+              loading={removeMutation.isPending}
+              disabled={!user?.avatar || isPending}
+              onClick={() => removeMutation.mutate()}
+            >
               {t('common.button.remove', {})}
             </Button>
           </Group>

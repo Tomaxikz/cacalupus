@@ -1176,6 +1176,7 @@ const baseTranslations = defineTranslations({
               toast: {
                 updated: 'Avatar updated successfully.',
                 removed: 'Avatar removed successfully.',
+                loadFailed: 'Failed to load image preview. Please ensure the file is a valid image.',
               },
               form: {
                 avatar: 'Avatar',
