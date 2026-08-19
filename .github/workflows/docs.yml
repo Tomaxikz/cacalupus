@@ -35,9 +35,9 @@ jobs:
       - name: Deploy
         uses: cloudflare/wrangler-action@v3
         with:
-          apiToken: ${{ secrets.CLOUDFLARE_API_TOKEN }}
+          apiToken: ${{ secrets.CLOUDFLARE_PAGES_DEPLOY_TOKEN }}
           accountId: ${{ secrets.CLOUDFLARE_ACCOUNT_ID }}
-          command: pages deploy target/doc --project-name=cratedocs-calagopus-com
+          command: pages deploy target/doc --project-name=cratedocs
 # https://github.com/TypeStrong/typedoc/issues/3098 TypeScript 7 (TS-Go) support · Issue #3098 · TypeStrong/typedoc
 #  deploy-frontend:
 #    name: Build and Deploy Frontend Docs
@@ -73,6 +73,6 @@ jobs:
 #      - name: Deploy Frontend Docs
 #        uses: cloudflare/wrangler-action@v3
 #        with:
-#          apiToken: ${{ secrets.CLOUDFLARE_API_TOKEN }}
+#          apiToken: ${{ secrets.CLOUDFLARE_PAGES_DEPLOY_TOKEN }}
 #          accountId: ${{ secrets.CLOUDFLARE_ACCOUNT_ID }}
-#          command: pages deploy frontend/docs --project-name=typedocs-calagopus-com
+#          command: pages deploy frontend/docs --project-name=typedocs
