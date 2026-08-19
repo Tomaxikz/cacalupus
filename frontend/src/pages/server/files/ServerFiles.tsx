@@ -4,7 +4,7 @@ import { useIntersection, useMergedRef } from '@mantine/hooks';
 import { useWindowVirtualizer } from '@tanstack/react-virtual';
 import classNames from 'classnames';
 import { join } from 'pathe';
-import { type Ref, useCallback, useEffect, useLayoutEffect, useMemo, useRef, useState } from 'react';
+import { memo, type Ref, useCallback, useEffect, useLayoutEffect, useMemo, useRef, useState } from 'react';
 import { createSearchParams, useNavigate, useSearchParams } from 'react-router';
 import { FileOpenMode } from 'shared/src/registries/pages/server/files';
 import { z } from 'zod';
@@ -127,6 +127,20 @@ function VirtualFileRow({ innerRef, measureElement, dataIndex, ...rowProps }: Vi
   return <FileRow ref={mergedRef} dataIndex={dataIndex} {...rowProps} />;
 }
 
+const SelectableFileRow = memo(function SelectableFileRow({
+  measureElement,
+  dataIndex,
+  ...rowProps
+}: Omit<VirtualFileRowProps, 'innerRef'>) {
+  return (
+    <SelectionArea.Selectable item={rowProps.file}>
+      {(innerRef: Ref<HTMLElement>) => (
+        <VirtualFileRow innerRef={innerRef} measureElement={measureElement} dataIndex={dataIndex} {...rowProps} />
+      )}
+    </SelectionArea.Selectable>
+  );
+});
+
 function ServerFilesComponent() {
   const { t } = useTranslations();
   const server = useServerStore((state) => state.server);
@@ -140,9 +154,7 @@ function ServerFilesComponent() {
   const isLoading = useFileManagerStore((state) => state.isLoading);
   const browsingEntries = useFileManagerStore((state) => state.browsingEntries);
   const browsingError = useFileManagerStore((state) => state.browsingError);
-  const selectedFiles = useFileManagerStore((state) => state.selectedFiles);
-  const actingFiles = useFileManagerStore((state) => state.actingFiles);
-  const actingFilesSource = useFileManagerStore((state) => state.actingFilesSource);
+  const anyActing = useFileManagerStore((state) => state.actingFiles.size > 0);
   const browsingDirectory = useFileManagerStore((state) => state.browsingDirectory);
   const browsingBackup = useFileManagerStore((state) => state.browsingBackup);
   const searchInfo = useFileManagerStore((state) => state.searchInfo);
@@ -422,7 +434,7 @@ function ServerFilesComponent() {
             onSelected={onSelected}
             fireEvents={false}
             className='h-full'
-            disabled={actingFiles.size > 0}
+            disabled={anyActing}
           >
             <div ref={tableAnchorRef}>
               <Table
@@ -445,22 +457,16 @@ function ServerFilesComponent() {
                   if (!entry) return null;
 
                   return (
-                    <SelectionArea.Selectable key={virtualRow.key} item={entry}>
-                      {(innerRef: Ref<HTMLElement>) => (
-                        <VirtualFileRow
-                          innerRef={innerRef}
-                          measureElement={rowVirtualizer.measureElement}
-                          dataIndex={virtualRow.index}
-                          file={entry}
-                          handleOpen={handleOpen}
-                          openMassMenu={openMassMenu}
-                          isSelected={selectedFiles.has(entry)}
-                          isActing={actingFiles.has(entry) && actingFilesSource === browsingDirectory}
-                          clickOnce={clickOnce}
-                          preferPhysicalSize={preferPhysicalSize}
-                        />
-                      )}
-                    </SelectionArea.Selectable>
+                    <SelectableFileRow
+                      key={virtualRow.key}
+                      measureElement={rowVirtualizer.measureElement}
+                      dataIndex={virtualRow.index}
+                      file={entry}
+                      handleOpen={handleOpen}
+                      openMassMenu={openMassMenu}
+                      clickOnce={clickOnce}
+                      preferPhysicalSize={preferPhysicalSize}
+                    />
                   );
                 })}
 

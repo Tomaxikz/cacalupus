@@ -12,7 +12,7 @@ import { ModalFooter } from '@/elements/modals/Modal.tsx';
 import { serverDirectoryEntrySchema, serverFilesNameSchema } from '@/lib/schemas/server/files.ts';
 import { useModalForm } from '@/plugins/useModalForm.ts';
 import { useUndoableToast } from '@/plugins/useUndoableToast.ts';
-import { useFileManager } from '@/providers/contexts/fileManagerContext.ts';
+import { useFileManager, useFileManagerApi } from '@/providers/contexts/fileManagerContext.ts';
 import { useToast } from '@/providers/ToastProvider.tsx';
 import { useTranslations } from '@/providers/TranslationProvider.tsx';
 import { useServerStore } from '@/stores/server.ts';
@@ -27,16 +27,15 @@ export default function FileRenameModal({ file, ...props }: Props) {
   const { addToast } = useToast();
   const server = useServerStore((state) => state.server);
   const addUndoableToast = useUndoableToast(fileManagerUndoScope(server.uuid));
-  const { browsingDirectory, selectedFiles, addSelectedFile, removeSelectedFile, invalidateFilemanager } =
-    useFileManager(
-      useShallow((state) => ({
-        browsingDirectory: state.browsingDirectory,
-        selectedFiles: state.selectedFiles,
-        addSelectedFile: state.addSelectedFile,
-        removeSelectedFile: state.removeSelectedFile,
-        invalidateFilemanager: state.invalidateFilemanager,
-      })),
-    );
+  const store = useFileManagerApi();
+  const { browsingDirectory, addSelectedFile, removeSelectedFile, invalidateFilemanager } = useFileManager(
+    useShallow((state) => ({
+      browsingDirectory: state.browsingDirectory,
+      addSelectedFile: state.addSelectedFile,
+      removeSelectedFile: state.removeSelectedFile,
+      invalidateFilemanager: state.invalidateFilemanager,
+    })),
+  );
 
   const { form, handleClose, handleSubmit, loading, isDirty } = useModalForm<z.infer<typeof serverFilesNameSchema>>({
     initialValues: {
@@ -87,7 +86,7 @@ export default function FileRenameModal({ file, ...props }: Props) {
           }),
       );
       invalidateFilemanager();
-      if (selectedFiles.has(file)) {
+      if (store.getState().selectedFiles.has(file)) {
         removeSelectedFile(file);
         file.name = newName;
         addSelectedFile(file);

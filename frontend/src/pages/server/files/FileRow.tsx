@@ -48,15 +48,13 @@ export interface FileRowProps {
   file: z.infer<typeof serverDirectoryEntrySchema>;
   handleOpen: (openMode: FileOpenMode) => void;
   openMassMenu: (x: number, y: number) => void;
-  isSelected: boolean;
-  isActing: boolean;
   clickOnce: boolean;
   preferPhysicalSize: boolean;
   dataIndex?: number;
 }
 
 const FileRow = forwardRef<HTMLTableRowElement, FileRowProps>(function FileRow(
-  { file, handleOpen, openMassMenu, isSelected, isActing, clickOnce, preferPhysicalSize, dataIndex },
+  { file, handleOpen, openMassMenu, clickOnce, preferPhysicalSize, dataIndex },
   ref,
 ) {
   const { t } = useTranslations();
@@ -68,6 +66,10 @@ const FileRow = forwardRef<HTMLTableRowElement, FileRowProps>(function FileRow(
   const browsingWritableDirectory = useFileManagerStore((state) => state.browsingWritableDirectory);
   const browsingFastDirectory = useFileManagerStore((state) => state.browsingFastDirectory);
   const anyActing = useFileManagerStore((state) => state.actingFiles.size > 0);
+  const isSelected = useFileManagerStore((state) => state.selectedFiles.has(file));
+  const isActing = useFileManagerStore(
+    (state) => state.actingFiles.has(file) && state.actingFilesSource === state.browsingDirectory,
+  );
   const isDraggingSource = useFileManagerStore(
     (state) => state.draggingFiles.has(file) && state.draggingFilesSource === state.browsingDirectory,
   );

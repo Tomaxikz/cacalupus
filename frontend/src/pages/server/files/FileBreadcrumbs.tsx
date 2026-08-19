@@ -20,22 +20,22 @@ export default function FileBreadcrumbs({ path, inFileEditor }: { path: string; 
   const server = useServerStore((state) => state.server);
   const { isDropTarget, getDropHandlers } = useDraggedFileMove({ disabled: !!inFileEditor });
   const {
-    selectedFiles,
+    selectedFilesCount,
     browsingBackup,
     browsingEntries,
     browsingPrimaryFilesystem,
     setBrowsingDirectory,
-    actingFiles,
+    anyActing,
     doSelectFiles,
     doOpenModal,
   } = useFileManager(
     useShallow((state) => ({
-      selectedFiles: state.selectedFiles,
+      selectedFilesCount: state.selectedFiles.size,
       browsingBackup: state.browsingBackup,
       browsingEntries: state.browsingEntries,
       browsingPrimaryFilesystem: state.browsingPrimaryFilesystem,
       setBrowsingDirectory: state.setBrowsingDirectory,
-      actingFiles: state.actingFiles,
+      anyActing: state.actingFiles.size > 0,
       doSelectFiles: state.doSelectFiles,
       doOpenModal: state.doOpenModal,
     })),
@@ -98,14 +98,14 @@ export default function FileBreadcrumbs({ path, inFileEditor }: { path: string; 
     >
       <Breadcrumbs separatorMargin='xs'>
         <Checkbox
-          disabled={actingFiles.size > 0}
-          checked={!inFileEditor && selectedFiles.size > 0 && selectedFiles.size >= browsingEntries.data.length}
-          indeterminate={selectedFiles.size > 0 && selectedFiles.size < browsingEntries.data.length}
+          disabled={anyActing}
+          checked={!inFileEditor && selectedFilesCount > 0 && selectedFilesCount >= browsingEntries.data.length}
+          indeterminate={selectedFilesCount > 0 && selectedFilesCount < browsingEntries.data.length}
           className='mr-2'
           classNames={{ input: 'cursor-pointer!' }}
           hidden={inFileEditor}
           onChange={() => {
-            if (selectedFiles.size >= browsingEntries.data.length) {
+            if (selectedFilesCount >= browsingEntries.data.length) {
               doSelectFiles([]);
             } else {
               doSelectFiles(browsingEntries.data);

@@ -107,7 +107,8 @@ class SelectionArea<T> extends Component<SelectionAreaProps<T>, SelectionAreaSta
   private selectionBoxRef = createRef<HTMLDivElement>();
   private selectablesMap = new Map<string, { element: HTMLElement; item: T }>();
 
-  private cachedItems: CachedRect<T>[] = [];
+  private cachedItems = new Map<T, CachedRect<T>>();
+  private pendingSelectables = new Set<string>();
 
   private currentlySelected: T[] = [];
   private startPoint = { x: 0, y: 0 };
@@ -171,11 +172,45 @@ class SelectionArea<T> extends Component<SelectionAreaProps<T>, SelectionAreaSta
 
   private readonly registerSelectable = (id: string, element: HTMLElement, item: T): void => {
     this.selectablesMap.set(id, { element, item });
+
+    if (this.mouseDown && !this.props.disabled) {
+      this.pendingSelectables.add(id);
+      this.queueUpdate();
+    }
   };
 
   private readonly unregisterSelectable = (id: string): void => {
     this.selectablesMap.delete(id);
+    this.pendingSelectables.delete(id);
   };
+
+  private cacheSelectable(container: HTMLDivElement, containerRect: DOMRect, element: HTMLElement, item: T): void {
+    if (!element.isConnected) return;
+
+    const rect = element.getBoundingClientRect();
+    this.cachedItems.set(item, {
+      left: rect.left - containerRect.left + container.scrollLeft,
+      right: rect.right - containerRect.left + container.scrollLeft,
+      top: rect.top - containerRect.top + container.scrollTop,
+      bottom: rect.bottom - containerRect.top + container.scrollTop,
+      item,
+    });
+  }
+
+  private measurePendingSelectables(): void {
+    if (this.pendingSelectables.size === 0) return;
+
+    const container = this.containerRef.current;
+    if (!container) return;
+
+    const containerRect = container.getBoundingClientRect();
+    for (const id of this.pendingSelectables) {
+      const selectable = this.selectablesMap.get(id);
+      if (selectable) this.cacheSelectable(container, containerRect, selectable.element, selectable.item);
+    }
+
+    this.pendingSelectables.clear();
+  }
 
   private readonly handleMouseDown = (e: ReactMouseEvent<HTMLDivElement>): void => {
     if (this.props.disabled || e.button !== 0) return;
@@ -183,16 +218,10 @@ class SelectionArea<T> extends Component<SelectionAreaProps<T>, SelectionAreaSta
     const container = this.containerRef.current!;
     const containerRect = container.getBoundingClientRect();
 
-    this.cachedItems = [];
+    this.cachedItems.clear();
+    this.pendingSelectables.clear();
     this.selectablesMap.forEach(({ element, item }) => {
-      const rect = element.getBoundingClientRect();
-      this.cachedItems.push({
-        left: rect.left - containerRect.left + container.scrollLeft,
-        right: rect.right - containerRect.left + container.scrollLeft,
-        top: rect.top - containerRect.top + container.scrollTop,
-        bottom: rect.bottom - containerRect.top + container.scrollTop,
-        item,
-      });
+      this.cacheSelectable(container, containerRect, element, item);
     });
 
     this.lastClientX = e.clientX;
@@ -236,6 +265,7 @@ class SelectionArea<T> extends Component<SelectionAreaProps<T>, SelectionAreaSta
   private processSelectionUpdate = () => {
     this.rAFId = null;
     if (!this.mouseDown) return;
+    this.measurePendingSelectables();
     this.updateSelection(this.lastClientX, this.lastClientY, this.lastMouseEvent);
   };
 
@@ -322,7 +352,8 @@ class SelectionArea<T> extends Component<SelectionAreaProps<T>, SelectionAreaSta
       this.selectionBoxRef.current.style.display = 'none';
     }
 
-    this.cachedItems = [];
+    this.cachedItems.clear();
+    this.pendingSelectables.clear();
 
     this.setState({ isSelecting: false });
     this.mouseDown = false;
@@ -331,10 +362,9 @@ class SelectionArea<T> extends Component<SelectionAreaProps<T>, SelectionAreaSta
   };
 
   private getSelectedItems(selectionBounds: SimpleBounds): T[] {
-    const selectedItems: T[] = [];
+    const selected: CachedRect<T>[] = [];
 
-    for (let i = 0; i < this.cachedItems.length; i++) {
-      const cached = this.cachedItems[i];
+    this.cachedItems.forEach((cached) => {
       if (
         !(
           selectionBounds.right < cached.left ||
@@ -343,11 +373,13 @@ class SelectionArea<T> extends Component<SelectionAreaProps<T>, SelectionAreaSta
           selectionBounds.top > cached.bottom
         )
       ) {
-        selectedItems.push(cached.item);
+        selected.push(cached);
       }
-    }
+    });
 
-    return selectedItems;
+    selected.sort((a, b) => a.top - b.top || a.left - b.left);
+
+    return selected.map((cached) => cached.item);
   }
 }
 

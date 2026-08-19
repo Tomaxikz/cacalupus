@@ -29,7 +29,7 @@ import FileCopyConflictModal, {
 } from '@/pages/server/files/modals/FileCopyConflictModal.tsx';
 import { useKeyboardShortcuts } from '@/plugins/useKeyboardShortcuts.ts';
 import { useServerCan } from '@/plugins/usePermissions.ts';
-import { useFileManager } from '@/providers/contexts/fileManagerContext.ts';
+import { useFileManager, useFileManagerApi } from '@/providers/contexts/fileManagerContext.ts';
 import { useToast } from '@/providers/ToastProvider.tsx';
 import { useTranslations } from '@/providers/TranslationProvider.tsx';
 import { useServerStore } from '@/stores/server.ts';
@@ -38,10 +38,11 @@ function FileActionBar() {
   const { t, tItem } = useTranslations();
   const { addToast } = useToast();
   const server = useServerStore((state) => state.server);
+  const store = useFileManagerApi();
   const {
     actingMode,
     actingFiles,
-    selectedFiles,
+    selectedFilesCount,
     actingFilesSource,
     browsingDirectory,
     browsingWritableDirectory,
@@ -54,7 +55,7 @@ function FileActionBar() {
     useShallow((state) => ({
       actingMode: state.actingMode,
       actingFiles: state.actingFiles,
-      selectedFiles: state.selectedFiles,
+      selectedFilesCount: state.selectedFiles.size,
       actingFilesSource: state.actingFilesSource,
       browsingDirectory: state.browsingDirectory,
       browsingWritableDirectory: state.browsingWritableDirectory,
@@ -165,6 +166,7 @@ function FileActionBar() {
   };
 
   const doDownload = () => {
+    const { selectedFiles } = store.getState();
     setLoading(true);
 
     downloadFiles(
@@ -198,8 +200,8 @@ function FileActionBar() {
       {
         id: 'files.cut',
         callback: () => {
-          if (canUpdate && actingFiles.size === 0 && selectedFiles.size > 0 && browsingWritableDirectory) {
-            doActFiles('move', selectedFiles.values());
+          if (canUpdate && actingFiles.size === 0 && selectedFilesCount > 0 && browsingWritableDirectory) {
+            doActFiles('move', store.getState().selectedFiles.values());
             doSelectFiles([]);
           }
         },
@@ -207,8 +209,8 @@ function FileActionBar() {
       {
         id: 'files.copy',
         callback: () => {
-          if (canCreate && actingFiles.size === 0 && selectedFiles.size > 0) {
-            doActFiles('copy', selectedFiles.values());
+          if (canCreate && actingFiles.size === 0 && selectedFilesCount > 0) {
+            doActFiles('copy', store.getState().selectedFiles.values());
             doSelectFiles([]);
           }
         },
@@ -235,8 +237,8 @@ function FileActionBar() {
       {
         id: 'files.delete',
         callback: () => {
-          if (canDelete && actingFiles.size === 0 && selectedFiles.size > 0 && browsingWritableDirectory) {
-            doOpenModal('delete', selectedFiles.values());
+          if (canDelete && actingFiles.size === 0 && selectedFilesCount > 0 && browsingWritableDirectory) {
+            doOpenModal('delete', store.getState().selectedFiles.values());
           }
         },
       },
@@ -245,7 +247,7 @@ function FileActionBar() {
       actingMode,
       actingFiles,
       actingFilesSource,
-      selectedFiles,
+      selectedFilesCount,
       loading,
       browsingWritableDirectory,
       browsingDirectory,
@@ -265,7 +267,7 @@ function FileActionBar() {
         onResolve={doResolveConflicts}
       />
 
-      <ActionBar opened={actingFiles.size > 0 || selectedFiles.size > 0}>
+      <ActionBar opened={actingFiles.size > 0 || selectedFilesCount > 0}>
         {window.extensionContext.extensionRegistry.pages.server.files.fileActionBar.prependedComponents.map(
           (Component, i) => (
             <Component key={`files-actionBar-prepended-${i}`} />
@@ -323,7 +325,7 @@ function FileActionBar() {
             </ServerCan>
             <ServerCan action='files.read-content'>
               <Tooltip label={t('pages.server.files.button.remoteCopy', {})}>
-                <Button onClick={() => doOpenModal('copy-remote', selectedFiles.values())}>
+                <Button onClick={() => doOpenModal('copy-remote', store.getState().selectedFiles.values())}>
                   <FontAwesomeIcon icon={faClone} />
                 </Button>
               </Tooltip>
@@ -332,7 +334,7 @@ function FileActionBar() {
               <Tooltip label={t('pages.server.files.button.copy', {})}>
                 <Button
                   onClick={() => {
-                    doActFiles('copy', selectedFiles.values());
+                    doActFiles('copy', store.getState().selectedFiles.values());
                     doSelectFiles([]);
                   }}
                 >
@@ -344,14 +346,14 @@ function FileActionBar() {
               <>
                 <ServerCan action='files.archive'>
                   <Tooltip label={t('pages.server.files.button.archive', {})}>
-                    <Button onClick={() => doOpenModal('archive', selectedFiles.values())}>
+                    <Button onClick={() => doOpenModal('archive', store.getState().selectedFiles.values())}>
                       <FontAwesomeIcon icon={faArchive} />
                     </Button>
                   </Tooltip>
                 </ServerCan>
                 <ServerCan action='files.update'>
                   <Tooltip label={t('pages.server.files.button.rename', {})}>
-                    <Button onClick={() => doOpenModal('mass-rename', selectedFiles.values())}>
+                    <Button onClick={() => doOpenModal('mass-rename', store.getState().selectedFiles.values())}>
                       <FontAwesomeIcon icon={faPen} />
                     </Button>
                   </Tooltip>
@@ -360,7 +362,7 @@ function FileActionBar() {
                   <Tooltip label={t('common.button.move', {})}>
                     <Button
                       onClick={() => {
-                        doActFiles('move', selectedFiles.values());
+                        doActFiles('move', store.getState().selectedFiles.values());
                         doSelectFiles([]);
                       }}
                     >
@@ -370,7 +372,7 @@ function FileActionBar() {
                 </ServerCan>
                 <ServerCan action='files.delete'>
                   <Tooltip label={t('common.button.delete', {})}>
-                    <Button color='red' onClick={() => doOpenModal('delete', selectedFiles.values())}>
+                    <Button color='red' onClick={() => doOpenModal('delete', store.getState().selectedFiles.values())}>
                       <FontAwesomeIcon icon={faTrash} />
                     </Button>
                   </Tooltip>
