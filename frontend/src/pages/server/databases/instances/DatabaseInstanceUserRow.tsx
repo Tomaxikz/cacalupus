@@ -23,10 +23,12 @@ export default function DatabaseInstanceUserRow({
   instance,
   user,
   databaseName,
+  offline,
 }: {
   instance: z.infer<typeof serverDatabaseInstanceSchema>;
   user: z.infer<typeof serverDatabaseInstanceUserSchema>;
   databaseName: string | null;
+  offline: boolean;
 }) {
   const { t } = useTranslations();
   const { addToast } = useToast();
@@ -34,6 +36,8 @@ export default function DatabaseInstanceUserRow({
   const queryClient = useQueryClient();
 
   const [openModal, setOpenModal] = useState<'details' | 'delete' | null>(null);
+
+  const aclOffline = offline && instance.type !== 'redis';
 
   const doDelete = async () => {
     await deleteDatabaseInstanceUser(server.uuid, instance.uuid, user.uuid)
@@ -55,6 +59,7 @@ export default function DatabaseInstanceUserRow({
         instance={instance}
         user={user}
         databaseName={databaseName}
+        offline={offline}
         opened={openModal === 'details'}
         onClose={() => setOpenModal(null)}
       />
@@ -86,6 +91,7 @@ export default function DatabaseInstanceUserRow({
             type: 'action',
             icon: faTrash,
             label: t('common.button.delete', {}),
+            disabled: aclOffline,
             onClick: () => setOpenModal('delete'),
             color: 'red',
           },

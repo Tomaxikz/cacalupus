@@ -22,14 +22,17 @@ type Props = ModalProps & {
   instance: z.infer<typeof serverDatabaseInstanceSchema>;
   user: z.infer<typeof serverDatabaseInstanceUserSchema>;
   databaseName: string | null;
+  offline: boolean;
 };
 
-export default function DatabaseInstanceCredentialsModal({ instance, user, databaseName, ...props }: Props) {
+export default function DatabaseInstanceCredentialsModal({ instance, user, databaseName, offline, ...props }: Props) {
   const { t } = useTranslations();
   const { addToast } = useToast();
   const server = useServerStore((state) => state.server);
   const queryClient = useQueryClient();
   const [loading, setLoading] = useState(false);
+
+  const aclOffline = offline && instance.type !== 'redis';
 
   const host = instance.host ? `${instance.host}${instance.port ? `:${instance.port}` : ''}` : null;
   const jdbcConnectionString = host
@@ -71,7 +74,7 @@ export default function DatabaseInstanceCredentialsModal({ instance, user, datab
         )}
 
         <ModalFooter>
-          <Button color='red' onClick={onRotatePassword} loading={loading} disabled={instance.isLocked}>
+          <Button color='red' onClick={onRotatePassword} loading={loading} disabled={instance.isLocked || aclOffline}>
             {t('pages.server.databases.button.rotatePassword', {})}
           </Button>
           <Button variant='default' onClick={props.onClose}>

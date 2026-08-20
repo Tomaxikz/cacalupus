@@ -96,7 +96,7 @@ export default function DatabaseInstanceUsers({
             label={
               limitReached
                 ? t('pages.server.databases.instance.users.tooltip.limitReached', { max: maxUserCount })
-                : t('pages.server.databases.instance.databases.tooltip.offline', {})
+                : t('pages.server.databases.instance.users.tooltip.offline', {})
             }
           >
             <Button
@@ -126,6 +126,7 @@ export default function DatabaseInstanceUsers({
             instance={instance}
             user={user}
             databaseName={user.databaseUuid ? (databaseNameByUuid.get(user.databaseUuid) ?? null) : null}
+            offline={offline}
           />
         ))}
       </Table>

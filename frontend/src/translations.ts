@@ -5149,8 +5149,12 @@ const baseTranslations = defineTranslations({
               modal: {
                 createDatabase: {
                   title: 'Create Database',
-                  content:
-                    'Creates a new database with its own user inside this managed database instance. The credentials will be shown in the table afterwards.',
+                  content: 'Creates a new database inside this managed database instance.',
+                  form: {
+                    createUser: 'Create a user for this database',
+                    createUserHint:
+                      'Creates a user named after the database, grants it access and shows its credentials once the database is created.',
+                  },
                 },
                 deleteDatabase: {
                   title: 'Confirm Database Deletion',
@@ -5206,6 +5210,7 @@ const baseTranslations = defineTranslations({
               title: 'Users',
               subtitle: '{current} of {max} maximum users created.',
               tooltip: {
+                offline: 'The instance must be running to create users.',
                 limitReached: 'This instance is limited to {max} users.',
               },
               modal: {

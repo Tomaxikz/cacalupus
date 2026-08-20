@@ -5115,7 +5115,11 @@
               "modal": {
                 "createDatabase": {
                   "title": "Datenbank erstellen",
-                  "content": "Erstellt eine neue Datenbank mit eigenem Benutzer innerhalb dieser verwalteten Datenbank-Instanz. Die Zugangsdaten werden anschließend in der Tabelle angezeigt."
+                  "content": "Erstellt eine neue Datenbank innerhalb dieser verwalteten Datenbank-Instanz.",
+                  "form": {
+                    "createUser": "Einen Benutzer für diese Datenbank erstellen",
+                    "createUserHint": "Erstellt einen nach der Datenbank benannten Benutzer, gewährt ihm Zugriff und zeigt seine Zugangsdaten an, sobald die Datenbank erstellt wurde."
+                  }
                 },
                 "deleteDatabase": {
                   "title": "Datenbanklöschung bestätigen",
@@ -5168,6 +5172,7 @@
               "title": "Benutzer",
               "subtitle": "{current} von {max} maximalen Benutzern erstellt.",
               "tooltip": {
+                "offline": "Die Instanz muss laufen, um Benutzer zu erstellen.",
                 "limitReached": "Diese Instanz ist auf {max} Benutzer limitiert."
               },
               "modal": {
