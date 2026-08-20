@@ -151,6 +151,14 @@
       "few": "{count} Änderungen",
       "many": "{count} Änderungen",
       "other": "{count} Änderungen"
+    },
+    "session": {
+      "zero": "{count} Sitzungen",
+      "one": "{count} Sitzung",
+      "two": "{count} Sitzungen",
+      "few": "{count} Sitzungen",
+      "many": "{count} Sitzungen",
+      "other": "{count} Sitzungen"
     }
   },
   "translations": {
@@ -1308,6 +1316,9 @@
         },
         "sessions": {
           "title": "Sitzungen",
+          "button": {
+            "deleteOthers": "Andere abmelden"
+          },
           "table": {
             "columns": {
               "ip": "IP",
@@ -1321,6 +1332,13 @@
               "content": "Bist du sicher, dass du die Sitzung **{ip}** von deinem Account löschen möchtest?",
               "toast": {
                 "deleted": "Sitzung gelöscht."
+              }
+            },
+            "deleteOtherSessions": {
+              "title": "Löschen der Sitzungen bestätigen",
+              "content": "Bist du sicher, dass du alle Sitzungen außer der aktuell genutzten abmelden möchtest? Jedes andere Gerät, das in deinem Account angemeldet ist, muss sich erneut anmelden.",
+              "toast": {
+                "deleted": "{sessions} gelöscht."
               }
             }
           }

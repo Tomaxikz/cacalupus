@@ -28,6 +28,7 @@ const baseTranslations = defineTranslations({
     day: defineEnglishItem('Day', 'Days'),
     row: defineEnglishItem('Row', 'Rows'),
     change: defineEnglishItem('Change', 'Changes'),
+    session: defineEnglishItem('Session', 'Sessions'),
   },
   translations: {
     common: {
@@ -1229,6 +1230,9 @@ const baseTranslations = defineTranslations({
         },
         sessions: {
           title: 'Sessions',
+          button: {
+            deleteOthers: 'Log Out Others',
+          },
           table: {
             columns: {
               ip: 'IP',
@@ -1242,6 +1246,14 @@ const baseTranslations = defineTranslations({
               content: 'Are you sure you want to delete the session **{ip}** from your account?',
               toast: {
                 deleted: 'Session deleted.',
+              },
+            },
+            deleteOtherSessions: {
+              title: 'Confirm Session Deletion',
+              content:
+                'Are you sure you want to log out every session except the one you are currently using? Any other device signed into your account will have to log in again.',
+              toast: {
+                deleted: '{sessions} deleted.',
               },
             },
           },

@@ -151,6 +151,14 @@
       "few": "{count} Changes",
       "many": "{count} Changes",
       "other": "{count} Changes"
+    },
+    "session": {
+      "zero": "{count} Sessions",
+      "one": "{count} Session",
+      "two": "{count} Sessions",
+      "few": "{count} Sessions",
+      "many": "{count} Sessions",
+      "other": "{count} Sessions"
     }
   },
   "translations": {
@@ -1323,6 +1331,9 @@
         },
         "sessions": {
           "title": "Sessions",
+          "button": {
+            "deleteOthers": "Log Out Others"
+          },
           "table": {
             "columns": {
               "ip": "IP",
@@ -1336,6 +1347,13 @@
               "content": "Are you sure you want to delete the session **{ip}** from your account?",
               "toast": {
                 "deleted": "Session deleted."
+              }
+            },
+            "deleteOtherSessions": {
+              "title": "Confirm Session Deletion",
+              "content": "Are you sure you want to log out every session except the one you are currently using? Any other device signed into your account will have to log in again.",
+              "toast": {
+                "deleted": "{sessions} deleted."
               }
             }
           }
