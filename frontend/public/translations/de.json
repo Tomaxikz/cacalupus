@@ -353,7 +353,9 @@
         "yourControlPanelPassword": "Dein Control Panel Passwort",
         "deploymentEnabled": "Bereitstellung aktiviert",
         "maintenanceEnabled": "Wartung aktiviert",
-        "truncateDirectory": "Möchtest du alle Dateien dieses Servers löschen, bevor diese Aktion ausgeführt wird? Dies kann nicht rückgängig gemacht werden."
+        "truncateDirectory": "Möchtest du alle Dateien dieses Servers löschen, bevor diese Aktion ausgeführt wird? Dies kann nicht rückgängig gemacht werden.",
+        "symlinkName": "Symlink-Name",
+        "symlinkTarget": "Symlink-Ziel"
       },
       "table": {
         "pagination": {
@@ -4568,7 +4570,8 @@
             "directoryFromUpload": "Verzeichnis aus Upload",
             "viewDiff": "Unterschiede anzeigen",
             "loadDisk": "Festplattenversion laden",
-            "keepEditor": "Editor-Version behalten"
+            "keepEditor": "Editor-Version behalten",
+            "symlink": "Symlink"
           },
           "quickAction": {
             "newFile": "Neue Datei",
@@ -4898,6 +4901,12 @@
             "sftpDetails": {
               "title": "SFTP-Details",
               "launch": "Starten"
+            },
+            "createSymlink": {
+              "title": "Symlink erstellen",
+              "targetDescription": "Relativ zu dem Verzeichnis, in dem der Symlink erstellt wird.",
+              "createdAs": "Dieser Symlink wird erstellt als ",
+              "pointsTo": "Er wird zeigen auf "
             }
           }
         },

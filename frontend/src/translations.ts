@@ -208,6 +208,8 @@ const baseTranslations = defineTranslations({
         destination: 'Destination',
         destinationDirectory: 'Destination Directory',
         directoryName: 'Directory Name',
+        symlinkName: 'Symlink Name',
+        symlinkTarget: 'Symlink Target',
         locked: 'Locked',
         portRanges: 'Port Ranges',
         portRangesPlaceholder: 'Port Ranges (eg. 3000-4000)',
@@ -4589,6 +4591,7 @@ const baseTranslations = defineTranslations({
             exitBackup: 'Exit Backup',
             fileFromEditor: 'File from Editor',
             directory: 'Directory',
+            symlink: 'Symlink',
             fileFromPull: 'File from Pull',
             fileFromUpload: 'File from Upload',
             directoryFromUpload: 'Directory from Upload',
@@ -4768,6 +4771,12 @@ const baseTranslations = defineTranslations({
             createDirectory: {
               title: 'Create Directory',
               createdAs: 'This directory will be created as ',
+            },
+            createSymlink: {
+              title: 'Create Symlink',
+              targetDescription: 'Relative to the directory the symlink is created in.',
+              createdAs: 'This symlink will be created as ',
+              pointsTo: 'It will point to ',
             },
             copyFile: {
               title: 'Copy File',
