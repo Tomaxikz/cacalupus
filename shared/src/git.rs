@@ -45,6 +45,22 @@ impl<T: tokio::io::AsyncRead + Unpin> tokio::io::AsyncRead for SessionBound<T> {
     }
 }
 
+pub async fn resolve_addresses(
+    env: &Arc<crate::env::Env>,
+    url: &gix::Url,
+) -> Result<Vec<std::net::SocketAddr>, anyhow::Error> {
+    let host = url
+        .host()
+        .ok_or_else(|| anyhow::anyhow!("repository url is missing a host"))?;
+    let port = url.port.unwrap_or(match url.scheme {
+        gix::url::Scheme::Ssh => 22,
+        gix::url::Scheme::Https => 443,
+        _ => 80,
+    });
+
+    crate::net::resolve_allowed_addresses(env, host, port, "git").await
+}
+
 pub fn parse_private_key(
     private_key: &str,
     passphrase: Option<&str>,
@@ -75,22 +91,20 @@ enum SshAuth {
 }
 
 async fn ssh_upload_pack(
+    env: &Arc<crate::env::Env>,
     url: &gix::Url,
     username: &str,
     auth: SshAuth,
 ) -> Result<BoxedTransport, anyhow::Error> {
-    let host = url
-        .host()
-        .ok_or_else(|| anyhow::anyhow!("ssh repository url is missing a host"))?;
-    let port = url.port.unwrap_or(22);
     let path = String::from_utf8_lossy(&url.path).into_owned();
+    let addresses = resolve_addresses(env, url).await?;
 
     let mut session = russh::client::connect(
         Arc::new(russh::client::Config {
             keepalive_interval: Some(std::time::Duration::from_secs(30)),
             ..Default::default()
         }),
-        (host, port),
+        addresses.as_slice(),
         AcceptAnyServerKey,
     )
     .await?;
@@ -153,6 +167,7 @@ async fn ssh_upload_pack(
 impl GitCredentials {
     pub fn into_connection_configurator(
         self,
+        env: Arc<crate::env::Env>,
         url: gix::Url,
     ) -> impl FnMut(
         &mut GitConnection<'_, '_, '_>,
@@ -191,7 +206,7 @@ impl GitCredentials {
             };
 
             let transport = tokio::runtime::Handle::current()
-                .block_on(ssh_upload_pack(&url, username, auth))?;
+                .block_on(ssh_upload_pack(&env, &url, username, auth))?;
 
             *connection.transport_mut() = transport;
 

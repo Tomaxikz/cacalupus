@@ -3191,10 +3191,15 @@
                   "subtitle": "Release to start importing"
                 },
                 "button": {
-                  "updateFromRepository": "Update from Repository"
+                  "updateFromRepository": "Update from Repository",
+                  "fromFile": "from File",
+                  "fromUrl": "from URL",
+                  "fromRepository": "from Repository"
                 },
                 "toast": {
                   "imported": "Egg imported.",
+                  "importedBulk": "{eggs} imported.",
+                  "importFailed": "Failed to import {url}: {error}",
                   "moved": "Egg moved.",
                   "movedBulk": "{eggs} moved.",
                   "deletedBulk": "{eggs} deleted.",
@@ -3202,6 +3207,16 @@
                   "parseFailed": "Failed to parse egg: {error}"
                 },
                 "modal": {
+                  "importUrl": {
+                    "title": "Import Eggs from URL",
+                    "urls": "URLs",
+                    "urlsDescription": "Direct links to exported eggs in JSON or YAML format."
+                  },
+                  "updateUrl": {
+                    "title": "Update Egg from URL",
+                    "url": "URL",
+                    "urlDescription": "Direct link to an exported egg in JSON or YAML format."
+                  },
                   "move": {
                     "title": "Move Egg"
                   },
@@ -3264,9 +3279,7 @@
                       "emptyReplacements": "No replacements defined.",
                       "button": {
                         "addReplacement": "Add Replacement",
-                        "addConfigFile": "Add Config File",
-                        "fromFile": "from File",
-                        "fromRepository": "from Repository"
+                        "addConfigFile": "Add Config File"
                       },
                       "toast": {
                         "exported": "Egg exported.",

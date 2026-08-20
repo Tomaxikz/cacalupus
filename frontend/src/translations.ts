@@ -3158,9 +3158,14 @@ const baseTranslations = defineTranslations({
                 },
                 button: {
                   updateFromRepository: 'Update from Repository',
+                  fromFile: 'from File',
+                  fromUrl: 'from URL',
+                  fromRepository: 'from Repository',
                 },
                 toast: {
                   imported: 'Egg imported.',
+                  importedBulk: '{eggs} imported.',
+                  importFailed: 'Failed to import {url}: {error}',
                   moved: 'Egg moved.',
                   movedBulk: '{eggs} moved.',
                   deletedBulk: '{eggs} deleted.',
@@ -3168,6 +3173,16 @@ const baseTranslations = defineTranslations({
                   parseFailed: 'Failed to parse egg: {error}',
                 },
                 modal: {
+                  importUrl: {
+                    title: 'Import Eggs from URL',
+                    urls: 'URLs',
+                    urlsDescription: 'Direct links to exported eggs in JSON or YAML format.',
+                  },
+                  updateUrl: {
+                    title: 'Update Egg from URL',
+                    url: 'URL',
+                    urlDescription: 'Direct link to an exported egg in JSON or YAML format.',
+                  },
                   move: {
                     title: 'Move Egg',
                   },
@@ -3236,8 +3251,6 @@ const baseTranslations = defineTranslations({
                       button: {
                         addReplacement: 'Add Replacement',
                         addConfigFile: 'Add Config File',
-                        fromFile: 'from File',
-                        fromRepository: 'from Repository',
                       },
                       toast: {
                         exported: 'Egg exported.',

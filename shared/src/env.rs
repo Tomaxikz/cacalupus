@@ -55,6 +55,26 @@ fn log_filter(debug: bool) -> Targets {
         .with_target("panel_rs_aio", crate_level)
 }
 
+fn default_blocked_cidrs() -> Vec<cidr::IpCidr> {
+    const DEFAULTS: [&str; 10] = [
+        "0.0.0.0/8",
+        "127.0.0.0/8",
+        "10.0.0.0/8",
+        "100.64.0.0/10",
+        "172.16.0.0/12",
+        "192.168.0.0/16",
+        "169.254.0.0/16",
+        "::1/128",
+        "fe80::/10",
+        "fc00::/7",
+    ];
+
+    DEFAULTS
+        .iter()
+        .map(|cidr| cidr.parse().expect("invalid default blocked cidr"))
+        .collect()
+}
+
 pub struct Env {
     log_reload_handle: ReloadHandle,
 
@@ -80,6 +100,7 @@ pub struct Env {
     pub app_use_decryption_cache: bool,
     pub app_use_internal_cache: bool,
     pub app_trusted_proxies: Vec<cidr::IpCidr>,
+    pub app_blocked_cidrs: Vec<cidr::IpCidr>,
     pub app_log_directory: Option<String>,
     pub app_encryption_key: String,
     pub server_name: Option<String>,
@@ -272,6 +293,17 @@ impl Env {
                 .split(',')
                 .filter_map(|s| if s.is_empty() { None } else { s.parse().ok() })
                 .collect(),
+            app_blocked_cidrs: match std::env::var("APP_BLOCKED_CIDRS") {
+                Ok(cidrs) => cidrs
+                    .trim_matches('"')
+                    .split(',')
+                    .map(str::trim)
+                    .filter(|s| !s.is_empty())
+                    .map(str::parse)
+                    .collect::<Result<_, _>>()
+                    .context("Invalid APP_BLOCKED_CIDRS value")?,
+                Err(_) => default_blocked_cidrs(),
+            },
             app_log_directory,
             app_encryption_key,
             server_name: std::env::var("SERVER_NAME")

@@ -32,6 +32,7 @@ pub mod heavy;
 pub mod jwt;
 pub mod mail;
 pub mod models;
+pub mod net;
 pub mod ntp;
 pub mod payload;
 pub mod permissions;

@@ -33,7 +33,7 @@ mod post {
     ) -> ApiResponseResult {
         permissions.has_admin_permission("egg-repositories.sync")?;
 
-        let found = egg_repository.sync(&state.database).await?;
+        let found = egg_repository.sync(&state).await?;
 
         ApiResponse::new_serialized(Response { found }).ok()
     }

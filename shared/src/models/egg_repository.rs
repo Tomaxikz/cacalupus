@@ -333,11 +333,16 @@ impl EggRepository {
         })
     }
 
-    pub async fn sync(&self, database: &crate::database::Database) -> Result<usize, anyhow::Error> {
+    pub async fn sync(&self, state: &crate::State) -> Result<usize, anyhow::Error> {
         let git_repository = self.git_repository.clone();
 
         let mut credentials = self.credentials.clone();
-        credentials.decrypt(database).await?;
+        credentials.decrypt(&state.database).await?;
+
+        let url = gix::url::parse(git_repository.as_str())?;
+        crate::git::resolve_addresses(&state.env, &url).await?;
+
+        let env = Arc::clone(&state.env);
 
         struct FoundEgg {
             path: PathBuf,
@@ -352,8 +357,6 @@ impl EggRepository {
                 let temp_dir = tempfile::tempdir()?;
                 let filesystem = crate::cap::CapFilesystem::new(temp_dir.path().to_path_buf())?;
 
-                let url = gix::url::parse(git_repository.as_str())?;
-
                 let mut prepare_fetch = gix::clone::PrepareFetch::new(
                     url.clone(),
                     temp_dir.path(),
@@ -362,7 +365,8 @@ impl EggRepository {
                     gix::open::Options::default().config_overrides(["credential.helper="]),
                 )?
                 .configure_connection(
-                    crate::git::GitCredentials::from(credentials).into_connection_configurator(url),
+                    crate::git::GitCredentials::from(credentials)
+                        .into_connection_configurator(env, url),
                 );
 
                 let (mut prepare_checkout, _) = prepare_fetch
@@ -391,8 +395,9 @@ impl EggRepository {
                         Err(_) => continue,
                     };
 
-                    // if any egg is larger than 1 MiB, something went horribly wrong in development
-                    if !metadata.is_file() || metadata.len() > 1024 * 1024 {
+                    if !metadata.is_file()
+                        || metadata.len() > super::nest_egg::NestEgg::MAX_EXPORTED_SIZE as u64
+                    {
                         continue;
                     }
 
@@ -463,7 +468,7 @@ impl EggRepository {
             .await??;
 
         super::egg_repository_egg::EggRepositoryEgg::delete_unused(
-            database,
+            &state.database,
             self.uuid,
             &exported_eggs
                 .iter()
@@ -477,7 +482,7 @@ impl EggRepository {
 
         for egg in exported_eggs.iter() {
             futures.push(super::egg_repository_egg::EggRepositoryEgg::create(
-                database,
+                &state.database,
                 self.uuid,
                 egg.path.to_string_lossy(),
                 egg.readme.as_deref(),
@@ -499,7 +504,7 @@ impl EggRepository {
             "#,
         )
         .bind(self.uuid)
-        .execute(database.write())
+        .execute(state.database.write())
         .await?;
 
         Ok(exported_eggs.len())

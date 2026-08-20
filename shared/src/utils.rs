@@ -71,6 +71,14 @@ pub fn validate_host(host: &compact_str::CompactString, _context: &()) -> Result
     Ok(())
 }
 
+pub fn validate_http_url(url: &reqwest::Url, _context: &()) -> Result<(), garde::Error> {
+    if !matches!(url.scheme(), "http" | "https") {
+        return Err(garde::Error::new("must be a http or https url"));
+    }
+
+    Ok(())
+}
+
 pub fn validate_json_path(path: &str, _context: &()) -> Result<(), garde::Error> {
     if let Err(err) = serde_json_path::JsonPath::parse(path) {
         return Err(garde::Error::new(compact_str::format_compact!(

@@ -2,6 +2,7 @@ import {
   faChevronDown,
   faFileDownload,
   faFileText,
+  faLink,
   faMinus,
   faPlay,
   faPlus,
@@ -54,6 +55,7 @@ import { useToast } from '@/providers/ToastProvider.tsx';
 import { useTranslations } from '@/providers/TranslationProvider.tsx';
 import EggDuplicateModal from './modals/EggDuplicateModal.tsx';
 import EggMoveModal from './modals/EggMoveModal.tsx';
+import EggUpdateUrlModal from './modals/EggUpdateUrlModal.tsx';
 
 export default function EggCreateOrUpdate({
   contextNest,
@@ -66,7 +68,7 @@ export default function EggCreateOrUpdate({
   const { t } = useTranslations();
 
   const [isValid, setIsValid] = useState(false);
-  const [openModal, setOpenModal] = useState<'move' | 'delete' | 'duplicate' | null>(null);
+  const [openModal, setOpenModal] = useState<'move' | 'delete' | 'duplicate' | 'updateUrl' | null>(null);
   const [selectedEggRepositoryUuid, setSelectedEggRepositoryUuid] = useState<string>(
     contextEgg?.eggRepositoryEgg?.eggRepository.uuid ?? '',
   );
@@ -206,11 +208,8 @@ export default function EggCreateOrUpdate({
       .finally(() => setLoading(false));
   };
 
-  const doRepositoryUpdate = () => {
-    setLoading(true);
-
-    updateEggUsingRepository(contextNest.uuid, contextEgg!.uuid)
-      .then(() => getEgg(contextNest.uuid, contextEgg!.uuid))
+  const applyEggUpdate = () =>
+    getEgg(contextNest.uuid, contextEgg!.uuid)
       .then((egg) => {
         form.setValues({
           ...egg,
@@ -218,6 +217,15 @@ export default function EggCreateOrUpdate({
         });
         addToast(t('pages.admin.nests.tabs.eggs.page.tabs.general.page.toast.updated', {}), 'success');
       })
+      .catch((msg) => {
+        addToast(httpErrorToHuman(msg), 'error');
+      });
+
+  const doRepositoryUpdate = () => {
+    setLoading(true);
+
+    updateEggUsingRepository(contextNest.uuid, contextEgg!.uuid)
+      .then(applyEggUpdate)
       .catch((msg) => {
         addToast(httpErrorToHuman(msg), 'error');
       })
@@ -248,14 +256,7 @@ export default function EggCreateOrUpdate({
     }
 
     updateEggUsingImport(contextNest.uuid, contextEgg!.uuid, data)
-      .then(() => getEgg(contextNest.uuid, contextEgg!.uuid))
-      .then((egg) => {
-        form.setValues({
-          ...egg,
-          eggRepositoryEggUuid: egg.eggRepositoryEgg?.uuid || null,
-        });
-        addToast(t('pages.admin.nests.tabs.eggs.page.tabs.general.page.toast.updated', {}), 'success');
-      })
+      .then(applyEggUpdate)
       .catch((msg) => {
         addToast(httpErrorToHuman(msg), 'error');
       })
@@ -286,6 +287,15 @@ export default function EggCreateOrUpdate({
           onClose={() => setOpenModal(null)}
           nest={contextNest}
           egg={contextEgg}
+        />
+      )}
+      {contextEgg && (
+        <EggUpdateUrlModal
+          opened={openModal === 'updateUrl'}
+          onClose={() => setOpenModal(null)}
+          nest={contextNest}
+          egg={contextEgg}
+          onUpdated={applyEggUpdate}
         />
       )}
       <ConfirmationModal
@@ -702,14 +712,21 @@ export default function EggCreateOrUpdate({
                     {
                       type: 'action',
                       icon: faUpload,
-                      label: t('pages.admin.nests.tabs.eggs.page.tabs.general.page.button.fromFile', {}),
+                      label: t('pages.admin.nests.tabs.eggs.page.button.fromFile', {}),
                       onClick: () => fileInputRef.current?.click(),
                       color: 'gray',
                     },
                     {
                       type: 'action',
+                      icon: faLink,
+                      label: t('pages.admin.nests.tabs.eggs.page.button.fromUrl', {}),
+                      onClick: () => setOpenModal('updateUrl'),
+                      color: 'gray',
+                    },
+                    {
+                      type: 'action',
                       icon: faRefresh,
-                      label: t('pages.admin.nests.tabs.eggs.page.tabs.general.page.button.fromRepository', {}),
+                      label: t('pages.admin.nests.tabs.eggs.page.button.fromRepository', {}),
                       disabled: !contextEgg.eggRepositoryEgg,
                       onClick: doRepositoryUpdate,
                       color: 'gray',

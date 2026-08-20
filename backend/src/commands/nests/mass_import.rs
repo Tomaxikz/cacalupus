@@ -95,8 +95,10 @@ impl shared::extensions::commands::CliCommand<MassImportArgs> for MassImportComm
                         Err(_) => return Ok(()),
                     };
 
-                    // if any egg is larger than 1 MB, something went horribly wrong in development
-                    if !metadata.is_file() || metadata.len() > 1024 * 1024 {
+                    if !metadata.is_file()
+                        || metadata.len()
+                            > shared::models::nest_egg::NestEgg::MAX_EXPORTED_SIZE as u64
+                    {
                         return Ok(());
                     }
 

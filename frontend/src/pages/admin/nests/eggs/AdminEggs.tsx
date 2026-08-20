@@ -1,4 +1,4 @@
-import { faPlus, faUpload } from '@fortawesome/free-solid-svg-icons';
+import { faChevronDown, faLink, faPlus, faUpload } from '@fortawesome/free-solid-svg-icons';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { load } from 'js-yaml';
 import { ChangeEvent, Ref, useEffect, useRef, useState } from 'react';
@@ -9,6 +9,7 @@ import importEgg from '@/api/admin/nests/eggs/importEgg.ts';
 import { httpErrorToHuman } from '@/api/axios.ts';
 import Button from '@/elements/Button.tsx';
 import { AdminCan } from '@/elements/Can.tsx';
+import ContextMenu from '@/elements/ContextMenu.tsx';
 import AdminSubContentContainer from '@/elements/containers/AdminSubContentContainer.tsx';
 import SelectionArea from '@/elements/SelectionArea.tsx';
 import Table from '@/elements/Table.tsx';
@@ -30,6 +31,7 @@ import EggActionBar from './EggActionBar.tsx';
 import EggCreateOrUpdate from './EggCreateOrUpdate.tsx';
 import EggImportOverlay from './EggImportOverlay.tsx';
 import EggRow from './EggRow.tsx';
+import EggImportUrlModal from './modals/EggImportUrlModal.tsx';
 
 function EggsContainer({ contextNest }: { contextNest: z.infer<typeof adminNestSchema> }) {
   const navigate = useNavigate();
@@ -41,6 +43,7 @@ function EggsContainer({ contextNest }: { contextNest: z.infer<typeof adminNestS
   const fileInputRef = useRef<HTMLInputElement | null>(null);
 
   const [selectedEggs, setSelectedEggs] = useState(new ObjectSet<z.infer<typeof adminEggSchema>, 'uuid'>('uuid'));
+  const [importUrlOpen, setImportUrlOpen] = useState(false);
 
   const {
     data: eggs,
@@ -137,10 +140,38 @@ function EggsContainer({ contextNest }: { contextNest: z.infer<typeof adminNestS
       setSearch={setSearch}
       contentRight={
         <AdminCan action='eggs.create'>
-          <Button onClick={() => fileInputRef.current?.click()} color='blue'>
-            <FontAwesomeIcon icon={faUpload} className='mr-2' />
-            {t('common.button.import', {})}
-          </Button>
+          <ContextMenu
+            items={[
+              {
+                type: 'action',
+                icon: faUpload,
+                label: t('pages.admin.nests.tabs.eggs.page.button.fromFile', {}),
+                onClick: () => fileInputRef.current?.click(),
+                color: 'gray',
+              },
+              {
+                type: 'action',
+                icon: faLink,
+                label: t('pages.admin.nests.tabs.eggs.page.button.fromUrl', {}),
+                onClick: () => setImportUrlOpen(true),
+                color: 'gray',
+              },
+            ]}
+          >
+            {({ openMenu }) => (
+              <Button
+                onClick={(e) => {
+                  e.stopPropagation();
+                  const rect = e.currentTarget.getBoundingClientRect();
+                  openMenu(rect.left, rect.bottom);
+                }}
+                color='blue'
+                rightSection={<FontAwesomeIcon icon={faChevronDown} />}
+              >
+                {t('common.button.import', {})}
+              </Button>
+            )}
+          </ContextMenu>
           <Button
             onClick={() => navigate(`/admin/nests/${contextNest.uuid}/eggs/new`)}
             color='blue'
@@ -159,6 +190,13 @@ function EggsContainer({ contextNest }: { contextNest: z.infer<typeof adminNestS
         </AdminCan>
       }
     >
+      <EggImportUrlModal
+        nest={contextNest}
+        opened={importUrlOpen}
+        onClose={() => setImportUrlOpen(false)}
+        onImported={refetch}
+      />
+
       <EggActionBar
         nest={contextNest}
         selectedEggs={selectedEggs}

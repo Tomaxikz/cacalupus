@@ -2,63 +2,97 @@ use super::State;
 use utoipa_axum::{router::OpenApiRouter, routes};
 
 mod post {
-    use crate::routes::api::admin::nests::_nest_::GetNest;
+    use crate::routes::api::admin::nests::_nest_::{GetNest, eggs::_egg_::GetNestEgg};
     use axum::http::StatusCode;
-    use serde::Serialize;
+    use garde::Validate;
+    use serde::{Deserialize, Serialize};
     use shared::{
         ApiError, GetState,
         models::{
-            IntoAdminApiObject,
-            admin_activity::GetAdminActivityLogger,
-            nest_egg::{ExportedNestEgg, NestEgg},
+            admin_activity::GetAdminActivityLogger, nest_egg::ExportedNestEgg,
             user::GetPermissionManager,
         },
         response::{ApiResponse, ApiResponseResult},
     };
     use utoipa::ToSchema;
 
-    #[derive(ToSchema, Serialize)]
-    struct Response {
-        egg: shared::models::nest_egg::AdminApiNestEgg,
+    #[derive(ToSchema, Validate, Deserialize)]
+    pub struct Payload {
+        #[garde(custom(shared::utils::validate_http_url))]
+        #[schema(value_type = String, format = "uri")]
+        url: reqwest::Url,
     }
+
+    #[derive(ToSchema, Serialize)]
+    struct Response {}
 
     #[utoipa::path(post, path = "/", responses(
         (status = OK, body = inline(Response)),
         (status = NOT_FOUND, body = ApiError),
         (status = BAD_REQUEST, body = ApiError),
         (status = CONFLICT, body = ApiError),
+        (status = EXPECTATION_FAILED, body = ApiError),
     ), params(
         (
             "nest" = uuid::Uuid,
             description = "The nest ID",
             example = "123e4567-e89b-12d3-a456-426614174000",
         ),
-    ), request_body = ExportedNestEgg)]
+        (
+            "egg" = uuid::Uuid,
+            description = "The egg ID",
+            example = "123e4567-e89b-12d3-a456-426614174000",
+        ),
+    ), request_body = inline(Payload))]
     pub async fn route(
         state: GetState,
         permissions: GetPermissionManager,
         nest: GetNest,
+        egg: GetNestEgg,
         activity_logger: GetAdminActivityLogger,
-        shared::Payload(data): shared::Payload<ExportedNestEgg>,
+        shared::Payload(data): shared::Payload<Payload>,
     ) -> ApiResponseResult {
-        permissions.has_admin_permission("eggs.create")?;
+        if let Err(errors) = shared::utils::validate_data(&data) {
+            return ApiResponse::new_serialized(ApiError::new_strings_value(errors))
+                .with_status(StatusCode::BAD_REQUEST)
+                .ok();
+        }
 
-        let egg = match NestEgg::import(&state, nest.uuid, None, data).await {
-            Ok(egg) => egg,
+        permissions.has_admin_permission("eggs.update")?;
+
+        let exported_egg = match ExportedNestEgg::fetch(&state, &data.url).await {
+            Ok(exported_egg) => exported_egg,
+            Err(err) => {
+                return ApiResponse::error(err.to_string())
+                    .with_status(StatusCode::EXPECTATION_FAILED)
+                    .ok();
+            }
+        };
+
+        if let Err(errors) = shared::utils::validate_data(&exported_egg) {
+            return ApiResponse::new_serialized(ApiError::new_strings_value(errors))
+                .with_status(StatusCode::BAD_REQUEST)
+                .ok();
+        }
+
+        match egg.import_update(&state.database, exported_egg).await {
+            Ok(_) => {}
             Err(err) if err.is_unique_violation() => {
                 return ApiResponse::error("egg with name already exists")
                     .with_status(StatusCode::CONFLICT)
                     .ok();
             }
             Err(err) => return ApiResponse::from(err).ok(),
-        };
+        }
 
         activity_logger
             .log(
-                "nest:egg.create",
+                "nest:egg.update",
                 serde_json::json!({
                     "uuid": egg.uuid,
                     "nest_uuid": nest.uuid,
+                    "egg_repository_egg_uuid": egg.egg_repository_egg.as_ref().map(|e| e.uuid),
+                    "url": data.url.as_str(),
 
                     "author": egg.author,
                     "name": egg.name,
@@ -80,10 +114,7 @@ mod post {
             )
             .await;
 
-        ApiResponse::new_serialized(Response {
-            egg: egg.into_admin_api_object(&state, ()).await?,
-        })
-        .ok()
+        ApiResponse::new_serialized(Response {}).ok()
     }
 }
 

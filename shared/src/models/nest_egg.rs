@@ -228,6 +228,46 @@ pub struct ExportedNestEgg {
     pub variables: Vec<super::nest_egg_variable::ExportedNestEggVariable>,
 }
 
+impl ExportedNestEgg {
+    pub async fn fetch(state: &crate::State, url: &reqwest::Url) -> Result<Self, anyhow::Error> {
+        use futures_util::StreamExt;
+
+        let response = crate::net::outbound_client(&state.env)
+            .get(url.clone())
+            .send()
+            .await?;
+
+        if !response.status().is_success() {
+            return Err(anyhow::anyhow!(
+                "server responded with status {}",
+                response.status()
+            ));
+        }
+
+        let mut content = Vec::new();
+        let mut stream = response.bytes_stream();
+
+        while let Some(chunk) = stream.next().await {
+            let chunk = chunk?;
+
+            if content.len() + chunk.len() > NestEgg::MAX_EXPORTED_SIZE {
+                return Err(anyhow::anyhow!("egg is too large"));
+            }
+
+            content.extend_from_slice(&chunk);
+        }
+
+        let content = String::from_utf8(content)?;
+        let content = content.trim();
+
+        Ok(if content.starts_with('{') {
+            serde_json::from_str(content)?
+        } else {
+            serde_norway::from_str(content)?
+        })
+    }
+}
+
 #[derive(Serialize, Deserialize, Clone)]
 pub struct NestEgg {
     pub uuid: uuid::Uuid,
@@ -396,6 +436,9 @@ impl BaseModel for NestEgg {
 }
 
 impl NestEgg {
+    /// if any egg is larger than 1 MiB, something went horribly wrong in development
+    pub const MAX_EXPORTED_SIZE: usize = 1024 * 1024;
+
     pub async fn import(
         state: &crate::State,
         nest_uuid: uuid::Uuid,

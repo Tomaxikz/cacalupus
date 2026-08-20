@@ -3176,10 +3176,15 @@
                   "subtitle": "Loslassen, um den Import zu starten"
                 },
                 "button": {
-                  "updateFromRepository": "Aus Repository aktualisieren"
+                  "updateFromRepository": "Aus Repository aktualisieren",
+                  "fromFile": "aus Datei",
+                  "fromUrl": "aus URL",
+                  "fromRepository": "aus Repository"
                 },
                 "toast": {
                   "imported": "Egg importiert.",
+                  "importedBulk": "{eggs} importiert.",
+                  "importFailed": "{url} konnte nicht importiert werden: {error}",
                   "moved": "Egg verschoben.",
                   "movedBulk": "{eggs} verschoben.",
                   "deletedBulk": "{eggs} gelöscht.",
@@ -3187,6 +3192,16 @@
                   "parseFailed": "Egg konnte nicht geparst werden: {error}"
                 },
                 "modal": {
+                  "importUrl": {
+                    "title": "Eggs von URL importieren",
+                    "urls": "URLs",
+                    "urlsDescription": "Direkte Links zu exportierten Eggs im JSON- oder YAML-Format."
+                  },
+                  "updateUrl": {
+                    "title": "Egg von URL aktualisieren",
+                    "url": "URL",
+                    "urlDescription": "Direkter Link zu einem exportierten Egg im JSON- oder YAML-Format."
+                  },
                   "move": {
                     "title": "Egg verschieben"
                   },
@@ -3249,9 +3264,7 @@
                       "emptyReplacements": "Keine Ersetzungen definiert.",
                       "button": {
                         "addReplacement": "Ersetzung hinzufügen",
-                        "addConfigFile": "Konfigurationsdatei hinzufügen",
-                        "fromFile": "aus Datei",
-                        "fromRepository": "aus Repository"
+                        "addConfigFile": "Konfigurationsdatei hinzufügen"
                       },
                       "toast": {
                         "exported": "Egg exportiert.",
