@@ -47,7 +47,8 @@ export default function ServerStatusIndicator() {
 
   const killable = state === 'stopping';
   const isOffline = state === 'offline';
-  const canPower = isOffline ? canStart : canStop;
+  const hasPower = canStart || canStop;
+  const startPrimary = canStart && (isOffline || !canStop);
 
   const powerBlocked =
     !socketConnected || !!server.status || server.isSuspended || server.isTransferring || server.nodeMaintenanceEnabled;
@@ -125,7 +126,7 @@ export default function ServerStatusIndicator() {
     return null;
   }
 
-  const buttonAction = isOffline ? 'start' : killable ? 'kill' : 'stop';
+  const buttonAction = startPrimary ? 'start' : killable ? 'kill' : 'stop';
 
   return (
     <>
@@ -142,37 +143,45 @@ export default function ServerStatusIndicator() {
           {uptime && <span className='text-xs leading-4 ml-auto shrink-0 text-(--mantine-color-dimmed)'>{uptime}</span>}
         </div>
 
-        {(canPower || canRestart) && (
+        {(hasPower || canRestart) && (
           <div className='flex gap-2 mt-2'>
-            {canPower && (
+            {hasPower && (
               <Button
                 size='xs'
-                color={isOffline ? 'green' : 'red'}
-                disabled={powerBlocked}
+                color={startPrimary ? 'green' : 'red'}
+                disabled={powerBlocked || (startPrimary ? !isOffline : isOffline)}
                 onClick={() => onPowerAction(buttonAction)}
                 className='flex-1 min-w-0'
-                leftSection={<FontAwesomeIcon icon={isOffline ? faPlay : killable ? faSkull : faStop} size='xs' />}
+                leftSection={<FontAwesomeIcon icon={startPrimary ? faPlay : killable ? faSkull : faStop} size='xs' />}
               >
                 {t(`common.enum.serverPowerAction.${buttonAction}`, {})}
               </Button>
             )}
-            {canRestart && (
-              <Tooltip
-                label={t('common.enum.serverPowerAction.restart', {})}
-                className={canPower ? undefined : 'flex-1'}
-              >
+            {canRestart &&
+              (hasPower ? (
+                <Tooltip label={t('common.enum.serverPowerAction.restart', {})}>
+                  <Button
+                    size='xs'
+                    color='gray'
+                    disabled={powerBlocked}
+                    onClick={() => onPowerAction('restart')}
+                    className='px-2.5!'
+                  >
+                    <FontAwesomeIcon icon={faRotateRight} size='xs' />
+                  </Button>
+                </Tooltip>
+              ) : (
                 <Button
                   size='xs'
                   color='gray'
-                  disabled={powerBlocked || isOffline}
+                  disabled={powerBlocked}
                   onClick={() => onPowerAction('restart')}
-                  fullWidth={!canPower}
-                  className={canPower ? 'px-2.5!' : undefined}
+                  fullWidth
+                  leftSection={<FontAwesomeIcon icon={faRotateRight} size='xs' />}
                 >
-                  <FontAwesomeIcon icon={faRotateRight} size='xs' />
+                  {t('common.enum.serverPowerAction.restart', {})}
                 </Button>
-              </Tooltip>
-            )}
+              ))}
           </div>
         )}
       </Card>
