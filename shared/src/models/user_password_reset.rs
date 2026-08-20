@@ -96,11 +96,12 @@ impl UserPasswordReset {
 
         sqlx::query(
             r#"
-            INSERT INTO user_password_resets (user_uuid, token, created)
-            VALUES ($1, crypt($2, gen_salt('bf', 12)), NOW())
+            INSERT INTO user_password_resets (user_uuid, token_start, token, created)
+            VALUES ($1, $2, crypt($3, gen_salt('bf', 12)), NOW())
             "#,
         )
         .bind(user_uuid)
+        .bind(&token[0..16])
         .bind(&token)
         .execute(database.write())
         .await?;
@@ -135,11 +136,12 @@ impl UserPasswordReset {
 
         sqlx::query(
             r#"
-            INSERT INTO user_password_resets (user_uuid, token, created)
-            VALUES ($1, crypt($2, gen_salt('bf', 12)), NOW())
+            INSERT INTO user_password_resets (user_uuid, token_start, token, created)
+            VALUES ($1, $2, crypt($3, gen_salt('bf', 12)), NOW())
             "#,
         )
         .bind(user_uuid)
+        .bind(&token[0..16])
         .bind(&token)
         .execute(&mut **transaction)
         .await?;
@@ -151,18 +153,26 @@ impl UserPasswordReset {
         database: &crate::database::Database,
         token: &str,
     ) -> Result<Option<Self>, crate::database::DatabaseError> {
+        let Some(token_start) = token.get(0..16) else {
+            return Ok(None);
+        };
+
         let row = sqlx::query(sqlx::AssertSqlSafe(format!(
             r#"
+            WITH user_password_resets AS MATERIALIZED (
+                SELECT * FROM user_password_resets
+                WHERE user_password_resets.token_start = $1
+                AND user_password_resets.created > NOW() - INTERVAL '20 minutes'
+            )
             SELECT {}, {} FROM user_password_resets
             JOIN users ON users.uuid = user_password_resets.user_uuid
             LEFT JOIN roles ON roles.uuid = users.role_uuid
-            WHERE
-                user_password_resets.token = crypt($1, user_password_resets.token)
-                AND user_password_resets.created > NOW() - INTERVAL '20 minutes'
+            WHERE user_password_resets.token = crypt($2, user_password_resets.token)
             "#,
             Self::columns_sql(None),
             super::user::User::columns_sql(Some("user_"))
         )))
+        .bind(token_start)
         .bind(token)
         .fetch_optional(database.read())
         .await?;
@@ -183,5 +193,17 @@ impl UserPasswordReset {
         .await?;
 
         Ok(Some(Self::map(None, &row)?))
+    }
+
+    pub async fn delete_expired(database: &crate::database::Database) -> Result<u64, sqlx::Error> {
+        Ok(sqlx::query(
+            r#"
+            DELETE FROM user_password_resets
+            WHERE user_password_resets.created < NOW() - INTERVAL '20 minutes'
+            "#,
+        )
+        .execute(database.write())
+        .await?
+        .rows_affected())
     }
 }

@@ -5,8 +5,9 @@ use shared::models::{
     oauth_provider_mapping::OAuthProviderMapping, server::Server, server_activity::ServerActivity,
     server_backup::ServerBackup, system_backup_policy::SystemBackupPolicy,
     user_activity::UserActivity, user_api_key::UserApiKey,
-    user_command_snippet::UserCommandSnippet, user_security_key::UserSecurityKey,
-    user_server_group::UserServerGroup, user_session::UserSession,
+    user_command_snippet::UserCommandSnippet, user_password_reset::UserPasswordReset,
+    user_security_key::UserSecurityKey, user_server_group::UserServerGroup,
+    user_session::UserSession,
 };
 use std::str::FromStr;
 
@@ -111,6 +112,24 @@ pub async fn define_background_tasks(
                 let deleted_api_keys = UserApiKey::delete_expired(&state.database).await?;
                 if deleted_api_keys > 0 {
                     tracing::info!("deleted {} expired user api keys", deleted_api_keys);
+                }
+
+                Ok(())
+            },
+        )
+        .await;
+    background_task_builder
+        .add_cron_task(
+            "delete_expired_password_resets",
+            croner::Cron::from_str("0 */30 * * * *").unwrap(),
+            async |state| {
+                let deleted_password_resets =
+                    UserPasswordReset::delete_expired(&state.database).await?;
+                if deleted_password_resets > 0 {
+                    tracing::info!(
+                        "deleted {} expired user password resets",
+                        deleted_password_resets
+                    );
                 }
 
                 Ok(())

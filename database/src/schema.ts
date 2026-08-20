@@ -244,12 +244,14 @@ export const userPasswordResetsTable = pgTable(
     user_uuid: uuid()
       .references(() => usersTable.uuid, { onDelete: 'cascade' })
       .notNull(),
+    token_start: char({ length: 16 }).notNull(),
     token: text().notNull(),
     created: timestamp().defaultNow().notNull(),
   },
   (cols) => [
     index('user_password_resets_user_uuid_idx').on(cols.user_uuid),
     uniqueIndex('user_password_resets_token_idx').on(cols.token),
+    index('user_password_resets_token_start_idx').on(cols.token_start),
   ],
 );
 
