@@ -5218,20 +5218,38 @@ const baseTranslations = defineTranslations({
             users: {
               title: 'Users',
               subtitle: '{current} of {max} maximum users created.',
+              button: {
+                permissions: 'Permissions',
+              },
               tooltip: {
                 offline: 'The instance must be running to create users.',
                 limitReached: 'This instance is limited to {max} users.',
+              },
+              enum: {
+                permission: {
+                  none: 'No Access',
+                  readOnly: 'Read Only',
+                  readWrite: 'Read & Write',
+                },
+              },
+              form: {
+                databases: 'Database Access',
+                noDatabases: 'This instance has no databases yet.',
+              },
+              table: {
+                columns: {
+                  databases: 'Databases',
+                },
               },
               modal: {
                 createUser: {
                   title: 'Create User',
                   content:
                     'Creates a new user inside this managed database instance. The credentials will be shown in the table afterwards.',
-                  form: {
-                    database: 'Database',
-                    databaseHint: 'The database this user will be granted access to.',
-                    databaseRequired: 'Please select a database.',
-                  },
+                },
+                permissions: {
+                  title: 'Database Permissions',
+                  content: 'Controls which databases **{username}** can access, and what it may do in them.',
                 },
                 deleteUser: {
                   title: 'Confirm User Deletion',
@@ -5241,6 +5259,7 @@ const baseTranslations = defineTranslations({
               toast: {
                 created: 'User created.',
                 deleted: 'User deleted.',
+                permissionsUpdated: 'User permissions updated.',
               },
             },
             power: {
@@ -5315,6 +5334,7 @@ const baseTranslations = defineTranslations({
                 title: 'Database Credentials',
                 form: {
                   database: 'Database',
+                  databaseHint: 'The database the connection string below points at.',
                   jdbcConnectionString: 'JDBC Connection String',
                 },
               },

@@ -15,6 +15,7 @@ import Text from '@/elements/Text.tsx';
 import Title from '@/elements/Title.tsx';
 import { queryKeys } from '@/lib/queryKeys.ts';
 import {
+  serverDatabaseInstanceDatabaseSchema,
   serverDatabaseInstanceSchema,
   serverDatabaseInstanceUserSchema,
 } from '@/lib/schemas/server/databaseInstances.ts';
@@ -42,7 +43,7 @@ export default function DatabaseInstanceDatabases({
   const [createDatabaseOpen, setCreateDatabaseOpen] = useState(false);
   const [createdUser, setCreatedUser] = useState<{
     user: z.infer<typeof serverDatabaseInstanceUserSchema>;
-    databaseName: string;
+    database: z.infer<typeof serverDatabaseInstanceDatabaseSchema>;
   } | null>(null);
 
   const {
@@ -68,7 +69,9 @@ export default function DatabaseInstanceDatabases({
     data: databases ?? [],
   };
 
-  const databasesWithUser = new Set((users ?? []).map((user) => user.databaseUuid).filter(Boolean));
+  const databasesWithUser = new Set(
+    (users ?? []).flatMap((user) => user.databases.map((database) => database.databaseUuid)),
+  );
   const limitReached = pagination.total >= maxDatabaseCount;
 
   return (
@@ -76,7 +79,7 @@ export default function DatabaseInstanceDatabases({
       <DatabaseInstanceDatabaseCreateModal
         instance={instance}
         userCount={users?.length ?? 0}
-        onUserCreated={(user, databaseName) => setCreatedUser({ user, databaseName })}
+        onUserCreated={(user, database) => setCreatedUser({ user, database })}
         opened={createDatabaseOpen}
         onClose={() => setCreateDatabaseOpen(false)}
       />
@@ -84,7 +87,7 @@ export default function DatabaseInstanceDatabases({
         <DatabaseInstanceCredentialsModal
           instance={instance}
           user={createdUser.user}
-          databaseName={createdUser.databaseName}
+          databases={[createdUser.database]}
           offline={offline}
           opened
           onClose={() => setCreatedUser(null)}

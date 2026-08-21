@@ -336,6 +336,8 @@
         "destination": "Destination",
         "destinationDirectory": "Destination Directory",
         "directoryName": "Directory Name",
+        "symlinkName": "Symlink Name",
+        "symlinkTarget": "Symlink Target",
         "locked": "Locked",
         "portRanges": "Port Ranges",
         "portRangesPlaceholder": "Port Ranges (eg. 3000-4000)",
@@ -4581,6 +4583,7 @@
             "exitBackup": "Exit Backup",
             "fileFromEditor": "File from Editor",
             "directory": "Directory",
+            "symlink": "Symlink",
             "fileFromPull": "File from Pull",
             "fileFromUpload": "File from Upload",
             "directoryFromUpload": "Directory from Upload",
@@ -4756,6 +4759,12 @@
             "createDirectory": {
               "title": "Create Directory",
               "createdAs": "This directory will be created as "
+            },
+            "createSymlink": {
+              "title": "Create Symlink",
+              "targetDescription": "Relative to the directory the symlink is created in.",
+              "createdAs": "This symlink will be created as ",
+              "pointsTo": "It will point to "
             },
             "copyFile": {
               "title": "Copy File",
@@ -5190,19 +5199,37 @@
             "users": {
               "title": "Users",
               "subtitle": "{current} of {max} maximum users created.",
+              "button": {
+                "permissions": "Permissions"
+              },
               "tooltip": {
                 "offline": "The instance must be running to create users.",
                 "limitReached": "This instance is limited to {max} users."
               },
+              "enum": {
+                "permission": {
+                  "none": "No Access",
+                  "readOnly": "Read Only",
+                  "readWrite": "Read & Write"
+                }
+              },
+              "form": {
+                "databases": "Database Access",
+                "noDatabases": "This instance has no databases yet."
+              },
+              "table": {
+                "columns": {
+                  "databases": "Databases"
+                }
+              },
               "modal": {
                 "createUser": {
                   "title": "Create User",
-                  "content": "Creates a new user inside this managed database instance. The credentials will be shown in the table afterwards.",
-                  "form": {
-                    "database": "Database",
-                    "databaseHint": "The database this user will be granted access to.",
-                    "databaseRequired": "Please select a database."
-                  }
+                  "content": "Creates a new user inside this managed database instance. The credentials will be shown in the table afterwards."
+                },
+                "permissions": {
+                  "title": "Database Permissions",
+                  "content": "Controls which databases **{username}** can access, and what it may do in them."
                 },
                 "deleteUser": {
                   "title": "Confirm User Deletion",
@@ -5211,7 +5238,8 @@
               },
               "toast": {
                 "created": "User created.",
-                "deleted": "User deleted."
+                "deleted": "User deleted.",
+                "permissionsUpdated": "User permissions updated."
               }
             },
             "power": {
@@ -5284,6 +5312,7 @@
                 "title": "Database Credentials",
                 "form": {
                   "database": "Database",
+                  "databaseHint": "The database the connection string below points at.",
                   "jdbcConnectionString": "JDBC Connection String"
                 }
               },

@@ -254,13 +254,12 @@ impl ExportedNestEgg {
             content.extend_from_slice(&chunk);
         }
 
-        let content = String::from_utf8(content)?;
-        let content = content.trim();
+        let content = content.trim_ascii();
 
-        Ok(if content.starts_with('{') {
-            serde_json::from_str(content)?
+        Ok(if content.starts_with(b"{") {
+            serde_json::from_slice(content)?
         } else {
-            serde_norway::from_str(content)?
+            serde_norway::from_slice(content)?
         })
     }
 }

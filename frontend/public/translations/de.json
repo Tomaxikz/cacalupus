@@ -5180,19 +5180,37 @@
             "users": {
               "title": "Benutzer",
               "subtitle": "{current} von {max} maximalen Benutzern erstellt.",
+              "button": {
+                "permissions": "Berechtigungen"
+              },
               "tooltip": {
                 "offline": "Die Instanz muss laufen, um Benutzer zu erstellen.",
                 "limitReached": "Diese Instanz ist auf {max} Benutzer limitiert."
               },
+              "enum": {
+                "permission": {
+                  "none": "Kein Zugriff",
+                  "readOnly": "Nur Lesen",
+                  "readWrite": "Lesen & Schreiben"
+                }
+              },
+              "form": {
+                "databases": "Datenbankzugriff",
+                "noDatabases": "Diese Instanz hat noch keine Datenbanken."
+              },
+              "table": {
+                "columns": {
+                  "databases": "Datenbanken"
+                }
+              },
               "modal": {
                 "createUser": {
                   "title": "Benutzer erstellen",
-                  "content": "Erstellt einen neuen Benutzer in dieser verwalteten Datenbank-Instanz. Die Zugangsdaten werden anschließend in der Tabelle angezeigt.",
-                  "form": {
-                    "database": "Datenbank",
-                    "databaseHint": "Die Datenbank, auf die dieser Benutzer Zugriff erhält.",
-                    "databaseRequired": "Bitte wähle eine Datenbank aus."
-                  }
+                  "content": "Erstellt einen neuen Benutzer in dieser verwalteten Datenbank-Instanz. Die Zugangsdaten werden anschließend in der Tabelle angezeigt."
+                },
+                "permissions": {
+                  "title": "Datenbankberechtigungen",
+                  "content": "Legt fest, auf welche Datenbanken **{username}** zugreifen darf und was dort erlaubt ist."
                 },
                 "deleteUser": {
                   "title": "Benutzerlöschung bestätigen",
@@ -5201,7 +5219,8 @@
               },
               "toast": {
                 "created": "Benutzer erstellt.",
-                "deleted": "Benutzer gelöscht."
+                "deleted": "Benutzer gelöscht.",
+                "permissionsUpdated": "Benutzerberechtigungen aktualisiert."
               }
             },
             "power": {
@@ -5274,6 +5293,7 @@
                 "title": "Datenbank-Zugangsdaten",
                 "form": {
                   "database": "Datenbank",
+                  "databaseHint": "Die Datenbank, auf die die untenstehende Verbindungszeichenfolge verweist.",
                   "jdbcConnectionString": "JDBC-Verbindungszeichenfolge"
                 }
               },

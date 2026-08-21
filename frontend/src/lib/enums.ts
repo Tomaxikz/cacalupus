@@ -68,6 +68,7 @@ import {
   streamingArchiveFormat,
   transferArchiveFormat,
 } from '@/lib/schemas/generic.ts';
+import { serverDatabaseInstanceUserPermission } from '@/lib/schemas/server/databaseInstances.ts';
 import { serverDatabaseFilterOperator } from '@/lib/schemas/server/databases.ts';
 import { archiveFormat, compressionLevel, fingerprintAlgorithm } from '@/lib/schemas/server/files.ts';
 import {
@@ -127,6 +128,15 @@ export const databaseAgentTypeLabelMapping: Record<z.infer<typeof databaseAgentT
   mariadb: 'MariaDB',
   mongodb: 'MongoDB',
   redis: 'Redis',
+};
+
+export const serverDatabaseInstanceUserPermissionLabelMapping: Record<
+  z.infer<typeof serverDatabaseInstanceUserPermission>,
+  () => string
+> = {
+  none: () => getTranslations().t('pages.server.databases.instance.users.enum.permission.none', {}),
+  read_only: () => getTranslations().t('pages.server.databases.instance.users.enum.permission.readOnly', {}),
+  read_write: () => getTranslations().t('pages.server.databases.instance.users.enum.permission.readWrite', {}),
 };
 
 export const databaseAgentTypeDefaultPortMapping: Record<z.infer<typeof databaseAgentType>, number> = {

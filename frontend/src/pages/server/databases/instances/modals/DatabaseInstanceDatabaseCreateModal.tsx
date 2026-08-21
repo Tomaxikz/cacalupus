@@ -16,6 +16,7 @@ import Text from '@/elements/Text.tsx';
 import { queryKeys } from '@/lib/queryKeys.ts';
 import {
   serverDatabaseInstanceDatabaseCreateSchema,
+  serverDatabaseInstanceDatabaseSchema,
   serverDatabaseInstanceSchema,
   serverDatabaseInstanceUserSchema,
 } from '@/lib/schemas/server/databaseInstances.ts';
@@ -29,7 +30,10 @@ import { useServerStore } from '@/stores/server.ts';
 type Props = ModalProps & {
   instance: z.infer<typeof serverDatabaseInstanceSchema>;
   userCount: number;
-  onUserCreated: (user: z.infer<typeof serverDatabaseInstanceUserSchema>, databaseName: string) => void;
+  onUserCreated: (
+    user: z.infer<typeof serverDatabaseInstanceUserSchema>,
+    database: z.infer<typeof serverDatabaseInstanceDatabaseSchema>,
+  ) => void;
 };
 
 export default function DatabaseInstanceDatabaseCreateModal({ instance, userCount, onUserCreated, ...props }: Props) {
@@ -62,7 +66,7 @@ export default function DatabaseInstanceDatabaseCreateModal({ instance, userCoun
       try {
         const user = await createDatabaseInstanceUser(server.uuid, instance.uuid, {
           username: database.name,
-          databaseUuid: database.uuid,
+          databases: [{ databaseUuid: database.uuid, permission: 'read_write' }],
         });
 
         addToast(t('pages.server.databases.instance.users.toast.created', {}), 'success');
@@ -70,7 +74,7 @@ export default function DatabaseInstanceDatabaseCreateModal({ instance, userCoun
           queryKey: queryKeys.server(server.uuid).databases.instances.users(instance.uuid),
         });
 
-        onUserCreated(user, database.name);
+        onUserCreated(user, database);
       } catch (error) {
         addToast(httpErrorToHuman(error), 'error');
       }
