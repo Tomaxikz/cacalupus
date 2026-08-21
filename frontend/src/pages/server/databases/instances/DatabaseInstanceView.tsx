@@ -316,7 +316,7 @@ export default function DatabaseInstanceView() {
         const offline = !powerState || powerState === 'offline';
 
         return (
-          <ServerContentContainer title={t('pages.server.databases.instance.title', {})} hideTitleComponent>
+          <ServerContentContainer title={instance.name} hideTitleComponent>
             <ConfirmationModal
               opened={openModal === 'kill'}
               onClose={() => setOpenModal(null)}
