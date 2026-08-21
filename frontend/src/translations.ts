@@ -44,6 +44,7 @@ const baseTranslations = defineTranslations({
         remove: 'Remove',
         enable: 'Enable',
         disable: 'Disable',
+        disableTwoFactor: 'Disable Two-Factor',
         update: 'Update',
         close: 'Close',
         cancel: 'Cancel',
@@ -124,6 +125,9 @@ const baseTranslations = defineTranslations({
       modal: {
         duplicate: {
           title: 'Duplicate {resource}',
+        },
+        delete: {
+          content: 'Are you sure you want to delete **{name}**?',
         },
       },
       toast: {
@@ -228,6 +232,10 @@ const baseTranslations = defineTranslations({
         yourControlPanelPassword: 'Your Control Panel Password',
         deploymentEnabled: 'Deployment Enabled',
         maintenanceEnabled: 'Maintenance Enabled',
+        source: 'Source',
+        target: 'Target',
+        replaceWith: 'Replace With',
+        caseInsensitive: 'Case Insensitive',
         truncateDirectory:
           'Do you want to delete all files of this server before performing this action? This cannot be undone.',
       },
@@ -276,6 +284,18 @@ const baseTranslations = defineTranslations({
       },
       tabs: {
         general: 'General',
+      },
+      stat: {
+        cpu: 'CPU',
+        cpuLoad: 'CPU Load',
+        memoryUsage: 'Memory Usage',
+        memoryLoad: 'Memory Load',
+        diskUsage: 'Disk Usage',
+        network: 'Network',
+        inbound: 'Inbound',
+        outbound: 'Outbound',
+        uptime: 'Uptime',
+        resources: 'Resources',
       },
       badge: {
         active: 'Active',
@@ -366,7 +386,7 @@ const baseTranslations = defineTranslations({
         },
       },
       unlimited: 'Unlimited',
-      readOnly: 'Read-Only',
+      readOnly: 'Read Only',
       na: 'N/A',
       never: 'Never',
       none: 'None',
@@ -678,13 +698,11 @@ const baseTranslations = defineTranslations({
           uploading: 'Uploading',
           waiting: 'Waiting',
           paused: 'Paused',
-          failed: 'Failed',
         },
         rateLimited: 'Your upload has been rate limited. Waiting...',
-        cancelAllUploads: 'Cancel all uploads',
+        cancelAllUploads: 'Cancel All Uploads',
         modal: {
           cancelAllUploads: {
-            title: 'Cancel All Uploads',
             content: 'Are you sure you want to cancel all active uploads? Partially uploaded files will be discarded.',
           },
         },
@@ -769,13 +787,9 @@ const baseTranslations = defineTranslations({
           title: 'Node Configuration',
           allocationsTitle: 'Allocations Configuration',
           form: {
-            name: 'Name',
             namePlaceholder: 'My Server',
-            urlDescription: 'used for internal communication with the node',
-            publicUrl: 'Public URL',
+            urlDescription: 'Used for internal communication with the node.',
             publicUrlDescription: 'used for websocket/downloads',
-            sftpHostPlaceholder: 'SFTP Host',
-            sftpPortPlaceholder: 'SFTP Port',
             ip: 'IP',
           },
           error: {
@@ -805,7 +819,6 @@ const baseTranslations = defineTranslations({
           form: {
             applicationName: 'Application Name',
             applicationNamePlaceholder: 'Calagopus',
-            languagePlaceholder: 'Language',
             applicationUrl: 'Application URL',
             registration: 'Enable Registration',
             registrationDescription: 'Allow new users to register their own account.',
@@ -1156,7 +1169,6 @@ const baseTranslations = defineTranslations({
                 },
               },
               button: {
-                disableTwoFactor: 'Disable Two-Factor',
                 setupTwoFactor: 'Setup Two-Factor',
               },
               twoFactorEnabled: 'Two-Factor Verification is currently enabled.',
@@ -1237,7 +1249,6 @@ const baseTranslations = defineTranslations({
           },
           table: {
             columns: {
-              ip: 'IP',
               thisDevice: 'This Device?',
               userAgent: 'User Agent',
             },
@@ -1316,7 +1327,6 @@ const baseTranslations = defineTranslations({
             nextCommand: 'Next command in history',
           },
           serverList: {
-            title: 'Server List',
             selectServer: 'Hold S and click to select/deselect server',
           },
         },
@@ -1354,9 +1364,6 @@ const baseTranslations = defineTranslations({
               title: 'Import SSH Keys',
               toast: {
                 created: '{sshKeys} created.',
-              },
-              form: {
-                provider: 'Provider',
               },
             },
             deleteSshKey: {
@@ -1544,7 +1551,6 @@ const baseTranslations = defineTranslations({
                   backupStatistics: 'Backup Statistics',
                 },
                 system: {
-                  cpu: 'CPU',
                   memoryUsage: 'Memory Usage ({process} used by Panel)',
                   memoryValue: '{used} / {total} ({percent}%)',
                   kernelVersion: 'Kernel Version ({architecture})',
@@ -1572,30 +1578,6 @@ const baseTranslations = defineTranslations({
                   backupConfigurations: 'Backup Configurations',
                   roles: 'Roles',
                 },
-                backup: {
-                  allTime: 'All Time',
-                  today: 'Today',
-                  week: 'This Week',
-                  month: 'This Month',
-                  totalAllTime: 'Total backups all time',
-                  successfulAllTime: 'Successful backups all time',
-                  failedAllTime: 'Failed backups all time',
-                  deletedAllTime: 'Deleted backups all time',
-                  totalToday: 'Total backups today',
-                  successfulToday: 'Successful backups today',
-                  failedToday: 'Failed backups today',
-                  deletedToday: 'Deleted backups today',
-                  totalWeek: 'Total backups this week',
-                  successfulWeek: 'Successful backups this week',
-                  failedWeek: 'Failed backups this week',
-                  deletedWeek: 'Deleted backups this week',
-                  totalMonth: 'Total backups this month',
-                  successfulMonth: 'Successful backups this month',
-                  failedMonth: 'Failed backups this month',
-                  deletedMonth: 'Deleted backups this month',
-                  successfulValue: '{count} ({size})',
-                  deletedValue: '{count} ({size})',
-                },
               },
             },
             updates: {
@@ -1613,7 +1595,6 @@ const baseTranslations = defineTranslations({
                 },
                 panelVersion:
                   'Your panel is currently running version `{current}`. The latest available version is `{latest}`.',
-                unknown: 'unknown',
                 button: { recheck: 'Recheck for Updates' },
                 toast: { recheckComplete: 'Recheck complete.' },
                 selectHistory: 'Select an update history to view.',
@@ -2168,7 +2149,6 @@ const baseTranslations = defineTranslations({
             modal: {
               title: 'Look Up by External ID',
               form: {
-                externalId: 'External ID',
                 externalIdPlaceholder: 'e.g. my-user-001',
                 search: 'Search',
               },
@@ -2199,7 +2179,6 @@ const baseTranslations = defineTranslations({
                   cannotImpersonateSelf: 'You cannot impersonate yourself.',
                 },
                 button: {
-                  disableTwoFactor: 'Disable Two Factor',
                   sendPasswordResetEmail: 'Send Password Reset Email',
                   impersonate: 'Impersonate',
                 },
@@ -2285,7 +2264,6 @@ const baseTranslations = defineTranslations({
                 modal: {
                   delete: {
                     title: 'Confirm Location Deletion',
-                    content: 'Are you sure you want to delete **{name}**?',
                   },
                 },
                 titleCreate: 'Create Location',
@@ -2351,17 +2329,12 @@ const baseTranslations = defineTranslations({
                   systemInfo: 'System Information',
                 },
                 label: {
-                  location: 'Location',
                   url: 'Internal URL',
-                  publicUrl: 'Public URL',
                   sftpAddress: 'SFTP Address',
-                  backupConfiguration: 'Backup Configuration',
-                  description: 'Description',
                   createdAt: 'Created',
                   inheritedFromLocation: 'Inherited from Location',
                   none: 'None',
                   wingsVersion: 'Wings Version',
-                  cpu: 'CPU',
                   memory: 'Memory',
                   servers: 'Servers',
                   architecture: 'Architecture',
@@ -2393,7 +2366,6 @@ const baseTranslations = defineTranslations({
                 },
                 section: {
                   connection: 'Connection',
-                  resources: 'Resources',
                   options: 'Options',
                 },
                 button: {
@@ -2471,38 +2443,30 @@ const baseTranslations = defineTranslations({
               page: {
                 title: 'Node Statistics',
                 card: {
-                  resources: 'Resources',
                   graphs: 'Graphs',
                 },
                 toast: {
                   connectionLost: 'Lost connection to the node statistics stream.',
                 },
                 label: {
-                  cpu: 'CPU',
                   memory: 'Memory',
                   disk: 'Disk',
-                  network: 'Network',
                   cpuThreads: '{model} ({threads} threads)',
                   usedByWings: '{size} used by Wings',
                   networkIn: 'In: {in}',
                   networkOut: 'Out: {out}',
                 },
                 chart: {
-                  cpuLoad: 'CPU Load',
-                  memoryUsage: 'Memory Usage',
                   diskIo: 'Disk I/O',
                   networkTraffic: 'Network Traffic',
                   diskRead: 'Disk Read',
                   diskWrite: 'Disk Write',
-                  inbound: 'Inbound',
-                  outbound: 'Outbound',
                   networkInLabel: 'Network In',
                   networkOutLabel: 'Network Out',
                 },
               },
             },
             capacity: {
-              title: 'Capacity',
               page: {
                 title: 'Deployment Capacity',
                 subtitle:
@@ -2517,7 +2481,6 @@ const baseTranslations = defineTranslations({
                   maintenanceDisabled: 'Not Under Maintenance',
                 },
                 label: {
-                  cpu: 'CPU',
                   memory: 'Memory',
                   disk: 'Disk',
                   memoryOverhead: 'Memory Overhead',
@@ -2772,7 +2735,6 @@ const baseTranslations = defineTranslations({
           modal: {
             delete: {
               title: 'Confirm Node Deletion',
-              content: 'Are you sure you want to delete **{name}**?',
             },
             bulkConfig: {
               title: 'Update Configuration - {nodes}',
@@ -2804,7 +2766,6 @@ const baseTranslations = defineTranslations({
             modal: {
               title: 'Look Up by External ID',
               form: {
-                externalId: 'External ID',
                 externalIdPlaceholder: 'e.g. my-server-001',
                 search: 'Search',
               },
@@ -2832,21 +2793,14 @@ const baseTranslations = defineTranslations({
                 },
                 label: {
                   user: 'User',
-                  language: 'Language',
                   createdAt: 'Created',
                   node: 'Node',
-                  location: 'Location',
                   memoryLimit: 'Memory Limit',
                   diskLimit: 'Disk Limit',
                   sftpAddress: 'SFTP Address',
-                  primaryAllocation: 'Primary Allocation',
                   none: 'None',
-                  dockerImage: 'Docker Image',
-                  nest: 'Nest',
                   egg: 'Egg',
-                  timezone: 'Timezone',
                   autoKill: 'Auto-Kill',
-                  cpu: 'CPU',
                   memory: 'Memory',
                   disk: 'Disk',
                   swap: 'Swap',
@@ -2858,7 +2812,6 @@ const baseTranslations = defineTranslations({
                   unlimited: 'Unlimited',
                   autoKillSeconds: '{seconds}s',
                   autoKillDisabled: 'Disabled',
-                  externalId: 'External ID',
                   uuid: 'UUID',
                 },
                 badge: {
@@ -3127,7 +3080,6 @@ const baseTranslations = defineTranslations({
                     form: {
                       deleteBackups: 'Do you want to delete backups of this server?',
                       confirmServerName: 'Confirm Server Name',
-                      confirmServerNamePlaceholder: 'Server Name',
                     },
                     alert: {
                       forceWarning:
@@ -3153,7 +3105,6 @@ const baseTranslations = defineTranslations({
                 modal: {
                   delete: {
                     title: 'Confirm Nest Deletion',
-                    content: 'Are you sure you want to delete **{name}**?',
                     form: {
                       deleteEggs: 'Do you want to delete all eggs in this nest?',
                     },
@@ -3236,7 +3187,6 @@ const baseTranslations = defineTranslations({
                           'If enabled, the file will be created if it does not exist. If disabled, the file must already exist or the replacement will fail.',
                         match: 'Match',
                         ifValue: 'If Value',
-                        replaceWith: 'Replace With',
                         insertNew: 'Insert New',
                         insertNewDescription:
                           'If enabled, if no existing value matches the "Match" field, the "Replace With" value will be inserted into the file. If disabled, if no match is found, no changes will be made to the file.',
@@ -3273,7 +3223,6 @@ const baseTranslations = defineTranslations({
                       modal: {
                         delete: {
                           title: 'Confirm Egg Deletion',
-                          content: 'Are you sure you want to delete **{name}**?',
                         },
                       },
                     },
@@ -3371,7 +3320,6 @@ const baseTranslations = defineTranslations({
                 titleUpdate: 'Update Egg Configuration',
                 form: {
                   order: 'Order',
-                  eggs: 'Eggs',
                   eggsPlaceholder: 'Select Eggs',
                   eggsEmpty: 'No eggs are configured. Create a nest and egg before creating an egg configuration.',
                 },
@@ -3436,7 +3384,6 @@ const baseTranslations = defineTranslations({
                 modal: {
                   delete: {
                     title: 'Confirm Egg Configuration Deletion',
-                    content: 'Are you sure you want to delete **{name}**?',
                   },
                 },
               },
@@ -3480,7 +3427,6 @@ const baseTranslations = defineTranslations({
                 modal: {
                   delete: {
                     title: 'Confirm Egg Repository Deletion',
-                    content: 'Are you sure you want to delete **{name}**?',
                   },
                 },
               },
@@ -3516,7 +3462,7 @@ const baseTranslations = defineTranslations({
         },
         databaseHosts: {
           title: 'Database Hosts',
-          resourceName: 'Database host',
+          resourceName: 'Database Host',
           tabs: {
             general: {
               page: {
@@ -3544,7 +3490,6 @@ const baseTranslations = defineTranslations({
                 modal: {
                   delete: {
                     title: 'Confirm Database Host Deletion',
-                    content: 'Are you sure you want to delete **{name}**?',
                     alert: {
                       forceWarning:
                         'Force deletion removes all databases on this host. The databases on the host itself may not be fully cleaned up, leaving orphaned data behind.',
@@ -3560,7 +3505,6 @@ const baseTranslations = defineTranslations({
                 modal: {
                   delete: {
                     title: 'Confirm Database Deletion',
-                    content: 'Are you sure you want to delete **{name}**?',
                     toast: {
                       deleted: 'Database has been deleted.',
                     },
@@ -3576,14 +3520,13 @@ const baseTranslations = defineTranslations({
         },
         databaseAgentHosts: {
           title: 'Database Agent Hosts',
-          resourceName: 'Database agent host',
+          resourceName: 'Database Agent Host',
           tabs: {
             general: {
               page: {
                 titleCreate: 'Create Database Agent Host',
                 titleUpdate: 'Update Database Agent Host',
                 form: {
-                  typeEnabled: 'Enabled',
                   typePublicHost: 'Public Host',
                   typePublicPort: 'Public Port',
                 },
@@ -3603,7 +3546,6 @@ const baseTranslations = defineTranslations({
                 modal: {
                   delete: {
                     title: 'Confirm Database Agent Host Deletion',
-                    content: 'Are you sure you want to delete **{name}**?',
                     alert: {
                       forceWarning:
                         'Force deletion removes all instances on this host. Instances the agent cannot be reached for may not be fully cleaned up, leaving orphaned data behind.',
@@ -3623,7 +3565,6 @@ const baseTranslations = defineTranslations({
                       updated: 'Instance has been updated.',
                     },
                     form: {
-                      image: 'Docker Image',
                       imageDescription:
                         'Pins the instance to a specific docker image. Leave empty to follow the template image, including future template updates.',
                       env: 'Environment Overrides',
@@ -3632,7 +3573,6 @@ const baseTranslations = defineTranslations({
                   },
                   deleteInstance: {
                     title: 'Confirm Managed Database Deletion',
-                    content: 'Are you sure you want to delete **{name}**?',
                     toast: {
                       deleted: 'Managed database deleted.',
                     },
@@ -3707,11 +3647,8 @@ const baseTranslations = defineTranslations({
                   resources: 'Allocated Resources',
                 },
                 label: {
-                  url: 'URL',
-                  description: 'Description',
                   createdAt: 'Created',
                   version: 'Version',
-                  cpu: 'CPU',
                   memory: 'Memory',
                   disk: 'Disk',
                   instances: 'Instances',
@@ -3732,28 +3669,21 @@ const baseTranslations = defineTranslations({
               page: {
                 title: 'Database Agent Host Statistics',
                 card: {
-                  resources: 'Resources',
                   graphs: 'Graphs',
                 },
                 label: {
-                  cpu: 'CPU',
                   cpuThreads: '{model} ({threads} threads)',
                   memory: 'Memory',
                   usedByAgent: '{size} used by the agent',
                   disk: 'Disk',
-                  network: 'Network',
                   networkIn: 'In: {in}',
                   networkOut: 'Out: {out}',
                 },
                 chart: {
-                  cpuLoad: 'CPU Load',
-                  memoryUsage: 'Memory Usage',
                   diskIo: 'Disk I/O',
                   diskRead: 'Disk Read',
                   diskWrite: 'Disk Write',
                   networkTraffic: 'Network Traffic',
-                  networkInLabel: 'Inbound',
-                  networkOutLabel: 'Outbound',
                   inbound: 'Inbound',
                   outbound: 'Outbound',
                 },
@@ -3780,7 +3710,7 @@ const baseTranslations = defineTranslations({
         },
         databaseAgentTemplates: {
           title: 'Database Agent Templates',
-          resourceName: 'Database agent template',
+          resourceName: 'Database Agent Template',
           dropzone: {
             title: 'Drop some files here to import as Database Agent Templates',
             subtitle: 'Release to start importing',
@@ -3807,7 +3737,6 @@ const baseTranslations = defineTranslations({
                     'The unix socket file path inside the database container, must match where the configured image actually creates its socket.',
                   imageUid: 'Image UID',
                   imageGid: 'Image GID',
-                  cmd: 'Command',
                   memoryDescription: 'The Memory limit of the database container.',
                   memoryTooltip: '0 will not set a limit.',
                   swap: 'Swap',
@@ -3826,7 +3755,6 @@ const baseTranslations = defineTranslations({
                 modal: {
                   delete: {
                     title: 'Confirm Database Agent Template Deletion',
-                    content: 'Are you sure you want to delete **{name}**?',
                   },
                 },
               },
@@ -3927,7 +3855,6 @@ const baseTranslations = defineTranslations({
                 modal: {
                   delete: {
                     title: 'Confirm OAuth Provider Deletion',
-                    content: 'Are you sure you want to delete **{name}**?',
                   },
                 },
               },
@@ -4040,7 +3967,7 @@ const baseTranslations = defineTranslations({
         },
         backupConfigurations: {
           title: 'Backup Configurations',
-          resourceName: 'Backup configuration',
+          resourceName: 'Backup Configuration',
           table: {
             columns: {
               disk: 'Disk',
@@ -4070,7 +3997,6 @@ const baseTranslations = defineTranslations({
                 modal: {
                   delete: {
                     title: 'Confirm Backup Configuration Deletion',
-                    content: 'Are you sure you want to delete **{name}**?',
                   },
                 },
                 s3: {
@@ -4185,9 +4111,8 @@ const baseTranslations = defineTranslations({
         },
         systemBackupPolicies: {
           title: 'System Backup Policies',
-          resourceName: 'System backup policy',
+          resourceName: 'System Backup Policy',
           badge: {
-            disabled: 'Disabled',
             runPending: 'Run pending',
           },
           table: {
@@ -4228,7 +4153,6 @@ const baseTranslations = defineTranslations({
                   },
                   delete: {
                     title: 'Confirm System Backup Policy Deletion',
-                    content: 'Are you sure you want to delete **{name}**?',
                     form: {
                       deleteBackups: 'Do you want to delete backups created by this policy?',
                     },
@@ -4321,15 +4245,11 @@ const baseTranslations = defineTranslations({
                 alert:
                   'Mounts are a powerful and potentially dangerous feature. Improper use can lead to data loss or security vulnerabilities (including container escapes). Make sure you understand the implications of using mounts before creating or updating them.',
                 form: {
-                  source: 'Source',
-                  target: 'Target',
-                  readOnly: 'Read Only',
                   userMountable: 'User Mountable',
                 },
                 modal: {
                   delete: {
                     title: 'Confirm Mount Deletion',
-                    content: 'Are you sure you want to delete **{name}**?',
                   },
                 },
               },
@@ -4410,7 +4330,6 @@ const baseTranslations = defineTranslations({
                 modal: {
                   delete: {
                     title: 'Confirm Role Deletion',
-                    content: 'Are you sure you want to delete **{name}**?',
                   },
                 },
               },
@@ -4529,10 +4448,6 @@ const baseTranslations = defineTranslations({
           details: {
             address: 'Address',
             port: 'Port',
-            uptime: 'Uptime',
-            cpuLoad: 'CPU Load',
-            memoryLoad: 'Memory Load',
-            diskUsage: 'Disk Usage',
             networkIn: 'Network (In)',
             networkOut: 'Network (Out)',
             normalizeCpuLoad: 'Normalize CPU Load (shifted to max 100%)',
@@ -4546,11 +4461,6 @@ const baseTranslations = defineTranslations({
             },
           },
           stats: {
-            cpuLoad: 'CPU Load',
-            memoryLoad: 'Memory Load',
-            network: 'Network',
-            inbound: 'Inbound',
-            outbound: 'Outbound',
             offline: 'Server is offline',
           },
           socketConnected: 'Connected ({ping}ms ping)',
@@ -4570,7 +4480,6 @@ const baseTranslations = defineTranslations({
             },
           },
           diskUsage: {
-            title: 'Disk Usage',
             details: '{used} of {total} used ({percentage}%)',
           },
           button: {
@@ -4648,7 +4557,7 @@ const baseTranslations = defineTranslations({
             receivingRemote: 'Receiving {files} from remote server',
             sendingRemote: 'Sending {files} to remote server',
             exportingBackup: 'Exporting backup to {destination}',
-            cancelAllOperations: 'Cancel all operations',
+            cancelAllOperations: 'Cancel All Operations',
           },
           dropzone: {
             title: 'Drop files here to upload',
@@ -4733,7 +4642,6 @@ const baseTranslations = defineTranslations({
           },
           modal: {
             cancelAllOperations: {
-              title: 'Cancel All Operations',
               content: 'Are you sure you want to cancel all running file operations? Their progress will be lost.',
             },
             unsavedChanges: {
@@ -4793,14 +4701,10 @@ const baseTranslations = defineTranslations({
               rename: 'Rename',
               skipAll: 'Skip all',
               overwriteAll: 'Overwrite all',
-              newName: 'New name',
               confirm: 'Copy {files}',
             },
             copyRemote: {
               title: 'Remote Copy Files',
-              form: {
-                server: 'Server',
-              },
               createdAs: 'These files will be created on the remote server under ',
             },
             fileFingerprints: {
@@ -4853,7 +4757,6 @@ const baseTranslations = defineTranslations({
               title: 'Rename Files',
               find: 'Find',
               findPlaceholder: 'Text to find',
-              replace: 'Replace with',
               replacePlaceholder: 'Replacement text',
               scope: 'Apply to',
               scopeName: 'Name',
@@ -4894,7 +4797,6 @@ const baseTranslations = defineTranslations({
               preview: {
                 title: 'Preview',
                 original: 'Original',
-                newName: 'New name',
                 unchanged: 'Unchanged',
                 conflict: 'Name already in use',
                 duplicate: 'Duplicate target',
@@ -4916,7 +4818,6 @@ const baseTranslations = defineTranslations({
               pathPatterns: 'Path Patterns',
               include: 'Include',
               exclude: 'Exclude',
-              caseInsensitive: 'Case insensitive',
               fileContent: 'File Content',
               searchText: 'Search text',
               maxFileSize: 'Max file size',
@@ -4959,7 +4860,6 @@ const baseTranslations = defineTranslations({
             databaseName: 'Database Name',
           },
           explorer: {
-            title: 'Data Explorer',
             button: {
               open: 'Explore Data',
               run: 'Run',
@@ -4980,7 +4880,6 @@ const baseTranslations = defineTranslations({
               tableName: 'Table Name',
               columnsList: 'Columns',
               columnName: 'Column Name',
-              columnType: 'Type',
               nullable: 'Nullable',
               primaryKey: 'Primary Key',
               autoIncrement: 'Auto Increment',
@@ -5103,7 +5002,6 @@ const baseTranslations = defineTranslations({
               statement: 'Statement {index}',
               form: {
                 rowLimit: 'Row Limit',
-                readOnly: 'Read-only',
                 readOnlyDescription: 'Rejects statements that change data or structure.',
               },
             },
@@ -5135,10 +5033,6 @@ const baseTranslations = defineTranslations({
                 logs: 'Logs',
               },
               stats: {
-                uptime: 'Uptime',
-                cpuLoad: 'CPU Load',
-                memoryLoad: 'Memory Load',
-                diskUsage: 'Disk Usage',
                 offline: 'Instance is offline',
               },
             },
@@ -5151,8 +5045,6 @@ const baseTranslations = defineTranslations({
                 limitReached: 'This instance is limited to {max} databases.',
               },
               button: {
-                export: 'Export',
-                import: 'Import',
                 remoteImport: 'Import from Remote',
               },
               modal: {
@@ -5283,7 +5175,7 @@ const baseTranslations = defineTranslations({
             },
             operations: {
               remoteImport: 'Importing {database} from {source}',
-              cancelAllOperations: 'Cancel all operations',
+              cancelAllOperations: 'Cancel All Operations',
             },
             toast: {
               operationCancelled: 'Operation cancelled',
@@ -5305,7 +5197,6 @@ const baseTranslations = defineTranslations({
                 form: {
                   template: 'Template',
                   noTemplatesFound: 'No templates available',
-                  image: 'Docker Image',
                 },
               },
               editDatabaseInstance: {
@@ -5352,7 +5243,6 @@ const baseTranslations = defineTranslations({
                 },
               },
               cancelAllOperations: {
-                title: 'Cancel All Operations',
                 content:
                   'Are you sure you want to cancel all running database operations? Their progress will be lost.',
               },
@@ -5416,7 +5306,6 @@ const baseTranslations = defineTranslations({
             columns: {
               lastRun: 'Last Run',
               lastFailure: 'Last Failure',
-              status: 'Status',
             },
           },
           button: {
@@ -5457,7 +5346,6 @@ const baseTranslations = defineTranslations({
               or: 'OR (Any must be true)',
               not: 'NOT (Must not be true)',
               serverState: 'Server State',
-              uptime: 'Uptime',
               resourceUsage: 'Resource Usage',
               fileExists: 'File Exists',
               variableExists: 'Variable Exists',
@@ -5468,8 +5356,6 @@ const baseTranslations = defineTranslations({
             },
             scheduleResourceMetric: {
               cpu: 'CPU Usage',
-              memory: 'Memory Usage',
-              disk: 'Disk Usage',
             },
             scheduleComparator: {
               smallerThan: 'Smaller than',
@@ -5495,7 +5381,7 @@ const baseTranslations = defineTranslations({
             },
             deleteSchedule: {
               title: 'Confirm Schedule Deletion',
-              content: 'Are you sure you want to delete {name} from this server?',
+              content: 'Are you sure you want to delete **{name}** from this server?',
             },
             createStep: {
               title: 'Create Schedule Step',
@@ -5553,7 +5439,6 @@ const baseTranslations = defineTranslations({
             comparator: 'Comparator',
             rootPath: 'Root Path',
             outputInto: 'Output into',
-            caseInsensitive: 'Case Insensitive',
             ignoreFailure: 'Ignore Failure',
             runInForeground: 'Run in Foreground',
           },
@@ -5902,7 +5787,6 @@ const baseTranslations = defineTranslations({
               title: 'Write File',
               description: 'Write or append text to a file.',
               form: {
-                content: 'Content',
                 appendToFile: 'Append to File',
               },
               renderer: {
@@ -6023,7 +5907,6 @@ const baseTranslations = defineTranslations({
               description: 'Send an HTTP request, for example to a webhook.',
               form: {
                 method: 'Method',
-                url: 'URL',
                 headers: 'Headers',
                 headerName: 'Header Name',
                 headerValue: 'Header Value',
@@ -6097,8 +5980,6 @@ const baseTranslations = defineTranslations({
           },
           table: {
             columns: {
-              checksum: 'Checksum',
-              files: 'Files',
               locked: 'Locked?',
             },
           },
@@ -6151,7 +6032,6 @@ const baseTranslations = defineTranslations({
           },
         },
         backupGroups: {
-          title: 'Backup Groups',
           group: 'Backup Group',
           ungrouped: 'Ungrouped',
           noBackups: 'This group has no backups yet.',
@@ -6220,9 +6100,6 @@ const baseTranslations = defineTranslations({
             unsetPrimary: 'Allocation unset as primary.',
           },
           modal: {
-            editAllocation: {
-              title: 'Edit Allocation',
-            },
             removeAllocation: {
               title: 'Confirm Allocation Removal',
               content: 'Are you sure you want to remove **{allocation}** from this server?',
@@ -6255,9 +6132,7 @@ const baseTranslations = defineTranslations({
           title: 'Mounts',
           table: {
             columns: {
-              target: 'Target',
               mounted: 'Mounted',
-              readOnly: 'Read Only',
             },
           },
           button: {

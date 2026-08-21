@@ -79,7 +79,7 @@ export default function DashboardSessions() {
 
       <Table
         columns={[
-          t('pages.account.sessions.table.columns.ip', {}),
+          t('common.table.columns.ip', {}),
           t('pages.account.sessions.table.columns.thisDevice', {}),
           t('pages.account.sessions.table.columns.userAgent', {}),
           t('common.table.columns.lastUsed', {}),

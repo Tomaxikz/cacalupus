@@ -143,7 +143,7 @@ export default function DatabaseInstanceDatabaseRow({
           {
             type: 'action',
             icon: faDownload,
-            label: t('pages.server.databases.instance.databases.button.export', {}),
+            label: t('common.button.export', {}),
             disabled: offline,
             onClick: () => setOpenModal('export'),
             color: 'gray',
@@ -152,7 +152,7 @@ export default function DatabaseInstanceDatabaseRow({
           {
             type: 'action',
             icon: faUpload,
-            label: t('pages.server.databases.instance.databases.button.import', {}),
+            label: t('common.button.import', {}),
             disabled: offline,
             onClick: () => setOpenModal('import'),
             color: 'gray',

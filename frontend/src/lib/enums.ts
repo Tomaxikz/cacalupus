@@ -343,7 +343,7 @@ export const scheduleConditionLabelMapping: Record<
   or: () => getTranslations().t('pages.server.schedules.enum.scheduleConditionType.or', {}),
   not: () => getTranslations().t('pages.server.schedules.enum.scheduleConditionType.not', {}),
   server_state: () => getTranslations().t('pages.server.schedules.enum.scheduleConditionType.serverState', {}),
-  uptime: () => getTranslations().t('pages.server.schedules.enum.scheduleConditionType.uptime', {}),
+  uptime: () => getTranslations().t('common.stat.uptime', {}),
   resource_usage: () => getTranslations().t('pages.server.schedules.enum.scheduleConditionType.resourceUsage', {}),
   file_exists: () => getTranslations().t('pages.server.schedules.enum.scheduleConditionType.fileExists', {}),
   variable_exists: () => getTranslations().t('pages.server.schedules.enum.scheduleConditionType.variableExists', {}),
@@ -358,8 +358,8 @@ export const scheduleConditionLabelMapping: Record<
 
 export const scheduleResourceMetricLabelMapping: Record<z.infer<typeof serverScheduleResourceMetric>, () => string> = {
   cpu: () => getTranslations().t('pages.server.schedules.enum.scheduleResourceMetric.cpu', {}),
-  memory: () => getTranslations().t('pages.server.schedules.enum.scheduleResourceMetric.memory', {}),
-  disk: () => getTranslations().t('pages.server.schedules.enum.scheduleResourceMetric.disk', {}),
+  memory: () => getTranslations().t('common.stat.memoryUsage', {}),
+  disk: () => getTranslations().t('common.stat.diskUsage', {}),
 };
 
 export const scheduleComparatorLabelMapping: Record<z.infer<typeof serverScheduleComparator>, () => string> = {
