@@ -2110,6 +2110,10 @@
             "buildFailed": {
               "title": "Der letzte Erweiterungs-Build ist fehlgeschlagen",
               "content": "Diese Erweiterungen werden erst wieder erstellt, wenn sie sich ändern oder du den Build ausdrücklich erneut startest."
+            },
+            "pendingRestart": {
+              "title": "Einige Erweiterungen wurden aktiviert oder deaktiviert",
+              "content": "Das Panel übernimmt die Änderung beim nächsten Start."
             }
           },
           "button": {
@@ -2119,6 +2123,7 @@
             "retryBuild": "Build wiederholen",
             "cancelBuild": "Build abbrechen",
             "configure": "Konfigurieren",
+            "restart": "Panel neu starten",
             "back": "Zurück zu Erweiterungen",
             "accept": "Akzeptieren",
             "decline": "Ablehnen"
@@ -2129,7 +2134,10 @@
             "cancelling": "Der Build stoppt, sobald der aktuelle Schritt beendet ist.",
             "noBackend": "Eine Backend-Erweiterung ist erforderlich, um diese Erweiterung zu konfigurieren.",
             "noConfigurationPage": "Diese Erweiterung hat keine Konfigurationsseite definiert.",
-            "removeExtension": "Erweiterung entfernen"
+            "extensionDisabled": "Diese Erweiterung ist deaktiviert, ihr Frontend wird nicht geladen.",
+            "removeExtension": "Erweiterung entfernen",
+            "enableExtension": "Erweiterung aktivieren",
+            "disableExtension": "Erweiterung deaktivieren"
           },
           "phase": {
             "queued": "In der Warteschlange…",
@@ -2147,7 +2155,9 @@
             "frontendMissing": "Frontend fehlt",
             "backendMissing": "Backend fehlt",
             "pendingBuild": "Build ausstehend",
-            "pendingRemoval": "Entfernung ausstehend"
+            "pendingRemoval": "Entfernung ausstehend",
+            "pendingRestart": "Neustart ausstehend",
+            "disabled": "Deaktiviert"
           },
           "card": {
             "version": "Version",
@@ -2167,7 +2177,10 @@
             "buildFailed": "Erweiterungs-Build fehlgeschlagen: {reason}",
             "cancelRequested": "Abbruch angefordert. Der Build stoppt, sobald der aktuelle Schritt beendet ist.",
             "added": "Erweiterung `{packageName}` erfolgreich hinzugefügt.",
-            "removed": "Erweiterung `{packageName}` erfolgreich entfernt."
+            "removed": "Erweiterung `{packageName}` erfolgreich entfernt.",
+            "enabled": "Erweiterung `{packageName}` ist nach dem Neustart des Panels wieder aktiv.",
+            "disabled": "Erweiterung `{packageName}` ist nach dem Neustart des Panels deaktiviert.",
+            "restarting": "Das Panel startet neu."
           },
           "notFound": {
             "title": "Erweiterung nicht gefunden",

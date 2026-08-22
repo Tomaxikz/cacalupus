@@ -2056,6 +2056,10 @@ const baseTranslations = defineTranslations({
               content:
                 'These extensions are not built again until they change, or until you retry the build explicitly.',
             },
+            pendingRestart: {
+              title: 'Some extensions were enabled or disabled',
+              content: 'The panel picks up the change the next time it starts.',
+            },
           },
           button: {
             viewBuildLogs: 'View build logs',
@@ -2064,6 +2068,7 @@ const baseTranslations = defineTranslations({
             retryBuild: 'Retry build',
             cancelBuild: 'Cancel build',
             configure: 'Configure',
+            restart: 'Restart the panel',
             back: 'Back to Extensions',
             accept: 'Accept',
             decline: 'Decline',
@@ -2074,7 +2079,10 @@ const baseTranslations = defineTranslations({
             cancelling: 'The build stops once its current step ends.',
             noBackend: 'Backend extension is required to configure this extension.',
             noConfigurationPage: 'This extension does not have a configuration page defined.',
+            extensionDisabled: 'This extension is disabled, its frontend is not loaded.',
             removeExtension: 'Remove extension',
+            enableExtension: 'Enable extension',
+            disableExtension: 'Disable extension',
           },
           phase: {
             queued: 'Queued…',
@@ -2093,6 +2101,8 @@ const baseTranslations = defineTranslations({
             backendMissing: 'Backend missing',
             pendingBuild: 'Pending build',
             pendingRemoval: 'Pending removal',
+            pendingRestart: 'Pending restart',
+            disabled: 'Disabled',
           },
           card: {
             version: 'Version',
@@ -2113,6 +2123,9 @@ const baseTranslations = defineTranslations({
             cancelRequested: 'Cancel requested. The build stops once its current step ends.',
             added: 'Extension `{packageName}` added successfully.',
             removed: 'Extension `{packageName}` removed successfully.',
+            enabled: 'Extension `{packageName}` is enabled again once the panel restarts.',
+            disabled: 'Extension `{packageName}` is disabled once the panel restarts.',
+            restarting: 'The panel is restarting.',
           },
           notFound: {
             title: 'Extension Not Found',

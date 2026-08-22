@@ -47,6 +47,7 @@ pub async fn run(config: Config) -> anyhow::Result<()> {
     );
     let plan = act_on(&config, &decision, &inputs.panel_version, &key);
 
+    let (restart_requests, restart_requested) = tokio::sync::mpsc::channel(1);
     let control = Arc::new(crate::server::Control::new(
         config.binaries_dir.clone(),
         crate::server::Identity {
@@ -54,6 +55,7 @@ pub async fn run(config: Config) -> anyhow::Result<()> {
             cache_key: key,
             bin_name: config.bin_name.clone(),
         },
+        restart_requests,
     )?);
     let listener = crate::server::bind(&config.socket_path).await?;
     tokio::spawn(crate::server::serve(listener, Arc::clone(&control)));
@@ -68,6 +70,7 @@ pub async fn run(config: Config) -> anyhow::Result<()> {
         version: &inputs.panel_version,
         policy: config.panel,
         restarts,
+        restart_requested,
         shutdown,
     };
 
@@ -229,6 +232,7 @@ fn panel_command(config: &Config, binary: &Path) -> tokio::process::Command {
 enum Wake {
     Exited(anyhow::Result<ExitStatus>),
     Install(PathBuf),
+    Restart,
     Stop,
 }
 
@@ -237,6 +241,7 @@ struct Supervisor<'a> {
     version: &'a str,
     policy: crate::panel::Policy,
     restarts: tokio::sync::mpsc::Receiver<PathBuf>,
+    restart_requested: tokio::sync::mpsc::Receiver<()>,
     shutdown: tokio::sync::watch::Receiver<bool>,
 }
 
@@ -280,6 +285,13 @@ impl Supervisor<'_> {
                             binary = next;
                             supervision = crate::panel::Supervision::new(self.policy);
                         }
+                        Wake::Restart => {
+                            tracing::info!("restarting the panel on request");
+                            let stopped = process.stop(shutdown).await;
+                            tracing::info!("the outgoing panel was {stopped:?}");
+
+                            supervision = crate::panel::Supervision::new(self.policy);
+                        }
                         Wake::Stop => {
                             let stopped = process.stop(shutdown).await;
                             tracing::info!("the panel was {stopped:?}, exiting");
@@ -321,6 +333,7 @@ impl Supervisor<'_> {
             let wake = tokio::select! {
                 status = process.wait() => Wake::Exited(status),
                 Some(next) = self.restarts.recv() => Wake::Install(next),
+                Some(()) = self.restart_requested.recv() => Wake::Restart,
                 _ = self.shutdown.changed() => Wake::Stop,
             };
 

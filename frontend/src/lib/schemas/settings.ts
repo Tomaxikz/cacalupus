@@ -38,6 +38,7 @@ export const publicSettingsCaptchaProviderSchema = z.discriminatedUnion('type', 
 export const publicSettingsSchema = z.object({
   time: z.string(),
   oobeStep: oobeStepKey.nullable(),
+  disabledExtensions: z.array(z.string()),
   captchaProvider: publicSettingsCaptchaProviderSchema,
   app: z.object({
     url: z.string(),
