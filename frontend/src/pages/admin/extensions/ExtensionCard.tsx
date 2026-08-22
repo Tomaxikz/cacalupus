@@ -21,7 +21,7 @@ export default function ExtensionCard({
   isPending,
   isRemoved,
   isDisabled,
-  isPendingRestart,
+  isPendingDisabled,
   onRemove,
   onToggle,
 }: {
@@ -30,11 +30,12 @@ export default function ExtensionCard({
   isPending?: boolean;
   isRemoved?: boolean;
   isDisabled?: boolean;
-  isPendingRestart?: boolean;
+  isPendingDisabled?: boolean;
   onRemove?: () => void;
   onToggle?: (enabled: boolean) => void;
 }) {
   const { t } = useTranslations();
+  const isPendingRestart = isDisabled !== isPendingDisabled;
   const name =
     backendExtension?.metadataToml.name || extension?.packageName || t('pages.admin.extensions.unknownExtension', {});
   const packageName = backendExtension?.metadataToml.packageName || extension?.packageName;
@@ -146,12 +147,12 @@ export default function ExtensionCard({
         {backendExtension && onToggle && (
           <Tooltip
             label={
-              isDisabled
+              isPendingDisabled
                 ? t('pages.admin.extensions.tooltip.enableExtension', {})
                 : t('pages.admin.extensions.tooltip.disableExtension', {})
             }
           >
-            <Switch checked={!isDisabled} disabled={isRemoved} onChange={(e) => onToggle(e.target.checked)} />
+            <Switch checked={!isPendingDisabled} disabled={isRemoved} onChange={(e) => onToggle(e.target.checked)} />
           </Tooltip>
         )}
         {backendExtension && onRemove && (

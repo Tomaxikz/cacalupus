@@ -436,7 +436,8 @@ export default function AdminExtensions() {
                 isRemoved={extensionStatus?.removedExtensions.some(
                   (e) => e.metadataToml.packageName === extension.packageName,
                 )}
-                isPendingRestart={adminExtensions.pendingDisabled.includes(extension.packageName)}
+                isDisabled={false}
+                isPendingDisabled={adminExtensions.pendingDisabled.includes(extension.packageName)}
                 onRemove={extensionStatus && backendExtension ? () => setRemovalExtension(backendExtension) : undefined}
                 onToggle={backendExtension ? (enabled) => handleToggle(extension.packageName, enabled) : undefined}
               />
@@ -454,10 +455,7 @@ export default function AdminExtensions() {
                   (e) => e.metadataToml.packageName === backendExtension.metadataToml.packageName,
                 )}
                 isDisabled={adminExtensions.disabled.includes(backendExtension.metadataToml.packageName)}
-                isPendingRestart={
-                  adminExtensions.disabled.includes(backendExtension.metadataToml.packageName) !==
-                  adminExtensions.pendingDisabled.includes(backendExtension.metadataToml.packageName)
-                }
+                isPendingDisabled={adminExtensions.pendingDisabled.includes(backendExtension.metadataToml.packageName)}
                 onRemove={extensionStatus ? () => setRemovalExtension(backendExtension) : undefined}
                 onToggle={(enabled) => handleToggle(backendExtension.metadataToml.packageName, enabled)}
               />
