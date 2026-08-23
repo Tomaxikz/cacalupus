@@ -19,6 +19,9 @@ mod get {
         name: &'a str,
         language: &'a str,
         registration_enabled: bool,
+        email_two_factor_enabled: bool,
+        email_verification_required: bool,
+        two_factor_accepted_methods: &'a [shared::settings::app::TwoFactorMethod],
         debug: bool,
     }
 
@@ -96,6 +99,9 @@ mod get {
                 name: &settings.app.name,
                 language: &settings.app.language,
                 registration_enabled: settings.app.registration_enabled,
+                email_two_factor_enabled: settings.app.email_two_factor_enabled,
+                email_verification_required: settings.app.email_verification_required,
+                two_factor_accepted_methods: &settings.app.two_factor_accepted_methods,
                 debug: state.env.is_debug(),
             },
             webauthn: ResponseWebauthn {

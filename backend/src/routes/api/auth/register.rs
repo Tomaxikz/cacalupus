@@ -7,7 +7,10 @@ mod post {
     use serde::{Deserialize, Serialize};
     use shared::{
         ApiError, GetState,
-        models::{ByUuid, CreatableModel, user::User, user_session::UserSession},
+        models::{
+            ByUuid, CreatableModel, user::User, user_email_verification::UserEmailVerification,
+            user_session::UserSession,
+        },
         response::{ApiResponse, ApiResponseResult},
     };
     use tower_cookies::Cookies;
@@ -83,7 +86,7 @@ mod post {
                 .ok();
         }
 
-        let user = match User::create_automatic_admin(
+        let mut user = match User::create_automatic_admin(
             &state.database,
             &data.username,
             &data.email,
@@ -107,6 +110,44 @@ mod post {
                     .ok();
             }
         };
+
+        if user.admin {
+            sqlx::query!(
+                "UPDATE users
+                SET email_verified = true
+                WHERE users.uuid = $1",
+                user.uuid
+            )
+            .execute(state.database.write())
+            .await?;
+
+            user.email_verified = true;
+        } else if state
+            .settings
+            .get_as(|s| s.app.email_verification_required)
+            .await?
+        {
+            match UserEmailVerification::create(&state.database, user.uuid, &user.email).await {
+                Ok(token) => {
+                    if let Err(err) =
+                        UserEmailVerification::send(&state, &user, &user.email, &token).await
+                    {
+                        tracing::error!(
+                            user = %user.uuid,
+                            "failed to send email verification: {:#?}",
+                            err
+                        );
+                    }
+                }
+                Err(err) => {
+                    tracing::error!(
+                        user = %user.uuid,
+                        "failed to create email verification: {:#?}",
+                        err
+                    );
+                }
+            }
+        }
 
         let key = UserSession::create(
             &state,

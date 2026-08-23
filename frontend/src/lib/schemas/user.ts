@@ -28,6 +28,8 @@ export const userSchema = z.looseObject({
   created: z.coerce.date(),
 });
 
+export const twoFactorMethod = z.enum(['totp', 'security_key', 'email']);
+
 export const fullUserSchema = z.lazy(() =>
   userSchema.extend({
     email: z.string(),
@@ -37,7 +39,13 @@ export const fullUserSchema = z.lazy(() =>
     avatar: z.string().nullable(),
     totpEnabled: z.boolean(),
     totpLastUsed: z.coerce.date().nullable(),
+    emailTwoFactorEnabled: z.boolean(),
+    twoFactorMethods: z.array(twoFactorMethod),
     requireTwoFactor: z.boolean(),
+    twoFactorSatisfied: z.boolean(),
+    emailVerified: z.boolean(),
+    requireEmailVerification: z.boolean(),
+    passwordLoginDisabled: z.boolean(),
     toastPosition: userToastPosition,
     startOnGroupedServers: z.boolean(),
     hasPassword: z.boolean(),

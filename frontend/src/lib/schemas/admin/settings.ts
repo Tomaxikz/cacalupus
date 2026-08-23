@@ -1,5 +1,6 @@
 import { z } from 'zod';
 import { oobeStepKey } from '@/lib/schemas/oobe.ts';
+import { twoFactorMethod } from '@/lib/schemas/user.ts';
 import { nullableNumber, nullableString } from '@/lib/transformers.ts';
 import { eggConfigurationRouteItemSchema, hostnameSchema } from '../generic.ts';
 
@@ -12,6 +13,9 @@ export const adminSettingsApplicationSchema = z.object({
   url: z.url({ protocol: /^https?$/ }).max(255),
   language: z.string(),
   twoFactorRequirement: z.enum(['admins', 'all_users', 'none']),
+  emailTwoFactorEnabled: z.boolean(),
+  twoFactorAcceptedMethods: z.array(twoFactorMethod),
+  emailVerificationRequired: z.boolean(),
   sessionCookie: z.string().min(1).max(255),
   sessionDurationSeconds: z.number().min(60).max(31536000),
   telemetryEnabled: z.boolean(),
@@ -165,10 +169,13 @@ export const adminSettingsRatelimitsSchema = z.object({
   authRegister: adminSettingsRatelimitConfigurationSchema,
   authLogin: adminSettingsRatelimitConfigurationSchema,
   authLoginCheckpoint: adminSettingsRatelimitConfigurationSchema,
+  authLoginCheckpointEmail: adminSettingsRatelimitConfigurationSchema,
   authLoginSecurityKey: adminSettingsRatelimitConfigurationSchema,
   authPasswordForgot: adminSettingsRatelimitConfigurationSchema,
   authPasswordReset: adminSettingsRatelimitConfigurationSchema,
+  authEmailVerification: adminSettingsRatelimitConfigurationSchema,
   client: adminSettingsRatelimitConfigurationSchema,
+  clientAccountEmailResendVerification: adminSettingsRatelimitConfigurationSchema,
   clientServersBackupsCreate: adminSettingsRatelimitConfigurationSchema,
   clientServersFilesPull: adminSettingsRatelimitConfigurationSchema,
   clientServersFilesPullQuery: adminSettingsRatelimitConfigurationSchema,

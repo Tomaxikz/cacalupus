@@ -49,6 +49,11 @@ pub struct User {
     pub totp_enabled: bool,
     pub totp_last_used: Option<chrono::NaiveDateTime>,
     pub totp_secret: Option<String>,
+    pub email_two_factor_enabled: bool,
+    pub has_security_key: bool,
+
+    pub email_verified: bool,
+    pub password_login_disabled: bool,
 
     pub language: compact_str::CompactString,
     pub toast_position: UserToastPosition,
@@ -124,6 +129,22 @@ impl BaseModel for User {
                 compact_str::format_compact!("{prefix}totp_secret"),
             ),
             (
+                "users.email_two_factor_enabled",
+                compact_str::format_compact!("{prefix}email_two_factor_enabled"),
+            ),
+            (
+                "EXISTS (SELECT 1 FROM user_security_keys WHERE user_security_keys.user_uuid = users.uuid AND user_security_keys.passkey IS NOT NULL)",
+                compact_str::format_compact!("{prefix}has_security_key"),
+            ),
+            (
+                "users.email_verified",
+                compact_str::format_compact!("{prefix}email_verified"),
+            ),
+            (
+                "users.password_login_disabled",
+                compact_str::format_compact!("{prefix}password_login_disabled"),
+            ),
+            (
                 "users.language",
                 compact_str::format_compact!("{prefix}language"),
             ),
@@ -182,6 +203,16 @@ impl BaseModel for User {
                 .try_get(compact_str::format_compact!("{prefix}totp_last_used").as_str())?,
             totp_secret: row
                 .try_get(compact_str::format_compact!("{prefix}totp_secret").as_str())?,
+            email_two_factor_enabled: row.try_get(
+                compact_str::format_compact!("{prefix}email_two_factor_enabled").as_str(),
+            )?,
+            has_security_key: row
+                .try_get(compact_str::format_compact!("{prefix}has_security_key").as_str())?,
+            email_verified: row
+                .try_get(compact_str::format_compact!("{prefix}email_verified").as_str())?,
+            password_login_disabled: row.try_get(
+                compact_str::format_compact!("{prefix}password_login_disabled").as_str(),
+            )?,
             language: row.try_get(compact_str::format_compact!("{prefix}language").as_str())?,
             toast_position: row
                 .try_get(compact_str::format_compact!("{prefix}toast_position").as_str())?,
@@ -691,6 +722,55 @@ impl User {
         }
     }
 
+    /// A stale `email_two_factor_enabled` is ignored once an admin turns the feature off, degrading to
+    /// password only rather than locking the user out of a mailbox nobody can deliver to.
+    fn email_two_factor_available(&self, settings: &crate::settings::AppSettings) -> bool {
+        self.email_two_factor_enabled
+            && settings.app.email_two_factor_enabled
+            && !matches!(settings.mail_mode, crate::settings::MailMode::None)
+    }
+
+    pub fn has_two_factor_method(
+        &self,
+        method: crate::settings::app::TwoFactorMethod,
+        settings: &crate::settings::AppSettings,
+    ) -> bool {
+        match method {
+            crate::settings::app::TwoFactorMethod::Totp => self.totp_enabled,
+            crate::settings::app::TwoFactorMethod::SecurityKey => {
+                self.has_security_key && settings.webauthn.enabled
+            }
+            crate::settings::app::TwoFactorMethod::Email => {
+                self.email_two_factor_available(settings)
+            }
+        }
+    }
+
+    /// Every factor the user has, regardless of whether an admin counts it towards the requirement.
+    pub fn two_factor_methods(
+        &self,
+        settings: &crate::settings::AppSettings,
+    ) -> Vec<crate::settings::app::TwoFactorMethod> {
+        crate::settings::app::TwoFactorMethod::ALL
+            .iter()
+            .copied()
+            .filter(|method| self.has_two_factor_method(*method, settings))
+            .collect()
+    }
+
+    pub fn satisfies_two_factor(&self, settings: &crate::settings::AppSettings) -> bool {
+        settings
+            .app
+            .two_factor_accepted_methods
+            .iter()
+            .any(|method| self.has_two_factor_method(*method, settings))
+    }
+
+    pub fn require_email_verification(&self, settings: &crate::settings::AppSettings) -> bool {
+        settings.app.email_verification_required
+            && !matches!(settings.mail_mode, crate::settings::MailMode::None)
+    }
+
     pub async fn into_api_full_object(
         self,
         state: &crate::State,
@@ -698,7 +778,11 @@ impl User {
     ) -> Result<ApiFullUser, crate::database::DatabaseError> {
         let api_object = ApiFullUser::init_hooks(&self, state).await?;
 
-        let require_two_factor = self.require_two_factor(storage_url_retriever.get_settings());
+        let settings = storage_url_retriever.get_settings();
+        let require_two_factor = self.require_two_factor(settings);
+        let two_factor_satisfied = self.satisfies_two_factor(settings);
+        let two_factor_methods = self.two_factor_methods(settings);
+        let require_email_verification = self.require_email_verification(settings);
 
         let role = if let Some(r) = self.role {
             Some(r.into_admin_api_object(state, ()).await?)
@@ -723,7 +807,13 @@ impl User {
                 suspended: self.suspended,
                 totp_enabled: self.totp_enabled,
                 totp_last_used: self.totp_last_used.map(|dt| dt.and_utc()),
+                email_two_factor_enabled: self.email_two_factor_enabled,
+                two_factor_methods,
                 require_two_factor,
+                two_factor_satisfied,
+                email_verified: self.email_verified,
+                require_email_verification,
+                password_login_disabled: self.password_login_disabled,
                 language: self.language,
                 toast_position: self.toast_position,
                 start_on_grouped_servers: self.start_on_grouped_servers,
@@ -781,7 +871,11 @@ impl IntoAdminApiObject for User {
     ) -> Result<Self::AdminApiObject, crate::database::DatabaseError> {
         let api_object = AdminApiUser::init_hooks(&self, state).await?;
 
-        let require_two_factor = self.require_two_factor(storage_url_retriever.get_settings());
+        let settings = storage_url_retriever.get_settings();
+        let require_two_factor = self.require_two_factor(settings);
+        let two_factor_satisfied = self.satisfies_two_factor(settings);
+        let two_factor_methods = self.two_factor_methods(settings);
+        let require_email_verification = self.require_email_verification(settings);
 
         let role = if let Some(r) = self.role {
             Some(r.into_admin_api_object(state, ()).await?)
@@ -807,7 +901,13 @@ impl IntoAdminApiObject for User {
                 suspended: self.suspended,
                 totp_enabled: self.totp_enabled,
                 totp_last_used: self.totp_last_used.map(|dt| dt.and_utc()),
+                email_two_factor_enabled: self.email_two_factor_enabled,
+                two_factor_methods,
                 require_two_factor,
+                two_factor_satisfied,
+                email_verified: self.email_verified,
+                require_email_verification,
+                password_login_disabled: self.password_login_disabled,
                 language: self.language,
                 toast_position: self.toast_position,
                 start_on_grouped_servers: self.start_on_grouped_servers,
@@ -1273,7 +1373,14 @@ pub struct ApiFullUser {
 
     pub totp_enabled: bool,
     pub totp_last_used: Option<chrono::DateTime<chrono::Utc>>,
+    pub email_two_factor_enabled: bool,
+    pub two_factor_methods: Vec<crate::settings::app::TwoFactorMethod>,
     pub require_two_factor: bool,
+    pub two_factor_satisfied: bool,
+
+    pub email_verified: bool,
+    pub require_email_verification: bool,
+    pub password_login_disabled: bool,
 
     pub language: compact_str::CompactString,
     pub toast_position: UserToastPosition,
@@ -1307,7 +1414,14 @@ pub struct AdminApiUser {
 
     pub totp_enabled: bool,
     pub totp_last_used: Option<chrono::DateTime<chrono::Utc>>,
+    pub email_two_factor_enabled: bool,
+    pub two_factor_methods: Vec<crate::settings::app::TwoFactorMethod>,
     pub require_two_factor: bool,
+    pub two_factor_satisfied: bool,
+
+    pub email_verified: bool,
+    pub require_email_verification: bool,
+    pub password_login_disabled: bool,
 
     pub language: compact_str::CompactString,
     pub toast_position: UserToastPosition,

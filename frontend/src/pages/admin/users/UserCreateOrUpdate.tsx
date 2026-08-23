@@ -6,6 +6,7 @@ import createUser from '@/api/admin/users/createUser.ts';
 import deleteUser from '@/api/admin/users/deleteUser.ts';
 import disableUserTwoFactor from '@/api/admin/users/disableUserTwoFactor.ts';
 import sendPasswordResetEmail from '@/api/admin/users/email/sendPasswordResetEmail.ts';
+import verifyUserEmail from '@/api/admin/users/email/verifyUserEmail.ts';
 import updateUser from '@/api/admin/users/updateUser.ts';
 import { httpErrorToHuman } from '@/api/axios.ts';
 import Button from '@/elements/Button.tsx';
@@ -39,9 +40,9 @@ export default function UserCreateOrUpdate({ contextUser }: { contextUser?: z.in
   const isRootAdmin = !!user?.admin;
   const editingOtherUser = !!contextUser && contextUser.uuid !== user?.uuid;
 
-  const [openModal, setOpenModal] = useState<'delete' | 'disable_two_factor' | 'send_password_reset_email' | null>(
-    null,
-  );
+  const [openModal, setOpenModal] = useState<
+    'delete' | 'disable_two_factor' | 'send_password_reset_email' | 'verify_email' | null
+  >(null);
 
   const form = useFormEngine<UserFormValues>('admin.users.createOrUpdate', {
     schema: adminUserUpdateSchema.unwrap(),
@@ -122,6 +123,23 @@ export default function UserCreateOrUpdate({ contextUser }: { contextUser?: z.in
     await sendPasswordResetEmail(contextUser.uuid)
       .then(() => {
         addToast(t('pages.admin.users.tabs.general.page.modal.sendPasswordResetEmail.toast.sent', {}), 'success');
+
+        setOpenModal(null);
+      })
+      .catch((msg) => {
+        addToast(httpErrorToHuman(msg), 'error');
+      });
+  };
+
+  const doVerifyEmail = async () => {
+    if (!contextUser) {
+      return;
+    }
+
+    await verifyUserEmail(contextUser.uuid)
+      .then(() => {
+        addToast(t('pages.admin.users.tabs.general.page.modal.verifyEmail.toast.verified', {}), 'success');
+        queryClient.invalidateQueries({ queryKey: queryKeys.admin.users.all() });
 
         setOpenModal(null);
       })
@@ -240,6 +258,18 @@ export default function UserCreateOrUpdate({ contextUser }: { contextUser?: z.in
         }).md()}
       </ConfirmationModal>
 
+      <ConfirmationModal
+        opened={openModal === 'verify_email'}
+        onClose={() => setOpenModal(null)}
+        title={t('pages.admin.users.tabs.general.page.modal.verifyEmail.title', {})}
+        confirm={t('common.button.verify', {})}
+        onConfirmed={doVerifyEmail}
+      >
+        {t('pages.admin.users.tabs.general.page.modal.verifyEmail.content', {
+          email: form.getValues().email,
+        }).md()}
+      </ConfirmationModal>
+
       <form onSubmit={form.onSubmit(() => doCreateOrUpdate(false, queryKeys.admin.users.all()))}>
         <FormEngine form={form} fields={fields} />
 
@@ -266,7 +296,7 @@ export default function UserCreateOrUpdate({ contextUser }: { contextUser?: z.in
                   variant='outline'
                   onClick={() => setOpenModal('disable_two_factor')}
                   loading={loading}
-                  disabled={!contextUser.totpEnabled}
+                  disabled={!contextUser.totpEnabled && !contextUser.emailTwoFactorEnabled}
                 >
                   {t('common.button.disableTwoFactor', {})}
                 </Button>
@@ -279,6 +309,17 @@ export default function UserCreateOrUpdate({ contextUser }: { contextUser?: z.in
                   loading={loading}
                 >
                   {t('pages.admin.users.tabs.general.page.button.sendPasswordResetEmail', {})}
+                </Button>
+              </AdminCan>
+              <AdminCan action='users.email'>
+                <Button
+                  color='blue'
+                  variant='outline'
+                  onClick={() => setOpenModal('verify_email')}
+                  loading={loading}
+                  disabled={contextUser.emailVerified}
+                >
+                  {t('pages.admin.users.tabs.general.page.button.verifyEmail', {})}
                 </Button>
               </AdminCan>
               <AdminCan action='users.impersonate'>

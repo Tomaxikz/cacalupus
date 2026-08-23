@@ -38,3 +38,11 @@ export const dashboardTwoFactorDisableSchema = z.object({
   code: z.string().min(6).max(10),
   password: z.string().max(512),
 });
+
+export const dashboardEmailTwoFactorToggleSchema = z.object({
+  password: z.string().max(512),
+});
+
+export const dashboardPasswordLoginSchema = z.object({
+  password: z.string().max(512),
+});
