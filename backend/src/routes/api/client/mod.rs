@@ -10,6 +10,7 @@ use shared::{
         ByUuid,
         user::{AuthMethod, PermissionManager, User, UserImpersonator},
         user_activity::UserActivityLogger,
+        user_api_key::UserApiKey,
         user_session::UserSession,
     },
     response::ApiResponse,
@@ -57,6 +58,7 @@ fn can_impersonate(impersonator: &User, target: &User) -> bool {
 
 fn check_account_gates(
     user: &User,
+    api_key: Option<&UserApiKey>,
     settings: &shared::settings::AppSettings,
     matched_path: &str,
 ) -> Option<Response> {
@@ -78,6 +80,14 @@ fn check_account_gates(
         "/api/client/account/security-keys/{security_key}/challenge",
         "/api/client/account/settings",
     ];
+
+    if api_key.is_some_and(|api_key| !api_key.enabled) {
+        return Some(
+            ApiResponse::error("api key is disabled")
+                .with_status(StatusCode::FORBIDDEN)
+                .into_response(),
+        );
+    }
 
     if !IGNORED_SUSPENDED_PATHS.contains(&matched_path) && user.suspended {
         return Some(
@@ -143,7 +153,15 @@ pub async fn auth(
     };
 
     if let Some((auth_user, auth_method)) = req.extensions_mut().remove::<(User, AuthMethod)>() {
-        let gate = check_account_gates(&auth_user, &settings, matched_path.as_str());
+        let gate = check_account_gates(
+            &auth_user,
+            match &auth_method {
+                AuthMethod::ApiKey(api_key) => Some(api_key),
+                AuthMethod::Session(_) => None,
+            },
+            &settings,
+            matched_path.as_str(),
+        );
         drop(settings);
 
         if let Some(response) = gate {
@@ -259,7 +277,7 @@ pub async fn auth(
             Ok(settings) => settings,
             Err(err) => return Ok(ApiResponse::from(err).into_response()),
         };
-        let gate = check_account_gates(&auth_user, &settings, matched_path.as_str());
+        let gate = check_account_gates(&auth_user, None, &settings, matched_path.as_str());
         drop(settings);
 
         cookies.add(
@@ -367,18 +385,19 @@ pub async fn auth(
             );
         }
 
-        api_key.update_last_used(&state.database).await;
-
         let settings = match state.settings.get().await {
             Ok(settings) => settings,
             Err(err) => return Ok(ApiResponse::from(err).into_response()),
         };
-        let gate = check_account_gates(&auth_user, &settings, matched_path.as_str());
+        let gate =
+            check_account_gates(&auth_user, Some(&api_key), &settings, matched_path.as_str());
         drop(settings);
 
         if let Some(response) = gate {
             return Ok(response);
         }
+
+        api_key.update_last_used(&state.database).await;
 
         let auth_permission_manager = PermissionManager::new(&auth_user).add_api_key(&api_key);
 

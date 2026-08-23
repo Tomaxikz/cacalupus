@@ -1621,6 +1621,10 @@
               "expires": "Läuft ab"
             }
           },
+          "toast": {
+            "enabled": "API-Schlüssel aktiviert.",
+            "disabled": "API-Schlüssel deaktiviert."
+          },
           "modal": {
             "createApiKey": {
               "title": "API-Schlüssel erstellen",

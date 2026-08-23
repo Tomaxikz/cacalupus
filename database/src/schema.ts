@@ -351,6 +351,7 @@ export const userApiKeysTable = pgTable(
     key_start: char({ length: 16 }).notNull(),
     key: text().notNull(),
     allowed_ips: inet().array().default([]).notNull(),
+    enabled: boolean().default(true).notNull(),
     user_permissions: varchar({ length: 64 }).array().notNull(),
     admin_permissions: varchar({ length: 64 }).array().notNull(),
     server_permissions: varchar({ length: 64 }).array().notNull(),

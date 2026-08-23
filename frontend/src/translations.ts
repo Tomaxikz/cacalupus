@@ -1538,6 +1538,10 @@ const baseTranslations = defineTranslations({
               expires: 'Expires',
             },
           },
+          toast: {
+            enabled: 'API key enabled.',
+            disabled: 'API key disabled.',
+          },
           modal: {
             createApiKey: {
               title: 'Create API Key',
