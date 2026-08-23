@@ -21,16 +21,16 @@ mod post {
         #[garde(length(chars, min = 3, max = 15), pattern("^[a-zA-Z0-9_]+$"))]
         #[schema(min_length = 3, max_length = 15)]
         #[schema(pattern = "^[a-zA-Z0-9_]+$")]
-        username: String,
+        username: compact_str::CompactString,
         #[garde(email)]
         #[schema(format = "email")]
-        email: String,
+        email: compact_str::CompactString,
         #[garde(length(chars, min = 1, max = 255))]
         #[schema(min_length = 1, max_length = 255)]
-        name_first: String,
+        name_first: Option<compact_str::CompactString>,
         #[garde(length(chars, min = 1, max = 255))]
         #[schema(min_length = 1, max_length = 255)]
-        name_last: String,
+        name_last: Option<compact_str::CompactString>,
         #[garde(length(chars, min = 8, max = 512))]
         #[schema(min_length = 8, max_length = 512)]
         password: String,
@@ -90,8 +90,8 @@ mod post {
             &state.database,
             &data.username,
             &data.email,
-            &data.name_first,
-            &data.name_last,
+            data.name_first.as_deref(),
+            data.name_last.as_deref(),
             &data.password,
         )
         .await

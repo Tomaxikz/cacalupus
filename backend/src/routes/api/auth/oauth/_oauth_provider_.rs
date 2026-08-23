@@ -415,8 +415,8 @@ pub fn router(state: &State) -> OpenApiRouter<State> {
 
                         let username = oauth_provider.extract_username(&info)?.into();
                         let email = oauth_provider.extract_email(&info)?.into();
-                        let name_first = oauth_provider.extract_name_first(&info)?.into();
-                        let name_last = oauth_provider.extract_name_last(&info)?.into();
+                        let name_first = oauth_provider.extract_name_first(&info)?.map(Into::into);
+                        let name_last = oauth_provider.extract_name_last(&info)?.map(Into::into);
 
                         let options = shared::models::user::CreateUserOptions {
                             role_uuid: None,

@@ -33,8 +33,8 @@ export const twoFactorMethod = z.enum(['totp', 'security_key', 'email']);
 export const fullUserSchema = z.lazy(() =>
   userSchema.extend({
     email: z.string(),
-    nameFirst: z.string(),
-    nameLast: z.string(),
+    nameFirst: z.string().nullable(),
+    nameLast: z.string().nullable(),
     role: roleSchema.nullable(),
     avatar: z.string().nullable(),
     totpEnabled: z.boolean(),

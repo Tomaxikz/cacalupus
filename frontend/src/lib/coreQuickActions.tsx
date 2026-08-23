@@ -205,6 +205,8 @@ export function buildAdminUserQuickActionItem(
   navigate: (path: string) => void,
   close: () => void,
 ): QuickActionItem {
+  const fullName = [user.nameFirst, user.nameLast].filter(Boolean).join(' ');
+
   return {
     key: `admin-user:${user.uuid}`,
     category: CORE_QUICK_ACTION_CATEGORIES.users,
@@ -213,12 +215,14 @@ export function buildAdminUserQuickActionItem(
     content: (
       <Group gap={6} wrap='nowrap'>
         <Avatar size={16} src={user.avatar} name={user.username} />
-        <Text size='xs' c='inherit' opacity={0.6}>
-          {user.nameFirst} {user.nameLast}
-        </Text>
+        {fullName && (
+          <Text size='xs' c='inherit' opacity={0.6}>
+            {fullName}
+          </Text>
+        )}
       </Group>
     ),
-    keywords: [user.email, user.nameFirst, user.nameLast],
+    keywords: [user.email, user.nameFirst, user.nameLast].filter((keyword): keyword is string => !!keyword),
     icon: <FontAwesomeIcon icon={faUser} />,
     onSelect: () => {
       close();

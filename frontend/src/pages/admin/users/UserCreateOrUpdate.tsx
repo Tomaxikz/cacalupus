@@ -157,8 +157,8 @@ export default function UserCreateOrUpdate({ contextUser }: { contextUser?: z.in
       required: true,
       props: { type: 'email', disabled: !isRootAdmin && editingOtherUser },
     },
-    { type: 'text', name: 'nameFirst', label: t('common.form.firstName', {}), required: true },
-    { type: 'text', name: 'nameLast', label: t('common.form.lastName', {}), required: true },
+    { type: 'text', name: 'nameFirst', label: t('common.form.firstName', {}) },
+    { type: 'text', name: 'nameLast', label: t('common.form.lastName', {}) },
     {
       type: 'select',
       name: 'language',

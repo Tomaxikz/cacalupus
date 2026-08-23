@@ -66,10 +66,20 @@ mod patch {
         username: Option<compact_str::CompactString>,
         #[garde(length(chars, min = 1, max = 255))]
         #[schema(min_length = 1, max_length = 255)]
-        name_first: Option<compact_str::CompactString>,
+        #[serde(
+            default,
+            skip_serializing_if = "Option::is_none",
+            with = "::serde_with::rust::double_option"
+        )]
+        name_first: Option<Option<compact_str::CompactString>>,
         #[garde(length(chars, min = 1, max = 255))]
         #[schema(min_length = 1, max_length = 255)]
-        name_last: Option<compact_str::CompactString>,
+        #[serde(
+            default,
+            skip_serializing_if = "Option::is_none",
+            with = "::serde_with::rust::double_option"
+        )]
+        name_last: Option<Option<compact_str::CompactString>>,
 
         #[garde(
             length(chars, min = 2, max = 15),

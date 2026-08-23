@@ -317,48 +317,40 @@ impl OAuthProvider {
         )
     }
 
-    pub fn extract_name_first(&self, value: &serde_json::Value) -> Result<String, anyhow::Error> {
-        Ok(
-            match serde_json_path::JsonPath::parse(match &self.name_first_path {
-                Some(path) => path,
-                None => return Ok("First".to_string()),
-            })?
-            .query(value)
-            .first()
-            .ok_or_else(|| {
-                crate::response::DisplayError::new(format!(
-                    "unable to extract first name from {:?}",
-                    value
-                ))
-            })? {
-                serde_json::Value::String(string) => {
-                    crate::utils::truncate_up_to(string.clone(), 255)
+    fn extract_optional_name(
+        path: Option<&String>,
+        value: &serde_json::Value,
+    ) -> Result<Option<String>, anyhow::Error> {
+        let path = match path {
+            Some(path) => serde_json_path::JsonPath::parse(path)?,
+            None => return Ok(None),
+        };
+
+        Ok(match path.query(value).first() {
+            None | Some(serde_json::Value::Null) => None,
+            Some(serde_json::Value::String(string)) => {
+                if string.is_empty() {
+                    None
+                } else {
+                    Some(crate::utils::truncate_up_to(string.clone(), 255))
                 }
-                val => crate::utils::truncate_up_to(val.to_string(), 255),
-            },
-        )
+            }
+            Some(val) => Some(crate::utils::truncate_up_to(val.to_string(), 255)),
+        })
     }
 
-    pub fn extract_name_last(&self, value: &serde_json::Value) -> Result<String, anyhow::Error> {
-        Ok(
-            match serde_json_path::JsonPath::parse(match &self.name_last_path {
-                Some(path) => path,
-                None => return Ok("Last".to_string()),
-            })?
-            .query(value)
-            .first()
-            .ok_or_else(|| {
-                crate::response::DisplayError::new(format!(
-                    "unable to extract last name from {:?}",
-                    value
-                ))
-            })? {
-                serde_json::Value::String(string) => {
-                    crate::utils::truncate_up_to(string.clone(), 255)
-                }
-                val => crate::utils::truncate_up_to(val.to_string(), 255),
-            },
-        )
+    pub fn extract_name_first(
+        &self,
+        value: &serde_json::Value,
+    ) -> Result<Option<String>, anyhow::Error> {
+        Self::extract_optional_name(self.name_first_path.as_ref(), value)
+    }
+
+    pub fn extract_name_last(
+        &self,
+        value: &serde_json::Value,
+    ) -> Result<Option<String>, anyhow::Error> {
+        Self::extract_optional_name(self.name_last_path.as_ref(), value)
     }
 }
 

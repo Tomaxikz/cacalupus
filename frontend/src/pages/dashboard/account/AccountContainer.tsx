@@ -47,8 +47,8 @@ export default function AccountContainer({ requireTwoFactorActivation }: Account
     if (user) {
       form.setValues({
         username: user.username,
-        nameFirst: user.nameFirst,
-        nameLast: user.nameLast,
+        nameFirst: user.nameFirst ?? '',
+        nameLast: user.nameLast ?? '',
         language: user.language,
         toastPosition: user.toastPosition,
         startOnGroupedServers: user.startOnGroupedServers,
@@ -59,13 +59,15 @@ export default function AccountContainer({ requireTwoFactorActivation }: Account
   const doUpdate = () => {
     setLoading(true);
 
-    updateAccount(form.values)
+    const values = dashboardAccountSchema.parse(form.values);
+
+    updateAccount(values)
       .then(() => {
         addToast(t('pages.account.account.containers.account.toast.updated', {}), 'success');
 
         setUser({
           ...user!,
-          ...form.values,
+          ...values,
         });
       })
       .catch((msg) => {
@@ -84,13 +86,11 @@ export default function AccountContainer({ requireTwoFactorActivation }: Account
         <Stack h='100%'>
           <Group grow>
             <TextInput
-              withAsterisk
               label={t('common.form.firstName', {})}
               autoComplete='given-name'
               {...form.getInputProps('nameFirst')}
             />
             <TextInput
-              withAsterisk
               label={t('common.form.lastName', {})}
               autoComplete='family-name'
               {...form.getInputProps('nameLast')}

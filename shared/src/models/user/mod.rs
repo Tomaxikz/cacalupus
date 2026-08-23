@@ -39,8 +39,8 @@ pub struct User {
     pub username: compact_str::CompactString,
     pub email: compact_str::CompactString,
 
-    pub name_first: compact_str::CompactString,
-    pub name_last: compact_str::CompactString,
+    pub name_first: Option<compact_str::CompactString>,
+    pub name_last: Option<compact_str::CompactString>,
 
     pub admin: bool,
     pub frozen: bool,
@@ -232,8 +232,8 @@ impl User {
         database: &crate::database::Database,
         username: &str,
         email: &str,
-        name_first: &str,
-        name_last: &str,
+        name_first: Option<&str>,
+        name_last: Option<&str>,
         password: &str,
     ) -> Result<uuid::Uuid, crate::database::DatabaseError> {
         let row = sqlx::query(
@@ -940,10 +940,10 @@ pub struct CreateUserOptions {
     pub email: compact_str::CompactString,
     #[garde(length(chars, min = 1, max = 255))]
     #[schema(min_length = 1, max_length = 255)]
-    pub name_first: compact_str::CompactString,
+    pub name_first: Option<compact_str::CompactString>,
     #[garde(length(chars, min = 1, max = 255))]
     #[schema(min_length = 1, max_length = 255)]
-    pub name_last: compact_str::CompactString,
+    pub name_last: Option<compact_str::CompactString>,
     #[garde(length(chars, min = 1, max = 512))]
     #[schema(min_length = 1, max_length = 512)]
     pub password: Option<String>,
@@ -1002,8 +1002,8 @@ impl CreatableModel for User {
             .set("external_id", options.external_id.as_deref())
             .set("username", &options.username)
             .set("email", &options.email)
-            .set("name_first", &options.name_first)
-            .set("name_last", &options.name_last);
+            .set("name_first", options.name_first.as_deref())
+            .set("name_last", options.name_last.as_deref());
 
         if let Some(password) = &options.password {
             query_builder.set_expr("password", "crypt($1, gen_salt('bf', 12))", vec![password]);
@@ -1109,10 +1109,20 @@ pub struct UpdateUserOptions {
     pub email: Option<compact_str::CompactString>,
     #[garde(length(chars, min = 1, max = 255))]
     #[schema(min_length = 1, max_length = 255)]
-    pub name_first: Option<compact_str::CompactString>,
+    #[serde(
+        default,
+        skip_serializing_if = "Option::is_none",
+        with = "::serde_with::rust::double_option"
+    )]
+    pub name_first: Option<Option<compact_str::CompactString>>,
     #[garde(length(chars, min = 1, max = 255))]
     #[schema(min_length = 1, max_length = 255)]
-    pub name_last: Option<compact_str::CompactString>,
+    #[serde(
+        default,
+        skip_serializing_if = "Option::is_none",
+        with = "::serde_with::rust::double_option"
+    )]
+    pub name_last: Option<Option<compact_str::CompactString>>,
     #[garde(length(chars, min = 8, max = 512))]
     #[schema(min_length = 8, max_length = 512)]
     pub password: Option<Option<compact_str::CompactString>>,
@@ -1364,8 +1374,8 @@ pub struct ApiFullUser {
     pub avatar: Option<String>,
     pub email: compact_str::CompactString,
 
-    pub name_first: compact_str::CompactString,
-    pub name_last: compact_str::CompactString,
+    pub name_first: Option<compact_str::CompactString>,
+    pub name_last: Option<compact_str::CompactString>,
 
     pub admin: bool,
     pub frozen: bool,
@@ -1405,8 +1415,8 @@ pub struct AdminApiUser {
     pub avatar: Option<String>,
     pub email: compact_str::CompactString,
 
-    pub name_first: compact_str::CompactString,
-    pub name_last: compact_str::CompactString,
+    pub name_first: Option<compact_str::CompactString>,
+    pub name_last: Option<compact_str::CompactString>,
 
     pub admin: bool,
     pub frozen: bool,
