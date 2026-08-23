@@ -62,6 +62,8 @@ export const createSettingsSlice: StateCreator<AdminStore, [], [], SettingsSlice
     maxCommandSnippetCount: 100,
     maxSecurityKeyCount: 50,
     maxSshKeyCount: 50,
+    maxSettingsCount: 512,
+    maxSettingsValueBytes: 16384,
     allowChangingLanguage: true,
     routeOrder: null,
   },

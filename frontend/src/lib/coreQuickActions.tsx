@@ -39,10 +39,10 @@ import type { serverSchema } from '@/lib/schemas/server/server.ts';
 import { checkPermissions } from '@/plugins/usePermissions.ts';
 import { useQuickActionLocation, useQuickActionTerm } from '@/plugins/useQuickActions.ts';
 import { useSearchableResource } from '@/plugins/useSearchableResource.ts';
+import { useServerListShowOthers } from '@/plugins/useServerListShowOthers.ts';
 import { useAuth } from '@/providers/AuthProvider.tsx';
 import { useToast } from '@/providers/ToastProvider.tsx';
 import { getTranslations } from '@/providers/TranslationProvider.tsx';
-import { useGlobalStore } from '@/stores/global.ts';
 import { useQuickActionsStore } from '@/stores/quickActions.ts';
 
 export const CORE_QUICK_ACTION_CATEGORIES = {
@@ -250,7 +250,7 @@ export function useCoreQuickActionModes(): QuickActionMode[] {
   const serversTerm = useQuickActionTerm(SERVERS_PREFIX);
   const navigationTerm = useQuickActionTerm(NAVIGATION_PREFIX)?.toLowerCase();
 
-  const showOthers = useGlobalStore((state) => state.serverListShowOthers);
+  const [showOthers] = useServerListShowOthers();
   const mathActive = mathTerm !== null;
   const [math, setMath] = useState(getLoadedMath());
 

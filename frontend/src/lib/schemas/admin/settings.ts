@@ -145,6 +145,8 @@ export const adminSettingsUserSchema = z.object({
   maxCommandSnippetCount: z.number().min(0),
   maxSecurityKeyCount: z.number().min(0),
   maxSshKeyCount: z.number().min(0),
+  maxSettingsCount: z.number().min(0),
+  maxSettingsValueBytes: z.number().min(0),
   allowChangingLanguage: z.boolean(),
   routeOrder: z.array(eggConfigurationRouteItemSchema).max(100).nullable(),
 });

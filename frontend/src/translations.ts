@@ -134,6 +134,22 @@ const baseTranslations = defineTranslations({
       toast: {
         duplicated: '{resource} duplicated.',
       },
+      settingScope: {
+        account: 'Sync With Account',
+        device: 'Only This Device',
+        useAccountValue: 'Use the Account Value',
+        saveToAccount: 'Save This Value to My Account',
+        stateAccount: 'Account',
+        stateDevice: 'This Device',
+        tooltip: {
+          account: 'This setting is synced with your account.',
+          device: 'This setting is overridden on this device only.',
+        },
+        toast: {
+          saved: 'Setting saved to your account.',
+          saveFailed: 'Failed to save this setting to your account.',
+        },
+      },
       tooltip: {
         resetToDefault: 'Reset to default',
         edit: 'Edit',
@@ -488,6 +504,7 @@ const baseTranslations = defineTranslations({
           themeAuto: 'Auto',
           themeDark: 'Dark',
           themeLight: 'Light',
+          resetDeviceOverrides: 'Reset Device Overrides ({count})',
         },
         modal: {
           logout: {
@@ -1999,6 +2016,8 @@ const baseTranslations = defineTranslations({
                   maxCommandSnippetCount: 'Max Command Snippets',
                   maxSecurityKeyCount: 'Max Security Keys',
                   maxSshKeyCount: 'Max SSH Keys',
+                  maxSettingsCount: 'Max Synced Settings',
+                  maxSettingsValueBytes: 'Max Synced Setting Size (bytes)',
                   allowChangingLanguage: 'Allow Changing Language',
                   allowChangingLanguageDescription:
                     'If enabled, users will be able to change their language preferences.',

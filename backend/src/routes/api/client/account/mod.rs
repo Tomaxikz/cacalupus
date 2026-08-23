@@ -12,6 +12,7 @@ mod password;
 mod password_login;
 mod security_keys;
 mod sessions;
+mod settings;
 mod ssh_keys;
 mod two_factor;
 
@@ -177,6 +178,7 @@ pub fn router(state: &State) -> OpenApiRouter<State> {
         .nest("/api-keys", api_keys::router(state))
         .nest("/ssh-keys", ssh_keys::router(state))
         .nest("/sessions", sessions::router(state))
+        .nest("/settings", settings::router(state))
         .nest("/activity", activity::router(state))
         .with_state(state.clone())
 }

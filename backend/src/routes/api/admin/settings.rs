@@ -146,6 +146,10 @@ mod put {
         max_security_key_count: Option<u64>,
         #[garde(skip)]
         max_ssh_key_count: Option<u64>,
+        #[garde(skip)]
+        max_settings_count: Option<u64>,
+        #[garde(skip)]
+        max_settings_value_bytes: Option<u64>,
 
         #[garde(skip)]
         allow_changing_language: Option<bool>,
@@ -360,6 +364,12 @@ mod put {
             }
             if let Some(max_ssh_key_count) = user.max_ssh_key_count {
                 settings.user.max_ssh_key_count = max_ssh_key_count;
+            }
+            if let Some(max_settings_count) = user.max_settings_count {
+                settings.user.max_settings_count = max_settings_count;
+            }
+            if let Some(max_settings_value_bytes) = user.max_settings_value_bytes {
+                settings.user.max_settings_value_bytes = max_settings_value_bytes;
             }
             if let Some(allow_changing_language) = user.allow_changing_language {
                 settings.user.allow_changing_language = allow_changing_language;

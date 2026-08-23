@@ -60,7 +60,11 @@ fn check_account_gates(
     settings: &shared::settings::AppSettings,
     matched_path: &str,
 ) -> Option<Response> {
-    const IGNORED_SUSPENDED_PATHS: &[&str] = &["/api/client/account", "/api/client/account/logout"];
+    const IGNORED_SUSPENDED_PATHS: &[&str] = &[
+        "/api/client/account",
+        "/api/client/account/logout",
+        "/api/client/account/settings",
+    ];
 
     const IGNORED_REMEDIABLE_PATHS: &[&str] = &[
         "/api/client/account",
@@ -72,6 +76,7 @@ fn check_account_gates(
         "/api/client/account/security-keys",
         "/api/client/account/security-keys/{security_key}",
         "/api/client/account/security-keys/{security_key}/challenge",
+        "/api/client/account/settings",
     ];
 
     if !IGNORED_SUSPENDED_PATHS.contains(&matched_path) && user.suspended {

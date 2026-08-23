@@ -264,6 +264,22 @@
       "toast": {
         "duplicated": "{resource} dupliziert."
       },
+      "settingScope": {
+        "account": "Mit Konto synchronisieren",
+        "device": "Nur dieses Gerät",
+        "useAccountValue": "Kontowert verwenden",
+        "saveToAccount": "Diesen Wert in meinem Konto speichern",
+        "stateAccount": "Konto",
+        "stateDevice": "Dieses Gerät",
+        "tooltip": {
+          "account": "Diese Einstellung wird mit deinem Konto synchronisiert.",
+          "device": "Diese Einstellung wird nur auf diesem Gerät überschrieben."
+        },
+        "toast": {
+          "saved": "Einstellung in deinem Konto gespeichert.",
+          "saveFailed": "Einstellung konnte nicht in deinem Konto gespeichert werden."
+        }
+      },
       "tooltip": {
         "resetToDefault": "Auf Standard zurücksetzen",
         "edit": "Bearbeiten",
@@ -611,7 +627,8 @@
           "theme": "Design",
           "themeAuto": "Automatisch",
           "themeDark": "Dunkel",
-          "themeLight": "Hell"
+          "themeLight": "Hell",
+          "resetDeviceOverrides": "Geräte-Überschreibungen zurücksetzen ({count})"
         },
         "modal": {
           "logout": {
@@ -2055,6 +2072,8 @@
                   "maxCommandSnippetCount": "Max. Befehls-Snippets",
                   "maxSecurityKeyCount": "Max. Sicherheitsschlüssel",
                   "maxSshKeyCount": "Max. SSH-Schlüssel",
+                  "maxSettingsCount": "Max. synchronisierte Einstellungen",
+                  "maxSettingsValueBytes": "Max. Größe synchronisierter Einstellungen (Bytes)",
                   "allowChangingLanguage": "Sprache ändern erlauben",
                   "allowChangingLanguageDescription": "Wenn aktiviert, können Benutzer ihre Spracheinstellungen ändern."
                 },

@@ -192,6 +192,19 @@ pub(crate) static BASE_USER_PERMISSIONS: LazyLock<IndexMap<&'static str, Permiss
                 },
             ),
             (
+                "settings",
+                PermissionGroup {
+                    description: "Permissions that control the ability to manage synced user settings on an account.",
+                    permissions: IndexMap::from([
+                        ("read", "Allows viewing the account's synced user settings."),
+                        (
+                            "update",
+                            "Allows modifying the account's synced user settings.",
+                        ),
+                    ]),
+                },
+            ),
+            (
                 "activity",
                 PermissionGroup {
                     description: "Permissions that control the ability to view the activity log on an account.",

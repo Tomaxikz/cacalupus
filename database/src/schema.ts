@@ -240,6 +240,14 @@ export const userRecoveryCodesTable = pgTable(
   ],
 );
 
+export const userSettingsTable = pgTable('user_settings', {
+  user_uuid: uuid()
+    .references(() => usersTable.uuid, { onDelete: 'cascade' })
+    .primaryKey()
+    .notNull(),
+  settings: jsonb().notNull(),
+});
+
 export const userPasswordResetsTable = pgTable(
   'user_password_resets',
   {

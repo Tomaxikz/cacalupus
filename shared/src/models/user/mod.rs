@@ -17,6 +17,8 @@ use webauthn_rs::prelude::CredentialID;
 mod auth;
 pub use auth::*;
 
+pub mod settings;
+
 #[derive(ToSchema, Serialize, Deserialize, Type, PartialEq, Eq, Hash, Clone, Copy)]
 #[serde(rename_all = "snake_case")]
 #[sqlx(type_name = "user_toast_position", rename_all = "SCREAMING_SNAKE_CASE")]
