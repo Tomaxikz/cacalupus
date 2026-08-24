@@ -247,10 +247,7 @@ export default function useFileCollab({
     };
 
     const onSync = (syncPath: string, state: string, meta?: string, rawPath?: string) => {
-      if (
-        !(rawPath !== undefined && normalizePath(rawPath) === normalizePath(path)) &&
-        !matchesSession(syncPath)
-      ) {
+      if (!(rawPath !== undefined && normalizePath(rawPath) === normalizePath(path)) && !matchesSession(syncPath)) {
         return;
       }
 
