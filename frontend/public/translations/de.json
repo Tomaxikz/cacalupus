@@ -1322,7 +1322,10 @@
               "title": "Account-Details",
               "toast": {
                 "updated": "Account-Details erfolgreich aktualisiert."
-              },
+              }
+            },
+            "preferences": {
+              "title": "Einstellungen",
               "form": {
                 "toastPosition": "Toast-Position",
                 "startOnGroupedServers": "Auf der Seite 'Gruppierte Server' starten"

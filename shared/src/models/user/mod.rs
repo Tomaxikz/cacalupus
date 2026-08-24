@@ -6,7 +6,7 @@ use crate::{
 use garde::Validate;
 use serde::{Deserialize, Serialize};
 use sha2::Digest;
-use sqlx::{Row, postgres::PgRow, prelude::Type};
+use sqlx::{Row, postgres::PgRow};
 use std::{
     collections::BTreeMap,
     sync::{Arc, LazyLock},
@@ -18,18 +18,6 @@ mod auth;
 pub use auth::*;
 
 pub mod settings;
-
-#[derive(ToSchema, Serialize, Deserialize, Type, PartialEq, Eq, Hash, Clone, Copy)]
-#[serde(rename_all = "snake_case")]
-#[sqlx(type_name = "user_toast_position", rename_all = "SCREAMING_SNAKE_CASE")]
-pub enum UserToastPosition {
-    TopLeft,
-    TopCenter,
-    TopRight,
-    BottomLeft,
-    BottomCenter,
-    BottomRight,
-}
 
 #[derive(Serialize, Deserialize, Clone)]
 pub struct User {
@@ -58,8 +46,6 @@ pub struct User {
     pub password_login_disabled: bool,
 
     pub language: compact_str::CompactString,
-    pub toast_position: UserToastPosition,
-    pub start_on_grouped_servers: bool,
 
     pub has_password: bool,
 
@@ -151,14 +137,6 @@ impl BaseModel for User {
                 compact_str::format_compact!("{prefix}language"),
             ),
             (
-                "users.toast_position",
-                compact_str::format_compact!("{prefix}toast_position"),
-            ),
-            (
-                "users.start_on_grouped_servers",
-                compact_str::format_compact!("{prefix}start_on_grouped_servers"),
-            ),
-            (
                 "(users.password IS NOT NULL)",
                 compact_str::format_compact!("{prefix}has_password"),
             ),
@@ -216,11 +194,6 @@ impl BaseModel for User {
                 compact_str::format_compact!("{prefix}password_login_disabled").as_str(),
             )?,
             language: row.try_get(compact_str::format_compact!("{prefix}language").as_str())?,
-            toast_position: row
-                .try_get(compact_str::format_compact!("{prefix}toast_position").as_str())?,
-            start_on_grouped_servers: row.try_get(
-                compact_str::format_compact!("{prefix}start_on_grouped_servers").as_str(),
-            )?,
             has_password: row
                 .try_get(compact_str::format_compact!("{prefix}has_password").as_str())?,
             created: row.try_get(compact_str::format_compact!("{prefix}created").as_str())?,
@@ -817,8 +790,6 @@ impl User {
                 require_email_verification,
                 password_login_disabled: self.password_login_disabled,
                 language: self.language,
-                toast_position: self.toast_position,
-                start_on_grouped_servers: self.start_on_grouped_servers,
                 has_password: self.has_password,
                 created: self.created.and_utc(),
             },
@@ -911,8 +882,6 @@ impl IntoAdminApiObject for User {
                 require_email_verification,
                 password_login_disabled: self.password_login_disabled,
                 language: self.language,
-                toast_position: self.toast_position,
-                start_on_grouped_servers: self.start_on_grouped_servers,
                 has_password: self.has_password,
                 created: self.created.and_utc(),
             },
@@ -1130,11 +1099,6 @@ pub struct UpdateUserOptions {
     pub password: Option<Option<compact_str::CompactString>>,
 
     #[garde(skip)]
-    pub toast_position: Option<UserToastPosition>,
-    #[garde(skip)]
-    pub start_on_grouped_servers: Option<bool>,
-
-    #[garde(skip)]
     pub admin: Option<bool>,
     #[garde(skip)]
     pub frozen: Option<bool>,
@@ -1198,8 +1162,6 @@ impl UpdatableModel for User {
             .set("frozen", options.frozen)
             .set("suspended", options.suspended)
             .set("language", options.language.as_ref())
-            .set("toast_position", options.toast_position.as_ref())
-            .set("start_on_grouped_servers", options.start_on_grouped_servers)
             .where_eq("uuid", self.uuid);
 
         query_builder.execute(&mut **transaction).await?;
@@ -1221,12 +1183,6 @@ impl UpdatableModel for User {
         }
         if let Some(name_last) = options.name_last {
             self.name_last = name_last;
-        }
-        if let Some(toast_position) = options.toast_position {
-            self.toast_position = toast_position;
-        }
-        if let Some(start_on_grouped_servers) = options.start_on_grouped_servers {
-            self.start_on_grouped_servers = start_on_grouped_servers;
         }
         if let Some(admin) = options.admin {
             self.admin = admin;
@@ -1395,8 +1351,6 @@ pub struct ApiFullUser {
     pub password_login_disabled: bool,
 
     pub language: compact_str::CompactString,
-    pub toast_position: UserToastPosition,
-    pub start_on_grouped_servers: bool,
 
     pub has_password: bool,
 
@@ -1436,8 +1390,6 @@ pub struct AdminApiUser {
     pub password_login_disabled: bool,
 
     pub language: compact_str::CompactString,
-    pub toast_position: UserToastPosition,
-    pub start_on_grouped_servers: bool,
 
     pub has_password: bool,
 

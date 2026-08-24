@@ -15,6 +15,7 @@ import AvatarContainer from './AvatarContainer.tsx';
 import EmailContainer from './EmailContainer.tsx';
 import PasswordContainer from './PasswordContainer.tsx';
 import PasswordLoginContainer from './PasswordLoginContainer.tsx';
+import PreferencesContainer from './PreferencesContainer.tsx';
 import TwoFactorContainer from './TwoFactorContainer.tsx';
 
 export interface AccountCardProps {
@@ -104,6 +105,7 @@ export default function DashboardAccount() {
         <TwoFactorContainer />
         <PasswordLoginContainer requireTwoFactorActivation={requireTwoFactorActivation} />
         <AccountContainer requireTwoFactorActivation={requireTwoFactorActivation} />
+        <PreferencesContainer requireTwoFactorActivation={requireTwoFactorActivation} />
         <AvatarContainer requireTwoFactorActivation={requireTwoFactorActivation} />
 
         {window.extensionContext.extensionRegistry.pages.dashboard.account.accountContainers.appendedComponents.map(

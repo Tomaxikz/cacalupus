@@ -1766,6 +1766,10 @@ impl Server {
                 },
                 auto_kill: self.auto_kill,
                 auto_start_behavior: self.auto_start_behavior.into(),
+                features: wings_api::ServerConfigurationFeatures {
+                    startup_cpu_boost: None,
+                    runtime_cpu_boost: None,
+                },
             },
             process_configuration: super::nest_egg::ProcessConfiguration {
                 startup: self.egg.config_startup,

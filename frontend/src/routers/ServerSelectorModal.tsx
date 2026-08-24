@@ -18,7 +18,7 @@ import { serverSchema } from '@/lib/schemas/server/server.ts';
 import ServerGroupItem from '@/pages/dashboard/home/ServerGroupItem.tsx';
 import ServerItem from '@/pages/dashboard/home/ServerItem.tsx';
 import { useSearchablePaginatedTable } from '@/plugins/useSearchablePaginatedTable.ts';
-import { useAuth } from '@/providers/AuthProvider.tsx';
+import { useStartOnGroupedServers } from '@/plugins/useStartOnGroupedServers.ts';
 import { useToast } from '@/providers/ToastProvider.tsx';
 import { useTranslations } from '@/providers/TranslationProvider.tsx';
 import serverRoutes from '@/routers/routes/serverRoutes.ts';
@@ -116,11 +116,12 @@ function GroupedServersView({ getServerTo }: { getServerTo: (server: z.infer<typ
 
 export default function ServerSelectorModal() {
   const { t } = useTranslations();
-  const { user } = useAuth();
   const navigate = useNavigate();
   const location = useLocation();
 
-  const [activeTab, setActiveTab] = useState<'all' | 'grouped'>(user?.startOnGroupedServers ? 'grouped' : 'all');
+  const [startOnGroupedServers] = useStartOnGroupedServers();
+
+  const [activeTab, setActiveTab] = useState<'all' | 'grouped'>(startOnGroupedServers ? 'grouped' : 'all');
 
   const subPath = location.pathname.replace(/^\/server\/[^/]+/, '');
 

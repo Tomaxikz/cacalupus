@@ -46,8 +46,6 @@ export const fullUserSchema = z.lazy(() =>
     emailVerified: z.boolean(),
     requireEmailVerification: z.boolean(),
     passwordLoginDisabled: z.boolean(),
-    toastPosition: userToastPosition,
-    startOnGroupedServers: z.boolean(),
     hasPassword: z.boolean(),
     admin: z.boolean(),
     frozen: z.boolean(),

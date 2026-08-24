@@ -9,6 +9,7 @@ import {
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { Fragment, ReactNode } from 'react';
 import ActionIcon from '@/elements/ActionIcon.tsx';
+import Button from '@/elements/Button.tsx';
 import Menu from '@/elements/Menu.tsx';
 import Tooltip from '@/elements/Tooltip.tsx';
 import UnstyledButton from '@/elements/UnstyledButton.tsx';
@@ -100,11 +101,13 @@ export default function UserSettingScopeMenu({
   settingKey,
   value,
   withinPortal = true,
+  button = false,
   children,
 }: {
   settingKey: string;
   value: UserSettingValue;
   withinPortal?: boolean;
+  button?: boolean;
   children?: ReactNode;
 }) {
   const { t } = useTranslations();
@@ -112,7 +115,7 @@ export default function UserSettingScopeMenu({
 
   return (
     <span
-      className='inline-flex'
+      className='inline-flex align-middle'
       onClick={(e) => {
         e.preventDefault();
         e.stopPropagation();
@@ -128,9 +131,21 @@ export default function UserSettingScopeMenu({
             }
           >
             {children ? (
-              <UnstyledButton disabled={!available} c={scope === 'device' ? 'blue' : undefined}>
-                {children}
-              </UnstyledButton>
+              button ? (
+                <Button
+                  h={32}
+                  size='compact-sm'
+                  variant='default'
+                  disabled={!available}
+                  c={scope === 'device' ? 'blue' : undefined}
+                >
+                  {children}
+                </Button>
+              ) : (
+                <UnstyledButton disabled={!available} c={scope === 'device' ? 'blue' : undefined}>
+                  {children}
+                </UnstyledButton>
+              )
             ) : (
               <ActionIcon size='xs' variant='subtle' color={scope === 'device' ? 'blue' : 'gray'} disabled={!available}>
                 <FontAwesomeIcon icon={scope === 'device' ? faDesktop : faCloud} />

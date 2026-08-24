@@ -1273,6 +1273,9 @@ const baseTranslations = defineTranslations({
               toast: {
                 updated: 'Account details updated successfully.',
               },
+            },
+            preferences: {
+              title: 'Preferences',
               form: {
                 toastPosition: 'Toast Position',
                 startOnGroupedServers: 'Start on the Grouped Servers page',

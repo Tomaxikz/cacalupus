@@ -10,7 +10,6 @@ import updateAccount from '@/api/me/account/updateAccount.ts';
 import Button from '@/elements/Button.tsx';
 import Group from '@/elements/Group.tsx';
 import Select from '@/elements/input/Select.tsx';
-import Switch from '@/elements/input/Switch.tsx';
 import TextInput from '@/elements/input/TextInput.tsx';
 import Stack from '@/elements/Stack.tsx';
 import TitleCard from '@/elements/TitleCard.tsx';
@@ -36,8 +35,6 @@ export default function AccountContainer({ requireTwoFactorActivation }: Account
       nameFirst: '',
       nameLast: '',
       language: '',
-      toastPosition: 'bottom_right',
-      startOnGroupedServers: true,
     },
     validateInputOnBlur: true,
     validate: zod4Resolver(dashboardAccountSchema),
@@ -50,8 +47,6 @@ export default function AccountContainer({ requireTwoFactorActivation }: Account
         nameFirst: user.nameFirst ?? '',
         nameLast: user.nameLast ?? '',
         language: user.language,
-        toastPosition: user.toastPosition,
-        startOnGroupedServers: user.startOnGroupedServers,
       });
     }
   }, [user]);
@@ -115,44 +110,6 @@ export default function AccountContainer({ requireTwoFactorActivation }: Account
               />
             )}
           </Group>
-          <Group grow>
-            <Select
-              withAsterisk
-              label={t('pages.account.account.containers.account.form.toastPosition', {})}
-              data={[
-                {
-                  label: t('common.enum.userToastPosition.topLeft', {}),
-                  value: 'top_left',
-                },
-                {
-                  label: t('common.enum.userToastPosition.topCenter', {}),
-                  value: 'top_center',
-                },
-                {
-                  label: t('common.enum.userToastPosition.topRight', {}),
-                  value: 'top_right',
-                },
-                {
-                  label: t('common.enum.userToastPosition.bottomLeft', {}),
-                  value: 'bottom_left',
-                },
-                {
-                  label: t('common.enum.userToastPosition.bottomCenter', {}),
-                  value: 'bottom_center',
-                },
-                {
-                  label: t('common.enum.userToastPosition.bottomRight', {}),
-                  value: 'bottom_right',
-                },
-              ]}
-              {...form.getInputProps('toastPosition')}
-            />
-            <Switch
-              label={t('pages.account.account.containers.account.form.startOnGroupedServers', {})}
-              {...form.getInputProps('startOnGroupedServers', { type: 'checkbox' })}
-            />
-          </Group>
-
           <Group mt='auto'>
             <Button type='submit' disabled={!form.isValid()} loading={loading}>
               {t('common.button.update', {})}

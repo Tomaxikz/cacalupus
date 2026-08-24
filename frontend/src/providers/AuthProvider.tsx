@@ -15,7 +15,7 @@ import { useTranslations } from './TranslationProvider.tsx';
 import { useWindows } from './WindowProvider.tsx';
 
 const AuthProvider = ({ children }: { children: ReactNode }) => {
-  const { setToastPosition, addToast } = useToast();
+  const { addToast } = useToast();
   const { setLanguage } = useTranslations();
   const { closeAllWindows } = useWindows();
   const navigate = useNavigate();
@@ -33,12 +33,11 @@ const AuthProvider = ({ children }: { children: ReactNode }) => {
   useEffect(() => {
     if (user) {
       startTransition(() => {
-        setToastPosition(user.toastPosition);
         setLanguage(user.language);
       });
       loadUserSettings(user.uuid);
     }
-  }, [user, setToastPosition, setLanguage]);
+  }, [user, setLanguage]);
 
   useEffect(() => {
     getMe()

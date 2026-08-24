@@ -126,18 +126,8 @@ export default function DashboardShortcuts() {
           >
             {t('pages.account.shortcuts.button.resetAll', {})}
           </Button>
-          <UserSettingScopeMenu settingKey={SHORTCUT_OVERRIDES_KEY} value={{ ...overrides } as UserSettingValue}>
-            <Flex
-              align='center'
-              gap='xs'
-              px='sm'
-              h={32}
-              style={{
-                background: 'var(--mantine-color-default)',
-                borderRadius: 6,
-                border: '1px solid var(--mantine-color-default-border)',
-              }}
-            >
+          <UserSettingScopeMenu settingKey={SHORTCUT_OVERRIDES_KEY} value={{ ...overrides } as UserSettingValue} button>
+            <Flex align='center' gap='xs'>
               <FontAwesomeIcon icon={shortcutsScope === 'device' ? faDesktop : faCloud} />
               <Text size='sm'>
                 {shortcutsScope === 'device'
@@ -153,7 +143,7 @@ export default function DashboardShortcuts() {
             h={32}
             style={{
               background: 'var(--mantine-color-default)',
-              borderRadius: 6,
+              borderRadius: 'var(--mantine-radius-default)',
               border: '1px solid var(--mantine-color-default-border)',
             }}
           >

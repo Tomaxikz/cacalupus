@@ -457,6 +457,32 @@ nestify::nest! {
 
         #[schema(inline)]
         pub auto_start_behavior: ServerAutoStartBehavior,
+        #[schema(inline)]
+        pub features: #[derive(Debug, ToSchema, Deserialize, Serialize, Clone)] pub struct ServerConfigurationFeatures {
+            #[schema(inline)]
+            pub startup_cpu_boost: Option<#[derive(Debug, ToSchema, Deserialize, Serialize, Clone)] pub struct ServerConfigurationFeaturesStartupCpuBoost {
+                #[schema(inline)]
+                pub enabled: bool,
+                #[schema(inline)]
+                pub timeout: u64,
+            }>,
+            #[schema(inline)]
+            pub runtime_cpu_boost: Option<#[derive(Debug, ToSchema, Deserialize, Serialize, Clone)] pub struct ServerConfigurationFeaturesRuntimeCpuBoost {
+                #[schema(inline)]
+                pub enabled: bool,
+                #[schema(inline)]
+                pub threshold: u64,
+                #[schema(inline)]
+                pub sustained: u64,
+                #[schema(inline)]
+                pub multiple: f64,
+                #[schema(inline)]
+                pub duration: u64,
+                #[schema(inline)]
+                pub cooldown: u64,
+            }>,
+        },
+
     }
 }
 
@@ -2820,6 +2846,24 @@ pub mod system_config {
                         pub enabled: bool,
                         #[schema(inline)]
                         pub timeout: u64,
+                        #[schema(inline)]
+                        pub max_concurrent: u64,
+                    },
+
+                    #[schema(inline)]
+                    pub runtime_boost: #[derive(Debug, ToSchema, Deserialize, Serialize, Clone)] pub struct Response200DockerRuntimeBoost {
+                        #[schema(inline)]
+                        pub enabled: bool,
+                        #[schema(inline)]
+                        pub threshold: u64,
+                        #[schema(inline)]
+                        pub sustained: u64,
+                        #[schema(inline)]
+                        pub multiple: f64,
+                        #[schema(inline)]
+                        pub duration: u64,
+                        #[schema(inline)]
+                        pub cooldown: u64,
                         #[schema(inline)]
                         pub max_concurrent: u64,
                     },

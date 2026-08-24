@@ -52,7 +52,7 @@ mod patch {
         ApiError, GetState,
         models::{
             UpdatableModel,
-            user::{GetPermissionManager, GetUser, UpdateUserOptions, UserToastPosition},
+            user::{GetPermissionManager, GetUser, UpdateUserOptions},
             user_activity::GetUserActivityLogger,
         },
         response::{ApiResponse, ApiResponseResult},
@@ -88,10 +88,6 @@ mod patch {
         )]
         #[schema(min_length = 2, max_length = 15)]
         language: Option<compact_str::CompactString>,
-        #[garde(skip)]
-        toast_position: Option<UserToastPosition>,
-        #[garde(skip)]
-        start_on_grouped_servers: Option<bool>,
     }
 
     #[derive(ToSchema, Serialize)]
@@ -137,8 +133,6 @@ mod patch {
                 name_first: data.name_first,
                 name_last: data.name_last,
                 language: data.language,
-                toast_position: data.toast_position,
-                start_on_grouped_servers: data.start_on_grouped_servers,
                 ..Default::default()
             },
         )
@@ -152,8 +146,6 @@ mod patch {
                     "name_first": user.name_first,
                     "name_last": user.name_last,
                     "language": user.language,
-                    "toast_position": user.toast_position,
-                    "start_on_grouped_servers": user.start_on_grouped_servers,
                 }),
             )
             .await;

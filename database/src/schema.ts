@@ -65,14 +65,6 @@ export const backupDiskEnum = pgEnum('backup_disk', [
   'PROXMOX_BACKUP_SERVER',
   'KOPIA',
 ]);
-export const userToastPositionEnum = pgEnum('user_toast_position', [
-  'TOP_LEFT',
-  'TOP_CENTER',
-  'TOP_RIGHT',
-  'BOTTOM_LEFT',
-  'BOTTOM_CENTER',
-  'BOTTOM_RIGHT',
-]);
 export const announcementTypeEnum = pgEnum('announcement_type', ['INFO', 'SUCCESS', 'WARNING', 'ERROR']);
 
 // Tables
@@ -151,8 +143,6 @@ export const usersTable = pgTable(
     email_verified: boolean().default(false).notNull(),
     password_login_disabled: boolean().default(false).notNull(),
     language: varchar({ length: 15 }).default('en').notNull(),
-    toast_position: userToastPositionEnum().default('BOTTOM_RIGHT').notNull(),
-    start_on_grouped_servers: boolean().default(false).notNull(),
     created: timestamp().defaultNow().notNull(),
   },
   (cols) => [

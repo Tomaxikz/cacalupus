@@ -10,8 +10,6 @@ export const dashboardAccountSchema = z.object({
   nameFirst: z.preprocess(nullableString, z.string().min(1).max(255).nullable()),
   nameLast: z.preprocess(nullableString, z.string().min(1).max(255).nullable()),
   language: z.string(),
-  toastPosition: z.enum(['top_left', 'top_center', 'top_right', 'bottom_left', 'bottom_center', 'bottom_right']),
-  startOnGroupedServers: z.boolean(),
 });
 
 export const dashboardEmailSchema = z.object({

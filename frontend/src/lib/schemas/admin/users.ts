@@ -1,6 +1,6 @@
 import { z } from 'zod';
 import { oAuthProviderSchema } from '@/lib/schemas/generic.ts';
-import { roleSchema, twoFactorMethod, userToastPosition } from '@/lib/schemas/user.ts';
+import { roleSchema, twoFactorMethod } from '@/lib/schemas/user.ts';
 import { nullableString } from '@/lib/transformers.ts';
 
 export const adminUserSchema = z.looseObject({
@@ -30,8 +30,6 @@ export const adminFullUserSchema = z.lazy(() =>
     emailVerified: z.boolean(),
     requireEmailVerification: z.boolean(),
     passwordLoginDisabled: z.boolean(),
-    toastPosition: z.lazy(() => userToastPosition),
-    startOnGroupedServers: z.boolean(),
     hasPassword: z.boolean(),
   }),
 );
