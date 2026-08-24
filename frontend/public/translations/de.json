@@ -1207,6 +1207,21 @@
                     }
                   }
                 },
+                "drag": {
+                  "blocked": {
+                    "alreadyInGroup": {
+                      "title": "Bereits in dieser Gruppe",
+                      "description": "Dieser Server ist bereits Teil von {group}."
+                    },
+                    "groupFull": {
+                      "title": "Gruppe ist voll",
+                      "description": "Eine Gruppe kann nicht mehr als {max} Server enthalten."
+                    }
+                  },
+                  "toast": {
+                    "moved": "Server nach {group} verschoben."
+                  }
+                },
                 "noGroups": "Es konnten keine Gruppen gefunden werden, Zeit eine zu erstellen?"
               }
             },

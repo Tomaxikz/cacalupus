@@ -1113,6 +1113,21 @@ const baseTranslations = defineTranslations({
                     },
                   },
                 },
+                drag: {
+                  blocked: {
+                    alreadyInGroup: {
+                      title: 'Already in this group',
+                      description: 'This server is already part of {group}.',
+                    },
+                    groupFull: {
+                      title: 'Group is full',
+                      description: 'A group cannot hold more than {max} servers.',
+                    },
+                  },
+                  toast: {
+                    moved: 'Server moved to {group}.',
+                  },
+                },
                 noGroups: 'No Groups could be found, time to create one?',
               },
             },
