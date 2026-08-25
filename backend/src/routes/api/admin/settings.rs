@@ -117,6 +117,10 @@ mod put {
         #[garde(skip)]
         max_backup_group_count: Option<u64>,
         #[garde(skip)]
+        max_firewall_rule_count: Option<u64>,
+        #[garde(skip)]
+        max_firewall_rule_source_count: Option<u64>,
+        #[garde(skip)]
         max_database_instance_database_count: Option<u64>,
         #[garde(skip)]
         max_database_instance_user_count: Option<u64>,
@@ -419,6 +423,12 @@ mod put {
             }
             if let Some(max_backup_group_count) = server.max_backup_group_count {
                 settings.server.max_backup_group_count = max_backup_group_count;
+            }
+            if let Some(max_firewall_rule_count) = server.max_firewall_rule_count {
+                settings.server.max_firewall_rule_count = max_firewall_rule_count;
+            }
+            if let Some(max_firewall_rule_source_count) = server.max_firewall_rule_source_count {
+                settings.server.max_firewall_rule_source_count = max_firewall_rule_source_count;
             }
             if let Some(max_database_instance_database_count) =
                 server.max_database_instance_database_count

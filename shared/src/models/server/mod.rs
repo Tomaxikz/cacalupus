@@ -18,6 +18,8 @@ use utoipa::ToSchema;
 mod events;
 pub use events::ServerEvent;
 
+pub mod firewall;
+
 pub type GetServer = crate::extract::ConsumingExtension<Server>;
 pub type GetServerActivityLogger = crate::extract::ConsumingExtension<ServerActivityLogger>;
 
@@ -1589,7 +1591,7 @@ impl Server {
         self,
         database: &crate::database::Database,
     ) -> Result<RemoteApiServer, anyhow::Error> {
-        let (variables, backups, schedules, mounts, allocations) = tokio::try_join!(
+        let (variables, backups, schedules, mounts, allocations, firewall_rules) = tokio::try_join!(
             sqlx::query!(
                 "SELECT nest_egg_variables.env_variable, COALESCE(server_variables.value, nest_egg_variables.default_value) AS value
                 FROM nest_egg_variables
@@ -1629,6 +1631,7 @@ impl Server {
                 self.uuid
             )
             .fetch_all(database.read()),
+            firewall::fetch_raw_rules(database, self.uuid),
         )?;
 
         let mut futures = Vec::new();
@@ -1750,6 +1753,10 @@ impl Server {
                         target: m.target.into(),
                         read_only: m.read_only,
                     })
+                    .collect(),
+                firewall: firewall::decode_rules(firewall_rules)?
+                    .into_iter()
+                    .map(Into::into)
                     .collect(),
                 egg: wings_api::ServerConfigurationEgg {
                     id: self.egg.uuid,

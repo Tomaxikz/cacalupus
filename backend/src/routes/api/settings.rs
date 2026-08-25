@@ -39,6 +39,8 @@ mod get {
         max_subuser_count: u64,
         max_schedule_step_count: u64,
         max_backup_group_count: u64,
+        max_firewall_rule_count: u64,
+        max_firewall_rule_source_count: u64,
         max_database_instance_database_count: u64,
         max_database_instance_user_count: u64,
 
@@ -117,6 +119,8 @@ mod get {
                 max_subuser_count: settings.server.max_subuser_count,
                 max_schedule_step_count: settings.server.max_schedule_step_count,
                 max_backup_group_count: settings.server.max_backup_group_count,
+                max_firewall_rule_count: settings.server.max_firewall_rule_count,
+                max_firewall_rule_source_count: settings.server.max_firewall_rule_source_count,
                 max_database_instance_database_count: settings
                     .server
                     .max_database_instance_database_count,

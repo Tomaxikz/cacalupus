@@ -1,19 +1,19 @@
 import { ContainerRegistry, Registry } from 'shared';
 import { z } from 'zod';
 import type { Props as ContainerProps } from '@/elements/containers/ServerContentContainer.tsx';
-import { serverAllocationSchema } from '@/lib/schemas/server/allocations.ts';
-import { ContextMenuRegistry } from '../../slices/contextMenu.ts';
+import { serverFirewallRuleSchema } from '@/lib/schemas/server/firewall.ts';
+import { ContextMenuRegistry } from '../../../slices/contextMenu.ts';
 
-export class NetworkRegistry implements Registry {
+export class FirewallRegistry implements Registry {
   public mergeFrom(other: this): this {
     this.container.mergeFrom(other.container);
-    this.allocationContextMenu.mergeFrom(other.allocationContextMenu);
+    this.ruleContextMenu.mergeFrom(other.ruleContextMenu);
 
     return this;
   }
 
   public container: ContainerRegistry<ContainerProps> = new ContainerRegistry();
-  public allocationContextMenu: ContextMenuRegistry<{ allocation: z.infer<typeof serverAllocationSchema> }> =
+  public ruleContextMenu: ContextMenuRegistry<{ rule: z.infer<typeof serverFirewallRuleSchema>; position: number }> =
     new ContextMenuRegistry();
 
   public enterContainer(callback: (registry: ContainerRegistry<ContainerProps>) => unknown): this {
@@ -21,10 +21,12 @@ export class NetworkRegistry implements Registry {
     return this;
   }
 
-  public enterAllocationContextMenu(
-    callback: (registry: ContextMenuRegistry<{ allocation: z.infer<typeof serverAllocationSchema> }>) => unknown,
+  public enterRuleContextMenu(
+    callback: (
+      registry: ContextMenuRegistry<{ rule: z.infer<typeof serverFirewallRuleSchema>; position: number }>,
+    ) => unknown,
   ): this {
-    callback(this.allocationContextMenu);
+    callback(this.ruleContextMenu);
     return this;
   }
 }

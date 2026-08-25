@@ -66,6 +66,8 @@ export const publicSettingsSchema = z.object({
     maxSubuserCount: z.number(),
     maxScheduleStepCount: z.number(),
     maxBackupGroupCount: z.number(),
+    maxFirewallRuleCount: z.number(),
+    maxFirewallRuleSourceCount: z.number(),
     maxDatabaseInstanceDatabaseCount: z.number(),
     maxDatabaseInstanceUserCount: z.number(),
     allowOverwritingCustomDockerImage: z.boolean(),

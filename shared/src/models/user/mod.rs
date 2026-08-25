@@ -893,6 +893,11 @@ impl IntoAdminApiObject for User {
     }
 }
 
+#[inline]
+fn default_true() -> bool {
+    true
+}
+
 #[derive(ToSchema, Deserialize, Validate)]
 pub struct CreateUserOptions {
     #[garde(skip)]
@@ -927,6 +932,9 @@ pub struct CreateUserOptions {
     #[garde(skip)]
     #[serde(default)]
     pub suspended: bool,
+    #[garde(skip)]
+    #[serde(default = "default_true")]
+    pub verify_email: bool,
     #[garde(skip)]
     #[serde(default)]
     pub send_email: bool,
@@ -984,6 +992,7 @@ impl CreatableModel for User {
             .set("admin", options.admin)
             .set("frozen", options.frozen)
             .set("suspended", options.suspended)
+            .set("email_verified", options.verify_email)
             .set("language", &options.language);
 
         let row = query_builder

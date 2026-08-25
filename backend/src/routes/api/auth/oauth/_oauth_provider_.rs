@@ -429,6 +429,7 @@ pub fn router(state: &State) -> OpenApiRouter<State> {
                             admin: false,
                             frozen: false,
                             suspended: false,
+                            verify_email: false,
                             send_email: false,
                             language: settings.app.language.clone(),
                         };

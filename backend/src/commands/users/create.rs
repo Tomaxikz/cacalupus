@@ -139,6 +139,7 @@ impl shared::extensions::commands::CliCommand<CreateArgs> for CreateCommand {
                     admin,
                     frozen: false,
                     suspended: false,
+                    verify_email: true,
                     send_email: false,
                     language: settings.app.language.clone(),
                 };

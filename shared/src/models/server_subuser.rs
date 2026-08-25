@@ -260,6 +260,7 @@ impl CreatableModel for ServerSubuser {
                     admin: false,
                     frozen: false,
                     suspended: false,
+                    verify_email: false,
                     send_email: true,
                     language: app_settings.app.language.clone(),
                 };

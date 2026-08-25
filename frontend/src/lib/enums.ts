@@ -45,6 +45,7 @@ import {
   faRightLeft,
   faScroll,
   faServer,
+  faShieldHalved,
   faSkull,
   faStopwatch,
   faTerminal,
@@ -71,6 +72,7 @@ import {
 import { serverDatabaseInstanceUserPermission } from '@/lib/schemas/server/databaseInstances.ts';
 import { serverDatabaseFilterOperator } from '@/lib/schemas/server/databases.ts';
 import { archiveFormat, compressionLevel, fingerprintAlgorithm } from '@/lib/schemas/server/files.ts';
+import { serverFirewallRuleAction, serverFirewallRuleProtocol } from '@/lib/schemas/server/firewall.ts';
 import {
   serverScheduleComparator,
   serverScheduleConditionSchema,
@@ -431,6 +433,21 @@ export const serverBackupStatusLabelMapping: Record<z.infer<typeof serverBackupS
   failed: () => getTranslations().t('common.enum.serverBackupStatus.failed', {}),
 };
 
+export const serverFirewallRuleActionLabelMapping: Record<z.infer<typeof serverFirewallRuleAction>, () => string> = {
+  allow: () => getTranslations().t('common.enum.serverFirewallRuleAction.allow', {}),
+  deny: () => getTranslations().t('common.enum.serverFirewallRuleAction.deny', {}),
+};
+
+export const serverFirewallRuleActionColorMapping: Record<z.infer<typeof serverFirewallRuleAction>, string> = {
+  allow: 'green',
+  deny: 'red',
+};
+
+export const serverFirewallRuleProtocolLabelMapping: Record<z.infer<typeof serverFirewallRuleProtocol>, string> = {
+  tcp: 'TCP',
+  udp: 'UDP',
+};
+
 export const scheduleHttpMethodLabelMapping: Record<string, string> = {
   get: 'GET',
   post: 'POST',
@@ -782,6 +799,7 @@ export const permissionCategoryIconMapping: Record<string, IconDefinition> = {
   assets: faFolderOpen,
   extensions: faPuzzlePiece,
   files: faFolderOpen,
+  firewall: faShieldHalved,
   locations: faEarthAmerica,
   mounts: faFolder,
   nests: faKiwiBird,

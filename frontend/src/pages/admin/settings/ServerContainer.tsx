@@ -34,6 +34,8 @@ export default function ServerContainer() {
       maxSubuserCount: 0,
       maxScheduleStepCount: 0,
       maxBackupGroupCount: 0,
+      maxFirewallRuleCount: 0,
+      maxFirewallRuleSourceCount: 0,
       maxDatabaseInstanceDatabaseCount: 0,
       maxDatabaseInstanceUserCount: 0,
       allowOverwritingCustomDockerImage: false,
@@ -80,6 +82,18 @@ export default function ServerContainer() {
       type: 'number',
       name: 'maxScheduleStepCount',
       label: t('pages.admin.settings.tabs.server.page.form.maxScheduleStepCount', {}),
+      required: true,
+    },
+    {
+      type: 'number',
+      name: 'maxFirewallRuleCount',
+      label: t('pages.admin.settings.tabs.server.page.form.maxFirewallRuleCount', {}),
+      required: true,
+    },
+    {
+      type: 'number',
+      name: 'maxFirewallRuleSourceCount',
+      label: t('pages.admin.settings.tabs.server.page.form.maxFirewallRuleSourceCount', {}),
       required: true,
     },
     {

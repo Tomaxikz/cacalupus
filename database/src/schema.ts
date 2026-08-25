@@ -1034,6 +1034,14 @@ export const serverAllocationsTable = pgTable(
   ],
 );
 
+export const serverFirewallsTable = pgTable('server_firewalls', {
+  server_uuid: uuid()
+    .references(() => serversTable.uuid, { onDelete: 'cascade' })
+    .primaryKey()
+    .notNull(),
+  rules: jsonb().notNull(),
+});
+
 export const serverSubusersTable = pgTable(
   'server_subusers',
   {

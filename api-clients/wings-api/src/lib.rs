@@ -179,6 +179,47 @@ nestify::nest! {
     }
 }
 
+#[derive(Debug, ToSchema, Deserialize, Serialize, Clone, Copy)]
+pub enum FirewallBackendKind {
+    #[serde(rename = "auto")]
+    Auto,
+    #[serde(rename = "nftables")]
+    Nftables,
+    #[serde(rename = "iptables")]
+    Iptables,
+    #[serde(rename = "disabled")]
+    Disabled,
+}
+
+nestify::nest! {
+    #[derive(Debug, ToSchema, Deserialize, Serialize, Clone)] pub struct FirewallRule {
+        #[schema(inline)]
+        pub action: FirewallRuleAction,
+        #[schema(inline)]
+        pub protocols: Vec<FirewallRuleProtocol>,
+        #[schema(inline)]
+        pub sources: Vec<compact_str::CompactString>,
+        #[schema(inline)]
+        pub ports: Option<Vec<u32>>,
+    }
+}
+
+#[derive(Debug, ToSchema, Deserialize, Serialize, Clone, Copy)]
+pub enum FirewallRuleAction {
+    #[serde(rename = "allow")]
+    Allow,
+    #[serde(rename = "deny")]
+    Deny,
+}
+
+#[derive(Debug, ToSchema, Deserialize, Serialize, Clone, Copy)]
+pub enum FirewallRuleProtocol {
+    #[serde(rename = "tcp")]
+    Tcp,
+    #[serde(rename = "udp")]
+    Udp,
+}
+
 nestify::nest! {
     #[derive(Debug, ToSchema, Deserialize, Serialize, Clone)] pub struct InstallationScript {
         #[schema(inline)]
@@ -421,6 +462,8 @@ nestify::nest! {
 
         #[schema(inline)]
         pub mounts: Vec<Mount>,
+        #[schema(inline)]
+        pub firewall: Vec<FirewallRule>,
         #[schema(inline)]
         pub egg: #[derive(Debug, ToSchema, Deserialize, Serialize, Clone)] pub struct ServerConfigurationEgg {
             #[schema(inline)]
@@ -2791,6 +2834,12 @@ pub mod system_config {
 
                         },
 
+                    },
+
+                    #[schema(inline)]
+                    pub firewall: #[derive(Debug, ToSchema, Deserialize, Serialize, Clone)] pub struct Response200DockerFirewall {
+                        #[schema(inline)]
+                        pub backend: FirewallBackendKind,
                     },
 
                     #[schema(inline)]

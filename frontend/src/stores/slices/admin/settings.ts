@@ -48,6 +48,8 @@ export const createSettingsSlice: StateCreator<AdminStore, [], [], SettingsSlice
     maxSubuserCount: 25,
     maxScheduleStepCount: 50,
     maxBackupGroupCount: 10,
+    maxFirewallRuleCount: 100,
+    maxFirewallRuleSourceCount: 50,
     maxDatabaseInstanceDatabaseCount: 10,
     maxDatabaseInstanceUserCount: 10,
     allowOverwritingCustomDockerImage: true,

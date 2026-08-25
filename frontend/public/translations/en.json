@@ -497,6 +497,10 @@
           "finished": "Finished",
           "failed": "Failed"
         },
+        "serverFirewallRuleAction": {
+          "allow": "Allow",
+          "deny": "Deny"
+        },
         "connectionStatus": {
           "connected": "Connected",
           "offline": "Offline"
@@ -2077,6 +2081,8 @@
                 "form": {
                   "maxFileManagerViewSize": "Max File Manager View Size",
                   "maxScheduleStepCount": "Max Schedule Steps",
+                  "maxFirewallRuleCount": "Max Firewall Rules",
+                  "maxFirewallRuleSourceCount": "Max Firewall Rule Sources",
                   "maxFileManagerContentSearchSize": "Max File Manager Content Search Size",
                   "maxFileManagerSearchResults": "Max File Manager Search Results",
                   "maxSubuserCount": "Max Subuser Count",
@@ -6191,6 +6197,9 @@
         "network": {
           "title": "Network",
           "subtitle": "{current} of {max} maximum allocations assigned.",
+          "allocations": {
+            "title": "Allocations"
+          },
           "tooltip": {
             "limitReached": "This server is limited to {max} allocations."
           },
@@ -6211,6 +6220,70 @@
             "removeAllocation": {
               "title": "Confirm Allocation Removal",
               "content": "Are you sure you want to remove **{allocation}** from this server?"
+            }
+          }
+        },
+        "firewall": {
+          "title": "Firewall",
+          "subtitle": "Rules are checked from top to bottom, the first one that matches decides.",
+          "empty": {
+            "title": "No Firewall Rules",
+            "description": "Every connection to this server's allocations is allowed. Add a rule to start restricting who can reach it.",
+            "descriptionReadOnly": "Every connection to this server's allocations is allowed."
+          },
+          "button": {
+            "createFirstRule": "Create Rule",
+            "addRule": "Add Rule",
+            "addDenyAll": "Deny Everything Else"
+          },
+          "tooltip": {
+            "limitReached": "This server is limited to {max} firewall rules."
+          },
+          "rule": {
+            "anySource": "any source",
+            "anyProtocol": "TCP & UDP",
+            "allAllocations": "all allocations",
+            "summary": "{protocols} from {sources} to {ports}",
+            "aria": {
+              "reorder": "Reorder firewall rule {position}"
+            }
+          },
+          "alert": {
+            "fallthrough": "Traffic that matches none of these rules is **allowed**. Add a deny rule at the bottom that matches everything to turn this into a default deny firewall.",
+            "notEnforced": "This node will not enforce firewall rules. Rules are saved but have no effect, and **this server may refuse to start while any are configured.**",
+            "unallocatedPorts": "These rules reference ports that are not allocated to this server: **{ports}**. The node ignores them until matching allocations exist.",
+            "limitations": "Rules cover traffic reaching this server from elsewhere, both through its published ports and directly on its container address. Connections opened by the node itself are not filtered.",
+            "shadowed": "Rule {position} can never match, an earlier rule already covers everything it does.",
+            "unsaved": "You have unsaved changes. Nothing is applied until you save."
+          },
+          "form": {
+            "action": "Action",
+            "protocols": "Protocols",
+            "protocolsDescription": "Leave empty to match both TCP and UDP.",
+            "anyProtocol": "TCP & UDP",
+            "sources": "Sources",
+            "sourcesDescription": "IP addresses or networks such as 10.0.0.0/8. A network must have its host bits zeroed. Leave empty to match any source.",
+            "ports": "Ports",
+            "portsDescription": "Allocation ports this rule applies to, ranges like 25565-25570 are expanded. Leave empty to match every allocation of the server.",
+            "invalidSource": "{source} is not a valid IP address or network."
+          },
+          "toast": {
+            "saved": "Firewall rules saved."
+          },
+          "modal": {
+            "unsavedChanges": {
+              "title": "Unsaved Changes",
+              "content": "You have unsaved firewall rules. Leaving this page now discards them."
+            },
+            "createRule": {
+              "title": "Create Firewall Rule"
+            },
+            "editRule": {
+              "title": "Edit Firewall Rule"
+            },
+            "removeRule": {
+              "title": "Confirm Rule Removal",
+              "content": "Are you sure you want to remove this firewall rule?"
             }
           }
         },

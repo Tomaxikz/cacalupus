@@ -23,6 +23,7 @@ mod backups;
 mod command;
 mod databases;
 mod files;
+mod firewall;
 mod logs;
 mod mounts;
 mod power;
@@ -163,6 +164,7 @@ pub fn router(state: &State) -> OpenApiRouter<State> {
         .nest("/subusers", subusers::router(state))
         .nest("/backups", backups::router(state))
         .nest("/allocations", allocations::router(state))
+        .nest("/firewall", firewall::router(state))
         .nest("/databases", databases::router(state))
         .nest("/mounts", mounts::router(state))
         .nest("/schedules", schedules::router(state))

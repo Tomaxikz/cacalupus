@@ -176,6 +176,7 @@
         "enable": "Aktivieren",
         "disable": "Deaktivieren",
         "disableTwoFactor": "Zwei-Faktor deaktivieren",
+        "verify": "Verifizieren",
         "update": "Aktualisieren",
         "close": "Schließen",
         "cancel": "Abbrechen",
@@ -209,8 +210,7 @@
         "unsetPrimary": "Als primär entfernen",
         "leavePage": "Seite verlassen",
         "viewDocumentation": "Dokumentation ansehen",
-        "undo": "Rückgängig",
-        "verify": "Verifizieren"
+        "undo": "Rückgängig"
       },
       "alert": {
         "error": "Fehler",
@@ -495,6 +495,10 @@
           "starting": "Startet",
           "finished": "Abgeschlossen",
           "failed": "Fehlgeschlagen"
+        },
+        "serverFirewallRuleAction": {
+          "allow": "Erlauben",
+          "deny": "Verweigern"
         },
         "connectionStatus": {
           "connected": "Verbunden",
@@ -1096,13 +1100,6 @@
                 "useTotp": "TOTP verwenden"
               }
             },
-            "totpRecovery": {
-              "subtitle": "Gib einen Wiederherstellungscode ein",
-              "form": {
-                "label": "Wiederherstellungscode",
-                "placeholder": "Gib einen Wiederherstellungscode ein"
-              }
-            },
             "email": {
               "subtitle": "Wir können dir einen Einmalcode per E-Mail senden, um die Anmeldung abzuschließen.",
               "enterCode": "Gib den 6-stelligen Code ein, den wir an deine E-Mail-Adresse gesendet haben",
@@ -1111,6 +1108,13 @@
                 "sendCode": "Code senden",
                 "resend": "Code erneut senden",
                 "resendIn": "Code erneut senden ({seconds}s)"
+              }
+            },
+            "totpRecovery": {
+              "subtitle": "Gib einen Wiederherstellungscode ein",
+              "form": {
+                "label": "Wiederherstellungscode",
+                "placeholder": "Gib einen Wiederherstellungscode ein"
               }
             }
           }
@@ -1130,6 +1134,14 @@
           },
           "success": "Eine E-Mail mit Anweisungen zum Zurücksetzen deines Passworts wurde an dich gesendet."
         },
+        "verifyEmail": {
+          "title": "E-Mail bestätigen",
+          "success": "Deine E-Mail-Adresse **{email}** wurde bestätigt.",
+          "failed": "Dieser Bestätigungslink ist ungültig oder abgelaufen. Fordere einen neuen an und versuche es erneut.",
+          "button": {
+            "continue": "Weiter"
+          }
+        },
         "resetPassword": {
           "title": "Passwort zurücksetzen",
           "subtitle": "Bitte gib dein neues Passwort ein",
@@ -1143,14 +1155,6 @@
         "oauth": {
           "title": "Mit OAuth authentifizieren",
           "subtitle": "Wähle einen der unten stehenden Anbieter, um dich anzumelden"
-        },
-        "verifyEmail": {
-          "title": "E-Mail bestätigen",
-          "success": "Deine E-Mail-Adresse **{email}** wurde bestätigt.",
-          "failed": "Dieser Bestätigungslink ist ungültig oder abgelaufen. Fordere einen neuen an und versuche es erneut.",
-          "button": {
-            "continue": "Weiter"
-          }
         }
       },
       "account": {
@@ -1262,10 +1266,6 @@
               "title": "Zwei-Faktor-Authentifizierung erforderlich",
               "description": "Zwei-Faktor-Authentifizierung ist für deinen Account erforderlich. Bitte richte sie unten ein, um das Panel weiter nutzen zu können."
             },
-            "frozen": {
-              "title": "Account eingefroren",
-              "description": "Dein Account wurde eingefroren. Du kannst keine Änderungen an deinem Account vornehmen, bis er wieder freigegeben wird. Bitte kontaktiere einen Administrator für weitere Informationen."
-            },
             "verifyEmail": {
               "title": "E-Mail-Bestätigung erforderlich",
               "description": "Bitte bestätige **{email}**, um das Panel weiter zu nutzen. Der Bestätigungslink liegt in deinem Postfach.",
@@ -1273,6 +1273,10 @@
               "button": {
                 "resend": "Bestätigungs-E-Mail erneut senden"
               }
+            },
+            "frozen": {
+              "title": "Account eingefroren",
+              "description": "Dein Account wurde eingefroren. Du kannst keine Änderungen an deinem Account vornehmen, bis er wieder freigegeben wird. Bitte kontaktiere einen Administrator für weitere Informationen."
             }
           },
           "containers": {
@@ -1333,30 +1337,6 @@
                 "email": "E-Mail"
               }
             },
-            "account": {
-              "title": "Account-Details",
-              "toast": {
-                "updated": "Account-Details erfolgreich aktualisiert."
-              }
-            },
-            "preferences": {
-              "title": "Einstellungen",
-              "form": {
-                "toastPosition": "Toast-Position",
-                "startOnGroupedServers": "Auf der Seite 'Gruppierte Server' starten"
-              }
-            },
-            "avatar": {
-              "title": "Avatar",
-              "toast": {
-                "updated": "Avatar erfolgreich aktualisiert.",
-                "removed": "Avatar erfolgreich entfernt.",
-                "loadFailed": "Bildvorschau konnte nicht geladen werden. Bitte stellen Sie sicher, dass die Datei ein gültiges Bild ist."
-              },
-              "form": {
-                "avatar": "Avatar"
-              }
-            },
             "emailTwoFactor": {
               "toast": {
                 "disabled": "E-Mail-Zwei-Faktor erfolgreich deaktiviert."
@@ -1391,6 +1371,30 @@
                   "title": "Passwort-Anmeldung aktivieren",
                   "description": "Dein Passwort kann dich wieder anmelden."
                 }
+              }
+            },
+            "account": {
+              "title": "Account-Details",
+              "toast": {
+                "updated": "Account-Details erfolgreich aktualisiert."
+              }
+            },
+            "preferences": {
+              "title": "Einstellungen",
+              "form": {
+                "toastPosition": "Toast-Position",
+                "startOnGroupedServers": "Auf der Seite 'Gruppierte Server' starten"
+              }
+            },
+            "avatar": {
+              "title": "Avatar",
+              "toast": {
+                "updated": "Avatar erfolgreich aktualisiert.",
+                "removed": "Avatar erfolgreich entfernt.",
+                "loadFailed": "Bildvorschau konnte nicht geladen werden. Bitte stellen Sie sicher, dass die Datei ein gültiges Bild ist."
+              },
+              "form": {
+                "avatar": "Avatar"
               }
             }
           }
@@ -1863,26 +1867,26 @@
                   "sessionCookie": "Session-Cookie",
                   "sessionDurationSeconds": "Sitzungsdauer (Sekunden)",
                   "twoFactorRequirement": "Zwei-Faktor-Authentifizierung-Anforderung",
-                  "telemetryEnabled": "Telemetrie aktivieren",
-                  "telemetryEnabledDescription": "Erlaube Calagopus, begrenzte und anonyme Nutzungsdaten zu sammeln, um die Anwendung zu verbessern.",
-                  "registrationEnabled": "Registrierung aktivieren",
                   "emailTwoFactorEnabled": "E-Mail-Zwei-Faktor",
                   "emailTwoFactorEnabledDescription": "Erlaubt Benutzern, einen einmaligen Anmeldecode per E-Mail zu erhalten. Erfordert einen konfigurierten Mail-Transport.",
+                  "twoFactorAcceptedMethods": "Akzeptierte Zwei-Faktor-Methoden",
+                  "twoFactorAcceptedMethodsDescription": "Welche eingerichteten Faktoren zur Zwei-Faktor-Anforderung zählen. E-Mail ist standardmäßig aus: Passwort-Zurücksetzungen laufen ebenfalls über E-Mail, sie ist also nicht unabhängig vom Passwort.",
                   "emailVerificationRequired": "E-Mail-Bestätigung erforderlich",
                   "emailVerificationRequiredDescription": "Neue Benutzer müssen ihre E-Mail-Adresse bestätigen, bevor sie das Panel nutzen können. Erfordert einen konfigurierten Mail-Transport.",
-                  "twoFactorAcceptedMethods": "Akzeptierte Zwei-Faktor-Methoden",
-                  "twoFactorAcceptedMethodsDescription": "Welche eingerichteten Faktoren zur Zwei-Faktor-Anforderung zählen. E-Mail ist standardmäßig aus: Passwort-Zurücksetzungen laufen ebenfalls über E-Mail, sie ist also nicht unabhängig vom Passwort."
+                  "telemetryEnabled": "Telemetrie aktivieren",
+                  "telemetryEnabledDescription": "Erlaube Calagopus, begrenzte und anonyme Nutzungsdaten zu sammeln, um die Anwendung zu verbessern.",
+                  "registrationEnabled": "Registrierung aktivieren"
                 },
                 "enum": {
-                  "twoFactorRequirement": {
-                    "admins": "Admins",
-                    "allUsers": "Alle Benutzer",
-                    "none": "Keine"
-                  },
                   "twoFactorMethod": {
                     "totp": "Authenticator-App (TOTP)",
                     "securityKey": "Sicherheitsschlüssel",
                     "email": "E-Mail"
+                  },
+                  "twoFactorRequirement": {
+                    "admins": "Admins",
+                    "allUsers": "Alle Benutzer",
+                    "none": "Keine"
                   }
                 },
                 "button": {
@@ -2062,6 +2066,8 @@
                 "form": {
                   "maxFileManagerViewSize": "Max. Anzeigegröße im Dateimanager",
                   "maxScheduleStepCount": "Max. Zeitplan-Schritte",
+                  "maxFirewallRuleCount": "Max. Firewall-Regeln",
+                  "maxFirewallRuleSourceCount": "Max. Quellen pro Firewall-Regel",
                   "maxFileManagerContentSearchSize": "Max. Inhaltssuchgröße im Dateimanager",
                   "maxFileManagerSearchResults": "Max. Suchergebnisse im Dateimanager",
                   "maxSubuserCount": "Max. Anzahl Subbenutzer",
@@ -2372,8 +2378,8 @@
                 },
                 "button": {
                   "sendPasswordResetEmail": "Passwort-Zurücksetzungs-E-Mail senden",
-                  "impersonate": "Impersonieren",
-                  "verifyEmail": "E-Mail als bestätigt markieren"
+                  "verifyEmail": "E-Mail als bestätigt markieren",
+                  "impersonate": "Impersonieren"
                 },
                 "form": {
                   "admin": "Administrator",
@@ -2389,6 +2395,13 @@
                     "title": "Benutzerlöschung bestätigen",
                     "content": "Bist du sicher, dass du **{username}** löschen möchtest?"
                   },
+                  "verifyEmail": {
+                    "title": "E-Mail als bestätigt markieren",
+                    "content": "Möchtest du **{email}** wirklich ohne Bestätigung als verifiziert markieren?",
+                    "toast": {
+                      "verified": "E-Mail als bestätigt markiert."
+                    }
+                  },
                   "disableTwoFactor": {
                     "title": "Zwei-Faktor des Benutzers deaktivieren",
                     "content": "Bist du sicher, dass du den Zwei-Faktor von **{username}** entfernen möchtest?",
@@ -2401,13 +2414,6 @@
                     "content": "Bist du sicher, dass du eine Passwort-Zurücksetzungs-E-Mail an **{email}** senden möchtest?",
                     "toast": {
                       "sent": "Passwort-Zurücksetzungs-E-Mail gesendet."
-                    }
-                  },
-                  "verifyEmail": {
-                    "title": "E-Mail als bestätigt markieren",
-                    "content": "Möchtest du **{email}** wirklich ohne Bestätigung als verifiziert markieren?",
-                    "toast": {
-                      "verified": "E-Mail als bestätigt markiert."
                     }
                   }
                 },
@@ -6172,6 +6178,9 @@
         "network": {
           "title": "Netzwerk",
           "subtitle": "{current} von maximal {max} Allocations zugewiesen.",
+          "allocations": {
+            "title": "Allocations"
+          },
           "tooltip": {
             "limitReached": "Dieser Server ist auf {max} Allocations limitiert."
           },
@@ -6192,6 +6201,70 @@
             "removeAllocation": {
               "title": "Entfernen der Allocation bestätigen",
               "content": "Bist du sicher, dass du **{allocation}** von diesem Server entfernen möchtest?"
+            }
+          }
+        },
+        "firewall": {
+          "title": "Firewall",
+          "subtitle": "Regeln werden von oben nach unten geprüft, die erste zutreffende Regel entscheidet.",
+          "empty": {
+            "title": "Keine Firewall-Regeln",
+            "description": "Jede Verbindung zu den Allocations dieses Servers ist erlaubt. Füge eine Regel hinzu, um den Zugriff einzuschränken.",
+            "descriptionReadOnly": "Jede Verbindung zu den Allocations dieses Servers ist erlaubt."
+          },
+          "button": {
+            "createFirstRule": "Regel erstellen",
+            "addRule": "Regel hinzufügen",
+            "addDenyAll": "Alles andere verweigern"
+          },
+          "tooltip": {
+            "limitReached": "Dieser Server ist auf {max} Firewall-Regeln limitiert."
+          },
+          "rule": {
+            "anySource": "beliebiger Quelle",
+            "anyProtocol": "TCP & UDP",
+            "allAllocations": "allen Allocations",
+            "summary": "{protocols} von {sources} an {ports}",
+            "aria": {
+              "reorder": "Firewall-Regel {position} verschieben"
+            }
+          },
+          "alert": {
+            "fallthrough": "Datenverkehr, der auf keine dieser Regeln zutrifft, wird **erlaubt**. Füge unten eine Verweigern-Regel hinzu, die auf alles zutrifft, um standardmäßig alles zu blockieren.",
+            "notEnforced": "Diese Node wird keine Firewall-Regeln durchsetzen. Regeln werden gespeichert, haben aber keine Wirkung, und **dieser Server startet möglicherweise nicht, solange Regeln konfiguriert sind.**",
+            "unallocatedPorts": "Diese Regeln verweisen auf Ports, die diesem Server nicht zugewiesen sind: **{ports}**. Die Node ignoriert sie, bis passende Zuweisungen existieren.",
+            "limitations": "Regeln gelten für Datenverkehr, der diesen Server von außerhalb erreicht, sowohl über seine veröffentlichten Ports als auch direkt über seine Container-Adresse. Verbindungen, die von der Node selbst aufgebaut werden, werden nicht gefiltert.",
+            "shadowed": "Regel {position} kann nie zutreffen, eine frühere Regel deckt bereits alles ab.",
+            "unsaved": "Du hast ungespeicherte Änderungen. Nichts wird angewendet, bevor du speicherst."
+          },
+          "form": {
+            "action": "Aktion",
+            "protocols": "Protokolle",
+            "protocolsDescription": "Leer lassen, um sowohl TCP als auch UDP zu erfassen.",
+            "anyProtocol": "TCP & UDP",
+            "sources": "Quellen",
+            "sourcesDescription": "IP-Adressen oder Netzwerke wie 10.0.0.0/8. Bei einem Netzwerk müssen die Host-Bits null sein. Leer lassen, um jede Quelle zu treffen.",
+            "ports": "Ports",
+            "portsDescription": "Allocation-Ports, für die diese Regel gilt, Bereiche wie 25565-25570 werden aufgelöst. Leer lassen, um alle Allocations des Servers zu treffen.",
+            "invalidSource": "{source} ist keine gültige IP-Adresse und kein gültiges Netzwerk."
+          },
+          "toast": {
+            "saved": "Firewall-Regeln gespeichert."
+          },
+          "modal": {
+            "unsavedChanges": {
+              "title": "Ungespeicherte Änderungen",
+              "content": "Du hast ungespeicherte Firewall-Regeln. Wenn du die Seite jetzt verlässt, gehen sie verloren."
+            },
+            "createRule": {
+              "title": "Firewall-Regel erstellen"
+            },
+            "editRule": {
+              "title": "Firewall-Regel bearbeiten"
+            },
+            "removeRule": {
+              "title": "Regelentfernung bestätigen",
+              "content": "Bist du sicher, dass du diese Firewall-Regel entfernen möchtest?"
             }
           }
         },

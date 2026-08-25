@@ -736,6 +736,19 @@ pub(crate) static BASE_SERVER_PERMISSIONS: LazyLock<IndexMap<&'static str, Permi
                 },
             ),
             (
+                "firewall",
+                PermissionGroup {
+                    description: "Permissions that control the ability to restrict which sources may reach this server's allocations.",
+                    permissions: IndexMap::from([
+                        ("read", "Allows viewing the firewall rules of the server."),
+                        (
+                            "update",
+                            "Allows adding, reordering, modifying and removing firewall rules.",
+                        ),
+                    ]),
+                },
+            ),
+            (
                 "startup",
                 PermissionGroup {
                     description: "Permissions that control the ability to view and modify this server's startup parameters.",
