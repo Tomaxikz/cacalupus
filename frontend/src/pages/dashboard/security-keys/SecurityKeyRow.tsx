@@ -1,21 +1,13 @@
 import { faPencil, faTrash } from '@fortawesome/free-solid-svg-icons';
-import { useQueryClient } from '@tanstack/react-query';
 import { useState } from 'react';
 import { z } from 'zod';
-import { httpErrorToHuman } from '@/api/axios.ts';
-import deleteSecurityKey from '@/api/me/security-keys/deleteSecurityKey.ts';
 import Code from '@/elements/Code.tsx';
 import ContextMenu, { ContextMenuToggle } from '@/elements/ContextMenu.tsx';
-import ConfirmationModal from '@/elements/modals/ConfirmationModal.tsx';
 import { TableData, TableRow } from '@/elements/Table.tsx';
 import FormattedTimestamp from '@/elements/time/FormattedTimestamp.tsx';
-import { queryKeys } from '@/lib/queryKeys.ts';
 import { userSecurityKeySchema } from '@/lib/schemas/user/securityKeys.ts';
-import { withTwoFactorMethod } from '@/lib/twoFactor.ts';
-import { useAuth } from '@/providers/AuthProvider.tsx';
-import { useToast } from '@/providers/ToastProvider.tsx';
 import { useTranslations } from '@/providers/TranslationProvider.tsx';
-import { useGlobalStore } from '@/stores/global.ts';
+import SecurityKeyDeleteModal from './modals/SecurityKeyDeleteModal.tsx';
 import SecurityKeyEditModal from './modals/SecurityKeyEditModal.tsx';
 
 export default function SecurityKeyRow({
@@ -26,27 +18,8 @@ export default function SecurityKeyRow({
   total: number;
 }) {
   const { t } = useTranslations();
-  const { addToast } = useToast();
-  const queryClient = useQueryClient();
-  const { user, setUser } = useAuth();
-  const twoFactorAcceptedMethods = useGlobalStore((state) => state.settings.app.twoFactorAcceptedMethods);
 
   const [openModal, setOpenModal] = useState<'edit' | 'delete' | null>(null);
-
-  const doDelete = async () => {
-    await deleteSecurityKey(securityKey.uuid)
-      .then(() => {
-        setOpenModal(null);
-        if (total <= 1) {
-          setUser(withTwoFactorMethod(user!, twoFactorAcceptedMethods, 'security_key', false));
-        }
-        queryClient.invalidateQueries({ queryKey: queryKeys.user.securityKeys.all() });
-        addToast(t('pages.account.securityKeys.modal.deleteSecurityKey.toast.deleted', {}), 'success');
-      })
-      .catch((msg) => {
-        addToast(httpErrorToHuman(msg), 'error');
-      });
-  };
 
   return (
     <>
@@ -56,17 +29,12 @@ export default function SecurityKeyRow({
         onClose={() => setOpenModal(null)}
       />
 
-      <ConfirmationModal
+      <SecurityKeyDeleteModal
+        securityKey={securityKey}
+        total={total}
         opened={openModal === 'delete'}
         onClose={() => setOpenModal(null)}
-        title={t('pages.account.securityKeys.modal.deleteSecurityKey.title', {})}
-        confirm={t('common.button.delete', {})}
-        onConfirmed={doDelete}
-      >
-        {t('pages.account.securityKeys.modal.deleteSecurityKey.content', {
-          key: securityKey.name,
-        }).md()}
-      </ConfirmationModal>
+      />
 
       <ContextMenu
         items={[

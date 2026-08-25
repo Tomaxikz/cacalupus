@@ -7,6 +7,7 @@ import createSecurityKey from '@/api/me/security-keys/createSecurityKey.ts';
 import deleteSecurityKey from '@/api/me/security-keys/deleteSecurityKey.ts';
 import postSecurityKeyChallenge from '@/api/me/security-keys/postSecurityKeyChallenge.ts';
 import Button from '@/elements/Button.tsx';
+import PasswordInput from '@/elements/input/PasswordInput.tsx';
 import Switch from '@/elements/input/Switch.tsx';
 import TextInput from '@/elements/input/TextInput.tsx';
 import FormModal from '@/elements/modals/FormModal.tsx';
@@ -34,11 +35,21 @@ export default function SecurityKeyCreateModal({ ...props }: ModalProps) {
     initialValues: {
       name: '',
       allowUsernamelessLogin: settings.webauthn?.allowDiscoverable !== false,
+      password: '',
     },
-    validate: zod4Resolver(userSecurityKeyCreateSchema),
+    validate: zod4Resolver(
+      userSecurityKeyCreateSchema.extend({
+        password: user?.hasPassword
+          ? z.string().min(1, t('common.form.passwordRequired', {})).max(512)
+          : z.string().max(512),
+      }),
+    ),
     onClose: props.onClose,
     onSubmit: async (values) => {
-      const [key, options] = await createSecurityKey(values);
+      const [key, options] = await createSecurityKey({
+        ...values,
+        password: user?.hasPassword ? values.password : 'aaa',
+      });
 
       let credential: Credential | null;
       try {
@@ -68,7 +79,7 @@ export default function SecurityKeyCreateModal({ ...props }: ModalProps) {
         }
 
         addToast(message, 'error');
-        deleteSecurityKey(key.uuid);
+        deleteSecurityKey(key.uuid).catch(() => null);
         return;
       }
 
@@ -82,7 +93,7 @@ export default function SecurityKeyCreateModal({ ...props }: ModalProps) {
       } catch (error) {
         console.error(error);
         addToast(httpErrorToHuman(error), 'error');
-        deleteSecurityKey(key.uuid);
+        deleteSecurityKey(key.uuid).catch(() => null);
       }
     },
   });
@@ -105,6 +116,15 @@ export default function SecurityKeyCreateModal({ ...props }: ModalProps) {
             description={t('pages.account.securityKeys.modal.createSecurityKey.allowUsernamelessLoginDescription', {})}
             name='allowUsernamelessLogin'
             {...form.getInputProps('allowUsernamelessLogin', { type: 'checkbox' })}
+          />
+        )}
+
+        {user?.hasPassword && (
+          <PasswordInput
+            withAsterisk
+            label={t('common.form.password', {})}
+            autoComplete='current-password'
+            {...form.getInputProps('password')}
           />
         )}
 
