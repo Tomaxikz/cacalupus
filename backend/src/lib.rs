@@ -65,6 +65,41 @@ pub async fn handle_request(
         .await)
 }
 
+const STRIPPED_PROXY_REQUEST_HEADERS: &[&str] = &[
+    "authorization",
+    "calagopus-user",
+    "cf-connecting-ip",
+    "connection",
+    "content-length",
+    "cookie",
+    "forwarded",
+    "host",
+    "keep-alive",
+    "proxy-authorization",
+    "proxy-connection",
+    "sec-websocket-accept",
+    "sec-websocket-extensions",
+    "sec-websocket-key",
+    "sec-websocket-version",
+    "te",
+    "trailer",
+    "transfer-encoding",
+    "true-client-ip",
+    "upgrade",
+    "x-client-ip",
+    "x-forwarded-for",
+    "x-forwarded-host",
+    "x-forwarded-port",
+    "x-forwarded-proto",
+    "x-real-ip",
+    "x-real-ip-token",
+];
+
+#[inline]
+fn is_stripped_proxy_request_header(name: &axum::http::HeaderName) -> bool {
+    STRIPPED_PROXY_REQUEST_HEADERS.contains(&name.as_str())
+}
+
 fn handle_panic(err: Box<dyn std::any::Any + Send + 'static>) -> Response<Body> {
     let details = if let Some(s) = err.downcast_ref::<String>() {
         s.as_str()
@@ -633,19 +668,7 @@ pub async fn handle_startup() -> Result<
                             };
 
                             for (name, value) in parts.headers.iter() {
-                                if matches!(
-                                    name.as_str(),
-                                    "host"
-                                        | "connection"
-                                        | "upgrade"
-                                        | "content-length"
-                                        | "transfer-encoding"
-                                        | "x-forwarded-for"
-                                        | "sec-websocket-key"
-                                        | "sec-websocket-version"
-                                        | "sec-websocket-extensions"
-                                        | "sec-websocket-accept"
-                                ) {
+                                if is_stripped_proxy_request_header(name) {
                                     continue;
                                 }
 
@@ -718,22 +741,20 @@ pub async fn handle_startup() -> Result<
                             .ok();
                         }
 
+                        let mut headers =
+                            axum::http::HeaderMap::with_capacity(parts.headers.len());
+                        for (name, value) in parts.headers.iter() {
+                            if is_stripped_proxy_request_header(name) {
+                                continue;
+                            }
+
+                            headers.append(name.clone(), value.clone());
+                        }
+
                         let mut request = reqwest::Request::new(parts.method, url);
-                        *request.headers_mut() = parts.headers;
+                        *request.headers_mut() = headers;
                         *request.body_mut() =
                             Some(reqwest::Body::wrap_stream(body.into_data_stream()));
-
-                        request.headers_mut().remove(axum::http::header::HOST);
-                        request.headers_mut().remove("X-Forwarded-For");
-
-                        request
-                            .headers_mut()
-                            .remove(axum::http::header::TRANSFER_ENCODING);
-                        request
-                            .headers_mut()
-                            .remove(axum::http::header::CONTENT_LENGTH);
-
-                        request.headers_mut().remove(axum::http::header::CONNECTION);
 
                         request
                             .headers_mut()
