@@ -213,15 +213,13 @@ export default function Login() {
           .replaceAll('/', '_');
 
         navigate(`/auth/login/checkpoint?data=${authInfo}`);
-        return;
+      } else {
+        doLogin(response.user);
       }
-
-      doLogin(response.user);
     } catch (err) {
       setError(httpErrorToHuman(err));
-    } finally {
-      setLoading(false);
     }
+    setLoading(false);
   };
 
   return (
