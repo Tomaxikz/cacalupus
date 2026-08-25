@@ -9,12 +9,14 @@ mod post {
     use serde::{Deserialize, Serialize};
     use shared::{
         ApiError, GetState,
+        cap::CapFilesystem,
         models::{
             server::{GetServer, GetServerActivityLogger},
             user::GetPermissionManager,
         },
         response::{ApiResponse, ApiResponseResult},
     };
+    use std::path::Path;
     use utoipa::ToSchema;
 
     #[derive(ToSchema, Validate, Deserialize)]
@@ -82,9 +84,12 @@ mod post {
             .await?;
 
         if let Some(name) = &data.name
-            && server.is_ignored(name, false)
+            && server.is_ignored(
+                CapFilesystem::resolve_path(&Path::new(data.root.as_str()).join(name.as_str())),
+                false,
+            )
         {
-            return ApiResponse::error("root directory not found")
+            return ApiResponse::error("destination not found")
                 .with_status(StatusCode::NOT_FOUND)
                 .ok();
         }
