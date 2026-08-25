@@ -1,8 +1,9 @@
-import { faChevronRight } from '@fortawesome/free-solid-svg-icons';
+import { faChevronRight, faGripVertical } from '@fortawesome/free-solid-svg-icons';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import classNames from 'classnames';
-import { ReactNode } from 'react';
+import { ComponentProps, ReactNode } from 'react';
 import { z } from 'zod';
+import ActionIcon from '@/elements/ActionIcon.tsx';
 import Card from '@/elements/Card.tsx';
 import Collapse from '@/elements/Collapse.tsx';
 import { useUserSettingMapEntry } from '@/lib/userSettings.ts';
@@ -13,11 +14,13 @@ export default function BackupGroupCard({
   storageKey,
   header,
   actions,
+  dragHandleProps,
   children,
 }: {
   storageKey: string;
   header: ReactNode;
   actions?: ReactNode;
+  dragHandleProps?: ComponentProps<'button'>;
   children: ReactNode;
 }) {
   const [isExpanded, setIsExpanded] = useUserSettingMapEntry(
@@ -36,19 +39,34 @@ export default function BackupGroupCard({
         )}
       >
         <div className={classNames('flex flex-col my-3', actions ? 'sm:my-0' : undefined)}>
-          <button
-            onClick={() => setIsExpanded(!isExpanded)}
-            className='flex items-center gap-2.5 flex-1 min-w-0 text-left hover:opacity-80 transition-opacity'
-          >
-            <FontAwesomeIcon
-              icon={faChevronRight}
-              className={classNames(
-                isExpanded ? 'rotate-90' : 'rotate-0',
-                'transition duration-200 w-3 h-3 text-(--mantine-color-dimmed) shrink-0',
-              )}
-            />
-            {header}
-          </button>
+          <div className='flex flex-row'>
+            {dragHandleProps && (
+              <ActionIcon
+                size='md'
+                variant='subtle'
+                color='gray'
+                style={{ cursor: 'grab', flexShrink: 0 }}
+                className='text-gray-400! light:text-gray-500!'
+                {...dragHandleProps}
+              >
+                <FontAwesomeIcon icon={faGripVertical} style={{ fontSize: 16 }} />
+              </ActionIcon>
+            )}
+
+            <button
+              onClick={() => setIsExpanded(!isExpanded)}
+              className='flex items-center gap-2.5 flex-1 min-w-0 text-left hover:opacity-80 transition-opacity'
+            >
+              <FontAwesomeIcon
+                icon={faChevronRight}
+                className={classNames(
+                  isExpanded ? 'rotate-90' : 'rotate-0',
+                  'transition duration-200 w-3 h-3 text-(--mantine-color-dimmed) shrink-0',
+                )}
+              />
+              {header}
+            </button>
+          </div>
         </div>
 
         {actions && (

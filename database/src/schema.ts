@@ -1132,6 +1132,7 @@ export const serverBackupGroupsTable = pgTable(
       .references(() => serversTable.uuid, { onDelete: 'cascade' })
       .notNull(),
     name: varchar({ length: 255 * UTF8_MAX_SCALAR_SIZE }).notNull(),
+    order_: smallint().default(0).notNull(),
     retention_count: integer(),
     retention_days: integer(),
     created: timestamp().defaultNow().notNull(),
