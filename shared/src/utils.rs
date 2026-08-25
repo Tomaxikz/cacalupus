@@ -1,4 +1,3 @@
-use crate::models::user::{AuthMethod, GetAuthMethod};
 use colored::Colorize;
 use compact_str::ToCompactString;
 use garde::Validate;
@@ -162,13 +161,6 @@ pub fn tungstenite_to_axum(
         })),
         Tung::Frame(_) => return None,
     })
-}
-
-pub fn api_key_scope(auth: Option<&GetAuthMethod>) -> Option<&[compact_str::CompactString]> {
-    match &***auth? {
-        AuthMethod::ApiKey(api_key) => Some(&api_key.server_permissions),
-        _ => None,
-    }
 }
 
 pub fn push_scope_or_star<'a>(
