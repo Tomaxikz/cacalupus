@@ -940,6 +940,8 @@ const baseTranslations = defineTranslations({
             usernameRequired: 'Please enter a username',
             registrationDisabled: 'No matching Account could be found and registration is currently disabled.',
             userAlreadyExists: 'An account with this username or email already exists.',
+            securityKeyRequired:
+              'This account requires two-factor authentication, sign in with a security key instead.',
           },
           passkey: {
             error: {
@@ -6137,6 +6139,8 @@ const baseTranslations = defineTranslations({
                 permissions: 'Permissions',
                 ignoredFilesDescription:
                   'Files and directories matching these patterns will be hidden from this subuser. Uses gitignore-style glob patterns (e.g. `*.env`, `secrets/`). Prefix a pattern with `!` to un-hide a path that a broader pattern would otherwise exclude.',
+                ignoredFilesInherited:
+                  'The paths hidden from you are always applied on top of these, and cannot be granted away.',
               },
             },
             updateSubuser: {

@@ -66,6 +66,7 @@ mod get {
                 &wings_api::servers_server_files_contents::get::Query {
                     file: Some(params.file.clone()),
                     max_size: Some(max_file_manager_view_size),
+                    ignored: server.0.subuser_ignored_files,
                     ..Default::default()
                 },
             )

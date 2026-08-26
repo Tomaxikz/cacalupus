@@ -1628,15 +1628,32 @@ impl Server {
                 override_builder.add(file).ok();
             }
 
-            if let Ok(overrides) = override_builder.build() {
-                let ignored = is_path_ignored(&overrides, path, is_dir);
-                self.subuser_ignored_files_overrides = Some(Box::new(overrides));
+            match override_builder.build() {
+                Ok(overrides) => {
+                    let ignored = is_path_ignored(&overrides, path, is_dir);
+                    self.subuser_ignored_files_overrides = Some(Box::new(overrides));
 
-                return ignored;
+                    return ignored;
+                }
+                Err(err) => {
+                    tracing::error!(
+                        server = %self.uuid,
+                        "failed to compile subuser ignored files, denying access: {:#?}",
+                        err
+                    );
+
+                    return true;
+                }
             }
         }
 
         false
+    }
+
+    pub fn is_ignored_either(&mut self, path: impl AsRef<std::path::Path>) -> bool {
+        let path = path.as_ref();
+
+        self.is_ignored(path, false) || self.is_ignored(path, true)
     }
 
     #[inline]
@@ -1990,6 +2007,7 @@ impl super::IntoApiObject for Server {
                     self.subuser_permissions
                         .map_or_else(|| vec!["*".into()], |p| p.to_vec())
                 },
+                ignored_files: self.subuser_ignored_files.unwrap_or_default(),
                 location_uuid: node.location.uuid,
                 location_name: node.location.name,
                 location_flag: node.location.flag,
@@ -2868,6 +2886,7 @@ pub struct ApiServer {
     pub is_suspended: bool,
     pub is_transferring: bool,
     pub permissions: Vec<compact_str::CompactString>,
+    pub ignored_files: Vec<compact_str::CompactString>,
 
     pub location_uuid: uuid::Uuid,
     pub location_name: compact_str::CompactString,
@@ -2928,6 +2947,32 @@ mod tests {
         }
 
         assert!(!is_path_ignored(&overrides, "/config/public.yml", false));
+    }
+
+    #[test]
+    fn appending_a_list_keeps_everything_it_hid_hidden() {
+        // Last-match-wins, so reordering the same set flips the verdict - which is why
+        // the grant routes require a suffix rather than a subset.
+        let caller = ["!/a/b", "/a/**"];
+
+        assert!(is_path_ignored(&overrides(&caller), "/a/b", false));
+        assert!(!is_path_ignored(
+            &overrides(&["/a/**", "!/a/b"]),
+            "/a/b",
+            false
+        ));
+
+        for granted in [
+            vec!["!/a/b", "/a/**"],
+            vec!["/a/**", "!/a/b", "!/a/b", "/a/**"],
+            vec!["!/a/**", "!/a/b", "/a/**"],
+        ] {
+            assert!(granted.ends_with(&caller));
+            assert!(
+                is_path_ignored(&overrides(&granted), "/a/b", false),
+                "{granted:?}"
+            );
+        }
     }
 
     #[test]

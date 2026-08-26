@@ -66,7 +66,8 @@ mod get {
                 server.uuid,
                 revision,
                 &wings_api::servers_server_files_revisions_revision::get::Query {
-                    file: Some(params.file.clone()),
+                    file: Some(params.file),
+                    ignored: server.0.subuser_ignored_files,
                     ..Default::default()
                 },
             )

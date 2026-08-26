@@ -153,6 +153,29 @@ pub fn validate_json_path(path: &str, _context: &()) -> Result<(), garde::Error>
     Ok(())
 }
 
+pub fn validate_ignored_files(
+    patterns: &[compact_str::CompactString],
+    _context: &(),
+) -> Result<(), garde::Error> {
+    let mut builder = ignore::overrides::OverrideBuilder::new("/");
+
+    for pattern in patterns {
+        if let Err(err) = builder.add(pattern) {
+            return Err(garde::Error::new(compact_str::format_compact!(
+                "{pattern} is not a valid pattern: {err}"
+            )));
+        }
+    }
+
+    if let Err(err) = builder.build() {
+        return Err(garde::Error::new(compact_str::format_compact!(
+            "patterns cannot be compiled: {err}"
+        )));
+    }
+
+    Ok(())
+}
+
 pub fn validate_time_in_future(
     time: &chrono::DateTime<chrono::Utc>,
     _context: &(),

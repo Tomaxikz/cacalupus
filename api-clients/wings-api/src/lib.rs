@@ -907,6 +907,8 @@ pub mod backups_backup_export {
                 pub archive_format: StreamableArchiveFormat,
                 #[schema(inline)]
                 pub foreground: bool,
+                #[schema(inline)]
+                pub ignored: Vec<compact_str::CompactString>,
             }
         }
 
@@ -1228,6 +1230,8 @@ pub mod servers_server_files_chmod {
                     #[schema(inline)]
                     pub recursive: bool,
                 }>,
+                #[schema(inline)]
+                pub ignored: Vec<compact_str::CompactString>,
             }
         }
 
@@ -1263,6 +1267,8 @@ pub mod servers_server_files_compress {
                 pub files: Vec<compact_str::CompactString>,
                 #[schema(inline)]
                 pub foreground: bool,
+                #[schema(inline)]
+                pub ignored: Vec<compact_str::CompactString>,
             }
         }
 
@@ -1309,6 +1315,7 @@ pub mod servers_server_files_contents {
             pub file: Option<compact_str::CompactString>,
             pub download: Option<bool>,
             pub max_size: Option<u64>,
+            pub ignored: Option<Vec<compact_str::CompactString>>,
             #[doc(hidden)]
             pub __priv: (),
         }
@@ -1330,6 +1337,8 @@ pub mod servers_server_files_copy {
                 pub overwrite: bool,
                 #[schema(inline)]
                 pub foreground: bool,
+                #[schema(inline)]
+                pub ignored: Vec<compact_str::CompactString>,
             }
         }
 
@@ -1377,6 +1386,8 @@ pub mod servers_server_files_copy_many {
                 pub overwrite: bool,
                 #[schema(inline)]
                 pub foreground: bool,
+                #[schema(inline)]
+                pub ignored: Vec<compact_str::CompactString>,
             }
         }
 
@@ -1435,6 +1446,10 @@ pub mod servers_server_files_copy_remote {
                 #[schema(inline)]
                 pub destination_path: compact_str::CompactString,
                 #[schema(inline)]
+                pub ignored: Vec<compact_str::CompactString>,
+                #[schema(inline)]
+                pub destination_ignored: Vec<compact_str::CompactString>,
+                #[schema(inline)]
                 pub foreground: bool,
             }
         }
@@ -1475,6 +1490,8 @@ pub mod servers_server_files_create_directory {
                 pub root: compact_str::CompactString,
                 #[schema(inline)]
                 pub name: compact_str::CompactString,
+                #[schema(inline)]
+                pub ignored: Vec<compact_str::CompactString>,
             }
         }
 
@@ -1504,6 +1521,8 @@ pub mod servers_server_files_create_symlink {
                 pub link: compact_str::CompactString,
                 #[schema(inline)]
                 pub target: compact_str::CompactString,
+                #[schema(inline)]
+                pub ignored: Vec<compact_str::CompactString>,
             }
         }
 
@@ -1533,6 +1552,8 @@ pub mod servers_server_files_decompress {
                 pub file: compact_str::CompactString,
                 #[schema(inline)]
                 pub foreground: bool,
+                #[schema(inline)]
+                pub ignored: Vec<compact_str::CompactString>,
             }
         }
 
@@ -1572,6 +1593,8 @@ pub mod servers_server_files_delete {
                 pub root: compact_str::CompactString,
                 #[schema(inline)]
                 pub files: Vec<compact_str::CompactString>,
+                #[schema(inline)]
+                pub ignored: Vec<compact_str::CompactString>,
             }
         }
 
@@ -1609,6 +1632,7 @@ pub mod servers_server_files_fingerprints {
         pub struct Query {
             pub algorithm: Option<Algorithm>,
             pub files: Option<Vec<compact_str::CompactString>>,
+            pub ignored: Option<Vec<compact_str::CompactString>>,
             #[doc(hidden)]
             pub __priv: (),
         }
@@ -1764,6 +1788,8 @@ pub mod servers_server_files_pull {
                 pub use_header: bool,
                 #[schema(inline)]
                 pub foreground: bool,
+                #[schema(inline)]
+                pub ignored: Vec<compact_str::CompactString>,
             }
         }
 
@@ -1853,6 +1879,8 @@ pub mod servers_server_files_rename {
                     #[schema(inline)]
                     pub to: compact_str::CompactString,
                 }>,
+                #[schema(inline)]
+                pub ignored: Vec<compact_str::CompactString>,
             }
         }
 
@@ -1887,6 +1915,7 @@ pub mod servers_server_files_revisions {
         #[allow(clippy::manual_non_exhaustive)]
         pub struct Query {
             pub file: Option<compact_str::CompactString>,
+            pub ignored: Option<Vec<compact_str::CompactString>>,
             #[doc(hidden)]
             pub __priv: (),
         }
@@ -1908,6 +1937,7 @@ pub mod servers_server_files_revisions_revision {
         #[allow(clippy::manual_non_exhaustive)]
         pub struct Query {
             pub file: Option<compact_str::CompactString>,
+            pub ignored: Option<Vec<compact_str::CompactString>>,
             #[doc(hidden)]
             pub __priv: (),
         }
@@ -1983,6 +2013,8 @@ pub mod servers_server_files_sqlite_query {
                 pub read_only: bool,
                 #[schema(inline)]
                 pub rows: u32,
+                #[schema(inline)]
+                pub ignored: Vec<compact_str::CompactString>,
             }
         }
 
@@ -2030,6 +2062,7 @@ pub mod servers_server_files_write {
         pub struct Query {
             pub file: Option<compact_str::CompactString>,
             pub user: Option<uuid::Uuid>,
+            pub ignored: Option<Vec<compact_str::CompactString>>,
             #[doc(hidden)]
             pub __priv: (),
         }
