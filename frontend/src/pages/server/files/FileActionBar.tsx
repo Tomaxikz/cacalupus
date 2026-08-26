@@ -21,6 +21,7 @@ import ActionBar from '@/elements/ActionBar.tsx';
 import Button from '@/elements/Button.tsx';
 import { ServerCan } from '@/elements/Can.tsx';
 import Tooltip from '@/elements/Tooltip.tsx';
+import { downloadFilesWithToast } from '@/pages/server/files/downloadFilesWithToast.ts';
 import { canMoveFilesToDirectory } from '@/pages/server/files/fileMove.ts';
 import { useFileSelectionQuickActions } from '@/pages/server/files/hooks/useFileSelectionQuickActions.tsx';
 import FileCopyConflictModal, {
@@ -169,21 +170,16 @@ function FileActionBar() {
     const { selectedFiles } = store.getState();
     setLoading(true);
 
-    downloadFiles(
-      server.uuid,
-      browsingDirectory,
-      selectedFiles.keys(),
-      selectedFiles.size === 1 ? selectedFiles.values()[0].directory : false,
-      'zip',
-    )
-      .then(({ url }) => {
-        addToast(t('pages.server.files.toast.downloadStarted', {}), 'success');
-        window.location.href = url;
-      })
-      .catch((msg) => {
-        addToast(httpErrorToHuman(msg), 'error');
-      })
-      .finally(() => setLoading(false));
+    downloadFilesWithToast(
+      downloadFiles(
+        server.uuid,
+        browsingDirectory,
+        selectedFiles.keys(),
+        selectedFiles.size === 1 ? selectedFiles.values()[0].directory : false,
+        'zip',
+      ),
+      { addToast, t },
+    ).finally(() => setLoading(false));
   };
 
   useFileSelectionQuickActions({ doCopy, doMove, doDownload, loading });

@@ -1,14 +1,10 @@
-import { faCog } from '@fortawesome/free-solid-svg-icons';
-import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { useShallow } from 'zustand/react/shallow';
-import Button from '@/elements/Button.tsx';
 import Checkbox from '@/elements/input/Checkbox.tsx';
 import NumberInput from '@/elements/input/NumberInput.tsx';
 import Select from '@/elements/input/Select.tsx';
 import TextInput from '@/elements/input/TextInput.tsx';
-import Popover from '@/elements/Popover.tsx';
-import Tooltip from '@/elements/Tooltip.tsx';
 import UserSettingScopeMenu from '@/elements/UserSettingScopeMenu.tsx';
+import SettingsPopover from '@/pages/server/files/SettingsPopover.tsx';
 import { useFileManager } from '@/providers/FileManagerProvider.tsx';
 import { useTranslations } from '@/providers/TranslationProvider.tsx';
 import { fileManagerSettingKey } from '@/stores/fileManager.ts';
@@ -42,86 +38,67 @@ export default function FileEditorSettings() {
   );
 
   return (
-    <Popover position='bottom' withArrow shadow='md'>
-      <Popover.Target>
-        <Tooltip label={t('pages.server.files.tooltip.settings', {})}>
-          <Button variant='transparent' size='compact-xs'>
-            <FontAwesomeIcon size='lg' icon={faCog} />
-          </Button>
-        </Tooltip>
-      </Popover.Target>
-      <Popover.Dropdown>
-        <div className='flex flex-col space-y-2'>
-          {window.extensionContext.extensionRegistry.pages.server.files.fileEditorSettings.prependedComponents.map(
-            (Component, i) => (
-              <Component key={`files-editorSettings-prepended-${i}`} />
-            ),
-          )}
-
-          {editorEngine === 'monaco' && (
-            <Checkbox
-              label={
-                <span className='inline-flex items-center gap-1'>
-                  {t('pages.server.files.settings.editorMinimap', {})}
-                  <UserSettingScopeMenu
-                    settingKey={fileManagerSettingKey('editorMinimap')}
-                    value={editorMinimap}
-                    withinPortal={false}
-                  />
-                </span>
-              }
-              className='order-10'
-              checked={editorMinimap}
-              onChange={(e) => setEditorMinimap(e.target.checked)}
+    <SettingsPopover
+      tooltip={t('pages.server.files.tooltip.settings', {})}
+      registry={window.extensionContext.extensionRegistry.pages.server.files.fileEditorSettings}
+      keyPrefix='files-editorSettings'
+    >
+      {editorEngine === 'monaco' && (
+        <Checkbox
+          label={
+            <span className='inline-flex items-center gap-1'>
+              {t('pages.server.files.settings.editorMinimap', {})}
+              <UserSettingScopeMenu
+                settingKey={fileManagerSettingKey('editorMinimap')}
+                value={editorMinimap}
+                withinPortal={false}
+              />
+            </span>
+          }
+          className='order-10'
+          checked={editorMinimap}
+          onChange={(e) => setEditorMinimap(e.target.checked)}
+        />
+      )}
+      <Checkbox
+        label={t('pages.server.files.settings.editorLineOverflow', {})}
+        className='order-20'
+        checked={editorLineOverflow}
+        onChange={(e) => setEditorLineOverflow(e.target.checked)}
+      />
+      <NumberInput
+        label={
+          <span className='inline-flex items-center gap-1'>
+            {t('pages.server.files.settings.editorFontSize', {})}
+            <UserSettingScopeMenu
+              settingKey={fileManagerSettingKey('editorFontSize')}
+              value={editorFontSize}
+              withinPortal={false}
             />
-          )}
-          <Checkbox
-            label={t('pages.server.files.settings.editorLineOverflow', {})}
-            className='order-20'
-            checked={editorLineOverflow}
-            onChange={(e) => setEditorLineOverflow(e.target.checked)}
-          />
-          <NumberInput
-            label={
-              <span className='inline-flex items-center gap-1'>
-                {t('pages.server.files.settings.editorFontSize', {})}
-                <UserSettingScopeMenu
-                  settingKey={fileManagerSettingKey('editorFontSize')}
-                  value={editorFontSize}
-                  withinPortal={false}
-                />
-              </span>
-            }
-            className='order-25'
-            min={6}
-            max={72}
-            value={editorFontSize}
-            onChange={(value) => setEditorFontSize(Number(value) || 14)}
-          />
-          <Select
-            label={t('pages.server.files.settings.editorEngine', {})}
-            className='order-27'
-            value={editorEngine}
-            onChange={(value) => setEditorEngine(value === 'pierre' ? 'pierre' : 'monaco')}
-            data={[
-              { value: 'monaco', label: 'Monaco' },
-              { value: 'pierre', label: 'Pierre' },
-            ]}
-          />
-          <TextInput
-            label={t('pages.server.files.settings.vscodeUriScheme', {})}
-            className='order-30'
-            value={vscodeUriScheme}
-            onChange={(e) => setVscodeUriScheme(e.target.value)}
-          />
-
-          {window.extensionContext.extensionRegistry.pages.server.files.fileEditorSettings.appendedComponents.map(
-            (Component, i) => (
-              <Component key={`files-editorSettings-appended-${i}`} />
-            ),
-          )}
-        </div>
-      </Popover.Dropdown>
-    </Popover>
+          </span>
+        }
+        className='order-25'
+        min={6}
+        max={72}
+        value={editorFontSize}
+        onChange={(value) => setEditorFontSize(Number(value) || 14)}
+      />
+      <Select
+        label={t('pages.server.files.settings.editorEngine', {})}
+        className='order-27'
+        value={editorEngine}
+        onChange={(value) => setEditorEngine(value === 'pierre' ? 'pierre' : 'monaco')}
+        data={[
+          { value: 'monaco', label: 'Monaco' },
+          { value: 'pierre', label: 'Pierre' },
+        ]}
+      />
+      <TextInput
+        label={t('pages.server.files.settings.vscodeUriScheme', {})}
+        className='order-30'
+        value={vscodeUriScheme}
+        onChange={(e) => setVscodeUriScheme(e.target.value)}
+      />
+    </SettingsPopover>
   );
 }

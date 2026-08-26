@@ -1,47 +1,35 @@
-import { faChevronDown, faChevronUp } from '@fortawesome/free-solid-svg-icons';
-import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
-import { useIntersection, useMergedRef } from '@mantine/hooks';
 import { useWindowVirtualizer } from '@tanstack/react-virtual';
-import classNames from 'classnames';
 import { join } from 'pathe';
-import {
-  memo,
-  type Ref,
-  useCallback,
-  useEffect,
-  useLayoutEffect,
-  useMemo,
-  useRef,
-  useState,
-  useSyncExternalStore,
-} from 'react';
+import { useCallback, useEffect, useLayoutEffect, useMemo, useRef, useState, useSyncExternalStore } from 'react';
 import { createSearchParams, useNavigate, useSearchParams } from 'react-router';
 import { FileOpenMode } from 'shared/src/registries/pages/server/files';
-import { z } from 'zod';
 import { httpErrorToHuman } from '@/api/axios.ts';
 import copyFile from '@/api/server/files/copyFile.ts';
 import Card from '@/elements/Card.tsx';
 import ServerContentContainer from '@/elements/containers/ServerContentContainer.tsx';
 import Group from '@/elements/Group.tsx';
 import SelectionArea from '@/elements/SelectionArea.tsx';
-import Spinner from '@/elements/Spinner.tsx';
 import Table, { TableData, TableHeaderProps, TableRow } from '@/elements/Table.tsx';
 import Title from '@/elements/Title.tsx';
 import { isOpenableFile } from '@/lib/files.ts';
-import { serverDirectorySortingModeSchema } from '@/lib/schemas/server/files.ts';
 import FileActionBar from '@/pages/server/files/FileActionBar.tsx';
 import FileBreadcrumbs from '@/pages/server/files/FileBreadcrumbs.tsx';
 import FileDiskUsageBar from '@/pages/server/files/FileDiskUsageBar.tsx';
+import FileInfiniteScrollSentinel from '@/pages/server/files/FileInfiniteScrollSentinel.tsx';
 import FileMassContextMenu from '@/pages/server/files/FileMassContextMenu.tsx';
 import FileModals from '@/pages/server/files/FileModals.tsx';
 import FileOperationsProgress from '@/pages/server/files/FileOperationsProgress.tsx';
 import FileParentDirectoryRow from '@/pages/server/files/FileParentDirectoryRow.tsx';
-import FileRow, { FileRowProps } from '@/pages/server/files/FileRow.tsx';
 import FileSearchBanner from '@/pages/server/files/FileSearchBanner.tsx';
 import FileSettings from '@/pages/server/files/FileSettings.tsx';
 import FileToolbar from '@/pages/server/files/FileToolbar.tsx';
 import FileUpload from '@/pages/server/files/FileUpload.tsx';
 import { useFileBrowserQuickActions } from '@/pages/server/files/hooks/useFileBrowserQuickActions.tsx';
+import SelectableFileRow from '@/pages/server/files/SelectableFileRow.tsx';
+import ServerFilesColumnRightSection, {
+  columnOnClick,
+  type ServerFilesColumn,
+} from '@/pages/server/files/ServerFilesColumnRightSection.tsx';
 import { useKeyboardShortcuts } from '@/plugins/useKeyboardShortcuts.ts';
 import { useServerCan } from '@/plugins/usePermissions.ts';
 import { useSelectionArea } from '@/plugins/useSelectionArea.ts';
@@ -52,104 +40,8 @@ import { useFileManagerApi, useFileManagerStore } from '@/stores/fileManager.ts'
 import { useServerStore } from '@/stores/server.ts';
 import { fileManagerUndoScope, runLastUndoEntry } from '@/stores/undoHistory.ts';
 
-type ServerFilesColumn = 'name' | 'size' | 'physical_size' | 'modified';
-
-const columnOnClick = (
-  name: ServerFilesColumn,
-  sortMode: z.infer<typeof serverDirectorySortingModeSchema>,
-  setSortMode: (mode: z.infer<typeof serverDirectorySortingModeSchema>) => void,
-) => {
-  return () => {
-    if (sortMode === `${name}_asc`) {
-      setSortMode(`${name}_desc`);
-    } else {
-      setSortMode(`${name}_asc`);
-    }
-  };
-};
-
-function ServerFilesColumnRightSection({ name }: { name: ServerFilesColumn }) {
-  const sortMode = useFileManagerStore((state) => state.sortMode);
-  const setSortMode = useFileManagerStore((state) => state.setSortMode);
-
-  const isActive = sortMode.startsWith(name);
-  const isAsc = sortMode.endsWith('asc');
-
-  return (
-    <div
-      onClick={columnOnClick(name, sortMode, setSortMode)}
-      className='inline-flex flex-col items-center self-center -mt-0.5'
-    >
-      <FontAwesomeIcon
-        icon={faChevronUp}
-        size='xs'
-        className={classNames(
-          '-mb-0.5',
-          isActive && isAsc ? 'text-(--mantine-color-text)' : 'text-(--mantine-color-dimmed)',
-        )}
-      />
-      <FontAwesomeIcon
-        icon={faChevronDown}
-        size='xs'
-        className={isActive && !isAsc ? 'text-(--mantine-color-text)' : 'text-(--mantine-color-dimmed)'}
-      />
-    </div>
-  );
-}
-
-function FileInfiniteScrollSentinel({ colSpan }: { colSpan: number }) {
-  const store = useFileManagerApi();
-  const hasNextPage = useFileManagerStore((state) => state.hasNextPage);
-  const isFetchingNextPage = useFileManagerStore((state) => state.isFetchingNextPage);
-  const { ref, entry } = useIntersection<HTMLTableRowElement>({ threshold: 0, rootMargin: '600px' });
-
-  useEffect(() => {
-    if (entry?.isIntersecting && hasNextPage && !isFetchingNextPage) {
-      store.getState().fetchNextPage();
-    }
-  }, [entry?.isIntersecting, hasNextPage, isFetchingNextPage, store]);
-
-  if (!hasNextPage) return null;
-
-  return (
-    <TableRow ref={ref}>
-      <TableData colSpan={colSpan} className='py-3'>
-        <div className='flex items-center justify-center'>
-          <Spinner size={20} />
-        </div>
-      </TableData>
-    </TableRow>
-  );
-}
-
 const ESTIMATED_ROW_HEIGHT = 41;
 const VIRTUALIZER_OVERSCAN = 15;
-
-interface VirtualFileRowProps extends Omit<FileRowProps, 'dataIndex'> {
-  innerRef: Ref<HTMLElement>;
-  measureElement: (node: HTMLTableRowElement | null) => void;
-  dataIndex: number;
-}
-
-function VirtualFileRow({ innerRef, measureElement, dataIndex, ...rowProps }: VirtualFileRowProps) {
-  const mergedRef = useMergedRef<HTMLTableRowElement>(innerRef as Ref<HTMLTableRowElement>, measureElement);
-
-  return <FileRow ref={mergedRef} dataIndex={dataIndex} {...rowProps} />;
-}
-
-const SelectableFileRow = memo(function SelectableFileRow({
-  measureElement,
-  dataIndex,
-  ...rowProps
-}: Omit<VirtualFileRowProps, 'innerRef'>) {
-  return (
-    <SelectionArea.Selectable item={rowProps.file}>
-      {(innerRef: Ref<HTMLElement>) => (
-        <VirtualFileRow innerRef={innerRef} measureElement={measureElement} dataIndex={dataIndex} {...rowProps} />
-      )}
-    </SelectionArea.Selectable>
-  );
-});
 
 function ServerFilesComponent() {
   const { t } = useTranslations();

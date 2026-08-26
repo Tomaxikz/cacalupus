@@ -191,3 +191,7 @@ export function generateArchiveName(extension: string) {
 
   return `archive-${year}-${month}-${day}T${hours}${minutes}${seconds}${tzFormatted}${extension}`;
 }
+
+export function toContainerPath(path: string): string {
+  return path.replace(/^(\.\.\/|\/)+/, '');
+}

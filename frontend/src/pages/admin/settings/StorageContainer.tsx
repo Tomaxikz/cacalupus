@@ -10,7 +10,7 @@ import AdminSubContentContainer from '@/elements/containers/AdminSubContentConta
 import Group from '@/elements/Group.tsx';
 import Select from '@/elements/input/Select.tsx';
 import ConfirmationModal from '@/elements/modals/ConfirmationModal.tsx';
-import { storageDriverTypeLabelMapping } from '@/lib/enums.ts';
+import { mappingToSelectData, storageDriverTypeLabelMapping } from '@/lib/enums.ts';
 import {
   adminSettingsStorageFilesystemSchema,
   adminSettingsStorageS3Schema,
@@ -81,10 +81,7 @@ export default function StorageContainer() {
       >
         <Select
           label={t('pages.admin.settings.tabs.storage.page.form.driver', {})}
-          data={Object.entries(storageDriverTypeLabelMapping).map(([value, label]) => ({
-            value,
-            label: label(),
-          }))}
+          data={mappingToSelectData(storageDriverTypeLabelMapping)}
           key={form.key('type')}
           {...form.getInputProps('type')}
         />

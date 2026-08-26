@@ -9,7 +9,7 @@ import { AdminCan } from '@/elements/Can.tsx';
 import AdminSubContentContainer from '@/elements/containers/AdminSubContentContainer.tsx';
 import Group from '@/elements/Group.tsx';
 import Select from '@/elements/input/Select.tsx';
-import { mailModeTypeLabelMapping } from '@/lib/enums.ts';
+import { mailModeTypeLabelMapping, mappingToSelectData } from '@/lib/enums.ts';
 import {
   adminSettingsEmailFilesystemSchema,
   adminSettingsEmailSchema,
@@ -67,10 +67,7 @@ export default function EmailContainer() {
       <form onSubmit={form.onSubmit(() => doUpdate())}>
         <Select
           label={t('common.form.provider', {})}
-          data={Object.entries(mailModeTypeLabelMapping).map(([value, label]) => ({
-            value,
-            label: label(),
-          }))}
+          data={mappingToSelectData(mailModeTypeLabelMapping)}
           key={form.key('type')}
           {...form.getInputProps('type')}
         />

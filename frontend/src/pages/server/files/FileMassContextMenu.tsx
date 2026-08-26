@@ -9,11 +9,10 @@ import {
 } from '@fortawesome/free-solid-svg-icons';
 import { useCallback, useMemo } from 'react';
 import { z } from 'zod';
-import { httpErrorToHuman } from '@/api/axios.ts';
 import downloadFiles from '@/api/server/files/downloadFiles.ts';
 import ContextMenu, { ContextMenuItem } from '@/elements/ContextMenu.tsx';
-import { streamingArchiveFormatLabelMapping } from '@/lib/enums.ts';
 import { streamingArchiveFormat } from '@/lib/schemas/generic.ts';
+import { buildDownloadAsMenuItems, downloadFilesWithToast } from '@/pages/server/files/downloadFilesWithToast.ts';
 import { useServerCan } from '@/plugins/usePermissions.ts';
 import { useToast } from '@/providers/ToastProvider.tsx';
 import { useTranslations } from '@/providers/TranslationProvider.tsx';
@@ -43,20 +42,16 @@ export default function FileMassContextMenu({ children }: FileMassContextMenuPro
     (archiveFormat: z.infer<typeof streamingArchiveFormat>) => {
       const { selectedFiles, browsingDirectory } = store.getState();
 
-      downloadFiles(
-        server.uuid,
-        browsingDirectory,
-        selectedFiles.keys(),
-        selectedFiles.size === 1 ? selectedFiles.values()[0].directory : false,
-        archiveFormat,
-      )
-        .then(({ url }) => {
-          addToast(t('pages.server.files.toast.downloadStarted', {}), 'success');
-          window.location.href = url;
-        })
-        .catch((msg) => {
-          addToast(httpErrorToHuman(msg), 'error');
-        });
+      downloadFilesWithToast(
+        downloadFiles(
+          server.uuid,
+          browsingDirectory,
+          selectedFiles.keys(),
+          selectedFiles.size === 1 ? selectedFiles.values()[0].directory : false,
+          archiveFormat,
+        ),
+        { addToast, t },
+      );
     },
     [store, server.uuid, t, addToast],
   );
@@ -69,13 +64,7 @@ export default function FileMassContextMenu({ children }: FileMassContextMenuPro
         label: t('common.button.download', {}),
         hidden: !!actingMode,
         color: 'gray',
-        items: Object.entries(streamingArchiveFormatLabelMapping).map(([mime, label]) => ({
-          type: 'action',
-          icon: faFileArrowDown,
-          label: t('common.button.downloadAs', { format: label }),
-          onClick: () => doDownload(mime as z.infer<typeof streamingArchiveFormat>),
-          color: 'gray',
-        })),
+        items: buildDownloadAsMenuItems(t, doDownload),
         canAccess: canReadContent,
       },
       {

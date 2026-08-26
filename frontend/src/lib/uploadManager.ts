@@ -1,6 +1,7 @@
 import { QueryClient } from '@tanstack/react-query';
 import { AxiosError, AxiosRequestConfig } from 'axios';
 import { ReactNode } from 'react';
+import { z } from 'zod';
 import uploadAssets from '@/api/admin/assets/uploadAssets.ts';
 import { axiosInstance, httpErrorToHuman } from '@/api/axios.ts';
 import getFileUploadUrl from '@/api/server/files/getFileUploadUrl.ts';
@@ -11,6 +12,7 @@ import {
   withFileParam,
 } from '@/api/server/files/resumableUpload.ts';
 import { queryKeys } from '@/lib/queryKeys.ts';
+import { serverFileOperationSchema } from '@/lib/schemas/server/files.ts';
 import { ToastAction, ToastType } from '@/providers/contexts/toastContext.ts';
 import { getTranslations } from '@/providers/contexts/translationContext.ts';
 import {
@@ -1064,3 +1066,41 @@ window.addEventListener('beforeunload', (event) => {
 window.addEventListener('session-expired', () => {
   cancelAllUploads(undefined, { silent: true });
 });
+
+export function computeAggregatedProgress(
+  fileOperations: Map<string, z.infer<typeof serverFileOperationSchema>>,
+  uploadingFiles: Map<string, UploadItem>,
+): { averageOperationProgress: number; indeterminate: boolean } {
+  let totalProgress = 0;
+  let totalSize = 0;
+
+  fileOperations.forEach((operation) => {
+    if (operation.bytesTotal === 0) return;
+    totalProgress += operation.bytesProcessed;
+    totalSize += operation.bytesTotal;
+  });
+
+  uploadingFiles.forEach((file) => {
+    totalProgress += file.uploaded;
+    totalSize += file.size;
+  });
+
+  return {
+    averageOperationProgress: totalSize > 0 ? (totalProgress / totalSize) * 100 : 0,
+    indeterminate: totalSize === 0 && (fileOperations.size > 0 || uploadingFiles.size > 0),
+  };
+}
+
+export function hasRetryingUpload(uploadingFiles: Map<string, UploadItem>): boolean {
+  for (const file of uploadingFiles.values()) {
+    if (file.retryAttempt > 0 && file.status === 'uploading') return true;
+  }
+  return false;
+}
+
+export function hasUploadError(uploadingFiles: Map<string, UploadItem>): boolean {
+  for (const file of uploadingFiles.values()) {
+    if (file.status === 'error') return true;
+  }
+  return false;
+}

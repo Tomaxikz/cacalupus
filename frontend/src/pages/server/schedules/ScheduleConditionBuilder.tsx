@@ -11,6 +11,7 @@ import TextInput from '@/elements/input/TextInput.tsx';
 import Stack from '@/elements/Stack.tsx';
 import Text from '@/elements/Text.tsx';
 import {
+  mappingToSelectData,
   scheduleComparatorLabelMapping,
   scheduleConditionLabelMapping,
   scheduleResourceMetricLabelMapping,
@@ -120,12 +121,9 @@ export default function ScheduleConditionBuilder({ condition, onChange, depth = 
           label={t('pages.server.schedules.form.conditionType', {})}
           value={condition.type}
           onChange={(value) => value && handleTypeChange(value)}
-          data={Object.entries(scheduleConditionLabelMapping)
-            .map(([value, label]) => ({
-              value,
-              label: label(),
-            }))
-            .filter((c) => depth < maxConditionDepth || !['and', 'or', 'not'].includes(c.value))}
+          data={mappingToSelectData(scheduleConditionLabelMapping).filter(
+            (c) => depth < maxConditionDepth || !['and', 'or', 'not'].includes(c.value),
+          )}
         />
 
         {condition.type === 'server_state' && (
@@ -133,10 +131,7 @@ export default function ScheduleConditionBuilder({ condition, onChange, depth = 
             label={t('pages.server.schedules.form.serverState', {})}
             value={condition.state}
             onChange={(value) => value && onChange({ ...condition, state: value as z.infer<typeof serverPowerState> })}
-            data={Object.entries(serverPowerStateLabelMapping).map(([value, label]) => ({
-              value,
-              label: label(),
-            }))}
+            data={mappingToSelectData(serverPowerStateLabelMapping)}
           />
         )}
 
@@ -149,10 +144,7 @@ export default function ScheduleConditionBuilder({ condition, onChange, depth = 
                 onChange={(value) =>
                   value && onChange({ ...condition, metric: value as z.infer<typeof serverScheduleResourceMetric> })
                 }
-                data={Object.entries(scheduleResourceMetricLabelMapping).map(([value, label]) => ({
-                  value,
-                  label: label(),
-                }))}
+                data={mappingToSelectData(scheduleResourceMetricLabelMapping)}
               />
             )}
             <Select
@@ -161,10 +153,7 @@ export default function ScheduleConditionBuilder({ condition, onChange, depth = 
               onChange={(value) =>
                 value && onChange({ ...condition, comparator: value as z.infer<typeof serverScheduleComparator> })
               }
-              data={Object.entries(scheduleComparatorLabelMapping).map(([value, label]) => ({
-                value,
-                label: label(),
-              }))}
+              data={mappingToSelectData(scheduleComparatorLabelMapping)}
             />
             {condition.type === 'uptime' && (
               <NumberInput
