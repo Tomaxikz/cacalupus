@@ -320,24 +320,46 @@ impl Env {
         headers: &HeaderMap,
         connect_info: ConnectInfo<std::net::SocketAddr>,
     ) -> std::net::IpAddr {
-        for cidr in &self.app_trusted_proxies {
-            if cidr.contains(&connect_info.ip()) {
-                if let Some(forwarded) = headers.get("X-Forwarded-For")
-                    && let Ok(forwarded) = forwarded.to_str()
-                    && let Some(ip) = forwarded.split(',').next()
-                {
-                    return ip.parse().unwrap_or_else(|_| connect_info.ip());
-                }
+        let peer = connect_info.ip();
 
-                if let Some(forwarded) = headers.get("X-Real-IP")
-                    && let Ok(forwarded) = forwarded.to_str()
-                {
-                    return forwarded.parse().unwrap_or_else(|_| connect_info.ip());
-                }
-            }
+        if !self
+            .app_trusted_proxies
+            .iter()
+            .any(|cidr| cidr.contains(&peer))
+        {
+            return peer;
         }
 
-        connect_info.ip()
+        fn find_forwarded_ip(
+            forwarded: &str,
+            trusted_proxies: &[cidr::IpCidr],
+        ) -> Option<std::net::IpAddr> {
+            for entry in forwarded.rsplit(',') {
+                let ip: std::net::IpAddr = entry.trim().parse().ok()?;
+
+                if !trusted_proxies.iter().any(|cidr| cidr.contains(&ip)) {
+                    return Some(ip);
+                }
+            }
+
+            None
+        }
+
+        if let Some(forwarded) = headers.get("X-Forwarded-For")
+            && let Ok(forwarded) = forwarded.to_str()
+            && let Some(ip) = find_forwarded_ip(forwarded, &self.app_trusted_proxies)
+        {
+            return ip;
+        }
+
+        if let Some(forwarded) = headers.get("X-Real-IP")
+            && let Ok(forwarded) = forwarded.to_str()
+            && let Ok(ip) = forwarded.trim().parse()
+        {
+            return ip;
+        }
+
+        peer
     }
 
     #[inline]

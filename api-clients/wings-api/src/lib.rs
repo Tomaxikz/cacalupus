@@ -187,6 +187,8 @@ pub enum FirewallBackendKind {
     Nftables,
     #[serde(rename = "iptables")]
     Iptables,
+    #[serde(rename = "container")]
+    Container,
     #[serde(rename = "disabled")]
     Disabled,
 }

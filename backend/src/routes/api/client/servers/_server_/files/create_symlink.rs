@@ -66,10 +66,8 @@ mod post {
 
         let target = Path::new(data.target.as_str());
         let target = match target.strip_prefix("/") {
-            Ok(target) => CapFilesystem::resolve_path(&Path::new("/").join(target)),
-            Err(_) => {
-                CapFilesystem::resolve_path(&link.parent().unwrap_or(Path::new("/")).join(target))
-            }
+            Ok(target) => Path::new("/").join(target),
+            Err(_) => link.parent().unwrap_or(Path::new("/")).join(target),
         };
         if server.is_ignored(&target, false) {
             return ApiResponse::error("target not found")

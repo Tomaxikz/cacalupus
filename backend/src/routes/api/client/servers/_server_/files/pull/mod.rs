@@ -9,7 +9,6 @@ mod post {
     use serde::{Deserialize, Serialize};
     use shared::{
         ApiError, GetState,
-        cap::CapFilesystem,
         models::{
             server::{GetServer, GetServerActivityLogger},
             user::GetPermissionManager,
@@ -84,10 +83,7 @@ mod post {
             .await?;
 
         if let Some(name) = &data.name
-            && server.is_ignored(
-                CapFilesystem::resolve_path(&Path::new(data.root.as_str()).join(name.as_str())),
-                false,
-            )
+            && server.is_ignored(Path::new(data.root.as_str()).join(name.as_str()), false)
         {
             return ApiResponse::error("destination not found")
                 .with_status(StatusCode::NOT_FOUND)
