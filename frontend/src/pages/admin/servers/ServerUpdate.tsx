@@ -224,12 +224,14 @@ export default function ServerUpdate({ contextServer }: { contextServer: z.infer
       },
     ],
     [
+      t,
       users,
       canReadUsers,
       backupConfigurations,
       canReadBackupConfigurations,
       form,
       selectedNestUuid,
+      setSelectedNestUuid,
       nests,
       canReadNests,
       eggs,
@@ -296,7 +298,7 @@ export default function ServerUpdate({ contextServer }: { contextServer: z.infer
         advanced: true,
       },
     ],
-    [eggImages, form, eggs],
+    [t, eggImages, form, eggs],
   );
 
   const featureLimitsFields = useMemo(() => buildFeatureLimitsFields<ServerUpdateFormValues>(t), [t]);

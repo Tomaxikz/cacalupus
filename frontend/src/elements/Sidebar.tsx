@@ -146,7 +146,7 @@ function Link({ to, end, icon, name, title = name, className, activeMatches }: L
         color: 'gray',
       },
     ],
-    [title, to],
+    [t, addWindow, title, to],
   );
 
   return (
@@ -312,7 +312,17 @@ function Footer() {
         onClick: confirmLogout,
       },
     ],
-    [accountHidden, adminHidden, colorScheme, deviceOverrideCount, impersonating],
+    [
+      t,
+      navigate,
+      changeTheme,
+      confirmLogout,
+      accountHidden,
+      adminHidden,
+      colorScheme,
+      deviceOverrideCount,
+      impersonating,
+    ],
   );
 
   if (!user) {

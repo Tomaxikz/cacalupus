@@ -15,10 +15,8 @@ import Button from '@/elements/Button.tsx';
 import Card from '@/elements/Card.tsx';
 import Progress from '@/elements/Progress.tsx';
 import Spinner from '@/elements/Spinner.tsx';
-import { handleRawCopyToClipboard } from '@/lib/copy.ts';
 import { CORE_QUICK_ACTION_CATEGORIES } from '@/lib/quickActions/coreQuickActions.tsx';
 import { useUserSetting } from '@/lib/userSettings.ts';
-import { getXtermTheme } from '@/lib/xterm.ts';
 import { matchesShortcut, useKeyboardShortcut } from '@/plugins/useKeyboardShortcuts.ts';
 import { useQuickActions } from '@/plugins/useQuickActions.ts';
 import { SocketEvent, SocketRequest } from '@/plugins/useWebsocketEvent.ts';
@@ -69,29 +67,26 @@ export default function Terminal() {
 
   const commandHistory = useCommandHistory(server.uuid);
 
-  const { xtermInstance, fitAddonRef, searchAddonRef, selectionMenuTop, updateSelectionMenuRef } = useTerminalInit({
+  const {
+    xtermInstance,
+    searchAddonRef,
+    selectionMenuTop,
+    updateSelectionMenuRef,
+    resetTerminal,
+    scrollToBottom,
+    hasSelection,
+    copySelection,
+    writeLine,
+  } = useTerminalInit({
     terminalRef,
     touchSelectionRef,
     setIsAtBottom,
+    addToast,
     initialFontSize: consoleFontSize,
     initialIsDark: computedColorScheme === 'dark',
+    fontSize: consoleFontSize,
+    isDark: computedColorScheme === 'dark',
   });
-
-  useEffect(() => {
-    if (xtermInstance.current) {
-      xtermInstance.current.options.fontSize = consoleFontSize;
-      requestAnimationFrame(() => {
-        fitAddonRef.current?.fit();
-        xtermInstance.current?.refresh(0, xtermInstance.current.rows - 1);
-      });
-    }
-  }, [consoleFontSize]);
-
-  useEffect(() => {
-    if (xtermInstance.current) {
-      xtermInstance.current.options.theme = getXtermTheme(computedColorScheme === 'dark');
-    }
-  }, [computedColorScheme]);
 
   useTerminalTouchScroll({
     terminalRef,
@@ -142,51 +137,33 @@ export default function Terminal() {
     };
   }, [socketConnected, socketInstance]);
 
-  const scrollToBottom = useCallback(() => {
-    if (xtermInstance.current) {
-      xtermInstance.current.scrollToBottom();
-      setIsAtBottom(true);
-    }
-  }, []);
-
-  const copySelection = useCallback(() => {
-    const term = xtermInstance.current;
-    if (!term?.hasSelection()) return;
-
-    handleRawCopyToClipboard(term.getSelection(), addToast);
-    term.clearSelection();
-  }, [addToast]);
-
   const containerPreludeRef = useRef(settings.server.containerPrelude);
   useEffect(() => {
     containerPreludeRef.current = settings.server.containerPrelude;
   }, [settings.server.containerPrelude]);
 
-  const addLine = useCallback((text: string, prelude = false) => {
-    if (!xtermInstance.current) return;
+  const addLine = useCallback(
+    (text: string, prelude = false) => {
+      let processed = text.replaceAll('\x1b[?25h', '').replaceAll('\x1b[?25l', '');
 
-    let processed = text.replaceAll('\x1b[?25h', '').replaceAll('\x1b[?25l', '');
+      if (processed.includes('container@pterodactyl~')) {
+        processed = processed.replace('container@pterodactyl~', containerPreludeRef.current);
+      }
 
-    if (processed.includes('container@pterodactyl~')) {
-      processed = processed.replace('container@pterodactyl~', containerPreludeRef.current);
-    }
+      if (prelude && !processed.includes('\x1b[1m\x1b[41m')) {
+        processed = `\x1b[1m\x1b[33m${containerPreludeRef.current} \x1b[0m${processed}`;
+      }
 
-    if (prelude && !processed.includes('\x1b[1m\x1b[41m')) {
-      processed = `\x1b[1m\x1b[33m${containerPreludeRef.current} \x1b[0m${processed}`;
-    }
-
-    if (isFirstLine.current) {
-      xtermInstance.current.write(processed);
-      isFirstLine.current = false;
-    } else {
-      xtermInstance.current.write('\n'.concat(processed));
-    }
-  }, []);
+      if (writeLine(processed, isFirstLine.current)) {
+        isFirstLine.current = false;
+      }
+    },
+    [writeLine],
+  );
 
   useEffect(() => {
-    if (!socketConnected || !socketInstance || !xtermInstance.current) return;
+    if (!socketConnected || !socketInstance || !resetTerminal()) return;
 
-    xtermInstance.current.reset();
     setIsAtBottom(true);
     isFirstLine.current = true;
 
@@ -227,7 +204,7 @@ export default function Terminal() {
     return () => {
       Object.entries(listeners).forEach(([k, fn]) => socketInstance.removeListener(k, fn));
     };
-  }, [socketConnected, socketInstance, xtermInstance]);
+  }, [socketConnected, socketInstance, resetTerminal, addLine, t]);
 
   useEffect(() => {
     if (!openModal) {
@@ -268,7 +245,7 @@ export default function Terminal() {
         }
       });
     },
-    [commandHistory.navigatePrevious, commandHistory.navigateNext, commandHistory.recordCommand, socketInstance],
+    [commandHistory, socketInstance],
   );
 
   useKeyboardShortcut(
@@ -322,7 +299,7 @@ export default function Terminal() {
           label: () => t('pages.server.console.tooltip.copySelection', {}),
           keywords: ['clipboard'],
           icon: <FontAwesomeIcon icon={faCopy} />,
-          isVisible: () => xtermInstance.current?.hasSelection() ?? false,
+          isVisible: () => hasSelection(),
           perform: copySelection,
         },
         {
@@ -353,7 +330,17 @@ export default function Terminal() {
           perform: () => setConsoleFontSize((size) => Math.min(24, size + 1)),
         },
       ],
-      [consoleAvailable, isAtBottom, consoleFontSize],
+      [
+        t,
+        setOpenModal,
+        consoleAvailable,
+        hasSelection,
+        copySelection,
+        isAtBottom,
+        scrollToBottom,
+        consoleFontSize,
+        setConsoleFontSize,
+      ],
     ),
   );
 

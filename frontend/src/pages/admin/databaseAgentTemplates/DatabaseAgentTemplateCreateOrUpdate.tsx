@@ -252,7 +252,7 @@ export default function DatabaseAgentTemplateCreateOrUpdate({
       },
       { type: 'switch', name: 'deploymentEnabled', label: t('common.form.deploymentEnabled', {}) },
     ],
-    [contextDatabaseAgentTemplate],
+    [t, contextDatabaseAgentTemplate],
   );
 
   return (

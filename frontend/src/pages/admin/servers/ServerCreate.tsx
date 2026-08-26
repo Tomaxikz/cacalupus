@@ -287,12 +287,13 @@ export default function ServerCreate() {
       },
     ],
     [
+      t,
       nodes,
       canReadNodes,
       users,
       canReadUsers,
-      form,
       selectedNestUuid,
+      setSelectedNestUuid,
       nests,
       canReadNests,
       eggs,
@@ -363,7 +364,7 @@ export default function ServerCreate() {
         advanced: true,
       },
     ],
-    [eggs, selectedEggUuid, form],
+    [t, eggs, selectedEggUuid],
   );
 
   const featureLimitsFields = useMemo(() => buildFeatureLimitsFields<ServerCreateFormValues>(t), [t]);

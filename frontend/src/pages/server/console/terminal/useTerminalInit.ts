@@ -3,24 +3,32 @@ import { SearchAddon } from '@xterm/addon-search';
 import { Unicode11Addon } from '@xterm/addon-unicode11';
 import { WebLinksAddon } from '@xterm/addon-web-links';
 import { ITerminalInitOnlyOptions, ITerminalOptions, Terminal as XTerm } from '@xterm/xterm';
-import { RefObject, useEffect, useRef, useState } from 'react';
+import { RefObject, useCallback, useEffect, useRef, useState } from 'react';
+import { handleRawCopyToClipboard } from '@/lib/copy.ts';
 import { eventKeyMatches } from '@/lib/quickActions/shortcuts.ts';
 import { getCellHeight, getXtermTheme } from '@/lib/xterm.ts';
+import type { AddToast } from '@/providers/contexts/toastContext.ts';
 
 interface UseTerminalInitOptions {
   terminalRef: RefObject<HTMLDivElement | null>;
   touchSelectionRef: RefObject<boolean>;
   setIsAtBottom: (value: boolean) => void;
+  addToast: AddToast;
   initialFontSize: number;
   initialIsDark: boolean;
+  fontSize: number;
+  isDark: boolean;
 }
 
 export function useTerminalInit({
   terminalRef,
   touchSelectionRef,
   setIsAtBottom,
+  addToast,
   initialFontSize,
   initialIsDark,
+  fontSize,
+  isDark,
 }: UseTerminalInitOptions) {
   const xtermInstance = useRef<XTerm | null>(null);
   const fitAddonRef = useRef<FitAddon | null>(null);
@@ -158,5 +166,60 @@ export function useTerminalInit({
     };
   }, []);
 
-  return { xtermInstance, fitAddonRef, searchAddonRef, selectionMenuTop, updateSelectionMenuRef };
+  useEffect(() => {
+    if (xtermInstance.current) {
+      xtermInstance.current.options.fontSize = fontSize;
+      requestAnimationFrame(() => {
+        fitAddonRef.current?.fit();
+        xtermInstance.current?.refresh(0, xtermInstance.current.rows - 1);
+      });
+    }
+  }, [fontSize]);
+
+  useEffect(() => {
+    if (xtermInstance.current) {
+      xtermInstance.current.options.theme = getXtermTheme(isDark);
+    }
+  }, [isDark]);
+
+  const resetTerminal = useCallback(() => {
+    if (!xtermInstance.current) return false;
+    xtermInstance.current.reset();
+    return true;
+  }, []);
+
+  const scrollToBottom = useCallback(() => {
+    if (!xtermInstance.current) return;
+    xtermInstance.current.scrollToBottom();
+    setIsAtBottom(true);
+  }, [setIsAtBottom]);
+
+  const hasSelection = useCallback(() => xtermInstance.current?.hasSelection() ?? false, []);
+
+  const copySelection = useCallback(() => {
+    const term = xtermInstance.current;
+    if (!term?.hasSelection()) return;
+
+    handleRawCopyToClipboard(term.getSelection(), addToast);
+    term.clearSelection();
+  }, [addToast]);
+
+  const writeLine = useCallback((text: string, isFirstLine: boolean) => {
+    if (!xtermInstance.current) return false;
+    xtermInstance.current.write(isFirstLine ? text : '\n'.concat(text));
+    return true;
+  }, []);
+
+  return {
+    xtermInstance,
+    fitAddonRef,
+    searchAddonRef,
+    selectionMenuTop,
+    updateSelectionMenuRef,
+    resetTerminal,
+    scrollToBottom,
+    hasSelection,
+    copySelection,
+    writeLine,
+  };
 }

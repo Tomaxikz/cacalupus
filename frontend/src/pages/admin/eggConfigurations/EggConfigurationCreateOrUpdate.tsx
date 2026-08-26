@@ -226,7 +226,7 @@ export default function EggConfigurationCreateOrUpdate({
         ),
       },
     ],
-    [eggs, form, defaultRoutes, languages],
+    [t, eggs, form, defaultRoutes, languages],
   );
 
   return (

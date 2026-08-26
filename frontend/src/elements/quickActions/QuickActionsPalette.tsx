@@ -136,12 +136,16 @@ function Palette() {
   const coreDefinitions = useCoreQuickActionDefinitions(confirmLogout);
   const scopeRoutes = useScopeRoutes(scope, open);
 
-  const modes = [
-    ...useCoreQuickActionModes(),
-    ...modeProviders.flatMap((provider) => provider()),
-    ...window.extensionContext.extensionRegistry.quickActions.modes,
-  ];
-  const mode = modes.find((m) => query.startsWith(m.prefix));
+  const coreModes = useCoreQuickActionModes();
+  const modes = useMemo(
+    () => [
+      ...coreModes,
+      ...modeProviders.flatMap((provider) => provider()),
+      ...window.extensionContext.extensionRegistry.quickActions.modes,
+    ],
+    [coreModes, modeProviders],
+  );
+  const mode = useMemo(() => modes.find((m) => query.startsWith(m.prefix)), [modes, query]);
 
   useEffect(() => {
     if (!mode) servers.setSearch(query);
@@ -202,7 +206,7 @@ function Palette() {
             definition.perform();
           },
         })),
-    [coreDefinitions, actionProviders, scope, user],
+    [coreDefinitions, actionProviders, scope, user, canServer, setOpen],
   );
 
   const navItems: QuickActionItem[] = useMemo(() => {
@@ -292,7 +296,17 @@ function Palette() {
     }
 
     return [];
-  }, [scope, serverId, scopeRoutes, userRouteOrder, server?.eggConfiguration?.routeOrder]);
+  }, [
+    scope,
+    serverId,
+    scopeRoutes,
+    userRouteOrder,
+    server?.eggConfiguration?.routeOrder,
+    setOpen,
+    navigate,
+    canServer,
+    canAdminRoute,
+  ]);
 
   const matchesQuery = useCallback(
     (item: QuickActionItem) => {
@@ -311,7 +325,7 @@ function Palette() {
             .slice(0, 6)
             .map((s) => buildServerQuickActionItem(s, navigate, () => setOpen(false), serverTarget(s)))
         : [],
-    [scope, mode, servers.items, normalizedQuery],
+    [scope, mode, servers.items, normalizedQuery, navigate, setOpen, serverTarget],
   );
 
   const allItems = useMemo(
@@ -322,7 +336,7 @@ function Palette() {
             ...[...actionItems, ...navItems].map((item) => mode.map?.(item) ?? null).filter((item) => item !== null),
           ]
         : [...actionItems, ...navItems].filter(matchesQuery).concat(serverItems),
-    [mode, actionItems, navItems, serverItems],
+    [mode, actionItems, navItems, serverItems, matchesQuery],
   );
 
   const categories: Record<string, QuickActionCategory> = useMemo(

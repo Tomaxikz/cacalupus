@@ -136,7 +136,7 @@ export default function ServerItem({
         onClick: () => setOpenModal('kill'),
       },
     ],
-    [powerBlocked, bulkActionLoading, state],
+    [t, doPowerAction, canPower, powerBlocked, bulkActionLoading, state],
   );
 
   return (

@@ -68,6 +68,5 @@ export function useEditorContainerAutoHeight({
       viewport?.removeEventListener('resize', updateHeight);
       viewport?.removeEventListener('scroll', updateHeight);
     };
-    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, deps);
 }
