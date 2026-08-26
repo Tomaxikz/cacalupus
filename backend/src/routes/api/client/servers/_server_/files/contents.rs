@@ -95,7 +95,13 @@ mod get {
             )
             .await;
 
-        ApiResponse::new_stream(contents).ok()
+        ApiResponse::new_stream(contents)
+            .with_header("Content-Type", "application/octet-stream")
+            .with_header("Content-Disposition", "attachment")
+            .with_header("Content-Security-Policy", "sandbox")
+            .with_header("X-Content-Type-Options", "nosniff")
+            .with_header("X-Frame-Options", "SAMEORIGIN")
+            .ok()
     }
 }
 
