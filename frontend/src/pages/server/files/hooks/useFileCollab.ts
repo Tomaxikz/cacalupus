@@ -12,7 +12,7 @@ import {
   normalizePath,
   toBase64,
   updateCursorStyles,
-} from '@/lib/collab.ts';
+} from '@/lib/files/collab.ts';
 import { SocketEvent, SocketRequest } from '@/plugins/useWebsocketEvent.ts';
 import { useAuth } from '@/providers/AuthProvider.tsx';
 import { useServerStore } from '@/stores/server.ts';

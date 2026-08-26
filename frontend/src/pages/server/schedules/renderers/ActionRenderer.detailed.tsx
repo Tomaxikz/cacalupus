@@ -5,7 +5,7 @@ import Text from '@/elements/Text.tsx';
 import { serverScheduleStepActionSchema } from '@/lib/schemas/server/schedules.ts';
 import { formatMilliseconds } from '@/lib/time.ts';
 import { useTranslations } from '@/providers/TranslationProvider.tsx';
-import ScheduleDynamicParameterRenderer from '../ScheduleDynamicParameterRenderer.tsx';
+import ScheduleDynamicParameterRenderer from '../renderers/ScheduleDynamicParameterRenderer.tsx';
 import ConditionRenderer from './ConditionRenderer.tsx';
 
 type Action = z.infer<typeof serverScheduleStepActionSchema>;

@@ -7,7 +7,7 @@ import NumberInput from '@/elements/input/NumberInput.tsx';
 import Switch from '@/elements/input/Switch.tsx';
 import Stack from '@/elements/Stack.tsx';
 import Text from '@/elements/Text.tsx';
-import { MassRenameOptions } from '@/lib/massRename.ts';
+import { MassRenameOptions } from '@/lib/files/massRename.ts';
 import { useTranslations } from '@/providers/TranslationProvider.tsx';
 
 export default function MassRenameNumberSection({

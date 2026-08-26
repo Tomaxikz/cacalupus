@@ -12,6 +12,9 @@ import { Modal } from '@/elements/modals/Modal.tsx';
 import Spinner from '@/elements/Spinner.tsx';
 import Text from '@/elements/Text.tsx';
 import { useLogoutConfirmation } from '@/elements/useLogoutConfirmation.tsx';
+import { resolveString } from '@/lib/lazy.ts';
+import { isAdmin } from '@/lib/permissions.ts';
+import { queryKeys } from '@/lib/queryKeys.ts';
 import {
   buildCoreQuickActionCategories,
   buildServerQuickActionItem,
@@ -19,11 +22,8 @@ import {
   useCoreQuickActionDefinitions,
   useCoreQuickActionModes,
   useServerQuickActionTarget,
-} from '@/lib/coreQuickActions.tsx';
-import { resolveString } from '@/lib/lazy.ts';
-import { isAdmin } from '@/lib/permissions.ts';
-import { queryKeys } from '@/lib/queryKeys.ts';
-import type { QuickActionCategory, QuickActionItem, QuickActionScope } from '@/lib/quickActions.ts';
+} from '@/lib/quickActions/coreQuickActions.tsx';
+import type { QuickActionCategory, QuickActionItem, QuickActionScope } from '@/lib/quickActions/quickActions.ts';
 import { getAccessibleRoutePaths, to } from '@/lib/routes.ts';
 import { serverSchema } from '@/lib/schemas/server/server.ts';
 import { useKeyboardShortcuts } from '@/plugins/useKeyboardShortcuts.ts';

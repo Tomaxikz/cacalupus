@@ -10,13 +10,13 @@ import FormModal from '@/elements/modals/FormModal.tsx';
 import { ModalFooter } from '@/elements/modals/Modal.tsx';
 import Stack from '@/elements/Stack.tsx';
 import { archiveFormatLabelMapping } from '@/lib/enums.ts';
-import { generateArchiveName } from '@/lib/files.ts';
+import { generateArchiveName } from '@/lib/files/files.ts';
 import {
   archiveFormat,
   serverDirectoryEntrySchema,
   serverFilesArchiveCreateSchema,
 } from '@/lib/schemas/server/files.ts';
-import FilePathPreview from '@/pages/server/files/FilePathPreview.tsx';
+import FilePathPreview from '@/pages/server/files/modals/FilePathPreview.tsx';
 import { useModalForm } from '@/plugins/useModalForm.ts';
 import { useFileManager } from '@/providers/contexts/fileManagerContext.ts';
 import { useToast } from '@/providers/ToastProvider.tsx';

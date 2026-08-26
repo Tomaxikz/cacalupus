@@ -2,7 +2,7 @@ import { faFont } from '@fortawesome/free-solid-svg-icons';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import CollapsibleSection from '@/elements/CollapsibleSection.tsx';
 import Select from '@/elements/input/Select.tsx';
-import { MassRenameOptions, RenameCase } from '@/lib/massRename.ts';
+import { MassRenameOptions, RenameCase } from '@/lib/files/massRename.ts';
 import { useTranslations } from '@/providers/TranslationProvider.tsx';
 
 export default function MassRenameCaseSection({

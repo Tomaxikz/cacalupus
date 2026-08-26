@@ -4,7 +4,7 @@ import CollapsibleSection from '@/elements/CollapsibleSection.tsx';
 import Group from '@/elements/Group.tsx';
 import Switch from '@/elements/input/Switch.tsx';
 import Stack from '@/elements/Stack.tsx';
-import { MassRenameOptions } from '@/lib/massRename.ts';
+import { MassRenameOptions } from '@/lib/files/massRename.ts';
 import { useTranslations } from '@/providers/TranslationProvider.tsx';
 
 export default function MassRenameMatchSection({

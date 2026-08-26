@@ -9,7 +9,7 @@ import { httpErrorToHuman } from '@/api/axios.ts';
 import copyFile from '@/api/server/files/copyFile.ts';
 import Alert from '@/elements/Alert.tsx';
 import Button from '@/elements/Button.tsx';
-import DirectoryBrowser from '@/elements/DirectoryBrowser.tsx';
+import DirectoryBrowser from '@/elements/files/DirectoryBrowser.tsx';
 import TextInput from '@/elements/input/TextInput.tsx';
 import FormModal from '@/elements/modals/FormModal.tsx';
 import { ModalFooter } from '@/elements/modals/Modal.tsx';
@@ -19,7 +19,7 @@ import {
   serverFilesCopySchema,
   serverFilesCopyToDirectorySchema,
 } from '@/lib/schemas/server/files.ts';
-import FilePathPreview from '@/pages/server/files/FilePathPreview.tsx';
+import FilePathPreview from '@/pages/server/files/modals/FilePathPreview.tsx';
 import { useModalForm } from '@/plugins/useModalForm.ts';
 import { useServerCan } from '@/plugins/usePermissions.ts';
 import { useFileManager } from '@/providers/contexts/fileManagerContext.ts';

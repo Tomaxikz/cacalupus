@@ -20,7 +20,7 @@ import {
 import { serverScheduleTriggerSchema, serverScheduleUpdateSchema } from '@/lib/schemas/server/schedules.ts';
 import { useTranslations } from '@/providers/TranslationProvider.tsx';
 import { useServerStore } from '@/stores/server.ts';
-import ScheduleDynamicParameterInput from '../ScheduleDynamicParameterInput.tsx';
+import ScheduleDynamicParameterInput from '../forms/ScheduleDynamicParameterInput.tsx';
 import CronTriggerExtraForm from './CronTriggerExtraForm.tsx';
 
 export interface TriggerFormProps {

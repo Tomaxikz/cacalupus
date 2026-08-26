@@ -6,7 +6,7 @@ import ScrollingText from '@/elements/ScrollingText.tsx';
 import Table, { TableData, TableRow } from '@/elements/Table.tsx';
 import Text from '@/elements/Text.tsx';
 import Tooltip from '@/elements/Tooltip.tsx';
-import { RenamePreviewRow, RenameStatus } from '@/lib/massRename.ts';
+import { RenamePreviewRow, RenameStatus } from '@/lib/files/massRename.ts';
 import { serverDirectoryEntrySchema } from '@/lib/schemas/server/files.ts';
 import { useTranslations } from '@/providers/TranslationProvider.tsx';
 

@@ -6,7 +6,7 @@ import Group from '@/elements/Group.tsx';
 import TextInput from '@/elements/input/TextInput.tsx';
 import Stack from '@/elements/Stack.tsx';
 import Text from '@/elements/Text.tsx';
-import { MassRenameOptions } from '@/lib/massRename.ts';
+import { MassRenameOptions } from '@/lib/files/massRename.ts';
 import { useTranslations } from '@/providers/TranslationProvider.tsx';
 
 export default function MassRenameAffixSection({

@@ -1,7 +1,7 @@
 import { useState } from 'react';
 import { useShallow } from 'zustand/react/shallow';
 import { httpErrorToHuman } from '@/api/axios.ts';
-import { canMoveFilesToDirectory, FileMoveEntry, moveFilesToDirectory } from '@/pages/server/files/fileMove.ts';
+import { canMoveFilesToDirectory, FileMoveEntry, moveFilesToDirectory } from '@/pages/server/files/browser/fileMove.ts';
 import { useServerCan } from '@/plugins/usePermissions.ts';
 import { useUndoableToast } from '@/plugins/useUndoableToast.ts';
 import { useToast } from '@/providers/ToastProvider.tsx';

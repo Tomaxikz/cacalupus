@@ -3,7 +3,7 @@ import Code from '@/elements/Code.tsx';
 import { serverScheduleStepActionSchema } from '@/lib/schemas/server/schedules.ts';
 import { formatMilliseconds } from '@/lib/time.ts';
 import { useTranslations } from '@/providers/TranslationProvider.tsx';
-import ScheduleDynamicParameterRenderer from '../ScheduleDynamicParameterRenderer.tsx';
+import ScheduleDynamicParameterRenderer from '../renderers/ScheduleDynamicParameterRenderer.tsx';
 
 type Action = z.infer<typeof serverScheduleStepActionSchema>;
 type Translations = ReturnType<typeof useTranslations>;
