@@ -5080,6 +5080,9 @@
               "title": "Tabellen",
               "empty": "Diese Datenbank hat noch keine Tabellen.",
               "noMatches": "Keine Tabellen passen zu deiner Suche.",
+              "noMatchesTruncated": "Keine Tabellen passen zu deiner Suche. Es wurden nur die ersten {tables} Tabellen geladen, der Rest kann nicht durchsucht werden.",
+              "truncated": "Diese Datenbank hat zu viele Tabellen zum Laden. Es werden nur die ersten {tables} angezeigt.",
+              "tableBeyondLimit": "Diese Tabelle liegt außerhalb der ersten {tables} Tabellen, mehr kann diese Datenbank nicht laden.",
               "rowEstimate": "~{rows}",
               "badge": {
                 "view": "View"
@@ -5145,6 +5148,7 @@
               "setNull": "Auf NULL setzen",
               "null": "NULL",
               "empty": "leer",
+              "truncated": "Dieser Wert ist zu groß, um vollständig geladen zu werden, und kann nicht bearbeitet werden.",
               "editorHint": "{enter} übernimmt den Wert, {shiftEnter} fügt eine neue Zeile ein."
             }
           },

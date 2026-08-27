@@ -56,7 +56,7 @@ fn log_filter(debug: bool) -> Targets {
 }
 
 fn default_blocked_cidrs() -> Vec<cidr::IpCidr> {
-    const DEFAULTS: [&str; 10] = [
+    const DEFAULTS: [&str; 17] = [
         "0.0.0.0/8",
         "127.0.0.0/8",
         "10.0.0.0/8",
@@ -64,9 +64,16 @@ fn default_blocked_cidrs() -> Vec<cidr::IpCidr> {
         "172.16.0.0/12",
         "192.168.0.0/16",
         "169.254.0.0/16",
+        "192.0.0.0/24",
+        "198.18.0.0/15",
+        "224.0.0.0/4",
+        "240.0.0.0/4",
+        "::/128",
         "::1/128",
         "fe80::/10",
         "fc00::/7",
+        "2002::/16",
+        "ff00::/8",
     ];
 
     DEFAULTS

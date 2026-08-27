@@ -268,6 +268,7 @@ nestify::nest! {
         #[schema(inline)]
         pub rows_affected: u64,
         #[schema(inline)]
+        #[serde(default)]
         pub truncated: bool,
     }
 }

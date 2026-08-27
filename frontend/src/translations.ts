@@ -5132,6 +5132,10 @@ const baseTranslations = defineTranslations({
               title: 'Tables',
               empty: 'This database has no tables yet.',
               noMatches: 'No tables match your search.',
+              noMatchesTruncated:
+                'No tables match your search. Only the first {tables} tables were loaded, so the rest cannot be searched.',
+              truncated: 'This database has too many tables to load. Only the first {tables} are shown.',
+              tableBeyondLimit: 'This table is outside the first {tables} tables, which is all this database can load.',
               rowEstimate: '~{rows}',
               badge: {
                 view: 'View',
@@ -5198,6 +5202,7 @@ const baseTranslations = defineTranslations({
               setNull: 'Set to NULL',
               null: 'NULL',
               empty: 'empty',
+              truncated: 'This value was too large to load in full and cannot be edited.',
               editorHint: '{enter} applies the value, {shiftEnter} inserts a new line.',
             },
           },
