@@ -96,7 +96,11 @@ export default function DatabaseResultCell({
 
     if (!value || value.type === 'null' ? next === '' : next === value.value) return;
 
-    onChange?.(value?.type === 'binary' ? { type: 'binary', value: next } : { type: 'text', value: next });
+    onChange?.(
+      value?.type === 'binary'
+        ? { type: 'binary', value: next, truncated: false }
+        : { type: 'text', value: next, truncated: false },
+    );
   };
 
   const cell = (
