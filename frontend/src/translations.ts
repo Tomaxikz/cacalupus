@@ -4591,10 +4591,16 @@ const baseTranslations = defineTranslations({
             decreaseFontSize: 'Decrease Font Size',
             increaseFontSize: 'Increase Font Size',
             copySelection: 'Copy Selection',
+            popout: 'Open in Separate Window',
           },
           quickAction: {
             search: 'Search Console',
             scrollToBottom: 'Scroll to Bottom',
+            popout: 'Pop Out Console',
+          },
+          popout: {
+            windowTitle: 'Console',
+            returnHint: 'This console is running in its own window. You can close it at any time.',
           },
           drawer: {
             commandHistory: {

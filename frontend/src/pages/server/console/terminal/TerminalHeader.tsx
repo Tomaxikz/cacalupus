@@ -6,6 +6,7 @@ import {
   faMinus,
   faPlus,
   faServer,
+  faUpRightFromSquare,
 } from '@fortawesome/free-solid-svg-icons';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { SearchAddon } from '@xterm/addon-search';
@@ -20,6 +21,7 @@ import UserSettingScopeMenu from '@/elements/UserSettingScopeMenu.tsx';
 import { useUserSetting } from '@/lib/userSettings.ts';
 import { useTranslations } from '@/providers/TranslationProvider.tsx';
 import { useServerStore } from '@/stores/server.ts';
+import openConsolePopout from '../openConsolePopout.ts';
 
 export const CONSOLE_FONT_SIZE_KEY = 'console::font_size';
 export const consoleFontSizeSchema = z.number();
@@ -31,6 +33,7 @@ interface TerminalHeaderProps {
   searchText: string;
   setSearchText: (value: string) => void;
   searchAddonRef: RefObject<SearchAddon | null>;
+  popout?: boolean;
 }
 
 export default function TerminalHeader({
@@ -40,6 +43,7 @@ export default function TerminalHeader({
   searchText,
   setSearchText,
   searchAddonRef,
+  popout = false,
 }: TerminalHeaderProps) {
   const { t } = useTranslations();
   const server = useServerStore((state) => state.server);
@@ -128,6 +132,13 @@ export default function TerminalHeader({
             </ActionIcon>
           </Popover.Dropdown>
         </Popover>
+        {!popout && (
+          <Tooltip label={t('pages.server.console.tooltip.popout', {})}>
+            <ActionIcon size='xs' variant='subtle' color='gray' onClick={() => openConsolePopout(server.uuidShort)}>
+              <FontAwesomeIcon icon={faUpRightFromSquare} />
+            </ActionIcon>
+          </Tooltip>
+        )}
         <Tooltip label={t('pages.server.console.tooltip.sshDetails', {})}>
           <ActionIcon
             size='xs'

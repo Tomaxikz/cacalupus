@@ -34,6 +34,7 @@ import ServerSubusers from '@/pages/server/subusers/ServerSubusers.tsx';
 import { getTranslations } from '@/providers/TranslationProvider.tsx';
 
 const ServerConsole = lazy(() => import('@/pages/server/console/ServerConsole.tsx'));
+const PopoutConsole = lazy(() => import('@/pages/server/console/PopoutConsole.tsx'));
 const ServerFilesEditor = lazy(() => import('@/pages/server/files/editor/FileEditor.tsx'));
 const FileRevisionDiff = lazy(() => import('@/pages/server/files/editor/FileRevisionDiff.tsx'));
 
@@ -44,6 +45,12 @@ const routes: ServerRouteDefinition[] = [
     path: '/',
     element: ServerConsole,
     exact: true,
+    permission: null,
+  },
+  {
+    name: undefined,
+    path: '/console/popout',
+    element: PopoutConsole,
     permission: null,
   },
   {
