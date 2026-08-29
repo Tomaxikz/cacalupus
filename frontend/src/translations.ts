@@ -1387,6 +1387,9 @@ const baseTranslations = defineTranslations({
           button: {
             deleteOthers: 'Log Out Others',
           },
+          tooltip: {
+            noOtherSessions: 'There are no other sessions to log out.',
+          },
           table: {
             columns: {
               thisDevice: 'This Device?',
@@ -1437,6 +1440,7 @@ const baseTranslations = defineTranslations({
             title: 'General',
             undo: 'Undo the last action',
             quickActions: 'Open quick actions',
+            save: 'Save the current form',
           },
           fileManager: {
             title: 'File Manager',
