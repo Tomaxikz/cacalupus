@@ -144,8 +144,8 @@ export default function WebsocketHandler() {
 
         socket.on('token expiring', () => updateToken(socket));
         socket.on('token expired', () => {
+          socket.setAuthGapped(true);
           if (!expiryFailureCountedRef.current) {
-            socket.setAuthGapped(true);
             expiryFailureCountedRef.current = true;
             tokenRefreshFailuresRef.current += 1;
           }
