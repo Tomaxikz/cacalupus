@@ -31,6 +31,7 @@ export default function WebsocketHandler() {
   const connectingRef = useRef(false);
   const updatingTokenRef = useRef(false);
   const tokenRefreshFailuresRef = useRef(0);
+  const expiryFailureCountedRef = useRef(false);
   const prevIsTransferringRef = useRef(isTransferring);
 
   const uuidRef = useRef(uuid);
@@ -65,6 +66,7 @@ export default function WebsocketHandler() {
       .then((data) => {
         if (socketRef.current === socket) {
           socket.setToken(data.token, true);
+          expiryFailureCountedRef.current = false;
         }
       })
       .catch((error) => {
@@ -94,6 +96,7 @@ export default function WebsocketHandler() {
         socket.on('auth success', () => {
           setSocketConnectionState(true);
           tokenRefreshFailuresRef.current = 0;
+          expiryFailureCountedRef.current = false;
           socket.send(SocketRequest.CONFIGURE_SOCKET, ['transmission mode', 'binary']);
         });
 
@@ -141,8 +144,11 @@ export default function WebsocketHandler() {
 
         socket.on('token expiring', () => updateToken(socket));
         socket.on('token expired', () => {
-          socket.setAuthGapped(true);
-          tokenRefreshFailuresRef.current += 1;
+          if (!expiryFailureCountedRef.current) {
+            socket.setAuthGapped(true);
+            expiryFailureCountedRef.current = true;
+            tokenRefreshFailuresRef.current += 1;
+          }
           updateToken(socket);
         });
         socket.on('jwt error', (error: string) => {
@@ -192,6 +198,7 @@ export default function WebsocketHandler() {
       connectingRef.current = false;
       updatingTokenRef.current = false;
       tokenRefreshFailuresRef.current = 0;
+      expiryFailureCountedRef.current = false;
     };
   }, [uuid, nodeMaintenanceEnabled]);
 

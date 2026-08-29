@@ -5,8 +5,8 @@ import { useTranslations } from '@/providers/TranslationProvider.tsx';
 import Tooltip from '../Tooltip.tsx';
 
 interface EstimatedTimeArrivalProps {
-  progress?: number;
-  total?: number;
+  progress: number;
+  total: number;
   className?: string;
   autoUpdate?: boolean;
 }
@@ -16,11 +16,12 @@ interface Sample {
   progress: number;
 }
 
-function EstimatedTimeArrival({ progress = 0, total = 0, className, autoUpdate = true }: EstimatedTimeArrivalProps) {
+function EstimatedTimeArrival({ progress, total, className, autoUpdate = true }: EstimatedTimeArrivalProps) {
   const { t } = useTranslations();
   const progressRef = useRef(progress);
   const totalRef = useRef(total);
   const samplesRef = useRef<Sample[]>([]);
+  const lastAdvanceRef = useRef(Date.now());
   const [estimate, setEstimate] = useState<{ remainingMs: number; targetDate: number } | null>(null);
 
   useEffect(() => {
@@ -34,6 +35,7 @@ function EstimatedTimeArrival({ progress = 0, total = 0, className, autoUpdate =
     if (!autoUpdate || isComplete) return;
 
     samplesRef.current = [{ time: Date.now(), progress: progressRef.current }];
+    lastAdvanceRef.current = Date.now();
 
     const intervalId = setInterval(() => {
       const now = Date.now();
@@ -44,8 +46,13 @@ function EstimatedTimeArrival({ progress = 0, total = 0, className, autoUpdate =
 
       if (lastSample && currentProgress < lastSample.progress) {
         samplesRef.current = [{ time: now, progress: currentProgress }];
+        lastAdvanceRef.current = now;
         setEstimate(null);
         return;
+      }
+
+      if (!lastSample || currentProgress > lastSample.progress) {
+        lastAdvanceRef.current = now;
       }
 
       samples.push({ time: now, progress: currentProgress });
@@ -54,22 +61,27 @@ function EstimatedTimeArrival({ progress = 0, total = 0, className, autoUpdate =
         samples.shift();
       }
 
-      if (samples.length >= 2 && currentTotal > 0) {
-        const oldestSample = samples[0];
-        const newestSample = samples[samples.length - 1];
-        const deltaProgress = newestSample.progress - oldestSample.progress;
-        const deltaTime = newestSample.time - oldestSample.time;
+      const oldestSample = samples[0];
+      const newestSample = samples[samples.length - 1];
+      const deltaProgress = newestSample.progress - oldestSample.progress;
+      const deltaTime = newestSample.time - oldestSample.time;
 
-        if (deltaProgress > 0 && deltaTime > 0) {
-          const remainingMs = Math.max(0, ((currentTotal - currentProgress) * deltaTime) / deltaProgress);
-          setEstimate({ remainingMs, targetDate: now + remainingMs });
-          return;
-        }
+      if (samples.length >= 2 && currentTotal > 0 && deltaProgress > 0 && deltaTime > 0) {
+        const remainingMs = Math.max(0, ((currentTotal - currentProgress) * deltaTime) / deltaProgress);
+        setEstimate({ remainingMs, targetDate: now + remainingMs });
+        return;
       }
 
-      setEstimate((prev) =>
-        prev ? { remainingMs: Math.max(0, prev.targetDate - now), targetDate: prev.targetDate } : null,
-      );
+      if (now - lastAdvanceRef.current >= 30_000) {
+        setEstimate(null);
+        return;
+      }
+
+      setEstimate((prev) => {
+        if (!prev) return null;
+        const remainingMs = prev.targetDate - now;
+        return remainingMs > 0 ? { remainingMs, targetDate: prev.targetDate } : null;
+      });
     }, 1000);
 
     return () => clearInterval(intervalId);
