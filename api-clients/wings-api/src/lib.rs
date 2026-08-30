@@ -1882,6 +1882,8 @@ pub mod servers_server_files_rename {
                 }>,
                 #[schema(inline)]
                 pub ignored: Vec<compact_str::CompactString>,
+                #[schema(inline)]
+                pub create_directories: bool,
             }
         }
 

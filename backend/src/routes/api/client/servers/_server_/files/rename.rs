@@ -62,6 +62,7 @@ mod put {
                 .collect(),
             root: data.root,
             ignored: server.0.subuser_ignored_files.unwrap_or_default(),
+            create_directories: permissions.has_server_permission("files.create").is_ok(),
         };
 
         let data = match server
