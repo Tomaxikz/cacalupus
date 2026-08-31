@@ -28,24 +28,24 @@ import Table, { TableData, TableHeaderProps, TableRow } from '@/elements/Table.t
 import Title from '@/elements/Title.tsx';
 import Tooltip from '@/elements/Tooltip.tsx';
 import { isOpenableFile } from '@/lib/files/files.ts';
-import FileActionBar from '@/pages/server/files/browser/FileActionBar.tsx';
-import FileDiskUsageBar from '@/pages/server/files/browser/FileDiskUsageBar.tsx';
-import FileInfiniteScrollSentinel from '@/pages/server/files/browser/FileInfiniteScrollSentinel.tsx';
-import FileMassContextMenu from '@/pages/server/files/browser/FileMassContextMenu.tsx';
-import FileModals from '@/pages/server/files/browser/FileModals.tsx';
-import FileOperationsProgress from '@/pages/server/files/browser/FileOperationsProgress.tsx';
-import FileParentDirectoryRow from '@/pages/server/files/browser/FileParentDirectoryRow.tsx';
-import FileSearchBanner from '@/pages/server/files/browser/FileSearchBanner.tsx';
-import FileSettings from '@/pages/server/files/browser/FileSettings.tsx';
-import FileToolbar from '@/pages/server/files/browser/FileToolbar.tsx';
-import FileUpload from '@/pages/server/files/browser/FileUpload.tsx';
-import SelectableFileRow from '@/pages/server/files/browser/SelectableFileRow.tsx';
+import FileBreadcrumbs from '@/pages/server/files/FileBreadcrumbs.tsx';
+import { useFileBrowserQuickActions } from '@/pages/server/files/hooks/useFileBrowserQuickActions.tsx';
+import FileActionBar from '@/pages/server/files/list/FileActionBar.tsx';
+import FileDiskUsageBar from '@/pages/server/files/list/FileDiskUsageBar.tsx';
+import FileInfiniteScrollSentinel from '@/pages/server/files/list/FileInfiniteScrollSentinel.tsx';
+import FileMassContextMenu from '@/pages/server/files/list/FileMassContextMenu.tsx';
+import FileModals from '@/pages/server/files/list/FileModals.tsx';
+import FileOperationsProgress from '@/pages/server/files/list/FileOperationsProgress.tsx';
+import FileParentDirectoryRow from '@/pages/server/files/list/FileParentDirectoryRow.tsx';
+import FileSearchBanner from '@/pages/server/files/list/FileSearchBanner.tsx';
+import FileSettings from '@/pages/server/files/list/FileSettings.tsx';
+import FileToolbar from '@/pages/server/files/list/FileToolbar.tsx';
+import FileUpload from '@/pages/server/files/list/FileUpload.tsx';
+import SelectableFileRow from '@/pages/server/files/list/SelectableFileRow.tsx';
 import ServerFilesColumnRightSection, {
   columnOnClick,
   type ServerFilesColumn,
-} from '@/pages/server/files/browser/ServerFilesColumnRightSection.tsx';
-import FileBreadcrumbs from '@/pages/server/files/FileBreadcrumbs.tsx';
-import { useFileBrowserQuickActions } from '@/pages/server/files/hooks/useFileBrowserQuickActions.tsx';
+} from '@/pages/server/files/list/ServerFilesColumnRightSection.tsx';
 import { useKeyboardShortcuts } from '@/plugins/useKeyboardShortcuts.ts';
 import { useServerCan } from '@/plugins/usePermissions.ts';
 import { useSelectionArea } from '@/plugins/useSelectionArea.ts';
@@ -402,7 +402,7 @@ function FileBrowser() {
 }
 
 type FileManagerView = 'list' | 'tree';
-const FileTreeWorkspace = lazy(() => import('@/pages/server/files/workspace/FileTreeWorkspace.tsx'));
+const FileTreeWorkspace = lazy(() => import('@/pages/server/files/tree/FileTreeWorkspace.tsx'));
 const FILE_MANAGER_VIEW_STORAGE_KEY = 'file_manager_view';
 const fileTreeVisibilityStorageKey = (serverUuid: string) => `file_manager_tree_visible:${serverUuid}`;
 
@@ -449,7 +449,7 @@ function ServerFilesComponent() {
       <Group justify='space-between' align='center' mb='md'>
         <Group>
           <Title order={1}>
-            {t(view === 'tree' ? 'pages.server.files.view.editor' : 'pages.server.files.view.files', {})}
+            {t(view === 'tree' ? 'pages.server.files.view.tree' : 'pages.server.files.view.list', {})}
           </Title>
           <FileSettings />
         </Group>
@@ -477,13 +477,9 @@ function ServerFilesComponent() {
               {
                 value: 'list',
                 label: (
-                  <Tooltip label={t('pages.server.files.view.files', {})}>
+                  <Tooltip label={t('pages.server.files.view.list', {})}>
                     <span className='block' style={{ padding: 'var(--sc-padding)' }}>
-                      <FontAwesomeIcon
-                        icon={faFolderOpen}
-                        aria-label={t('pages.server.files.view.files', {})}
-                        fixedWidth
-                      />
+                      <FontAwesomeIcon icon={faFolderOpen} aria-label={t('pages.server.files.view.list', {})} />
                     </span>
                   </Tooltip>
                 ),
@@ -491,9 +487,9 @@ function ServerFilesComponent() {
               {
                 value: 'tree',
                 label: (
-                  <Tooltip label={t('pages.server.files.view.editor', {})}>
+                  <Tooltip label={t('pages.server.files.view.tree', {})}>
                     <span className='block' style={{ padding: 'var(--sc-padding)' }}>
-                      <FontAwesomeIcon icon={faCode} aria-label={t('pages.server.files.view.editor', {})} fixedWidth />
+                      <FontAwesomeIcon icon={faCode} aria-label={t('pages.server.files.view.tree', {})} />
                     </span>
                   </Tooltip>
                 ),

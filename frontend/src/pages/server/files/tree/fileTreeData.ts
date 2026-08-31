@@ -1,7 +1,7 @@
 import { dirname, join } from 'pathe';
 import { z } from 'zod';
 import { serverDirectoryEntrySchema } from '@/lib/schemas/server/files.ts';
-import { FileMoveGroup } from '@/pages/server/files/browser/fileMove.ts';
+import { FileMoveGroup } from '@/pages/server/files/list/fileMove.ts';
 
 export type DirectoryEntry = z.infer<typeof serverDirectoryEntrySchema>;
 

@@ -36,8 +36,8 @@ import { FileAudioPreview, FileImagePreview } from '@/pages/server/files/editor/
 import FileSqliteQuery from '@/pages/server/files/editor/FileSqliteQuery.tsx';
 import { findFileEditorAction } from '@/pages/server/files/editor/useFileEditorPresentation.ts';
 import useFileCollab from '@/pages/server/files/hooks/useFileCollab.ts';
-import FileTreeEditorTabs from '@/pages/server/files/workspace/FileTreeEditorTabs.tsx';
-import { FileTreeEditorSelection } from '@/pages/server/files/workspace/fileTreeEditor.ts';
+import FileTreeEditorTabs from '@/pages/server/files/tree/FileTreeEditorTabs.tsx';
+import { FileTreeEditorSelection } from '@/pages/server/files/tree/fileTreeEditor.ts';
 import { useServerCan } from '@/plugins/usePermissions.ts';
 import { useToast } from '@/providers/ToastProvider.tsx';
 import { useTranslations } from '@/providers/TranslationProvider.tsx';

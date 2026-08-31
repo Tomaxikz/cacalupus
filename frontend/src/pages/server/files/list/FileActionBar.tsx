@@ -21,9 +21,9 @@ import ActionBar from '@/elements/ActionBar.tsx';
 import Button from '@/elements/Button.tsx';
 import { ServerCan } from '@/elements/Can.tsx';
 import Tooltip from '@/elements/Tooltip.tsx';
-import { downloadFilesWithToast } from '@/pages/server/files/browser/downloadFilesWithToast.ts';
-import { canMoveFilesToDirectory } from '@/pages/server/files/browser/fileMove.ts';
 import { useFileSelectionQuickActions } from '@/pages/server/files/hooks/useFileSelectionQuickActions.tsx';
+import { downloadFilesWithToast } from '@/pages/server/files/list/downloadFilesWithToast.ts';
+import { canMoveFilesToDirectory } from '@/pages/server/files/list/fileMove.ts';
 import FileCopyConflictModal, {
   ConflictResolutions,
   FileConflict,

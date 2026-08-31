@@ -4,13 +4,13 @@ import classNames from 'classnames';
 import { join } from 'pathe';
 import ActionIcon from '@/elements/ActionIcon.tsx';
 import UnstyledButton from '@/elements/UnstyledButton.tsx';
-import FileRowIcon from '@/pages/server/files/browser/FileRowIcon.tsx';
-import FileTreeName from '@/pages/server/files/workspace/FileTreeName.tsx';
+import FileRowIcon from '@/pages/server/files/list/FileRowIcon.tsx';
+import FileTreeName from '@/pages/server/files/tree/FileTreeName.tsx';
 import {
   FileTreeEditorSelection,
   getFileTreeEditorTabId,
   setFileTreeEditorTabDragData,
-} from '@/pages/server/files/workspace/fileTreeEditor.ts';
+} from '@/pages/server/files/tree/fileTreeEditor.ts';
 import { useTranslations } from '@/providers/TranslationProvider.tsx';
 
 interface FileTreeEditorTabsProps {

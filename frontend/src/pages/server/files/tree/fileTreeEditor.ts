@@ -5,7 +5,7 @@ import {
   DirectoryEntry,
   TreeDirectoryCapabilities,
   TreeSelectionItem,
-} from '@/pages/server/files/workspace/fileTreeData.ts';
+} from '@/pages/server/files/tree/fileTreeData.ts';
 
 export const FILE_TREE_EDITOR_DRAG_TYPE = 'application/x-calagopus-file-editor';
 export const FILE_TREE_EDITOR_TAB_DRAG_TYPE = 'application/x-calagopus-file-editor-tab';

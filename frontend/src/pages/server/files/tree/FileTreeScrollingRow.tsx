@@ -2,9 +2,9 @@ import { faChevronDown, faChevronRight } from '@fortawesome/free-solid-svg-icons
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import classNames from 'classnames';
 import { bytesToString } from '@/lib/size.ts';
-import FileRowIcon from '@/pages/server/files/browser/FileRowIcon.tsx';
-import FileTreeName from '@/pages/server/files/workspace/FileTreeName.tsx';
-import { FileTreeRow as FileTreeRowData } from '@/pages/server/files/workspace/fileTreeData.ts';
+import FileRowIcon from '@/pages/server/files/list/FileRowIcon.tsx';
+import FileTreeName from '@/pages/server/files/tree/FileTreeName.tsx';
+import { FileTreeRow as FileTreeRowData } from '@/pages/server/files/tree/fileTreeData.ts';
 
 type EntryTreeRow = Extract<FileTreeRowData, { type: 'entry' }>;
 

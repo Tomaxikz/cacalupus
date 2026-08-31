@@ -1,6 +1,6 @@
 import { useShallow } from 'zustand/react/shallow';
-import FileUploadOverlay from '@/pages/server/files/browser/FileUploadOverlay.tsx';
 import { useFileDragAndDrop } from '@/pages/server/files/hooks/useFileDragAndDrop.ts';
+import FileUploadOverlay from '@/pages/server/files/list/FileUploadOverlay.tsx';
 import { useServerCan } from '@/plugins/usePermissions.ts';
 import { useFileManager } from '@/providers/contexts/fileManagerContext.ts';
 

@@ -7,9 +7,9 @@ import Checkbox from '@/elements/input/Checkbox.tsx';
 import FormattedTimestamp from '@/elements/time/FormattedTimestamp.tsx';
 import { isOpenableFile } from '@/lib/files/files.ts';
 import { bytesToString } from '@/lib/size.ts';
-import FileRowContextMenu from '@/pages/server/files/browser/FileRowContextMenu.tsx';
-import FileRowIcon from '@/pages/server/files/browser/FileRowIcon.tsx';
-import FileTreeName from '@/pages/server/files/workspace/FileTreeName.tsx';
+import FileRowContextMenu from '@/pages/server/files/list/FileRowContextMenu.tsx';
+import FileRowIcon from '@/pages/server/files/list/FileRowIcon.tsx';
+import FileTreeName from '@/pages/server/files/tree/FileTreeName.tsx';
 import { useTranslations } from '@/providers/TranslationProvider.tsx';
 import { useFileManagerApi } from '@/stores/fileManager.ts';
 import { FileTreeRow as FileTreeRowData, TreeSelectionItem } from './fileTreeData.ts';
@@ -208,7 +208,7 @@ function FileTreeRow({
             openContextMenu(rect.left, rect.bottom);
           }}
         >
-          <FontAwesomeIcon icon={faEllipsis} fixedWidth />
+          <FontAwesomeIcon icon={faEllipsis} />
         </ActionIcon>
       </div>
 

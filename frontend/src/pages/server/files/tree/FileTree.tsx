@@ -8,11 +8,11 @@ import searchFiles from '@/api/server/files/searchFiles.ts';
 import Card from '@/elements/Card.tsx';
 import ContextMenu from '@/elements/ContextMenu.tsx';
 import { registerUploadRefresh } from '@/lib/files/uploadManager.ts';
-import FileMassContextMenu from '@/pages/server/files/browser/FileMassContextMenu.tsx';
 import { useDraggedFileMove } from '@/pages/server/files/hooks/useDraggedFileMove.ts';
 import { getFilesFromDataTransfer } from '@/pages/server/files/hooks/useFileDragAndDrop.ts';
-import FileTreeToolbar from '@/pages/server/files/workspace/FileTreeToolbar.tsx';
-import FileTreeVirtualList from '@/pages/server/files/workspace/FileTreeVirtualList.tsx';
+import FileMassContextMenu from '@/pages/server/files/list/FileMassContextMenu.tsx';
+import FileTreeToolbar from '@/pages/server/files/tree/FileTreeToolbar.tsx';
+import FileTreeVirtualList from '@/pages/server/files/tree/FileTreeVirtualList.tsx';
 import {
   appendDirectoryRows,
   collapseNestedTreeItems,
@@ -28,8 +28,8 @@ import {
   TREE_ROW_HEIGHT,
   TreeDirectoryCapabilities,
   TreeSelectionItem,
-} from '@/pages/server/files/workspace/fileTreeData.ts';
-import { setFileTreeEditorDragData } from '@/pages/server/files/workspace/fileTreeEditor.ts';
+} from '@/pages/server/files/tree/fileTreeData.ts';
+import { setFileTreeEditorDragData } from '@/pages/server/files/tree/fileTreeEditor.ts';
 import { useServerCan } from '@/plugins/usePermissions.ts';
 import { useSelectionArea } from '@/plugins/useSelectionArea.ts';
 import useWebsocketEvent, { SocketEvent } from '@/plugins/useWebsocketEvent.ts';

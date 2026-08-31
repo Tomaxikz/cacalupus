@@ -7,13 +7,13 @@ import { ReactNode, Ref, RefObject, useCallback, useEffect, useRef, useState, us
 import SelectionArea from '@/elements/SelectionArea.tsx';
 import Spinner from '@/elements/Spinner.tsx';
 import UnstyledButton from '@/elements/UnstyledButton.tsx';
-import FileTreeRow from '@/pages/server/files/workspace/FileTreeRow.tsx';
-import FileTreeScrollingRow from '@/pages/server/files/workspace/FileTreeScrollingRow.tsx';
+import FileTreeRow from '@/pages/server/files/tree/FileTreeRow.tsx';
+import FileTreeScrollingRow from '@/pages/server/files/tree/FileTreeScrollingRow.tsx';
 import {
   FileTreeRow as FileTreeRowData,
   TreeDirectoryCapabilities,
   TreeSelectionItem,
-} from '@/pages/server/files/workspace/fileTreeData.ts';
+} from '@/pages/server/files/tree/fileTreeData.ts';
 import { useTranslations } from '@/providers/TranslationProvider.tsx';
 
 interface FileTreeVirtualListProps {

@@ -98,7 +98,7 @@ export default function FileTreeToolbar({
             aria-label={t(collapsed ? 'pages.server.files.tree.show' : 'pages.server.files.tree.hide', {})}
             onClick={onToggleCollapsed}
           >
-            <FontAwesomeIcon icon={collapsed ? faAnglesRight : faAnglesLeft} fixedWidth />
+            <FontAwesomeIcon icon={collapsed ? faAnglesRight : faAnglesLeft} />
           </ActionIcon>
 
           <div data-file-manager-tree-selection-control>
@@ -137,7 +137,7 @@ export default function FileTreeToolbar({
                 onOpenCreateMenu(rect.left, rect.bottom);
               }}
             >
-              <FontAwesomeIcon icon={faPlus} fixedWidth />
+              <FontAwesomeIcon icon={faPlus} />
             </ActionIcon>
           )}
 
@@ -192,7 +192,7 @@ export default function FileTreeToolbar({
                     openMenu(rect.left, rect.bottom);
                   }}
                 >
-                  <FontAwesomeIcon icon={faUpload} fixedWidth />
+                  <FontAwesomeIcon icon={faUpload} />
                 </ActionIcon>
               )}
             </ContextMenu>
@@ -207,7 +207,7 @@ export default function FileTreeToolbar({
             aria-label={t('pages.server.files.quickAction.search', {})}
             onClick={searchOpen ? onCloseSearch : onOpenSearch}
           >
-            <FontAwesomeIcon icon={faMagnifyingGlass} fixedWidth />
+            <FontAwesomeIcon icon={faMagnifyingGlass} />
           </ActionIcon>
 
           <ActionIcon
@@ -220,7 +220,7 @@ export default function FileTreeToolbar({
             aria-label={t('pages.server.files.tooltip.largestDirectories', {})}
             onClick={onAnalysis}
           >
-            <FontAwesomeIcon icon={faMagnifyingGlassChart} fixedWidth />
+            <FontAwesomeIcon icon={faMagnifyingGlassChart} />
           </ActionIcon>
 
           <ActionIcon
@@ -234,7 +234,7 @@ export default function FileTreeToolbar({
             aria-label={t('pages.server.files.tree.reload', {})}
             onClick={onReload}
           >
-            <FontAwesomeIcon icon={faRotate} fixedWidth />
+            <FontAwesomeIcon icon={faRotate} />
           </ActionIcon>
 
           {registry.fileTreeToolbar.appendedComponents.map((Component, index) => (

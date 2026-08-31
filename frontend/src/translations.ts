@@ -4667,8 +4667,8 @@ const baseTranslations = defineTranslations({
             content: 'Editor not found.',
           },
           view: {
-            files: 'Files',
-            editor: 'Editor',
+            list: 'List',
+            tree: 'Tree',
           },
           tree: {
             empty: 'This folder is empty',

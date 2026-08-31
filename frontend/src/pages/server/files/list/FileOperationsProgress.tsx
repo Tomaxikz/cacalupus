@@ -14,9 +14,9 @@ import {
   hasUploadError,
   resumeDetachedUpload,
 } from '@/lib/files/uploadManager.ts';
-import FileOperationRow from '@/pages/server/files/browser/FileOperationRow.tsx';
-import UploadFileRow from '@/pages/server/files/browser/UploadFileRow.tsx';
-import UploadFolderRow from '@/pages/server/files/browser/UploadFolderRow.tsx';
+import FileOperationRow from '@/pages/server/files/list/FileOperationRow.tsx';
+import UploadFileRow from '@/pages/server/files/list/UploadFileRow.tsx';
+import UploadFolderRow from '@/pages/server/files/list/UploadFolderRow.tsx';
 import { useServerCan } from '@/plugins/usePermissions.ts';
 import { useToast } from '@/providers/contexts/toastContext.ts';
 import { useFileManager } from '@/providers/FileManagerProvider.tsx';

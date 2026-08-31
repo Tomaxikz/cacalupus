@@ -23,10 +23,7 @@ import ContextMenu, { ContextMenuItem } from '@/elements/ContextMenu.tsx';
 import { isArchiveType } from '@/lib/files/files.ts';
 import { streamingArchiveFormat } from '@/lib/schemas/generic.ts';
 import { serverDirectoryEntrySchema } from '@/lib/schemas/server/files.ts';
-import {
-  buildDownloadAsMenuItems,
-  downloadFilesWithToast,
-} from '@/pages/server/files/browser/downloadFilesWithToast.ts';
+import { buildDownloadAsMenuItems, downloadFilesWithToast } from '@/pages/server/files/list/downloadFilesWithToast.ts';
 import { useServerCan } from '@/plugins/usePermissions.ts';
 import { useToast } from '@/providers/contexts/toastContext.ts';
 import { useWindows } from '@/providers/contexts/windowContext.ts';

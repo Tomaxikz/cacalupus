@@ -2,8 +2,8 @@ import classNames from 'classnames';
 import { join } from 'pathe';
 import { useSearchParams } from 'react-router';
 import { TableData, TableRow } from '@/elements/Table.tsx';
-import FileRowIcon from '@/pages/server/files/browser/FileRowIcon.tsx';
 import { useDraggedFileMove } from '@/pages/server/files/hooks/useDraggedFileMove.ts';
+import FileRowIcon from '@/pages/server/files/list/FileRowIcon.tsx';
 import { useFileManagerApi, useFileManagerStore } from '@/stores/fileManager.ts';
 
 function FileParentDirectoryRow() {

@@ -3,25 +3,25 @@ import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
 import { useNavigate, useSearchParams } from 'react-router';
 import ConfirmationModal from '@/elements/modals/ConfirmationModal.tsx';
 import { isOpenableFile } from '@/lib/files/files.ts';
-import FileTree from '@/pages/server/files/workspace/FileTree.tsx';
-import FileTreeEditorPane from '@/pages/server/files/workspace/FileTreeEditorPane.tsx';
-import FileTreeEditorSplit from '@/pages/server/files/workspace/FileTreeEditorSplit.tsx';
-import { TreeDirectoryCapabilities, TreeSelectionItem } from '@/pages/server/files/workspace/fileTreeData.ts';
+import FileTree from '@/pages/server/files/tree/FileTree.tsx';
+import FileTreeEditorPane from '@/pages/server/files/tree/FileTreeEditorPane.tsx';
+import FileTreeEditorSplit from '@/pages/server/files/tree/FileTreeEditorSplit.tsx';
+import { TreeDirectoryCapabilities, TreeSelectionItem } from '@/pages/server/files/tree/fileTreeData.ts';
 import {
   FileTreeEditorDragItem,
   FileTreeEditorSelection,
   getFileTreeEditorDragData,
   getFileTreeEditorTabDragData,
   getFileTreeEditorTabId,
-} from '@/pages/server/files/workspace/fileTreeEditor.ts';
+} from '@/pages/server/files/tree/fileTreeEditor.ts';
 import {
   createFileTreePaneId,
   FileTreeEditorWorkspaceState,
   normalizeFileTreeWorkspace,
   restoreFileTreeWorkspace,
   storeFileTreeWorkspace,
-} from '@/pages/server/files/workspace/fileTreeWorkspaceState.ts';
-import useFileTreeEditorShortcuts from '@/pages/server/files/workspace/useFileTreeEditorShortcuts.ts';
+} from '@/pages/server/files/tree/fileTreeWorkspaceState.ts';
+import useFileTreeEditorShortcuts from '@/pages/server/files/tree/useFileTreeEditorShortcuts.ts';
 import { useServerCan } from '@/plugins/usePermissions.ts';
 import { useToast } from '@/providers/ToastProvider.tsx';
 import { useTranslations } from '@/providers/TranslationProvider.tsx';

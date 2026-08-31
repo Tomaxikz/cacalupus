@@ -13,10 +13,7 @@ import downloadFiles from '@/api/server/files/downloadFiles.ts';
 import ContextMenu, { ContextMenuItem } from '@/elements/ContextMenu.tsx';
 import { streamingArchiveFormat } from '@/lib/schemas/generic.ts';
 import { serverDirectoryEntrySchema } from '@/lib/schemas/server/files.ts';
-import {
-  buildDownloadAsMenuItems,
-  downloadFilesWithToast,
-} from '@/pages/server/files/browser/downloadFilesWithToast.ts';
+import { buildDownloadAsMenuItems, downloadFilesWithToast } from '@/pages/server/files/list/downloadFilesWithToast.ts';
 import { useServerCan } from '@/plugins/usePermissions.ts';
 import { useToast } from '@/providers/ToastProvider.tsx';
 import { useTranslations } from '@/providers/TranslationProvider.tsx';

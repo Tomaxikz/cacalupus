@@ -2,8 +2,8 @@ import { Fragment, ReactNode, useCallback, useEffect, useRef, useState } from 'r
 import {
   FILE_TREE_EDITOR_DRAG_TYPE,
   FILE_TREE_EDITOR_TAB_DRAG_TYPE,
-} from '@/pages/server/files/workspace/fileTreeEditor.ts';
-import { FileTreeEditorPaneState } from '@/pages/server/files/workspace/fileTreeWorkspaceState.ts';
+} from '@/pages/server/files/tree/fileTreeEditor.ts';
+import { FileTreeEditorPaneState } from '@/pages/server/files/tree/fileTreeWorkspaceState.ts';
 
 interface FileTreeEditorSplitProps {
   panes: FileTreeEditorPaneState[];

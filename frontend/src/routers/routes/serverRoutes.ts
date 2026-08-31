@@ -21,8 +21,8 @@ import DatabaseInstanceExplorerView from '@/pages/server/databases/instances/Dat
 import DatabaseInstanceView from '@/pages/server/databases/instances/DatabaseInstanceView.tsx';
 import ServerDatabaseInstances from '@/pages/server/databases/instances/ServerDatabaseInstances.tsx';
 import ServerDatabases from '@/pages/server/databases/ServerDatabases.tsx';
-import ServerFiles from '@/pages/server/files/browser/ServerFiles.tsx';
 import FileSqliteQuery from '@/pages/server/files/editor/FileSqliteQuery.tsx';
+import ServerFiles from '@/pages/server/files/list/ServerFiles.tsx';
 import ServerMounts from '@/pages/server/mounts/ServerMounts.tsx';
 import ServerFirewall from '@/pages/server/network/firewall/ServerFirewall.tsx';
 import ServerNetwork from '@/pages/server/network/ServerNetwork.tsx';
