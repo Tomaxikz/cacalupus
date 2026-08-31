@@ -1,10 +1,8 @@
 import { faArrowUp, faFolderPlus } from '@fortawesome/free-solid-svg-icons';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
-import { keepPreviousData, useQuery, useQueryClient } from '@tanstack/react-query';
-import debounce from 'debounce';
-import { Dispatch, Ref, SetStateAction, useCallback, useEffect, useMemo, useRef, useState } from 'react';
+import { useQueryClient } from '@tanstack/react-query';
+import { Ref, useCallback, useEffect, useRef, useState } from 'react';
 import { createSearchParams, useSearchParams } from 'react-router';
-import { z } from 'zod';
 import getAssets from '@/api/admin/assets/getAssets.ts';
 import searchAssets from '@/api/admin/assets/searchAssets.ts';
 import Button from '@/elements/Button.tsx';
@@ -13,27 +11,28 @@ import Card from '@/elements/Card.tsx';
 import AdminContentContainer from '@/elements/containers/AdminContentContainer.tsx';
 import SelectionArea from '@/elements/SelectionArea.tsx';
 import Table from '@/elements/Table.tsx';
-import { ObjectSet } from '@/lib/objectSet.ts';
+import { parentPath } from '@/lib/path.ts';
 import { queryKeys } from '@/lib/queryKeys.ts';
 import { CORE_QUICK_ACTION_CATEGORIES } from '@/lib/quickActions/coreQuickActions.tsx';
-import { storageAssetSchema } from '@/lib/schemas/admin/assets.ts';
+import { StorageAsset } from '@/lib/schemas/admin/assets.ts';
 import { assetTableColumns } from '@/lib/tableColumns.ts';
 import AssetUpload from '@/pages/admin/assets/AssetUpload.tsx';
 import AssetUploadProgress from '@/pages/admin/assets/AssetUploadProgress.tsx';
+import { useAssetSelection } from '@/pages/admin/assets/hooks/useAssetSelection.ts';
 import { useKeyboardShortcuts } from '@/plugins/useKeyboardShortcuts.ts';
 import { useQuickActions } from '@/plugins/useQuickActions.ts';
+import { useSearchablePaginatedTable } from '@/plugins/useSearchablePaginatedTable.ts';
 import { useSelectionArea } from '@/plugins/useSelectionArea.ts';
 import { useUploader } from '@/plugins/useUploader.ts';
 import { useTranslations } from '@/providers/TranslationProvider.tsx';
-import { UploadDestination } from '@/stores/uploads.ts';
 import AssetActionBar from './AssetActionBar.tsx';
 import AssetBreadcrumbs from './AssetBreadcrumbs.tsx';
 import AssetRow from './AssetRow.tsx';
 import NewDirectoryModal from './NewDirectoryModal.tsx';
 
 interface AssetsQueryData {
-  assets: z.infer<typeof storageAssetSchema>[];
-  pagination?: Pagination<z.infer<typeof storageAssetSchema>>;
+  assets: StorageAsset[];
+  pagination?: Pagination<StorageAsset>;
 }
 
 export default function AdminAssets() {
@@ -42,101 +41,52 @@ export default function AdminAssets() {
   const [searchParams, setSearchParams] = useSearchParams();
 
   const currentDirectory = searchParams.get('directory') ?? '';
-  const page = Number(searchParams.get('page')) || 1;
 
-  const [selectedAssets, setSelectedAssets] = useState(
-    new ObjectSet<z.infer<typeof storageAssetSchema>, 'name'>('name'),
-  );
   const [openModal, setOpenModal] = useState<'newDirectory' | null>(null);
-  const [search, setSearchValue] = useState('');
-  const [debouncedSearch, setDebouncedSearch] = useState('');
 
-  const updateDebouncedSearch = useMemo(() => debounce((value: string) => setDebouncedSearch(value), 150), []);
-
-  useEffect(() => {
-    if (!search) {
-      updateDebouncedSearch.clear();
-      setDebouncedSearch('');
-    } else {
-      updateDebouncedSearch(search);
-    }
-  }, [search]);
-
-  const { data, isFetching } = useQuery({
-    queryKey: [...queryKeys.admin.assets.all(), { page, currentDirectory, search: debouncedSearch }],
-    queryFn: (): Promise<AssetsQueryData> =>
-      debouncedSearch
-        ? searchAssets(currentDirectory, debouncedSearch).then((assets) => ({ assets }))
-        : getAssets(page, currentDirectory).then((pagination) => ({ assets: pagination.data, pagination })),
-    placeholderData: keepPreviousData,
+  const { data, loading, search, setSearch, setPage } = useSearchablePaginatedTable<AssetsQueryData>({
+    queryKey: queryKeys.admin.assets.all(),
+    deps: [currentDirectory],
+    paginationKey: 'pagination',
+    fetcher: (requestedPage, query) =>
+      query
+        ? searchAssets(currentDirectory, query).then((assets) => ({ assets }))
+        : getAssets(requestedPage, currentDirectory).then((pagination) => ({ assets: pagination.data, pagination })),
   });
 
   const assets = data?.assets;
+
+  const selection = useAssetSelection(assets);
 
   const invalidateAssets = useCallback(() => {
     queryClient.invalidateQueries({ queryKey: queryKeys.admin.assets.all() }).catch((e) => console.error(e));
   }, [queryClient]);
 
-  const currentDirectoryRef = useRef(currentDirectory);
-
-  useEffect(() => {
-    currentDirectoryRef.current = currentDirectory;
-  }, [currentDirectory]);
-
-  const getDestination = useCallback(
-    (): UploadDestination => ({ type: 'adminAsset', directory: currentDirectoryRef.current }),
-    [],
-  );
   const { uploadingFiles, handleFileSelect, totalUploadProgress, cancelFileUpload, uploadFiles } = useUploader(
     'adminAsset',
-    getDestination,
+    () => ({ type: 'adminAsset', directory: currentDirectory }),
   );
 
   const navigateToDirectory = useCallback(
-    (dir: string) => {
-      setSearchParams(createSearchParams({ directory: dir }));
-      setSelectedAssets(new ObjectSet('name'));
-      setSearchValue('');
-    },
+    (dir: string) => setSearchParams(dir ? createSearchParams({ directory: dir }) : createSearchParams()),
     [setSearchParams],
   );
 
-  const onPageSelect = (p: number) =>
-    setSearchParams(createSearchParams({ directory: currentDirectory, page: p.toString() }));
-
-  const setSearch: Dispatch<SetStateAction<string>> = (value) => {
-    setSearchValue(value);
-
-    if (page !== 1) {
-      setSearchParams(createSearchParams({ directory: currentDirectory }));
-    }
-  };
-
+  const previousDirectory = useRef(currentDirectory);
   useEffect(() => {
-    setSelectedAssets(new ObjectSet('name'));
+    if (previousDirectory.current === currentDirectory) return;
+    previousDirectory.current = currentDirectory;
+
+    selection.clear();
+    setSearch('');
+    setPage(1);
   }, [currentDirectory]);
 
   const { onSelectedStart, onSelected } = useSelectionArea({
-    identify: (asset) => asset.name,
-    getSelected: () => selectedAssets.values(),
-    setSelected: (assets) =>
-      setSelectedAssets(
-        new ObjectSet(
-          'name',
-          assets.filter((asset) => !asset.isDirectory),
-        ),
-      ),
+    identify: (asset: StorageAsset) => asset.name,
+    getSelected: () => selection.selected.values(),
+    setSelected: selection.replace,
   });
-
-  const addSelectedAsset = (asset: z.infer<typeof storageAssetSchema>) =>
-    setSelectedAssets((prev) => prev.clone().add(asset));
-
-  const removeSelectedAsset = (asset: z.infer<typeof storageAssetSchema>) =>
-    setSelectedAssets((prev) => {
-      const next = prev.clone();
-      next.delete(asset);
-      return next;
-    });
 
   useQuickActions([
     {
@@ -155,7 +105,7 @@ export default function AdminAssets() {
       keywords: ['up', 'back'],
       icon: <FontAwesomeIcon icon={faArrowUp} />,
       isVisible: () => currentDirectory !== '',
-      perform: () => navigateToDirectory(currentDirectory.split('/').filter(Boolean).slice(0, -1).join('/')),
+      perform: () => navigateToDirectory(parentPath(currentDirectory)),
     },
   ]);
 
@@ -164,20 +114,14 @@ export default function AdminAssets() {
       {
         key: 'a',
         modifiers: ['ctrlOrMeta'],
-        callback: () =>
-          setSelectedAssets(
-            new ObjectSet(
-              'name',
-              assets?.filter((a) => !a.isDirectory),
-            ),
-          ),
+        callback: () => selection.selectAll(),
       },
       {
         key: 'Escape',
-        callback: () => setSelectedAssets(new ObjectSet('name')),
+        callback: () => selection.clear(),
       },
     ],
-    deps: [data],
+    deps: [selection.selectAll, selection.clear],
   });
 
   return (
@@ -208,7 +152,6 @@ export default function AdminAssets() {
         opened={openModal === 'newDirectory'}
         onClose={() => setOpenModal(null)}
         currentDirectory={currentDirectory}
-        existingEntries={assets ?? []}
         onNavigate={navigateToDirectory}
       />
 
@@ -217,9 +160,9 @@ export default function AdminAssets() {
       </Card>
 
       <AssetActionBar
-        selectedAssets={selectedAssets}
-        invalidateAssets={() => {
-          setSelectedAssets(new ObjectSet('name'));
+        selectedAssets={selection.selected}
+        onDeleted={() => {
+          selection.clear();
           invalidateAssets();
         }}
       />
@@ -227,9 +170,9 @@ export default function AdminAssets() {
       <SelectionArea onSelectedStart={onSelectedStart} onSelected={onSelected}>
         <Table
           columns={assetTableColumns()}
-          loading={isFetching}
+          loading={loading}
           pagination={data?.pagination}
-          onPageSelect={onPageSelect}
+          onPageSelect={setPage}
           allowSelect={false}
         >
           {assets?.map((asset) => (
@@ -239,11 +182,10 @@ export default function AdminAssets() {
                   key={asset.name}
                   asset={asset}
                   currentDirectory={currentDirectory}
-                  isSelected={selectedAssets.has(asset.name)}
-                  addSelectedAsset={addSelectedAsset}
-                  removeSelectedAsset={removeSelectedAsset}
+                  isSelected={selection.selected.has(asset.name)}
+                  toggleSelectedAsset={selection.toggle}
+                  removeSelectedAsset={selection.remove}
                   invalidateAssets={invalidateAssets}
-                  onDirectoryClick={navigateToDirectory}
                   ref={innerRef as Ref<HTMLTableRowElement>}
                 />
               )}

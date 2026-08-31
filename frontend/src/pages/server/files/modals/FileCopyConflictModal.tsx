@@ -13,8 +13,8 @@ import Text from '@/elements/Text.tsx';
 import FormattedTimestamp from '@/elements/time/FormattedTimestamp.tsx';
 import { serverDirectoryEntrySchema } from '@/lib/schemas/server/files.ts';
 import { bytesToString } from '@/lib/size.ts';
+import FileRowIcon from '@/pages/server/files/list/FileRowIcon.tsx';
 import { useTranslations } from '@/providers/TranslationProvider.tsx';
-import FileRowIcon from '../browser/FileRowIcon.tsx';
 
 export interface FileConflict {
   from: string;

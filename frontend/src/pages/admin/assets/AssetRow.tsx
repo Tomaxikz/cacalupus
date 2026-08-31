@@ -1,10 +1,7 @@
 import { faCopy, faFolder, faTrash } from '@fortawesome/free-solid-svg-icons';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
-import { forwardRef, useState } from 'react';
-import { createSearchParams } from 'react-router';
-import { z } from 'zod';
-import deleteAssets from '@/api/admin/assets/deleteAssets.ts';
-import { httpErrorToHuman } from '@/api/axios.ts';
+import { Ref, useState } from 'react';
+import { createSearchParams, useNavigate } from 'react-router';
 import Code from '@/elements/Code.tsx';
 import ContextMenu, { ContextMenuToggle } from '@/elements/ContextMenu.tsx';
 import Checkbox from '@/elements/input/Checkbox.tsx';
@@ -13,48 +10,51 @@ import { TableData, TableRow } from '@/elements/Table.tsx';
 import TableLink from '@/elements/TableLink.tsx';
 import FormattedTimestamp from '@/elements/time/FormattedTimestamp.tsx';
 import { handleRawCopyToClipboard } from '@/lib/copy.ts';
-import { storageAssetSchema } from '@/lib/schemas/admin/assets.ts';
+import { relativeName } from '@/lib/path.ts';
+import { StorageAsset } from '@/lib/schemas/admin/assets.ts';
 import { bytesToString } from '@/lib/size.ts';
+import { useDeleteAssets } from '@/pages/admin/assets/hooks/useDeleteAssets.ts';
 import { useAdminCan } from '@/plugins/usePermissions.ts';
 import { useToast } from '@/providers/ToastProvider.tsx';
 import { useTranslations } from '@/providers/TranslationProvider.tsx';
 
 interface AssetRowProps {
-  asset: z.infer<typeof storageAssetSchema>;
+  asset: StorageAsset;
   currentDirectory: string;
   isSelected: boolean;
 
-  addSelectedAsset: (asset: z.infer<typeof storageAssetSchema>) => void;
-  removeSelectedAsset: (asset: z.infer<typeof storageAssetSchema>) => void;
+  toggleSelectedAsset: (asset: StorageAsset) => void;
+  removeSelectedAsset: (asset: StorageAsset) => void;
   invalidateAssets: () => void;
-  onDirectoryClick: (name: string) => void;
+  ref?: Ref<HTMLTableRowElement>;
 }
 
-const AssetRow = forwardRef<HTMLTableRowElement, AssetRowProps>(function AssetRow(
-  { asset, currentDirectory, isSelected, addSelectedAsset, removeSelectedAsset, invalidateAssets, onDirectoryClick },
+export default function AssetRow({
+  asset,
+  currentDirectory,
+  isSelected,
+  toggleSelectedAsset,
+  removeSelectedAsset,
+  invalidateAssets,
   ref,
-) {
+}: AssetRowProps) {
   const { t } = useTranslations();
   const { addToast } = useToast();
+  const navigate = useNavigate();
   const canDeleteAssets = useAdminCan('assets.delete');
+  const deleteAssets = useDeleteAssets();
 
   const [openModal, setOpenModal] = useState<'delete' | null>(null);
 
-  const displayName = currentDirectory ? asset.name.slice(currentDirectory.length + 1) : asset.name;
-
-  const toggleSelected = () => (isSelected ? removeSelectedAsset(asset) : addSelectedAsset(asset));
+  const displayName = relativeName(asset.name, currentDirectory);
+  const directoryTo = `?${createSearchParams({ directory: asset.name })}`;
 
   const doDelete = async () => {
-    await deleteAssets([asset.name])
-      .then(() => {
-        setOpenModal(null);
-        removeSelectedAsset(asset);
-        addToast(t('pages.admin.assets.toast.assetDeleted', {}), 'success');
-        invalidateAssets();
-      })
-      .catch((msg) => {
-        addToast(httpErrorToHuman(msg), 'error');
-      });
+    if (await deleteAssets([asset.name])) {
+      setOpenModal(null);
+      removeSelectedAsset(asset);
+      invalidateAssets();
+    }
   };
 
   if (asset.isDirectory) {
@@ -63,20 +63,16 @@ const AssetRow = forwardRef<HTMLTableRowElement, AssetRowProps>(function AssetRo
         ref={ref}
         className='cursor-pointer'
         onClick={(e) => {
-          e.stopPropagation();
-          onDirectoryClick(asset.name);
+          if (e.defaultPrevented || e.button !== 0 || e.ctrlKey || e.metaKey || e.shiftKey) return;
+          navigate(directoryTo);
         }}
       >
-        <td className='pl-4 relative cursor-pointer w-10 h-9 text-center flex flex-col'>
+        <td className='pl-4 w-10 h-9 text-center flex flex-col'>
           <FontAwesomeIcon icon={faFolder} className='my-auto' />
         </td>
 
         <TableData colSpan={3}>
-          <TableLink
-            to={`?${createSearchParams({ directory: asset.name })}`}
-            className='flex items-center gap-2'
-            onClick={(e) => e.preventDefault()}
-          >
+          <TableLink to={directoryTo} className='flex items-center gap-2'>
             <Code>{displayName}</Code>
           </TableLink>
         </TableData>
@@ -122,11 +118,8 @@ const AssetRow = forwardRef<HTMLTableRowElement, AssetRowProps>(function AssetRo
             bg={isSelected ? 'var(--mantine-color-blue-light)' : undefined}
             onClick={(e) => {
               if (e.ctrlKey || e.metaKey) {
-                addSelectedAsset(asset);
-                return true;
+                toggleSelectedAsset(asset);
               }
-
-              return false;
             }}
             onContextMenu={(e) => {
               e.preventDefault();
@@ -134,11 +127,11 @@ const AssetRow = forwardRef<HTMLTableRowElement, AssetRowProps>(function AssetRo
             }}
             ref={ref}
           >
-            <td className='pl-4 relative cursor-pointer w-10 text-center'>
+            <td className='pl-4 w-10 text-center'>
               <Checkbox
                 id={asset.name}
                 checked={isSelected}
-                onChange={toggleSelected}
+                onChange={() => toggleSelectedAsset(asset)}
                 onClick={(e) => e.stopPropagation()}
               />
             </td>
@@ -161,6 +154,4 @@ const AssetRow = forwardRef<HTMLTableRowElement, AssetRowProps>(function AssetRo
       </ContextMenu>
     </>
   );
-});
-
-export default AssetRow;
+}

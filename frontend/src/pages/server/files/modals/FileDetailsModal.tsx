@@ -9,9 +9,9 @@ import Title from '@/elements/Title.tsx';
 import FormattedTimestamp from '@/elements/time/FormattedTimestamp.tsx';
 import { serverDirectoryEntrySchema } from '@/lib/schemas/server/files.ts';
 import { bytesToString } from '@/lib/size.ts';
+import FileRowIcon from '@/pages/server/files/list/FileRowIcon.tsx';
 import { useFileManager } from '@/providers/contexts/fileManagerContext.ts';
 import { useTranslations } from '@/providers/TranslationProvider.tsx';
-import FileRowIcon from '../browser/FileRowIcon.tsx';
 
 type Props = ModalProps & {
   file: z.infer<typeof serverDirectoryEntrySchema> | null;

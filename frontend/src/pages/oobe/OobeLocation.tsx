@@ -25,12 +25,12 @@ import {
   adminBackupConfigurationS3Schema,
 } from '@/lib/schemas/admin/backupConfigurations.ts';
 import { oobeLocationSchema } from '@/lib/schemas/oobe.ts';
+import BackupKopia from '@/pages/admin/backup-configurations/forms/BackupKopia.tsx';
+import BackupPBS from '@/pages/admin/backup-configurations/forms/BackupPBS.tsx';
+import BackupRestic from '@/pages/admin/backup-configurations/forms/BackupRestic.tsx';
+import BackupS3 from '@/pages/admin/backup-configurations/forms/BackupS3.tsx';
 import { useTranslations } from '@/providers/TranslationProvider.tsx';
 import { OobeComponentProps } from '@/routers/OobeRouter.tsx';
-import BackupKopia from '../admin/backupConfigurations/forms/BackupKopia.tsx';
-import BackupPBS from '../admin/backupConfigurations/forms/BackupPBS.tsx';
-import BackupRestic from '../admin/backupConfigurations/forms/BackupRestic.tsx';
-import BackupS3 from '../admin/backupConfigurations/forms/BackupS3.tsx';
 
 export default function OobeLocation({ onNext, onBack, canGoBack, skipFrom, data }: OobeComponentProps) {
   const { t, language } = useTranslations();

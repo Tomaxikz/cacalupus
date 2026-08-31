@@ -1,0 +1,85 @@
+import { faArchive, faChartBar, faCog, faDesktop, faEarthAmerica, faServer } from '@fortawesome/free-solid-svg-icons';
+import { useParams } from 'react-router';
+import getBackupConfiguration from '@/api/admin/backup-configurations/getBackupConfiguration.ts';
+import AdminContentContainer from '@/elements/containers/AdminContentContainer.tsx';
+import ResourceView from '@/elements/ResourceView.tsx';
+import SubNavigation from '@/elements/SubNavigation.tsx';
+import { queryKeys } from '@/lib/queryKeys.ts';
+import AdminBackupConfigurationLocations from '@/pages/admin/backup-configurations/locations/AdminBackupConfigurationLocations.tsx';
+import AdminBackupConfigurationNodes from '@/pages/admin/backup-configurations/nodes/AdminBackupConfigurationNodes.tsx';
+import AdminBackupConfigurationServers from '@/pages/admin/backup-configurations/servers/AdminBackupConfigurationServers.tsx';
+import AdminBackupConfigurationStats from '@/pages/admin/backup-configurations/stats/AdminBackupConfigurationStats.tsx';
+import { useResource } from '@/plugins/useResource.ts';
+import { useTranslations } from '@/providers/TranslationProvider.tsx';
+import BackupConfigurationCreateOrUpdate from './BackupConfigurationCreateOrUpdate.tsx';
+import AdminBackupConfigurationBackups from './backups/AdminBackupConfigurationBackups.tsx';
+
+export default function BackupConfigurationView() {
+  const { t } = useTranslations();
+  const params = useParams<'id'>();
+
+  const resource = useResource({
+    queryKey: queryKeys.admin.backupConfigurations.detail(params.id!),
+    queryFn: () => getBackupConfiguration(params.id!),
+  });
+
+  return (
+    <ResourceView resource={resource}>
+      {(backupConfiguration) => (
+        <AdminContentContainer
+          title={backupConfiguration.name}
+          registry={window.extensionContext.extensionRegistry.pages.admin.backupConfigurations.container}
+        >
+          <SubNavigation
+            baseUrl={`/admin/backup-configurations/${params.id}`}
+            registry={window.extensionContext.extensionRegistry.pages.admin.backupConfigurations.view.subNavigation}
+            registryProps={{ backupConfiguration }}
+            items={[
+              {
+                name: t('common.tabs.general', {}),
+                icon: faCog,
+                path: `/`,
+                element: <BackupConfigurationCreateOrUpdate contextBackupConfiguration={backupConfiguration} />,
+              },
+              {
+                name: t('pages.admin.backupConfigurations.tabs.stats.title', {}),
+                icon: faChartBar,
+                path: `/stats`,
+                permission: 'stats.read',
+                element: <AdminBackupConfigurationStats backupConfiguration={backupConfiguration} />,
+              },
+              {
+                name: t('pages.admin.backupConfigurations.tabs.backups.title', {}),
+                icon: faArchive,
+                path: `/backups`,
+                permission: 'backup-configurations.backups',
+                element: <AdminBackupConfigurationBackups backupConfiguration={backupConfiguration} />,
+              },
+              {
+                name: t('pages.admin.backupConfigurations.tabs.locations.title', {}),
+                icon: faEarthAmerica,
+                path: `/locations`,
+                permission: 'locations.read',
+                element: <AdminBackupConfigurationLocations backupConfiguration={backupConfiguration} />,
+              },
+              {
+                name: t('pages.admin.backupConfigurations.tabs.nodes.title', {}),
+                icon: faServer,
+                path: `/nodes`,
+                permission: 'nodes.read',
+                element: <AdminBackupConfigurationNodes backupConfiguration={backupConfiguration} />,
+              },
+              {
+                name: t('pages.admin.backupConfigurations.tabs.servers.title', {}),
+                icon: faDesktop,
+                path: `/servers`,
+                permission: 'servers.read',
+                element: <AdminBackupConfigurationServers backupConfiguration={backupConfiguration} />,
+              },
+            ]}
+          />
+        </AdminContentContainer>
+      )}
+    </ResourceView>
+  );
+}

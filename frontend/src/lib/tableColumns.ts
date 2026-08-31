@@ -409,10 +409,10 @@ export const adminUserOAuthLinkTableColumns = (): string[] => {
   ];
 };
 
-export const adminActivityColumns = (): string[] => {
+export const activityColumns = ({ avatar = true }: { avatar?: boolean } = {}): string[] => {
   const { t } = getTranslations();
   return [
-    '',
+    ...(avatar ? [''] : []),
     t('common.table.columns.actor', {}),
     t('common.table.columns.event', {}),
     t('common.table.columns.ip', {}),

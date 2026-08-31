@@ -12,9 +12,9 @@ import FormattedTimestamp from '@/elements/time/FormattedTimestamp.tsx';
 import { databaseTypeLabelMapping } from '@/lib/enums.ts';
 import { adminServerSchema, adminServerServerDatabaseSchema } from '@/lib/schemas/admin/servers.ts';
 import { bytesToString } from '@/lib/size.ts';
+import DatabaseHostDatabaseDeleteModal from '@/pages/admin/database-hosts/databases/modals/DatabaseHostDatabaseDeleteModal.tsx';
 import { useAdminCan } from '@/plugins/usePermissions.ts';
 import { useTranslations } from '@/providers/TranslationProvider.tsx';
-import DatabaseHostDatabaseDeleteModal from '../../databaseHosts/databases/modals/DatabaseHostDatabaseDeleteModal.tsx';
 
 export default function AdminServerDatabaseRow({
   server,

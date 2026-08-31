@@ -4,6 +4,8 @@ import { useEffect, useMemo, useState } from 'react';
 import { httpErrorToHuman } from '@/api/axios.ts';
 import { useToast } from '@/providers/ToastProvider.tsx';
 
+const EMPTY_ITEMS: never[] = [];
+
 interface UseSearchableResourceOptions<T> {
   queryKey: readonly unknown[];
   fetcher: (search: string) => Promise<Pagination<T>>;
@@ -46,7 +48,7 @@ export function useSearchableResource<T>({
   }, [error]);
 
   return {
-    items: data?.data ?? [],
+    items: data?.data ?? EMPTY_ITEMS,
     loading: isFetching,
     search,
     setSearch,

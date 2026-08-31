@@ -12,6 +12,16 @@ import { bytesProgressString } from '@/lib/size.ts';
 import { useTranslations } from '@/providers/TranslationProvider.tsx';
 import { UploadItem } from '@/stores/uploads.ts';
 
+const STATUS_META = {
+  error: { color: 'red', labelKey: 'common.badge.failed' },
+  pending: { color: 'gray', labelKey: 'elements.fileUpload.badge.waiting' },
+  uploading: { color: 'blue', labelKey: 'elements.fileUpload.badge.uploading' },
+} as const;
+
+function statusMeta(status: UploadItem['status']) {
+  return STATUS_META[status as keyof typeof STATUS_META] ?? STATUS_META.uploading;
+}
+
 export default function AssetUploadProgress({
   uploadingFiles,
   totalUploadProgress,
@@ -27,10 +37,7 @@ export default function AssetUploadProgress({
     return null;
   }
 
-  let hasErrors = false;
-  uploadingFiles.forEach((file) => {
-    if (file.status === 'error') hasErrors = true;
-  });
+  const hasErrors = [...uploadingFiles.values()].some((file) => file.status === 'error');
 
   return (
     <Popover position='bottom-start' shadow='md'>
@@ -55,34 +62,30 @@ export default function AssetUploadProgress({
         </UnstyledButton>
       </Popover.Target>
       <Popover.Dropdown className='md:min-w-xl max-w-screen max-h-96 overflow-y-auto'>
-        {Array.from(uploadingFiles).map(([key, file]) => (
-          <div key={key} className='flex flex-row items-center mb-2'>
-            <div className='flex flex-col grow'>
-              <div className='flex items-center gap-2 mb-1'>
-                <Badge
-                  variant='light'
-                  size='sm'
-                  color={file.status === 'error' ? 'red' : file.status === 'pending' ? 'gray' : 'blue'}
-                >
-                  {file.status === 'error'
-                    ? t('common.badge.failed', {})
-                    : file.status === 'pending'
-                      ? t('elements.fileUpload.badge.waiting', {})
-                      : t('elements.fileUpload.badge.uploading', {})}
-                </Badge>
-                <span className='break-all text-sm'>{file.filePath}</span>
+        {[...uploadingFiles].map(([key, file]) => {
+          const meta = statusMeta(file.status);
+
+          return (
+            <div key={key} className='flex flex-row items-center mb-2'>
+              <div className='flex flex-col grow'>
+                <div className='flex items-center gap-2 mb-1'>
+                  <Badge variant='light' size='sm' color={meta.color}>
+                    {t(meta.labelKey, {})}
+                  </Badge>
+                  <span className='break-all text-sm'>{file.filePath}</span>
+                </div>
+                <Tooltip label={bytesProgressString(file.uploaded, file.size)} innerClassName='w-full'>
+                  <Progress value={file.progress} color={file.status === 'error' ? 'red' : undefined} />
+                </Tooltip>
               </div>
-              <Tooltip label={bytesProgressString(file.uploaded, file.size)} innerClassName='w-full'>
-                <Progress value={file.progress} color={file.status === 'error' ? 'red' : undefined} />
+              <Tooltip label={t('elements.fileUpload.cancel', {})}>
+                <ActionIcon variant='light' color='red' className='ml-3' onClick={() => cancelFileUpload(key)}>
+                  <FontAwesomeIcon icon={faXmark} size='sm' />
+                </ActionIcon>
               </Tooltip>
             </div>
-            <Tooltip label={t('elements.fileUpload.cancel', {})}>
-              <ActionIcon variant='light' color='red' className='ml-3' onClick={() => cancelFileUpload(key)}>
-                <FontAwesomeIcon icon={faXmark} size='sm' />
-              </ActionIcon>
-            </Tooltip>
-          </div>
-        ))}
+          );
+        })}
       </Popover.Dropdown>
     </Popover>
   );

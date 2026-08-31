@@ -6,6 +6,7 @@ import {
   faMinus,
   faPlus,
   faServer,
+  faUpRightFromSquare,
 } from '@fortawesome/free-solid-svg-icons';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { useComputedColorScheme } from '@mantine/core';
@@ -24,6 +25,7 @@ import { useToast } from '@/providers/ToastProvider.tsx';
 import { useTranslations } from '@/providers/TranslationProvider.tsx';
 import { useGlobalStore } from '@/stores/global.ts';
 import { useServerStore } from '@/stores/server.ts';
+import openConsolePopout from '../openConsolePopout.ts';
 import ConsoleCommandInput from './ConsoleCommandInput.tsx';
 import CommandHistoryDrawer from './drawers/CommandHistoryDrawer.tsx';
 import FeatureProvider from './features/FeatureProvider.tsx';
@@ -37,7 +39,7 @@ import { useTerminalTouchScroll } from './useTerminalTouchScroll.ts';
 import '@xterm/xterm/css/xterm.css';
 import '@/lib/xterm.css';
 
-export default function Terminal() {
+export default function Terminal({ popout = false }: { popout?: boolean }) {
   const { t } = useTranslations();
   const { addToast } = useToast();
   const { server, imagePulls, socketConnected, socketInstance } = useServerStore(
@@ -276,6 +278,15 @@ export default function Terminal() {
           perform: () => setOpenModal('search'),
         },
         {
+          id: 'console.popout',
+          category: CORE_QUICK_ACTION_CATEGORIES.page,
+          label: () => t('pages.server.console.quickAction.popout', {}),
+          keywords: ['window', 'detach', 'separate', 'external'],
+          icon: <FontAwesomeIcon icon={faUpRightFromSquare} />,
+          isVisible: () => !popout,
+          perform: () => openConsolePopout(server.uuidShort),
+        },
+        {
           id: 'console.sshDetails',
           category: CORE_QUICK_ACTION_CATEGORIES.page,
           label: () => t('pages.server.console.tooltip.sshDetails', {}),
@@ -333,6 +344,8 @@ export default function Terminal() {
       [
         t,
         setOpenModal,
+        popout,
+        server.uuidShort,
         consoleAvailable,
         hasSelection,
         copySelection,
@@ -358,6 +371,7 @@ export default function Terminal() {
           searchText={searchText}
           setSearchText={setSearchText}
           searchAddonRef={searchAddonRef}
+          popout={popout}
         />
 
         {!socketConnected && <Spinner.Centered />}

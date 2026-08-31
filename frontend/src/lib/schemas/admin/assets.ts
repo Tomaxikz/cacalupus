@@ -8,6 +8,8 @@ export const storageAssetSchema = z.object({
   created: z.coerce.date(),
 });
 
+export type StorageAsset = z.infer<typeof storageAssetSchema>;
+
 export const assetDirectoryCreateSchema = z.object({
   name: z
     .string()

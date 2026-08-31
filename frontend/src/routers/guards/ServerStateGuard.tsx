@@ -74,7 +74,9 @@ export default function ServerStateGuard() {
       location.pathname !== `/server/${server.uuid}` &&
       location.pathname !== `/server/${server.uuid}/` &&
       location.pathname !== `/server/${server.uuidShort}` &&
-      location.pathname !== `/server/${server.uuidShort}/`) ||
+      location.pathname !== `/server/${server.uuidShort}/` &&
+      location.pathname !== `/server/${server.uuid}/console/popout` &&
+      location.pathname !== `/server/${server.uuidShort}/console/popout`) ||
     server.nodeMaintenanceEnabled ||
     (server.status !== null && serverStatusInfo[server.status].failed)
   ) {
