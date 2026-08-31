@@ -40,27 +40,50 @@ const finePointer = matchMedia('(pointer: fine)');
 interface FileRowContextMenuProps {
   file: z.infer<typeof serverDirectoryEntrySchema>;
   openMode: FileOpenMode;
+  directory?: string;
+  writableDirectory?: boolean;
+  surface?: 'table' | 'tree';
   children: (props: { items: ContextMenuItem[]; openMenu: (x: number, y: number) => void }) => React.ReactNode;
 }
 
-export default function FileRowContextMenu({ file, openMode, children }: FileRowContextMenuProps) {
+export default function FileRowContextMenu({
+  file,
+  openMode,
+  directory,
+  writableDirectory,
+  surface = 'table',
+  children,
+}: FileRowContextMenuProps) {
   const { t } = useTranslations();
   const { addToast } = useToast();
   const { addWindow } = useWindows();
   const server = useServerStore((state) => state.server);
   const store = useFileManagerApi();
+  const browsingDirectory = useFileManagerStore((state) => state.browsingDirectory);
   const browsingWritableDirectory = useFileManagerStore((state) => state.browsingWritableDirectory);
   const canReadContent = useServerCan('files.read-content');
   const canCreate = useServerCan('files.create');
   const canUpdate = useServerCan('files.update');
   const canArchive = useServerCan('files.archive');
   const canDelete = useServerCan('files.delete');
+  const activeDirectory = directory ?? browsingDirectory;
+  const activeWritableDirectory = writableDirectory ?? browsingWritableDirectory;
+
+  const prepareFileManager = () => {
+    store.getState().setBrowsingContext({ directory: activeDirectory, writable: activeWritableDirectory });
+  };
+
+  const openModal = (modal: Parameters<ReturnType<typeof store.getState>['doOpenModal']>[0]) => {
+    prepareFileManager();
+    store.getState().doOpenModal(modal, [file]);
+  };
 
   const doDownload = (archiveFormat: z.infer<typeof streamingArchiveFormat>) => {
-    downloadFilesWithToast(
-      downloadFiles(server.uuid, store.getState().browsingDirectory, [file.name], file.directory, archiveFormat),
-      { addToast, t },
-    );
+    prepareFileManager();
+    downloadFilesWithToast(downloadFiles(server.uuid, activeDirectory, [file.name], file.directory, archiveFormat), {
+      addToast,
+      t,
+    });
   };
 
   return (
@@ -74,7 +97,12 @@ export default function FileRowContextMenu({ file, openMode, children }: FileRow
           onClick: () => {
             if (!openMode.openable) return;
 
-            const fileManagerContext = store.getState();
+            prepareFileManager();
+            const fileManagerContext = {
+              ...store.getState(),
+              browsingDirectory: activeDirectory,
+              browsingWritableDirectory: activeWritableDirectory,
+            };
 
             let url = new URL(window.location.href);
             openMode.handleOpen({
@@ -97,7 +125,7 @@ export default function FileRowContextMenu({ file, openMode, children }: FileRow
               },
               handleFileOpen(file, action, params) {
                 const searchParams = createSearchParams({
-                  directory: fileManagerContext.browsingDirectory,
+                  directory: activeDirectory,
                   file,
                   ...params,
                 });
@@ -119,8 +147,8 @@ export default function FileRowContextMenu({ file, openMode, children }: FileRow
           type: 'action',
           icon: faFilePen,
           label: t('pages.server.files.button.rename', {}),
-          hidden: !browsingWritableDirectory,
-          onClick: () => store.getState().doOpenModal('rename', [file]),
+          hidden: !activeWritableDirectory,
+          onClick: () => openModal('rename'),
           canAccess: canUpdate,
         },
         {
@@ -128,7 +156,7 @@ export default function FileRowContextMenu({ file, openMode, children }: FileRow
           icon: faCopy,
           label: t('pages.server.files.button.copy', {}),
           hidden: !file.file && !file.directory,
-          onClick: () => store.getState().doOpenModal('copy', [file]),
+          onClick: () => openModal('copy'),
           color: 'gray',
           canAccess: canCreate,
         },
@@ -136,8 +164,8 @@ export default function FileRowContextMenu({ file, openMode, children }: FileRow
           type: 'action',
           icon: faLink,
           label: t('pages.server.files.button.symlink', {}),
-          hidden: !browsingWritableDirectory,
-          onClick: () => store.getState().doOpenModal('nameSymlink', [file]),
+          hidden: !activeWritableDirectory,
+          onClick: () => openModal('nameSymlink'),
           color: 'gray',
           canAccess: canCreate,
         },
@@ -146,7 +174,7 @@ export default function FileRowContextMenu({ file, openMode, children }: FileRow
           icon: faClone,
           label: t('pages.server.files.button.remoteCopy', {}),
           hidden: !file.file && !file.directory,
-          onClick: () => store.getState().doOpenModal('copy-remote', [file]),
+          onClick: () => openModal('copy-remote'),
           color: 'gray',
           canAccess: canReadContent,
         },
@@ -154,8 +182,11 @@ export default function FileRowContextMenu({ file, openMode, children }: FileRow
           type: 'action',
           icon: faAnglesUp,
           label: t('common.button.move', {}),
-          hidden: !browsingWritableDirectory,
-          onClick: () => store.getState().doActFiles('move', [file]),
+          hidden: !activeWritableDirectory,
+          onClick: () => {
+            prepareFileManager();
+            store.getState().doActFiles('move', [file]);
+          },
           color: 'gray',
           canAccess: canUpdate,
         },
@@ -164,8 +195,8 @@ export default function FileRowContextMenu({ file, openMode, children }: FileRow
               type: 'action',
               icon: faEnvelopesBulk,
               label: t('pages.server.files.button.extract', {}),
-              hidden: !browsingWritableDirectory,
-              onClick: () => store.getState().doOpenModal('extract', [file]),
+              hidden: !activeWritableDirectory,
+              onClick: () => openModal('extract'),
               color: 'gray',
               canAccess: canArchive,
             }
@@ -173,8 +204,8 @@ export default function FileRowContextMenu({ file, openMode, children }: FileRow
               type: 'action',
               icon: faFileZipper,
               label: t('pages.server.files.button.archive', {}),
-              hidden: !browsingWritableDirectory,
-              onClick: () => store.getState().doOpenModal('archive', [file]),
+              hidden: !activeWritableDirectory,
+              onClick: () => openModal('archive'),
               color: 'gray',
               canAccess: canArchive,
             },
@@ -200,7 +231,7 @@ export default function FileRowContextMenu({ file, openMode, children }: FileRow
               type: 'action',
               icon: faInfoCircle,
               label: t('common.button.details', {}),
-              onClick: () => store.getState().doOpenModal('details', [file]),
+              onClick: () => openModal('details'),
               color: 'gray',
             },
             {
@@ -208,7 +239,7 @@ export default function FileRowContextMenu({ file, openMode, children }: FileRow
               icon: faFingerprint,
               label: t('pages.server.files.button.fingerprint', {}),
               hidden: !file.file,
-              onClick: () => store.getState().doOpenModal('fingerprint', [file]),
+              onClick: () => openModal('fingerprint'),
               color: 'gray',
               canAccess: canReadContent,
             },
@@ -216,7 +247,7 @@ export default function FileRowContextMenu({ file, openMode, children }: FileRow
               type: 'action',
               icon: faFileShield,
               label: t('pages.server.files.button.permissions', {}),
-              onClick: () => store.getState().doOpenModal('permissions', [file]),
+              onClick: () => openModal('permissions'),
               color: 'gray',
               canAccess: canUpdate,
             },
@@ -226,14 +257,14 @@ export default function FileRowContextMenu({ file, openMode, children }: FileRow
           type: 'action',
           icon: faTrash,
           label: t('common.button.delete', {}),
-          hidden: !browsingWritableDirectory,
-          onClick: () => store.getState().doOpenModal('delete', [file]),
+          hidden: !activeWritableDirectory,
+          onClick: () => openModal('delete'),
           color: 'red',
           canAccess: canDelete,
         },
       ]}
       registry={window.extensionContext.extensionRegistry.pages.server.files.fileContextMenu}
-      registryProps={{ file }}
+      registryProps={{ file, directory: activeDirectory, surface }}
     >
       {children}
     </ContextMenu>

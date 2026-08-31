@@ -1,16 +1,12 @@
-import { Audio } from '@gfazioli/mantine-audio';
 import { type OnMount } from '@monaco-editor/react';
 import { type EditorChangeEvent } from '@pierre/diffs/edit';
 import { RefObject } from 'react';
-import { TransformComponent, TransformWrapper } from 'react-zoom-pan-pinch';
 import { useShallow } from 'zustand/react/shallow';
-import Select from '@/elements/input/Select.tsx';
 import MonacoEditor from '@/elements/MonacoEditor.tsx';
 import PierreEditor, { type PierreEditorHandle } from '@/elements/PierreEditor.tsx';
 import { registerHoconLanguage, registerTomlLanguage } from '@/lib/monaco.ts';
 import { useFileManager } from '@/providers/FileManagerProvider.tsx';
-import { useToast } from '@/providers/ToastProvider.tsx';
-import { useTranslations } from '@/providers/TranslationProvider.tsx';
+import { FileAudioPreview, FileImagePreview } from './FileMediaPreview.tsx';
 
 type FileEditorAction = (typeof window.extensionContext.extensionRegistry.pages.server.files.fileEditorActions)[number];
 
@@ -53,26 +49,8 @@ export default function FileEditorContent({
   pierreEditorRef,
   saveShortcutRef,
 }: FileEditorContentProps) {
-  const { t } = useTranslations();
-  const { addToast } = useToast();
-  const {
-    imageViewerSmoothing,
-    audioPlayerVolume,
-    setAudioPlayerVolume,
-    audioPlayerPlaybackRate,
-    setAudioPlayerPlaybackRate,
-    editorEngine,
-    editorLineOverflow,
-    editorFontSize,
-    editorMinimap,
-    browsingWritableDirectory,
-  } = useFileManager(
+  const { editorEngine, editorLineOverflow, editorFontSize, editorMinimap, browsingWritableDirectory } = useFileManager(
     useShallow((state) => ({
-      imageViewerSmoothing: state.imageViewerSmoothing,
-      audioPlayerVolume: state.audioPlayerVolume,
-      setAudioPlayerVolume: state.setAudioPlayerVolume,
-      audioPlayerPlaybackRate: state.audioPlayerPlaybackRate,
-      setAudioPlayerPlaybackRate: state.setAudioPlayerPlaybackRate,
       editorEngine: state.editorEngine,
       editorLineOverflow: state.editorLineOverflow,
       editorFontSize: state.editorFontSize,
@@ -93,71 +71,9 @@ export default function FileEditorContent({
           setDirty={setDirty}
         />
       ) : action === 'image' ? (
-        <div className='h-full w-full flex flex-row justify-center'>
-          <TransformWrapper minScale={0.5} centerOnInit>
-            <TransformComponent wrapperClass='w-[calc(100%-4rem)]! h-7/8! rounded-md'>
-              <img
-                src={content}
-                alt={fileName}
-                style={{
-                  imageRendering: imageViewerSmoothing ? undefined : 'pixelated',
-                }}
-              />
-            </TransformComponent>
-          </TransformWrapper>
-        </div>
+        <FileImagePreview src={content} name={fileName} />
       ) : action === 'audio' ? (
-        <div className='h-full w-full flex flex-row justify-center items-center'>
-          <Audio
-            size='xl'
-            w='50%'
-            src={content}
-            volume={audioPlayerVolume}
-            onVolumeChange={(volume) => setAudioPlayerVolume(volume)}
-            playbackRate={audioPlayerPlaybackRate}
-            onError={(err) => (err ? addToast(err.message, 'error') : null)}
-          >
-            <Audio.Waveform height={120} mirrorGap={2} />
-            <Audio.Controls>
-              <Audio.SkipButton
-                seconds={-15}
-                label={t('pages.server.files.tooltip.back', {
-                  seconds: 15,
-                })}
-              />
-              <Audio.PlayButton
-                playLabel={t('pages.server.files.tooltip.play', {})}
-                pauseLabel={t('pages.server.files.tooltip.pause', {})}
-              />
-              <Audio.SkipButton
-                seconds={15}
-                label={t('pages.server.files.tooltip.forward', {
-                  seconds: 15,
-                })}
-              />
-              <Audio.Timeline />
-              <Audio.TimeDisplay />
-              <Audio.MuteButton
-                muteLabel={t('pages.server.files.tooltip.mute', {})}
-                unmuteLabel={t('pages.server.files.tooltip.unmute', {})}
-              />
-              <Audio.VolumeSlider />
-              <Select
-                value={audioPlayerPlaybackRate.toString()}
-                onChange={(value) => setAudioPlayerPlaybackRate(Number(value))}
-                data={[
-                  { value: '0.5', label: '0.5x' },
-                  { value: '0.75', label: '0.75x' },
-                  { value: '1', label: '1x' },
-                  { value: '1.25', label: '1.25x' },
-                  { value: '1.5', label: '1.5x' },
-                  { value: '2', label: '2x' },
-                ]}
-                style={{ width: 80 }}
-              />
-            </Audio.Controls>
-          </Audio>
-        </div>
+        <FileAudioPreview src={content} />
       ) : editorEngine === 'pierre' ? (
         <PierreEditor
           height='100%'

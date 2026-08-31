@@ -1,16 +1,32 @@
+import { faCode, faFolderOpen, faSearch } from '@fortawesome/free-solid-svg-icons';
+import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { useWindowVirtualizer } from '@tanstack/react-virtual';
 import { join } from 'pathe';
-import { useCallback, useEffect, useLayoutEffect, useMemo, useRef, useState, useSyncExternalStore } from 'react';
+import {
+  lazy,
+  Suspense,
+  useCallback,
+  useEffect,
+  useLayoutEffect,
+  useMemo,
+  useRef,
+  useState,
+  useSyncExternalStore,
+} from 'react';
 import { createSearchParams, useNavigate, useSearchParams } from 'react-router';
 import { FileOpenMode } from 'shared/src/registries/pages/server/files';
 import { httpErrorToHuman } from '@/api/axios.ts';
 import copyFile from '@/api/server/files/copyFile.ts';
+import ActionIcon from '@/elements/ActionIcon.tsx';
 import Card from '@/elements/Card.tsx';
 import ServerContentContainer from '@/elements/containers/ServerContentContainer.tsx';
 import Group from '@/elements/Group.tsx';
+import SegmentedControl from '@/elements/SegmentedControl.tsx';
 import SelectionArea from '@/elements/SelectionArea.tsx';
+import Spinner from '@/elements/Spinner.tsx';
 import Table, { TableData, TableHeaderProps, TableRow } from '@/elements/Table.tsx';
 import Title from '@/elements/Title.tsx';
+import Tooltip from '@/elements/Tooltip.tsx';
 import { isOpenableFile } from '@/lib/files/files.ts';
 import FileActionBar from '@/pages/server/files/browser/FileActionBar.tsx';
 import FileDiskUsageBar from '@/pages/server/files/browser/FileDiskUsageBar.tsx';
@@ -43,7 +59,7 @@ import { fileManagerUndoScope, runLastUndoEntry } from '@/stores/undoHistory.ts'
 const ESTIMATED_ROW_HEIGHT = 41;
 const VIRTUALIZER_OVERSCAN = 15;
 
-function ServerFilesComponent() {
+function FileBrowser() {
   const { t } = useTranslations();
   const server = useServerStore((state) => state.server);
   const { addToast } = useToast();
@@ -317,22 +333,6 @@ function ServerFilesComponent() {
 
   return (
     <div className='h-fit relative'>
-      <FileModals />
-      <FileUpload />
-      <FileActionBar />
-
-      <Group justify='space-between' align='center' mb='md'>
-        <Group>
-          <Title order={1}>{t('pages.server.files.title', {})}</Title>
-
-          <FileSettings />
-        </Group>
-        <Group>
-          <FileOperationsProgress />
-          <FileToolbar />
-        </Group>
-      </Group>
-
       <FileDiskUsageBar />
 
       <Card mb='sm'>
@@ -346,6 +346,7 @@ function ServerFilesComponent() {
           <SelectionArea
             onSelectedStart={onSelectedStart}
             onSelected={onSelected}
+            deferSelection
             fireEvents={false}
             className='h-full'
             disabled={anyActing}
@@ -396,6 +397,133 @@ function ServerFilesComponent() {
           </SelectionArea>
         )}
       </FileMassContextMenu>
+    </div>
+  );
+}
+
+type FileManagerView = 'list' | 'tree';
+const FileTreeWorkspace = lazy(() => import('@/pages/server/files/workspace/FileTreeWorkspace.tsx'));
+const FILE_MANAGER_VIEW_STORAGE_KEY = 'file_manager_view';
+const fileTreeVisibilityStorageKey = (serverUuid: string) => `file_manager_tree_visible:${serverUuid}`;
+
+const getStoredFileManagerView = (): FileManagerView => {
+  const stored = localStorage.getItem(FILE_MANAGER_VIEW_STORAGE_KEY);
+  return stored === 'tree' || stored === 'editor' ? 'tree' : 'list';
+};
+
+const getStoredFileTreeVisibility = (serverUuid: string) =>
+  localStorage.getItem(fileTreeVisibilityStorageKey(serverUuid)) !== 'false';
+
+function ServerFilesComponent() {
+  const { t } = useTranslations();
+  const serverUuid = useServerStore((state) => state.server.uuid);
+  const doOpenModal = useFileManagerStore((state) => state.doOpenModal);
+  const browsingDirectory = useFileManagerStore((state) => state.browsingDirectory);
+  const [view, setView] = useState<FileManagerView>(getStoredFileManagerView);
+  const [fileTreeVisible, setFileTreeVisible] = useState(() => getStoredFileTreeVisibility(serverUuid));
+  const [treeInitialDirectory, setTreeInitialDirectory] = useState(browsingDirectory);
+
+  useEffect(() => setFileTreeVisible(getStoredFileTreeVisibility(serverUuid)), [serverUuid]);
+
+  const changeView = (value: string) => {
+    if (value !== 'list' && value !== 'tree') return;
+
+    if (value === 'tree') setTreeInitialDirectory(browsingDirectory);
+    localStorage.setItem(FILE_MANAGER_VIEW_STORAGE_KEY, value);
+    setView(value);
+  };
+
+  const toggleFileTree = () => {
+    setFileTreeVisible((visible) => {
+      localStorage.setItem(fileTreeVisibilityStorageKey(serverUuid), String(!visible));
+      return !visible;
+    });
+  };
+
+  return (
+    <div data-file-manager-page className='flex w-full min-w-0 flex-col'>
+      <FileModals />
+      <FileUpload showOverlay={view === 'list'} />
+      <FileActionBar />
+
+      <Group justify='space-between' align='center' mb='md'>
+        <Group>
+          <Title order={1}>
+            {t(view === 'tree' ? 'pages.server.files.view.editor' : 'pages.server.files.view.files', {})}
+          </Title>
+          <FileSettings />
+        </Group>
+
+        <Group>
+          {view === 'tree' && (
+            <Tooltip label={t('pages.server.files.tooltip.advancedSearch', {})}>
+              <ActionIcon
+                type='button'
+                variant='subtle'
+                color='gray'
+                aria-label={t('pages.server.files.tooltip.advancedSearch', {})}
+                onClick={() => doOpenModal('search')}
+              >
+                <FontAwesomeIcon icon={faSearch} />
+              </ActionIcon>
+            </Tooltip>
+          )}
+
+          <SegmentedControl
+            value={view}
+            onChange={changeView}
+            styles={{ label: { padding: 0 } }}
+            data={[
+              {
+                value: 'list',
+                label: (
+                  <Tooltip label={t('pages.server.files.view.files', {})}>
+                    <span className='block' style={{ padding: 'var(--sc-padding)' }}>
+                      <FontAwesomeIcon
+                        icon={faFolderOpen}
+                        aria-label={t('pages.server.files.view.files', {})}
+                        fixedWidth
+                      />
+                    </span>
+                  </Tooltip>
+                ),
+              },
+              {
+                value: 'tree',
+                label: (
+                  <Tooltip label={t('pages.server.files.view.editor', {})}>
+                    <span className='block' style={{ padding: 'var(--sc-padding)' }}>
+                      <FontAwesomeIcon icon={faCode} aria-label={t('pages.server.files.view.editor', {})} fixedWidth />
+                    </span>
+                  </Tooltip>
+                ),
+              },
+            ]}
+          />
+
+          <FileOperationsProgress />
+          <FileToolbar />
+        </Group>
+      </Group>
+
+      {view === 'list' ? (
+        <FileBrowser />
+      ) : (
+        <Suspense
+          fallback={
+            <div className='flex justify-center py-16'>
+              <Spinner size={48} />
+            </div>
+          }
+        >
+          <FileTreeWorkspace
+            key={serverUuid}
+            initialDirectory={treeInitialDirectory}
+            fileTreeVisible={fileTreeVisible}
+            onToggleFileTree={toggleFileTree}
+          />
+        </Suspense>
+      )}
     </div>
   );
 }

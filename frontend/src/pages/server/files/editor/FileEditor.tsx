@@ -1,14 +1,8 @@
-import {
-  faArrowsRotate,
-  faClockRotateLeft,
-  faFileCirclePlus,
-  faFloppyDisk,
-  faTriangleExclamation,
-} from '@fortawesome/free-solid-svg-icons';
+import { faTriangleExclamation } from '@fortawesome/free-solid-svg-icons';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { type OnMount } from '@monaco-editor/react';
 import { join } from 'pathe';
-import { startTransition, useEffect, useMemo, useRef, useState } from 'react';
+import { startTransition, useEffect, useRef, useState } from 'react';
 import { createSearchParams, useLocation, useNavigate, useParams, useSearchParams } from 'react-router';
 import { useShallow } from 'zustand/react/shallow';
 import { httpErrorToHuman } from '@/api/axios.ts';
@@ -24,10 +18,8 @@ import { type PierreEditorHandle } from '@/elements/PierreEditor.tsx';
 import ScreenBlock from '@/elements/ScreenBlock.tsx';
 import Spinner from '@/elements/Spinner.tsx';
 import { draftKey, FileDraft, hashContent, purgeExpiredDrafts } from '@/lib/files/fileDrafts.ts';
-import { CORE_QUICK_ACTION_CATEGORIES } from '@/lib/quickActions/coreQuickActions.tsx';
 import { useBlocker } from '@/plugins/useBlocker.ts';
 import { useServerCan } from '@/plugins/usePermissions.ts';
-import { useQuickActions } from '@/plugins/useQuickActions.ts';
 import { useCurrentWindow } from '@/providers/CurrentWindowProvider.tsx';
 import { FileManagerProvider, useFileManager } from '@/providers/FileManagerProvider.tsx';
 import { useToast } from '@/providers/ToastProvider.tsx';
@@ -42,19 +34,13 @@ import FileEditorDraftModal from '../modals/FileEditorDraftModal.tsx';
 import FileNameModal from '../modals/FileNameModal.tsx';
 import FileEditorContent from './FileEditorContent.tsx';
 import FileEditorHeader from './FileEditorHeader.tsx';
+import { findFileEditorAction, useFileEditorTitle } from './useFileEditorPresentation.ts';
+import useFileEditorQuickActions from './useFileEditorQuickActions.tsx';
 
 function FileEditorComponent() {
   const params = useParams<'action'>();
 
-  const matchedFileEditorAction = useMemo(() => {
-    if (!params.action) return null;
-
-    return (
-      window.extensionContext.extensionRegistry.pages.server.files.fileEditorActions.find(
-        (action) => action.name === params.action,
-      ) || null
-    );
-  }, [params.action]);
+  const matchedFileEditorAction = findFileEditorAction(params.action);
 
   const { t } = useTranslations();
   const [searchParams, _] = useSearchParams();
@@ -458,65 +444,30 @@ function FileEditorComponent() {
     };
   });
 
-  useQuickActions([
-    {
-      id: 'files.editor.save',
-      category: CORE_QUICK_ACTION_CATEGORIES.page,
-      label: () => t('pages.server.files.quickAction.saveFile', {}),
-      icon: <FontAwesomeIcon icon={faFloppyDisk} />,
-      permission: collab.active ? 'files.update' : 'files.create',
-      isVisible: () => params.action === 'edit' && !!fileName && browsingWritableDirectory && !saving,
-      perform: () => saveFile(),
-    },
-    {
-      id: 'files.editor.create',
-      category: CORE_QUICK_ACTION_CATEGORIES.page,
-      label: () => t('pages.server.files.quickAction.createFile', {}),
-      icon: <FontAwesomeIcon icon={faFileCirclePlus} />,
-      permission: 'files.create',
-      isVisible: () => params.action === 'new' && browsingWritableDirectory && !saving,
-      perform: () => setNameModalOpen(true),
-    },
-    {
-      id: 'files.editor.revisions',
-      category: CORE_QUICK_ACTION_CATEGORIES.page,
-      label: () => t('pages.server.files.tooltip.fileHistory', {}),
-      keywords: ['revisions', 'versions'],
-      icon: <FontAwesomeIcon icon={faClockRotateLeft} />,
-      permission: 'files.read-content',
-      isVisible: () => params.action === 'edit' && !!fileName && browsingPrimaryFilesystem,
-      perform: () => setRevisionsOpen(true),
-    },
-    {
-      id: 'files.editor.revertToDisk',
-      category: CORE_QUICK_ACTION_CATEGORIES.page,
-      label: () => t('pages.server.files.tooltip.revertToDisk', {}),
-      keywords: ['revert', 'discard'],
-      icon: <FontAwesomeIcon icon={faArrowsRotate} />,
-      permission: collab.active ? 'files.update' : 'files.read-content',
-      isVisible: () =>
-        dirty && params.action === 'edit' && !!fileName && browsingWritableDirectory && !collab.conflict?.deleted,
-      perform: () => setRevertConfirm(true),
-    },
-  ]);
+  useFileEditorQuickActions({
+    action: params.action,
+    fileName,
+    writable: browsingWritableDirectory,
+    primary: browsingPrimaryFilesystem,
+    saving,
+    dirty,
+    collaborationActive: collab.active,
+    collaborationDeleted: !!collab.conflict?.deleted,
+    onSave: () => saveFile(),
+    onCreate: () => setNameModalOpen(true),
+    onShowRevisions: () => setRevisionsOpen(true),
+    onRevert: () => setRevertConfirm(true),
+  });
+
+  const title = useFileEditorTitle(params.action, fileName, matchedFileEditorAction?.title(fileName));
 
   if (!matchedFileEditorAction && !['new', 'edit', 'image', 'audio'].includes(params.action!)) {
     return (
-      <ServerContentContainer title='Not found' hideTitleComponent>
-        <ScreenBlock title='404' content='Editor not found' />
+      <ServerContentContainer title={t('pages.server.files.editorNotFound.title', {})} hideTitleComponent>
+        <ScreenBlock title='404' content={t('pages.server.files.editorNotFound.content', {})} />
       </ServerContentContainer>
     );
   }
-
-  const title = matchedFileEditorAction
-    ? matchedFileEditorAction.title(fileName)
-    : fileName
-      ? params.action === 'image'
-        ? t('pages.server.files.titleEditorViewing', { file: fileName })
-        : params.action === 'audio'
-          ? t('pages.server.files.titleEditorPlaying', { file: fileName })
-          : t('pages.server.files.titleEditorEditing', { file: fileName })
-      : t('pages.server.files.titleEditorNew', {});
 
   const showRevertAction =
     (collab.active ? canUpdate : canReadContent) &&
