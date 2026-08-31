@@ -10,6 +10,7 @@ import Breadcrumbs from '@/elements/Breadcrumbs.tsx';
 import Button from '@/elements/Button.tsx';
 import Checkbox from '@/elements/input/Checkbox.tsx';
 import Tooltip from '@/elements/Tooltip.tsx';
+import { pathSegments } from '@/lib/path.ts';
 import { useDraggedFileMove } from '@/pages/server/files/hooks/useDraggedFileMove.ts';
 import { useFileManager } from '@/providers/FileManagerProvider.tsx';
 import { useTranslations } from '@/providers/TranslationProvider.tsx';
@@ -42,12 +43,7 @@ export default function FileBreadcrumbs({ path, inFileEditor }: { path: string; 
   );
 
   const splittedPath = path.split('/').filter(Boolean);
-  const pathItems = splittedPath.map((item, index) => {
-    return {
-      name: item,
-      path: splittedPath.slice(0, index + 1).join('/'),
-    };
-  });
+  const pathItems = pathSegments(path);
 
   const isBackupPath = path.startsWith('/.backups/');
   const backupUuid = isBackupPath ? (splittedPath[1] ?? '') : null;

@@ -2,11 +2,11 @@ import { faFileUpload, faPlus } from '@fortawesome/free-solid-svg-icons';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { ChangeEvent, RefObject, useRef } from 'react';
 import Button from '@/elements/Button.tsx';
+import UploadDropOverlay from '@/elements/UploadDropOverlay.tsx';
 import { CORE_QUICK_ACTION_CATEGORIES } from '@/lib/quickActions/coreQuickActions.tsx';
 import { useImportDragAndDrop } from '@/plugins/useImportDragAndDrop.ts';
 import { useQuickActions } from '@/plugins/useQuickActions.ts';
 import { useTranslations } from '@/providers/TranslationProvider.tsx';
-import AssetDropOverlay from './AssetDropOverlay.tsx';
 
 export default function AssetUpload({
   handleFileSelect,
@@ -37,7 +37,12 @@ export default function AssetUpload({
 
   return (
     <>
-      <AssetDropOverlay visible={isDragging} />
+      <UploadDropOverlay
+        visible={isDragging}
+        blur
+        title={t('pages.admin.assets.dropzone.title', {})}
+        subtitle={t('pages.admin.assets.dropzone.subtitle', {})}
+      />
 
       <Button
         onClick={() => fileInputRef.current?.click()}

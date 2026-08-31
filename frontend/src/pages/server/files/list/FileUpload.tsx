@@ -1,10 +1,12 @@
 import { useShallow } from 'zustand/react/shallow';
+import UploadDropOverlay from '@/elements/UploadDropOverlay.tsx';
 import { useFileDragAndDrop } from '@/pages/server/files/hooks/useFileDragAndDrop.ts';
-import FileUploadOverlay from '@/pages/server/files/list/FileUploadOverlay.tsx';
 import { useServerCan } from '@/plugins/usePermissions.ts';
 import { useFileManager } from '@/providers/contexts/fileManagerContext.ts';
+import { useTranslations } from '@/providers/TranslationProvider.tsx';
 
 export default function FileUpload({ showOverlay = true }: { showOverlay?: boolean }) {
+  const { t } = useTranslations();
   const { uploadFiles, handleFileSelect, handleFolderSelect, browsingWritableDirectory, fileInputRef, folderInputRef } =
     useFileManager(
       useShallow((state) => ({
@@ -42,7 +44,11 @@ export default function FileUpload({ showOverlay = true }: { showOverlay?: boole
         {...{ webkitdirectory: '', directory: '' }}
       />
 
-      <FileUploadOverlay visible={showOverlay && isDragging && browsingWritableDirectory && canCreate} />
+      <UploadDropOverlay
+        visible={showOverlay && isDragging && browsingWritableDirectory && canCreate}
+        title={t('pages.server.files.dropzone.title', {})}
+        subtitle={t('pages.server.files.dropzone.subtitle', {})}
+      />
     </>
   );
 }

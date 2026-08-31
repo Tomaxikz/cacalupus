@@ -1,46 +1,36 @@
 import { faTrash } from '@fortawesome/free-solid-svg-icons';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { useState } from 'react';
-import { z } from 'zod';
-import deleteAssets from '@/api/admin/assets/deleteAssets.ts';
-import { httpErrorToHuman } from '@/api/axios.ts';
 import ActionBar from '@/elements/ActionBar.tsx';
 import Button from '@/elements/Button.tsx';
 import { AdminCan } from '@/elements/Can.tsx';
 import ConfirmationModal from '@/elements/modals/ConfirmationModal.tsx';
-import { ObjectSet } from '@/lib/objectSet.ts';
 import { CORE_QUICK_ACTION_CATEGORIES } from '@/lib/quickActions/coreQuickActions.tsx';
-import { storageAssetSchema } from '@/lib/schemas/admin/assets.ts';
+import { AssetSet } from '@/pages/admin/assets/hooks/useAssetSelection.ts';
+import { useDeleteAssets } from '@/pages/admin/assets/hooks/useDeleteAssets.ts';
 import { useKeyboardShortcuts } from '@/plugins/useKeyboardShortcuts.ts';
 import { useAdminCan } from '@/plugins/usePermissions.ts';
 import { useQuickActions } from '@/plugins/useQuickActions.ts';
-import { useToast } from '@/providers/ToastProvider.tsx';
 import { useTranslations } from '@/providers/TranslationProvider.tsx';
 
 export default function AssetActionBar({
   selectedAssets,
-  invalidateAssets,
+  onDeleted,
 }: {
-  selectedAssets: ObjectSet<z.infer<typeof storageAssetSchema>, 'name'>;
-  invalidateAssets: () => void;
+  selectedAssets: AssetSet;
+  onDeleted: () => void;
 }) {
-  const { t, tItem } = useTranslations();
-  const { addToast } = useToast();
+  const { t } = useTranslations();
   const canDeleteAssets = useAdminCan('assets.delete');
+  const deleteAssets = useDeleteAssets();
 
   const [openModal, setOpenModal] = useState<'delete' | null>(null);
 
   const doDelete = async () => {
-    await deleteAssets(selectedAssets.keys())
-      .then(({ deleted }) => {
-        invalidateAssets();
-
-        addToast(t('pages.admin.assets.toast.assetsDeleted', { assets: tItem('asset', deleted) }), 'success');
-        setOpenModal(null);
-      })
-      .catch((msg) => {
-        addToast(httpErrorToHuman(msg), 'error');
-      });
+    if (await deleteAssets(selectedAssets.keys())) {
+      setOpenModal(null);
+      onDeleted();
+    }
   };
 
   useQuickActions([
@@ -63,8 +53,8 @@ export default function AssetActionBar({
         callback: () => setOpenModal('delete'),
       },
     ],
-    enabled: canDeleteAssets,
-    deps: [],
+    enabled: canDeleteAssets && selectedAssets.size > 0,
+    deps: [canDeleteAssets, selectedAssets.size],
   });
 
   return (
