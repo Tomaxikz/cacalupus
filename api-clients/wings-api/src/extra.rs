@@ -789,3 +789,145 @@ pub fn strip_config_paths(value: &mut serde_json::Value) {
         }
     }
 }
+
+/// What a node reports about the tundra mesh daemon it manages. Hand-written rather than
+/// generated because the panel drives these routes directly, not through the shim.
+#[derive(Debug, ToSchema, Deserialize, Serialize, Clone)]
+pub struct TundraStatus {
+    /// False covers both a node that cannot run the mesh and one with it turned off.
+    pub supported: bool,
+    pub connected: bool,
+    pub epoch: Option<u64>,
+}
+
+/// The mesh daemon reports considerably more than this - per-path congestion detail, UDP
+/// socket counters, restart handover state - and serde drops what is not declared here. The
+/// fields below are the ones the panel renders, so a daemon that stops sending one fails
+/// deserialization on the panel rather than the browser.
+#[derive(Debug, ToSchema, Deserialize, Serialize, Clone)]
+pub struct TundraMetrics {
+    pub node: TundraNodeMetrics,
+    pub peers: Vec<TundraPeerMetrics>,
+}
+
+#[derive(Debug, ToSchema, Deserialize, Serialize, Clone)]
+pub struct TundraNodeMetrics {
+    pub uptime_secs: u64,
+    pub epoch: u64,
+    /// "up" or "down", the state of the daemon's control link back to the panel.
+    pub remote_link: compact_str::CompactString,
+    pub frontends: u64,
+    pub snapshots_applied: u64,
+    pub local_flows_open: u64,
+    pub local_drops: u64,
+    pub frozen_flows: u64,
+    pub peers_connected: u64,
+}
+
+#[derive(Debug, ToSchema, Deserialize, Serialize, Clone)]
+pub struct TundraPeerMetrics {
+    pub uuid: uuid::Uuid,
+    pub name: compact_str::CompactString,
+    /// "initiator" when this node dialled the peer, "acceptor" when the peer dialled it.
+    pub role: compact_str::CompactString,
+    pub remote_addr: compact_str::CompactString,
+    pub established_secs: u64,
+
+    pub path: TundraPeerPathMetrics,
+    pub relay: TundraPeerRelayMetrics,
+    pub flows: TundraPeerFlowMetrics,
+    pub drops: TundraPeerDropMetrics,
+}
+
+#[derive(Debug, ToSchema, Deserialize, Serialize, Clone)]
+pub struct TundraPeerPathMetrics {
+    pub rtt_ms: f64,
+    pub current_mtu: u16,
+    pub lost_packets: u64,
+    pub congestion_events: u64,
+}
+
+#[derive(Debug, ToSchema, Deserialize, Serialize, Clone)]
+pub struct TundraPeerRelayMetrics {
+    pub stream_bytes_in: u64,
+    pub stream_bytes_out: u64,
+    pub datagram_bytes_in: u64,
+    pub datagram_bytes_out: u64,
+    pub streams_open: u64,
+    pub streams_total: u64,
+}
+
+#[derive(Debug, ToSchema, Deserialize, Serialize, Clone)]
+pub struct TundraPeerFlowMetrics {
+    pub open: u64,
+    pub opened_total: u64,
+    pub tcp_open: u64,
+}
+
+#[derive(Debug, ToSchema, Deserialize, Serialize, Clone)]
+pub struct TundraPeerDropMetrics {
+    pub send_buffer_full: u64,
+    pub unknown_flow: u64,
+    pub frag_timeout: u64,
+    pub frag_limit: u64,
+    pub oversize: u64,
+    pub malformed: u64,
+}
+
+impl super::client::WingsClient {
+    async fn tundra_json<T: serde::de::DeserializeOwned>(
+        &self,
+        method: reqwest::Method,
+        endpoint: &str,
+    ) -> Result<T, super::client::ApiHttpError> {
+        let response = self
+            .request_raw(method, endpoint)
+            .header("Accept", "application/json")
+            .send()
+            .await
+            .map_err(super::client::ApiHttpError::Reqwest)?;
+
+        let status = response.status();
+        if !status.is_success() {
+            return Err(super::client::ApiHttpError::Http(
+                status,
+                response
+                    .json::<super::ApiError>()
+                    .await
+                    .unwrap_or_else(|err| super::ApiError {
+                        error: err.to_string().into(),
+                    }),
+            ));
+        }
+
+        response
+            .json()
+            .await
+            .map_err(super::client::ApiHttpError::Reqwest)
+    }
+
+    pub async fn get_tundra(&self) -> Result<TundraStatus, super::client::ApiHttpError> {
+        self.tundra_json(reqwest::Method::GET, "/api/tundra").await
+    }
+
+    /// Latency reduction only - the node polls the panel on its own schedule regardless.
+    pub async fn post_tundra_sync(&self) -> Result<(), super::client::ApiHttpError> {
+        self.tundra_json::<serde::de::IgnoredAny>(reqwest::Method::POST, "/api/tundra/sync")
+            .await?;
+
+        Ok(())
+    }
+
+    /// Rotates the token the node's daemon authenticates with and drops its websocket.
+    pub async fn post_tundra_rotate(&self) -> Result<(), super::client::ApiHttpError> {
+        self.tundra_json::<serde::de::IgnoredAny>(reqwest::Method::POST, "/api/tundra/rotate")
+            .await?;
+
+        Ok(())
+    }
+
+    pub async fn get_tundra_metrics(&self) -> Result<TundraMetrics, super::client::ApiHttpError> {
+        self.tundra_json(reqwest::Method::GET, "/api/tundra/metrics")
+            .await
+    }
+}

@@ -150,7 +150,7 @@ function Link({ to, end, icon, name, title = name, className, activeMatches }: L
   );
 
   return (
-    <ContextMenu menuProps={{ width: 250 }} items={items}>
+    <ContextMenu items={items}>
       {({ openMenu }) => (
         <NavLink
           to={to}

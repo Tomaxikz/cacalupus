@@ -110,6 +110,7 @@ impl shared::extensions::commands::CliCommand<MigrateArgs> for MigrateCommand {
                 {
                     tracing::info!(
                         tables = ?migration.snapshot.tables().len(),
+                        sequences = ?migration.snapshot.sequences().len(),
                         enums = ?migration.snapshot.enums().len(),
                         columns = ?migration.snapshot.columns(None).len(),
                         indexes = ?migration.snapshot.indexes(None).len(),

@@ -26,6 +26,7 @@ import FileSqliteQuery from '@/pages/server/files/editor/FileSqliteQuery.tsx';
 import ServerMounts from '@/pages/server/mounts/ServerMounts.tsx';
 import ServerFirewall from '@/pages/server/network/firewall/ServerFirewall.tsx';
 import ServerNetwork from '@/pages/server/network/ServerNetwork.tsx';
+import ServerTunnel from '@/pages/server/network/tunnel/ServerTunnel.tsx';
 import ScheduleView from '@/pages/server/schedules/ScheduleView.tsx';
 import ServerSchedules from '@/pages/server/schedules/ServerSchedules.tsx';
 import ServerSettings from '@/pages/server/settings/ServerSettings.tsx';
@@ -140,13 +141,19 @@ const routes: ServerRouteDefinition[] = [
     icon: faNetworkWired,
     path: '/network',
     element: ServerNetwork,
-    permission: ['allocations.read', 'firewall.read'],
+    permission: ['allocations.read', 'firewall.read', 'connections.read'],
   },
   {
     name: undefined,
     path: '/network/firewall',
     element: ServerFirewall,
     permission: 'firewall.read',
+  },
+  {
+    name: undefined,
+    path: '/network/connections',
+    element: ServerTunnel,
+    permission: 'connections.read',
   },
   {
     name: () => getTranslations().t('pages.server.startup.title', {}),

@@ -86,7 +86,7 @@ export const ContextMenuProvider = ({ children }: { children: ReactNode }) => {
         disabled={!state.items.some((item) => item.type === 'action' && !item.hidden && item.canAccess !== false)}
         opened={state.visible}
         onClose={hideMenu}
-        width={200}
+        styles={{ dropdown: { minWidth: 200 } }}
         withinPortal
         closeOnClickOutside
         transitionProps={{ transition: 'scale-y', duration: 200 }}
@@ -186,6 +186,12 @@ export const ContextMenuProvider = ({ children }: { children: ReactNode }) => {
       </Menu>
     </ContextMenuContext.Provider>
   );
+};
+
+export const useHideContextMenu = () => {
+  const context = useContext(ContextMenuContext);
+
+  return useCallback(() => context?.hideMenu(), [context]);
 };
 
 export type ContextMenuChildrenProps = {

@@ -25,6 +25,7 @@ mod servers;
 mod system;
 mod token;
 mod transfers;
+mod tunnel;
 
 pub async fn auth(
     state: GetState,
@@ -155,6 +156,8 @@ mod delete {
             )
             .await;
 
+        shared::tunnel::poke_nodes(&state.database).await;
+
         ApiResponse::new_serialized(Response {}).ok()
     }
 }
@@ -240,6 +243,7 @@ pub fn router(state: &State) -> OpenApiRouter<State> {
         .routes(routes!(patch::route))
         .nest("/reset-token", reset_token::router(state))
         .nest("/token", token::router(state))
+        .nest("/tunnel", tunnel::router(state))
         .nest("/allocations", allocations::router(state))
         .nest("/system", system::router(state))
         .nest("/capacity", capacity::router(state))

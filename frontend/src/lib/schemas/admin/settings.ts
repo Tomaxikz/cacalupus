@@ -132,6 +132,8 @@ export const adminSettingsServerSchema = z.object({
   maxBackupGroupCount: z.number().min(0),
   maxFirewallRuleCount: z.number().min(0),
   maxFirewallRuleSourceCount: z.number().min(0),
+  maxTunnelConnectionCount: z.number().min(0),
+  maxTunnelPortCount: z.number().min(0),
   maxDatabaseInstanceDatabaseCount: z.number().min(0),
   maxDatabaseInstanceUserCount: z.number().min(0),
   allowOverwritingCustomDockerImage: z.boolean(),

@@ -9,7 +9,7 @@ import TagsInput from '@/elements/input/TagsInput.tsx';
 import FormModal from '@/elements/modals/FormModal.tsx';
 import { ModalFooter } from '@/elements/modals/Modal.tsx';
 import Stack from '@/elements/Stack.tsx';
-import { serverFirewallRuleActionLabelMapping, serverFirewallRuleProtocolLabelMapping } from '@/lib/enums.ts';
+import { networkProtocolLabelMapping, serverFirewallRuleActionLabelMapping } from '@/lib/enums.ts';
 import { resolvePorts } from '@/lib/ip.ts';
 import { serverFirewallRuleSchema } from '@/lib/schemas/server/firewall.ts';
 import { useModalForm } from '@/plugins/useModalForm.ts';
@@ -79,7 +79,7 @@ export default function FirewallRuleModal({ rule, onSave, ...props }: Props) {
           label={t('pages.server.firewall.form.protocols', {})}
           description={t('pages.server.firewall.form.protocolsDescription', {})}
           placeholder={t('pages.server.firewall.form.anyProtocol', {})}
-          data={Object.entries(serverFirewallRuleProtocolLabelMapping).map(([value, label]) => ({ value, label }))}
+          data={Object.entries(networkProtocolLabelMapping).map(([value, label]) => ({ value, label }))}
           {...form.getInputProps('protocols')}
         />
 

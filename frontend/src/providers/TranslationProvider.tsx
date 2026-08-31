@@ -58,7 +58,11 @@ String.prototype.md = function (options?: MarkdownOptions): ReactNode {
       rehypePlugins={options?.html ? [rehypeRaw, rehypeSanitize] : undefined}
       components={{
         a: SafeMarkdownLink,
-        p: ({ children }) => <Text component='span'>{children}</Text>,
+        p: ({ children }) => (
+          <Text component='span' inherit>
+            {children}
+          </Text>
+        ),
         h1: Header({ order: 1 }),
         h2: Header({ order: 2 }),
         h3: Header({ order: 3 }),
@@ -80,22 +84,22 @@ String.prototype.md = function (options?: MarkdownOptions): ReactNode {
         th: ({ children }) => <Table.Th>{children}</Table.Th>,
         td: ({ children }) => <Table.Td>{children}</Table.Td>,
         strong: ({ children }) => (
-          <Text component='span' fw={700}>
+          <Text component='span' fw={700} inherit>
             {children}
           </Text>
         ),
         em: ({ children }) => (
-          <Text component='span' td='italic'>
+          <Text component='span' td='italic' inherit>
             {children}
           </Text>
         ),
         ins: ({ children }) => (
-          <Text component='span' td='underline'>
+          <Text component='span' td='underline' inherit>
             {children}
           </Text>
         ),
         del: ({ children }) => (
-          <Text component='span' td='line-through'>
+          <Text component='span' td='line-through' inherit>
             {children}
           </Text>
         ),

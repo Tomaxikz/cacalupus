@@ -422,6 +422,23 @@ impl BaseModel for Server {
 }
 
 impl Server {
+    /// Why the client API refuses to act on this server, if it does. Checked in the order the
+    /// client route guard uses, so a suspended server never reports anything past that.
+    pub fn unavailable_reason(&self) -> Option<&'static str> {
+        if self.suspended {
+            Some("server is suspended")
+        } else if self.destination_node.is_some() {
+            Some("server is being transferred")
+        } else {
+            match self.status? {
+                ServerStatus::Installing => Some("server is currently installing"),
+                ServerStatus::InstallFailed => Some("server has failed its installation process"),
+                ServerStatus::RestoringBackup => Some("server is restoring from a backup"),
+                ServerStatus::BackupRestoreFailed => Some("server has failed to restore a backup"),
+            }
+        }
+    }
+
     pub async fn by_node_uuid_uuid(
         database: &crate::database::Database,
         node_uuid: uuid::Uuid,
@@ -760,6 +777,118 @@ impl Server {
             Self::columns_sql(None)
         )))
         .bind(user_uuid)
+        .bind(search)
+        .bind(per_page)
+        .bind(offset)
+        .fetch_all(database.read())
+        .await?;
+
+        Ok(super::Pagination {
+            total: rows
+                .first()
+                .map_or(Ok(0), |row| row.try_get("total_count"))?,
+            per_page,
+            page,
+            data: rows
+                .into_iter()
+                .map(|row| Self::map(None, &row))
+                .try_collect_vec()?,
+        })
+    }
+
+    /// Servers the user may connect `server_uuid` to over the private network: on the mesh, and
+    /// in a state the client API would let them act on at all.
+    pub async fn tunnel_available_by_user_uuid_with_pagination(
+        database: &crate::database::Database,
+        user_uuid: uuid::Uuid,
+        server_uuid: uuid::Uuid,
+        page: i64,
+        per_page: i64,
+        search: Option<&str>,
+    ) -> Result<super::Pagination<Self>, crate::database::DatabaseError> {
+        let offset = (page - 1) * per_page;
+
+        let rows = sqlx::query(sqlx::AssertSqlSafe(format!(
+            r#"
+            SELECT DISTINCT ON (servers.uuid, servers.created) {}, server_subusers.permissions, server_subusers.ignored_files, COUNT(*) OVER() AS total_count
+            FROM server_tunnels
+            JOIN servers ON servers.uuid = server_tunnels.server_uuid
+            LEFT JOIN server_allocations ON server_allocations.uuid = servers.allocation_uuid
+            LEFT JOIN node_allocations ON node_allocations.uuid = server_allocations.allocation_uuid
+            JOIN users ON users.uuid = servers.owner_uuid
+            LEFT JOIN roles ON roles.uuid = users.role_uuid
+            JOIN nest_eggs ON nest_eggs.uuid = servers.egg_uuid
+            JOIN nests ON nests.uuid = nest_eggs.nest_uuid
+            LEFT JOIN server_subusers ON server_subusers.server_uuid = servers.uuid AND server_subusers.user_uuid = $1
+            WHERE
+                (servers.owner_uuid = $1 OR server_subusers.user_uuid = $1)
+                AND servers.uuid != $2
+                AND NOT servers.suspended
+                AND servers.destination_node_uuid IS NULL
+                AND servers.status IS NULL
+                AND ($3 IS NULL OR servers.name ILIKE '%' || $3 || '%' OR users.username ILIKE '%' || $3 || '%' OR users.email ILIKE '%' || $3 || '%')
+            ORDER BY servers.created
+            LIMIT $4 OFFSET $5
+            "#,
+            Self::columns_sql(None)
+        )))
+        .bind(user_uuid)
+        .bind(server_uuid)
+        .bind(search)
+        .bind(per_page)
+        .bind(offset)
+        .fetch_all(database.read())
+        .await?;
+
+        Ok(super::Pagination {
+            total: rows
+                .first()
+                .map_or(Ok(0), |row| row.try_get("total_count"))?,
+            per_page,
+            page,
+            data: rows
+                .into_iter()
+                .map(|row| Self::map(None, &row))
+                .try_collect_vec()?,
+        })
+    }
+
+    pub async fn tunnel_available_by_not_user_uuid_with_pagination(
+        database: &crate::database::Database,
+        user_uuid: uuid::Uuid,
+        server_uuid: uuid::Uuid,
+        page: i64,
+        per_page: i64,
+        search: Option<&str>,
+    ) -> Result<super::Pagination<Self>, crate::database::DatabaseError> {
+        let offset = (page - 1) * per_page;
+
+        let rows = sqlx::query(sqlx::AssertSqlSafe(format!(
+            r#"
+            SELECT DISTINCT ON (servers.uuid, servers.created) {}, server_subusers.permissions, server_subusers.ignored_files, COUNT(*) OVER() AS total_count
+            FROM server_tunnels
+            JOIN servers ON servers.uuid = server_tunnels.server_uuid
+            LEFT JOIN server_allocations ON server_allocations.uuid = servers.allocation_uuid
+            LEFT JOIN node_allocations ON node_allocations.uuid = server_allocations.allocation_uuid
+            JOIN users ON users.uuid = servers.owner_uuid
+            LEFT JOIN roles ON roles.uuid = users.role_uuid
+            JOIN nest_eggs ON nest_eggs.uuid = servers.egg_uuid
+            JOIN nests ON nests.uuid = nest_eggs.nest_uuid
+            LEFT JOIN server_subusers ON server_subusers.server_uuid = servers.uuid AND server_subusers.user_uuid = $1
+            WHERE
+                servers.owner_uuid != $1 AND (server_subusers.user_uuid IS NULL OR server_subusers.user_uuid != $1)
+                AND servers.uuid != $2
+                AND NOT servers.suspended
+                AND servers.destination_node_uuid IS NULL
+                AND servers.status IS NULL
+                AND ($3 IS NULL OR servers.name ILIKE '%' || $3 || '%' OR users.username ILIKE '%' || $3 || '%' OR users.email ILIKE '%' || $3 || '%')
+            ORDER BY servers.created
+            LIMIT $4 OFFSET $5
+            "#,
+            Self::columns_sql(None)
+        )))
+        .bind(user_uuid)
+        .bind(server_uuid)
         .bind(search)
         .bind(per_page)
         .bind(offset)
@@ -2731,6 +2860,9 @@ impl DeletableModel for Server {
                 }
             }
 
+            let on_mesh =
+                crate::tunnel::bump_epoch_if_server_on_mesh(&mut transaction, server_uuid).await?;
+
             sqlx::query!("DELETE FROM servers WHERE servers.uuid = $1", server_uuid)
                 .execute(&mut *transaction)
                 .await?;
@@ -2743,6 +2875,11 @@ impl DeletableModel for Server {
             {
                 Ok(_) => {
                     transaction.commit().await?;
+
+                    if on_mesh {
+                        crate::tunnel::poke_nodes(&state.database).await;
+                    }
+
                     Ok(())
                 }
                 Err(err) => {
@@ -2750,6 +2887,11 @@ impl DeletableModel for Server {
 
                     if options.force {
                         transaction.commit().await?;
+
+                        if on_mesh {
+                            crate::tunnel::poke_nodes(&state.database).await;
+                        }
+
                         Ok(())
                     } else {
                         transaction.rollback().await?;

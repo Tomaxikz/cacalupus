@@ -1,6 +1,7 @@
 use compact_str::ToCompactString;
 use garde::Validate;
 use serde::{Deserialize, Serialize};
+use sqlx::Row;
 use std::collections::HashSet;
 use utoipa::ToSchema;
 
@@ -95,9 +96,17 @@ impl super::Server {
         Ok(decode_rules(fetch_raw_rules(database, self.uuid).await?)?)
     }
 
+    #[inline]
     pub async fn allocation_ports(
         &self,
         database: &crate::database::Database,
+    ) -> Result<Vec<u16>, crate::database::DatabaseError> {
+        Self::allocation_ports_by_uuid(database, self.uuid).await
+    }
+
+    pub async fn allocation_ports_by_uuid(
+        database: &crate::database::Database,
+        server_uuid: uuid::Uuid,
     ) -> Result<Vec<u16>, crate::database::DatabaseError> {
         let ports: Vec<i32> = sqlx::query_scalar(
             r#"
@@ -108,11 +117,41 @@ impl super::Server {
             ORDER BY node_allocations.port
             "#,
         )
-        .bind(self.uuid)
+        .bind(server_uuid)
         .fetch_all(database.read())
         .await?;
 
         Ok(ports.into_iter().map(|port| port as u16).collect())
+    }
+
+    pub async fn allocation_ports_by_uuids(
+        database: &crate::database::Database,
+        server_uuids: &[uuid::Uuid],
+    ) -> Result<std::collections::HashMap<uuid::Uuid, Vec<u16>>, crate::database::DatabaseError>
+    {
+        let mut ports: std::collections::HashMap<uuid::Uuid, Vec<u16>> =
+            std::collections::HashMap::new();
+
+        for row in sqlx::query(
+            r#"
+            SELECT server_allocations.server_uuid, node_allocations.port
+            FROM server_allocations
+            JOIN node_allocations ON node_allocations.uuid = server_allocations.allocation_uuid
+            WHERE server_allocations.server_uuid = ANY($1)
+            ORDER BY node_allocations.port
+            "#,
+        )
+        .bind(server_uuids)
+        .fetch_all(database.read())
+        .await?
+        {
+            ports
+                .entry(row.try_get("server_uuid")?)
+                .or_default()
+                .push(row.try_get::<i32, _>("port")? as u16);
+        }
+
+        Ok(ports)
     }
 
     pub async fn set_firewall_rules(

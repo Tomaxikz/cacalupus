@@ -65,8 +65,10 @@ pub async fn handle_request(
         .await)
 }
 
+// authorization is deliberately absent: browsers never auto-attach it, and the node token
+// checks in the admin/oobe UI send it through the proxy on purpose. cookie must stay stripped:
+// browsers do auto-attach the panel session to this origin.
 const STRIPPED_PROXY_REQUEST_HEADERS: &[&str] = &[
-    "authorization",
     "calagopus-user",
     "cf-connecting-ip",
     "connection",
@@ -378,6 +380,7 @@ pub async fn handle_startup() -> Result<
             {
                 tracing::info!(
                     tables = ?migration.snapshot.tables().len(),
+                    sequences = ?migration.snapshot.sequences().len(),
                     enums = ?migration.snapshot.enums().len(),
                     columns = ?migration.snapshot.columns(None).len(),
                     indexes = ?migration.snapshot.indexes(None).len(),

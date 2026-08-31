@@ -41,6 +41,8 @@ mod get {
         max_backup_group_count: u64,
         max_firewall_rule_count: u64,
         max_firewall_rule_source_count: u64,
+        max_tunnel_connection_count: u64,
+        max_tunnel_port_count: u64,
         max_database_instance_database_count: u64,
         max_database_instance_user_count: u64,
 
@@ -121,6 +123,8 @@ mod get {
                 max_backup_group_count: settings.server.max_backup_group_count,
                 max_firewall_rule_count: settings.server.max_firewall_rule_count,
                 max_firewall_rule_source_count: settings.server.max_firewall_rule_source_count,
+                max_tunnel_connection_count: settings.server.max_tunnel_connection_count,
+                max_tunnel_port_count: settings.server.max_tunnel_port_count,
                 max_database_instance_database_count: settings
                     .server
                     .max_database_instance_database_count,

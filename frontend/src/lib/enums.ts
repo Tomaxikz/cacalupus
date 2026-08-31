@@ -45,6 +45,7 @@ import {
   faRightLeft,
   faScroll,
   faServer,
+  faShareNodes,
   faShieldHalved,
   faSkull,
   faStopwatch,
@@ -66,13 +67,14 @@ import {
   compressionType,
   databaseAgentType,
   databaseType,
+  networkProtocol,
   streamingArchiveFormat,
   transferArchiveFormat,
 } from '@/lib/schemas/generic.ts';
 import { serverDatabaseInstanceUserPermission } from '@/lib/schemas/server/databaseInstances.ts';
 import { serverDatabaseFilterOperator } from '@/lib/schemas/server/databases.ts';
 import { archiveFormat, compressionLevel, fingerprintAlgorithm } from '@/lib/schemas/server/files.ts';
-import { serverFirewallRuleAction, serverFirewallRuleProtocol } from '@/lib/schemas/server/firewall.ts';
+import { serverFirewallRuleAction } from '@/lib/schemas/server/firewall.ts';
 import {
   serverScheduleComparator,
   serverScheduleConditionSchema,
@@ -450,7 +452,7 @@ export const serverFirewallRuleActionColorMapping: Record<z.infer<typeof serverF
   deny: 'red',
 };
 
-export const serverFirewallRuleProtocolLabelMapping: Record<z.infer<typeof serverFirewallRuleProtocol>, string> = {
+export const networkProtocolLabelMapping: Record<z.infer<typeof networkProtocol>, string> = {
   tcp: 'TCP',
   udp: 'UDP',
 };
@@ -807,6 +809,7 @@ export const permissionCategoryIconMapping: Record<string, IconDefinition> = {
   extensions: faPuzzlePiece,
   files: faFolderOpen,
   firewall: faShieldHalved,
+  connections: faShareNodes,
   locations: faEarthAmerica,
   mounts: faFolder,
   nests: faKiwiBird,

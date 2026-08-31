@@ -84,6 +84,8 @@ export const streamingArchiveFormat = z.enum([
 
 export const compressionType = z.enum(['none', 'gz', 'xz', 'lzip', 'bz2', 'lz4', 'zstd']);
 
+export const networkProtocol = z.enum(['tcp', 'udp']);
+
 export const hostnameSchema = z.union([
   z.ipv4().min(1).max(255),
   z.ipv6().min(1).max(255),

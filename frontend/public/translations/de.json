@@ -251,6 +251,17 @@
           "noMatches": "Keine Treffer",
           "exception": "Ausnahme",
           "tooManyPatterns": "Bei mehr als {max} Mustern werden Treffer nicht automatisch gezählt."
+        },
+        "cronInput": {
+          "segments": {
+            "second": "Sekunde",
+            "minute": "Minute",
+            "hour": "Stunde",
+            "day": "Tag",
+            "month": "Monat",
+            "weekday": "Wochentag"
+          },
+          "nextRun": "Nächste Ausführung ist {timestamp}."
         }
       },
       "modal": {
@@ -364,6 +375,7 @@
         "portRangesPlaceholder": "Port-Bereiche (z.B. 3000-4000)",
         "currentPassword": "Aktuelles Passwort",
         "confirmPassword": "Passwort bestätigen",
+        "passwordRequired": "Passwort ist erforderlich",
         "authenticationCode": "Authentifizierungs-Code",
         "restoreStartup": "Den Startbefehl, das Image und die Variablen aus diesem Backup wiederherstellen.",
         "lineContains": "Zeile enthält",
@@ -1123,6 +1135,13 @@
         "register": {
           "title": "Registrieren",
           "subtitle": "Bitte gib deine Daten ein, um dich zu registrieren",
+          "form": {
+            "usernamePlaceholder": "Dein Benutzername",
+            "emailPlaceholder": "du@beispiel.de",
+            "firstNamePlaceholder": "Dein Vorname",
+            "lastNamePlaceholder": "Dein Nachname",
+            "passwordPlaceholder": "Gib ein starkes Passwort ein"
+          },
           "button": {
             "register": "Registrieren"
           }
@@ -1130,6 +1149,9 @@
         "forgotPassword": {
           "title": "Passwort vergessen",
           "subtitle": "Gib deine E-Mail-Adresse ein, um Anweisungen zum Zurücksetzen deines Passworts zu erhalten",
+          "form": {
+            "emailPlaceholder": "du@beispiel.de"
+          },
           "button": {
             "request": "Passwort-Zurücksetzung anfordern"
           },
@@ -1146,6 +1168,10 @@
         "resetPassword": {
           "title": "Passwort zurücksetzen",
           "subtitle": "Bitte gib dein neues Passwort ein",
+          "form": {
+            "passwordPlaceholder": "Gib ein starkes Passwort ein",
+            "confirmPasswordPlaceholder": "Gib dein Passwort erneut ein"
+          },
           "button": {
             "reset": "Passwort zurücksetzen"
           },
@@ -1458,6 +1484,9 @@
           "button": {
             "deleteOthers": "Andere abmelden"
           },
+          "tooltip": {
+            "noOtherSessions": "Es gibt keine anderen Sitzungen zum Abmelden."
+          },
           "table": {
             "columns": {
               "thisDevice": "Dieses Gerät?",
@@ -1506,7 +1535,8 @@
           "general": {
             "title": "Allgemein",
             "undo": "Letzte Aktion rückgängig machen",
-            "quickActions": "Schnellaktionen öffnen"
+            "quickActions": "Schnellaktionen öffnen",
+            "save": "Aktuelles Formular speichern"
           },
           "fileManager": {
             "title": "Dateimanager",
@@ -2081,6 +2111,8 @@
                   "maxScheduleStepCount": "Max. Zeitplan-Schritte",
                   "maxFirewallRuleCount": "Max. Firewall-Regeln",
                   "maxFirewallRuleSourceCount": "Max. Quellen pro Firewall-Regel",
+                  "maxTunnelConnectionCount": "Max. private Verbindungen pro Server",
+                  "maxTunnelPortCount": "Max. private Ports pro Server",
                   "maxFileManagerContentSearchSize": "Max. Inhaltssuchgröße im Dateimanager",
                   "maxFileManagerSearchResults": "Max. Suchergebnisse im Dateimanager",
                   "maxSubuserCount": "Max. Anzahl Subbenutzer",
@@ -2931,6 +2963,104 @@
                   }
                 }
               }
+            },
+            "tunnel": {
+              "title": "Privates Netzwerk",
+              "page": {
+                "title": "Node Privates Netzwerk",
+                "description": "Server auf dieser Node können dann privat mit Servern auf jeder anderen Node verbunden werden, die ebenfalls im Netzwerk ist. Der Datenverkehr läuft über einen verschlüsselten Tunnel von Node zu Node und berührt niemals das öffentliche Internet.",
+                "alert": {
+                  "unreachable": "Die Node war nicht erreichbar, daher konnte ihre Seite des Netzwerks nicht geprüft werden.",
+                  "notSupported": "Diese Node **kann das private Netzwerk nicht betreiben**. Es ist entweder in der Node-Konfiguration deaktiviert, oder die Node verwendet rootless Docker, was nicht unterstützt wird.",
+                  "noCertificate": "Diese Node hat **kein Zertifikat gemeldet**, daher kann kein Peer eine Verbindung zu ihr aufbauen. Starte den Tunnel-Daemon der Node neu, damit sie sich erneut registriert."
+                },
+                "form": {
+                  "host": "Host",
+                  "hostDescription": "Der Hostname oder die IP, unter der andere Nodes diese erreichen. Wird beim Verbindungsaufbau aufgelöst.",
+                  "port": "Port",
+                  "portDescription": "Der UDP-Port, auf dem die Node auf andere Nodes lauscht. Muss von diesen erreichbar sein."
+                },
+                "section": {
+                  "settings": "Netzwerk-Einstellungen"
+                },
+                "state": {
+                  "title": "Node-Status",
+                  "daemon": "Daemon",
+                  "connected": "Verbunden",
+                  "disconnected": "Getrennt",
+                  "unknown": "Unbekannt",
+                  "epoch": "Statusversion",
+                  "certificate": "Zertifikat-Fingerprint",
+                  "noCertificate": "Noch nicht gemeldet"
+                },
+                "metrics": {
+                  "title": "Aktive Peer-Verbindungen",
+                  "loading": "Die Node wird nach ihren Metriken gefragt...",
+                  "unreachable": "Die Node war nicht erreichbar, daher sind keine Live-Metriken verfügbar.",
+                  "applied": "Statusversion {epoch}, {snapshots} angewendet",
+                  "stat": {
+                    "peers": "Verbundene Peers",
+                    "uptime": "Daemon-Laufzeit",
+                    "frontends": "Gebundene Frontends",
+                    "flowsOpen": "{count} Flows offen",
+                    "localDrops": "Verworfen auf derselben Node",
+                    "frozenFlows": "{count} Flows eingefroren"
+                  },
+                  "column": {
+                    "peer": "Peer",
+                    "role": "Rolle",
+                    "address": "Adresse",
+                    "rtt": "RTT",
+                    "mtu": "MTU",
+                    "transferred": "Übertragen",
+                    "streams": "Streams",
+                    "flows": "Flows",
+                    "drops": "Verworfen",
+                    "connected": "Verbunden seit"
+                  },
+                  "value": {
+                    "rtt": "{rtt} ms"
+                  },
+                  "role": {
+                    "initiator": "Ausgehend",
+                    "acceptor": "Angenommen"
+                  },
+                  "tooltip": {
+                    "roleInitiator": "Diese Node hat die Verbindung geöffnet und den Peer über dessen Host und Port angewählt.",
+                    "roleAcceptor": "Der Peer hat die Verbindung geöffnet und diese Node über deren Host und Port angewählt."
+                  },
+                  "drop": {
+                    "sendBufferFull": "Sendepuffer voll",
+                    "unknownFlow": "Unbekannter Flow",
+                    "fragTimeout": "Fragment-Timeout",
+                    "fragLimit": "Fragment-Limit",
+                    "oversize": "Zu groß",
+                    "malformed": "Fehlerhaft"
+                  }
+                },
+                "button": {
+                  "enable": "Aktivieren",
+                  "disable": "Deaktivieren",
+                  "rotate": "Identität rotieren"
+                },
+                "toast": {
+                  "connectionLost": "Verbindung zum Metrik-Stream der Node verloren.",
+                  "enabled": "Node zum privaten Netzwerk hinzugefügt.",
+                  "updated": "Einstellungen des privaten Netzwerks gespeichert.",
+                  "disabled": "Node aus dem privaten Netzwerk entfernt.",
+                  "rotated": "Node-Identität rotiert."
+                },
+                "modal": {
+                  "disable": {
+                    "title": "Entfernen aus dem privaten Netzwerk bestätigen",
+                    "content": "Jede Verbindung zu und von den Servern auf dieser Node wird getrennt, und diese Server verlieren ihre privaten Adressen."
+                  },
+                  "rotate": {
+                    "title": "Rotation der Identität bestätigen",
+                    "content": "Peers trennen ihre Verbindungen zu dieser Node sofort. Sie meldet sich innerhalb einer Minute mit einem neuen Zertifikat zurück, und die Verbindungen werden von selbst wiederhergestellt."
+                  }
+                }
+              }
             }
           },
           "modal": {
@@ -3429,6 +3559,9 @@
                     "title": "Variablen",
                     "page": {
                       "title": "Egg Variablen",
+                      "aria": {
+                        "reorder": "Variable verschieben"
+                      },
                       "form": {
                         "supportsMarkdown": "Unterstützt Markdown-Formatierung.",
                         "defaultValue": "Standardwert",
@@ -4708,6 +4841,7 @@
             "editorMinimap": "Datei Minimap",
             "editorLineOverflow": "Zeilenumbruch für lange Zeilen im Editor",
             "editorFontSize": "Editor-Schriftgröße",
+            "editorEngine": "Editor-Engine",
             "vscodeUriScheme": "VS Code URI-Schema",
             "imageViewerSmoothing": "Bildglättung (Anti-Aliasing)"
           },
@@ -6283,6 +6417,129 @@
             "removeRule": {
               "title": "Regelentfernung bestätigen",
               "content": "Bist du sicher, dass du diese Firewall-Regel entfernen möchtest?"
+            }
+          }
+        },
+        "tunnel": {
+          "title": "Verbindungen",
+          "subtitle": "Erreiche andere Server direkt, ohne den Umweg über das öffentliche Internet.",
+          "empty": {
+            "title": "Nicht im privaten Netzwerk",
+            "description": "Tritt bei, um diesem Server eine private Adresse zu geben, unter der die Server, die du mit ihm verbindest, ihn erreichen können.",
+            "descriptionReadOnly": "Dieser Server hat keine private Adresse, daher kann ihn kein anderer Server privat erreichen."
+          },
+          "ports": {
+            "empty": "Noch keine Ports angeboten, daher ist auf diesem Server nichts erreichbar."
+          },
+          "outgoing": {
+            "empty": "Dieser Server kann noch keinen anderen Server erreichen. Verbinde einen, um den Graphen zu starten."
+          },
+          "button": {
+            "join": "Privatem Netzwerk beitreten",
+            "leave": "Privates Netzwerk verlassen",
+            "connect": "Server verbinden",
+            "addPort": "Port hinzufügen",
+            "editPorts": "Angebotene Ports"
+          },
+          "action": {
+            "rename": "Hostname ändern",
+            "editPorts": "Angebotene Ports bearbeiten",
+            "removeOutgoing": "Diesen Server nicht mehr erreichen",
+            "removeIncoming": "Von diesem Server nicht mehr erreichbar sein",
+            "grantOutgoing": "Diesen Server dorthin verbinden lassen",
+            "grantIncoming": "Diesen Server von dort erreichbar machen"
+          },
+          "canvas": {
+            "hint": "Klicke auf eine Verbindung, um diese Richtung ein- oder auszuschalten. Ziehen zum Bewegen, Strg halten und scrollen zum Zoomen, oder auf einem Touchscreen zwei Finger.",
+            "legend": {
+              "outbound": "Ausgehend",
+              "inbound": "Eingehend"
+            },
+            "edge": {
+              "outboundActive": "Dieser Server erreicht {server}. Klicke, um das zu beenden.",
+              "outboundInactive": "Dieser Server kann {server} nicht erreichen. Klicke, um es zu erlauben.",
+              "inboundActive": "{server} erreicht diesen Server. Klicke, um das zu beenden.",
+              "inboundInactive": "{server} kann diesen Server nicht erreichen. Klicke, um es zu erlauben."
+            },
+            "zoomIn": "Hineinzoomen",
+            "zoomOut": "Herauszoomen",
+            "fit": "Neu zentrieren"
+          },
+          "node": {
+            "actions": "Server-Aktionen",
+            "noPorts": "Bietet keine Ports an, daher ist darauf nichts erreichbar.",
+            "noPortsSelf": "Du bietest keine Ports an, daher ist auf diesem Server nichts erreichbar.",
+            "inboundOnly": "Erreicht diesen Server. Von hier aus ist darauf nichts erreichbar.",
+            "caption": {
+              "self": "Andere Server erreichen diesen unter",
+              "peer": "Dieser Server erreicht ihn unter"
+            }
+          },
+          "tooltip": {
+            "nodeNotOnNetwork": "Die Node, auf der dieser Server läuft, ist nicht im privaten Netzwerk.",
+            "connectionLimitReached": "Dieser Server ist auf {max} ausgehende Verbindungen limitiert."
+          },
+          "alert": {
+            "nodeNotOnNetwork": "Die Node, auf der dieser Server läuft, ist **nicht im privaten Netzwerk**, daher kann er nicht beitreten. Bitte einen Administrator, es für die Node zu aktivieren.",
+            "nodeLeftNetwork": "Die Node, auf der dieser Server läuft, wurde **aus dem privaten Netzwerk entfernt**, daher funktioniert keine ihrer Verbindungen. Bitte einen Administrator, die Node wieder aufzunehmen.",
+            "bypassesFirewall": "Private Verbindungen durchlaufen die Firewall-Regeln dieses Servers nicht: die Verbindung selbst ist die Zugriffserlaubnis. Jede Verbindung gilt nur in eine Richtung, ein Server, den dieser erreicht, kann also nicht zurück verbinden, sofern das nicht separat erlaubt wird."
+          },
+          "form": {
+            "name": "Hostname",
+            "nameDescription": "Kleinbuchstaben, Ziffern und Bindestriche, bis zu 63 Zeichen, und im gesamten Netzwerk eindeutig.",
+            "namePlaceholder": "Leer lassen, um ihn vom Servernamen abzuleiten",
+            "port": "Port",
+            "protocols": "Protokolle",
+            "server": "Server",
+            "serverDescription": "Es werden nur Server aufgelistet, die bereits im privaten Netzwerk sind."
+          },
+          "toast": {
+            "joined": "Dem privaten Netzwerk beigetreten.",
+            "left": "Privates Netzwerk verlassen.",
+            "renamed": "Hostname geändert.",
+            "portsSaved": "Angebotene Ports gespeichert.",
+            "connected": "Server verbunden.",
+            "disconnected": "Verbindung entfernt."
+          },
+          "modal": {
+            "join": {
+              "title": "Dem privaten Netzwerk beitreten",
+              "description": "Wähle den Hostnamen, unter dem andere Server diesen erreichen. Er muss im gesamten Netzwerk frei sein, und du kannst ihn später ändern."
+            },
+            "rename": {
+              "title": "Hostname ändern",
+              "warning": "Verbundene Server übernehmen den neuen Hostnamen innerhalb einer Minute, und nichts wird getrennt. Alles, was noch den alten verwendet, lässt sich nicht mehr auflösen, also aktualisiere ihn auch dort - oder nutze **{alias}.tunnel**, der sich nie ändert."
+            },
+            "ports": {
+              "title": "Angebotene Ports",
+              "description": "Die Ports, die verbundene Server erreichen dürfen. Nicht auf deine Allocations beschränkt.",
+              "fromAllocations": "Aus den Allocations dieses Servers hinzufügen",
+              "count": "{count} von {max} verwendet",
+              "duplicate": "Derselbe Port ist mehr als einmal aufgeführt."
+            },
+            "connect": {
+              "title": "Server verbinden",
+              "empty": "Keine Server verfügbar. Ein Server muss im privaten Netzwerk sein, bevor er verbunden werden kann.",
+              "outbound": "Dieser Server erreicht {server}",
+              "inbound": "{server} erreicht diesen Server",
+              "alreadyOn": "In dieser Richtung bereits verbunden.",
+              "collision": "Dieser Server nutzt Port {port} für eigene Allocations und kann {server} daher niemals darüber erreichen.",
+              "collisionReverse": "{server} nutzt Port {port} für eigene Allocations und kann diesen Server daher niemals darüber erreichen.",
+              "noPermission": "Du darfst das von {server} aus nicht erteilen.",
+              "noPermissionTo": "Du darfst dich nicht mit {server} verbinden.",
+              "offersNothing": "{server} gibt noch keine Ports frei, es gäbe also nichts zu erreichen.",
+              "youOfferNothing": "Dieser Server gibt noch keine Ports frei, es gäbe also nichts zu erreichen.",
+              "addPortTo": "Auf {server} freigeben",
+              "offersNothingAlert": "**{server}** gibt keine Ports frei. Eine Verbindung würde einen Hostnamen liefern, der zwar auflöst, aber jede Verbindung ablehnt. Jemand mit Zugriff auf {server} muss zuerst einen Port freigeben."
+            },
+            "disconnect": {
+              "title": "Entfernen der Verbindung bestätigen",
+              "content": "Bist du sicher, dass dieser Server **{server}** nicht mehr erreichen können soll?",
+              "contentIncoming": "Bist du sicher, dass **{server}** diesen Server nicht mehr erreichen können soll?"
+            },
+            "leave": {
+              "title": "Verlassen des privaten Netzwerks bestätigen",
+              "content": "Dieser Server verliert seine private Adresse, seine angebotenen Ports und jede Verbindung in beide Richtungen. Ein erneuter Beitritt vergibt eine neue Adresse."
             }
           }
         },

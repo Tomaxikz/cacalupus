@@ -46,6 +46,7 @@ mod post {
         (status = ACCEPTED, body = inline(ResponseAccepted)),
         (status = UNAUTHORIZED, body = ApiError),
         (status = NOT_FOUND, body = ApiError),
+        (status = CONFLICT, body = ApiError),
         (status = EXPECTATION_FAILED, body = ApiError),
     ), params(
         (
@@ -79,6 +80,12 @@ mod post {
         if server.uuid == destination_server.uuid {
             return ApiResponse::error("cannot remote copy files to the same server")
                 .with_status(StatusCode::EXPECTATION_FAILED)
+                .ok();
+        }
+
+        if let Some(message) = destination_server.unavailable_reason() {
+            return ApiResponse::error(message)
+                .with_status(StatusCode::CONFLICT)
                 .ok();
         }
 

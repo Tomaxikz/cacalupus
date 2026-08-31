@@ -36,6 +36,8 @@ export default function ServerContainer() {
       maxBackupGroupCount: 0,
       maxFirewallRuleCount: 0,
       maxFirewallRuleSourceCount: 0,
+      maxTunnelConnectionCount: 0,
+      maxTunnelPortCount: 0,
       maxDatabaseInstanceDatabaseCount: 0,
       maxDatabaseInstanceUserCount: 0,
       allowOverwritingCustomDockerImage: false,
@@ -94,6 +96,18 @@ export default function ServerContainer() {
       type: 'number',
       name: 'maxFirewallRuleSourceCount',
       label: t('pages.admin.settings.tabs.server.page.form.maxFirewallRuleSourceCount', {}),
+      required: true,
+    },
+    {
+      type: 'number',
+      name: 'maxTunnelConnectionCount',
+      label: t('pages.admin.settings.tabs.server.page.form.maxTunnelConnectionCount', {}),
+      required: true,
+    },
+    {
+      type: 'number',
+      name: 'maxTunnelPortCount',
+      label: t('pages.admin.settings.tabs.server.page.form.maxTunnelPortCount', {}),
       required: true,
     },
     {

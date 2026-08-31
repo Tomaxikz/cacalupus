@@ -423,6 +423,10 @@ pub(crate) static BASE_ADMIN_PERMISSIONS: LazyLock<IndexMap<&'static str, Permis
                             "Allows viewing and managing a node's database agent hosts.",
                         ),
                         ("backups", "Allows viewing and managing a node's backups."),
+                        (
+                            "tunnel",
+                            "Allows viewing and managing a node's private network membership.",
+                        ),
                         ("power", "Allows executing mass-power actions on nodes."),
                         (
                             "transfers",
@@ -744,6 +748,30 @@ pub(crate) static BASE_SERVER_PERMISSIONS: LazyLock<IndexMap<&'static str, Permi
                         (
                             "update",
                             "Allows adding, reordering, modifying and removing firewall rules.",
+                        ),
+                    ]),
+                },
+            ),
+            (
+                "connections",
+                PermissionGroup {
+                    description: "Permissions that control the ability to connect this server privately to other servers, bypassing the public network.",
+                    permissions: IndexMap::from([
+                        (
+                            "create",
+                            "Allows putting the server on the private network and connecting it to another server.",
+                        ),
+                        (
+                            "read",
+                            "Allows viewing the server's private network membership, its connections and the ports it offers them.",
+                        ),
+                        (
+                            "update",
+                            "Allows changing the server's hostname and which ports it offers to the servers connected to it.",
+                        ),
+                        (
+                            "delete",
+                            "Allows removing one of the server's connections, and taking the server off the private network.",
                         ),
                     ]),
                 },

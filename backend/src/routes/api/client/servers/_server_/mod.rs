@@ -8,7 +8,7 @@ use axum::{
 use shared::{
     GetState,
     models::{
-        server::{Server, ServerActivityLogger, ServerStatus},
+        server::{Server, ServerActivityLogger},
         user::{GetAuthMethod, GetPermissionManager, GetUser, GetUserImpersonator},
     },
     response::ApiResponse,
@@ -32,6 +32,7 @@ mod schedules;
 mod settings;
 mod startup;
 mod subusers;
+mod tunnel;
 mod websocket;
 
 #[allow(clippy::too_many_arguments)]
@@ -65,29 +66,14 @@ pub async fn auth(
         "/api/client/servers/{server}/backups/unlock",
     ];
 
-    if !IGNORED_STATUS_PATHS.contains(&matched_path.as_str()) {
-        if server.suspended {
-            if !user.admin {
-                return Ok(ApiResponse::error("server is suspended")
-                    .with_status(StatusCode::CONFLICT)
-                    .into_response());
-            }
-        } else if server.destination_node.is_some() {
-            return Ok(ApiResponse::error("server is being transferred")
-                .with_status(StatusCode::CONFLICT)
-                .into_response());
-        } else if let Some(status) = server.status {
-            let message = match status {
-                ServerStatus::Installing => "server is currently installing",
-                ServerStatus::InstallFailed => "your server has failed its installation process",
-                ServerStatus::RestoringBackup => "server is restoring from a backup",
-                ServerStatus::BackupRestoreFailed => "your server has failed to restore a backup",
-            };
-
-            return Ok(ApiResponse::error(message)
-                .with_status(StatusCode::CONFLICT)
-                .into_response());
-        }
+    // administrators stay able to act on a suspended server, which is what suspension is for
+    if !IGNORED_STATUS_PATHS.contains(&matched_path.as_str())
+        && let Some(message) = server.unavailable_reason()
+        && !(server.suspended && user.admin)
+    {
+        return Ok(ApiResponse::error(message)
+            .with_status(StatusCode::CONFLICT)
+            .into_response());
     }
 
     req.extensions_mut().insert(permissions.for_server(&server));
@@ -160,6 +146,7 @@ pub fn router(state: &State) -> OpenApiRouter<State> {
         .nest("/backups", backups::router(state))
         .nest("/allocations", allocations::router(state))
         .nest("/firewall", firewall::router(state))
+        .nest("/tunnel", tunnel::router(state))
         .nest("/databases", databases::router(state))
         .nest("/mounts", mounts::router(state))
         .nest("/schedules", schedules::router(state))

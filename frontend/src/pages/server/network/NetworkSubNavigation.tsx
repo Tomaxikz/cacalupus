@@ -1,4 +1,4 @@
-import { faNetworkWired, faShieldHalved } from '@fortawesome/free-solid-svg-icons';
+import { faNetworkWired, faShareNodes, faShieldHalved } from '@fortawesome/free-solid-svg-icons';
 import SubNavigation from '@/elements/SubNavigation.tsx';
 import { useServerCan } from '@/plugins/usePermissions.ts';
 import { useTranslations } from '@/providers/TranslationProvider.tsx';
@@ -10,6 +10,7 @@ export default function NetworkSubNavigation() {
 
   const canReadAllocations = useServerCan('allocations.read');
   const canReadFirewall = useServerCan('firewall.read');
+  const canReadTunnel = useServerCan('connections.read');
 
   return (
     <SubNavigation
@@ -29,6 +30,12 @@ export default function NetworkSubNavigation() {
           icon: faShieldHalved,
           link: `/server/${server.uuidShort}/network/firewall`,
           hidden: !canReadFirewall,
+        },
+        {
+          name: t('pages.server.tunnel.title', {}),
+          icon: faShareNodes,
+          link: `/server/${server.uuidShort}/network/connections`,
+          hidden: !canReadTunnel,
         },
       ]}
     />

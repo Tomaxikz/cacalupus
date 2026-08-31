@@ -142,7 +142,14 @@ mod post {
         .execute(&mut *transaction)
         .await?;
 
+        let on_mesh =
+            shared::tunnel::bump_epoch_if_server_on_mesh(&mut transaction, server.uuid).await?;
+
         transaction.commit().await?;
+
+        if on_mesh {
+            shared::tunnel::poke_nodes(&state.database).await;
+        }
 
         if let Err(err) = server
             .node

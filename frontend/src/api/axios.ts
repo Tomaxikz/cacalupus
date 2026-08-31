@@ -81,7 +81,7 @@ export function getImpersonatedUser(): string | null {
 /**
  * Sets (or clears) the impersonated user for this tab. The impersonation id lives in
  * per-tab sessionStorage and is applied as a default header on both axios instances, so
- * requests are always issued as the identity this tab's auth state actually reflects —
+ * requests are always issued as the identity this tab's auth state actually reflects -
  * rather than reading origin-wide localStorage per request, which switched other tabs.
  */
 export function setImpersonatedUser(uuid: string | null) {

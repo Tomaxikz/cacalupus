@@ -754,6 +754,26 @@ impl Node {
         )
     }
 
+    /// What the node reports about its mesh daemon, `None` when it could not be reached in
+    /// time. Not cached: the panel shows it live on the node page.
+    pub async fn fetch_tunnel_status(
+        &self,
+        database: &crate::database::Database,
+    ) -> Option<wings_api::TundraStatus> {
+        const TUNNEL_STATUS_TIMEOUT: std::time::Duration = std::time::Duration::from_secs(3);
+
+        tokio::time::timeout(TUNNEL_STATUS_TIMEOUT, async {
+            self.api_client(database)
+                .await
+                .ok()?
+                .get_tundra()
+                .await
+                .ok()
+        })
+        .await
+        .ok()?
+    }
+
     pub async fn used_ports(
         &self,
         state: &crate::State,
@@ -1255,6 +1275,8 @@ impl DeletableModel for Node {
 
         self.run_delete_handlers(&options, state, transaction)
             .await?;
+
+        crate::tunnel::bump_epoch_if_node_on_mesh(transaction, self.uuid).await?;
 
         sqlx::query(
             r#"

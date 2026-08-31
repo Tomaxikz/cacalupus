@@ -11,6 +11,7 @@ import {
   jsonb,
   PgColumn,
   pgEnum,
+  pgSequence,
   pgTable,
   primaryKey,
   smallint,
@@ -66,6 +67,7 @@ export const backupDiskEnum = pgEnum('backup_disk', [
   'KOPIA',
 ]);
 export const announcementTypeEnum = pgEnum('announcement_type', ['INFO', 'SUCCESS', 'WARNING', 'ERROR']);
+export const tunnelProtocolEnum = pgEnum('tunnel_protocol', ['TCP', 'UDP']);
 
 // Tables
 export const settingsTable = pgTable('settings', {
@@ -1031,6 +1033,67 @@ export const serverAllocationsTable = pgTable(
   (cols) => [
     index('server_allocations_server_uuid_idx').on(cols.server_uuid),
     uniqueIndex('server_allocations_allocation_uuid_idx').on(cols.allocation_uuid),
+  ],
+);
+
+export const tunnelEpochSequence = pgSequence('tunnel_epoch');
+
+export const nodeTunnelsTable = pgTable('node_tunnels', {
+  node_uuid: uuid()
+    .references(() => nodesTable.uuid, { onDelete: 'cascade' })
+    .primaryKey()
+    .notNull(),
+  host: varchar({ length: 255 * UTF8_MAX_SCALAR_SIZE }).notNull(),
+  port: integer().default(7100).notNull(),
+  cert_sha256: bytea(),
+  created: timestamp().defaultNow().notNull(),
+});
+
+export const serverTunnelsTable = pgTable(
+  'server_tunnels',
+  {
+    server_uuid: uuid()
+      .references(() => serversTable.uuid, { onDelete: 'cascade' })
+      .primaryKey()
+      .notNull(),
+    idx: integer().notNull(),
+    name: varchar({ length: 63 }).notNull(),
+    created: timestamp().defaultNow().notNull(),
+  },
+  (cols) => [uniqueIndex('server_tunnels_idx_idx').on(cols.idx), uniqueIndex('server_tunnels_name_idx').on(cols.name)],
+);
+
+export const serverTunnelPortsTable = pgTable(
+  'server_tunnel_ports',
+  {
+    server_uuid: uuid()
+      .references(() => serverTunnelsTable.server_uuid, { onDelete: 'cascade' })
+      .notNull(),
+    port: integer().notNull(),
+    protocols: tunnelProtocolEnum().array().notNull(),
+    created: timestamp().defaultNow().notNull(),
+  },
+  (cols) => [
+    primaryKey({ name: 'server_tunnel_ports_pk', columns: [cols.server_uuid, cols.port] }),
+    index('server_tunnel_ports_server_uuid_idx').on(cols.server_uuid),
+  ],
+);
+
+export const serverTunnelConnectionsTable = pgTable(
+  'server_tunnel_connections',
+  {
+    src_server_uuid: uuid()
+      .references(() => serverTunnelsTable.server_uuid, { onDelete: 'cascade' })
+      .notNull(),
+    dst_server_uuid: uuid()
+      .references(() => serverTunnelsTable.server_uuid, { onDelete: 'cascade' })
+      .notNull(),
+    created: timestamp().defaultNow().notNull(),
+  },
+  (cols) => [
+    primaryKey({ name: 'server_tunnel_connections_pk', columns: [cols.src_server_uuid, cols.dst_server_uuid] }),
+    index('server_tunnel_connections_src_server_uuid_idx').on(cols.src_server_uuid),
+    index('server_tunnel_connections_dst_server_uuid_idx').on(cols.dst_server_uuid),
   ],
 );
 

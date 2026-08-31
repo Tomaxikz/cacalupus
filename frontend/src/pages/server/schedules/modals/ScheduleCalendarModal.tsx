@@ -223,7 +223,7 @@ export default function ScheduleCalendarModal(props: ModalProps) {
             renderEventBody={(event) => {
               const { cronDescription } = event.payload as { scheduleUuid: string; cronDescription: string };
 
-              return <Tooltip label={`${event.title} — ${cronDescription}`}>{event.title}</Tooltip>;
+              return <Tooltip label={`${event.title} - ${cronDescription}`}>{event.title}</Tooltip>;
             }}
           />
         </>

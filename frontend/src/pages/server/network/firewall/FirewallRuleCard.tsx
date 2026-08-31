@@ -11,9 +11,9 @@ import Stack from '@/elements/Stack.tsx';
 import Text from '@/elements/Text.tsx';
 import ThemeIcon from '@/elements/ThemeIcon.tsx';
 import {
+  networkProtocolLabelMapping,
   serverFirewallRuleActionColorMapping,
   serverFirewallRuleActionLabelMapping,
-  serverFirewallRuleProtocolLabelMapping,
 } from '@/lib/enums.ts';
 import { serverFirewallRuleSchema } from '@/lib/schemas/server/firewall.ts';
 import { useTranslations } from '@/providers/TranslationProvider.tsx';
@@ -110,7 +110,7 @@ export default function FirewallRuleCard({
                       rule.protocols.length > 0
                         ? rule.protocols
                             .toSorted()
-                            .map((protocol) => serverFirewallRuleProtocolLabelMapping[protocol])
+                            .map((protocol) => networkProtocolLabelMapping[protocol])
                             .join(', ')
                         : t('pages.server.firewall.rule.anyProtocol', {}),
                     sources:

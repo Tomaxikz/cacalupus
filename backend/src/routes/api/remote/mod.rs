@@ -13,6 +13,7 @@ mod backups;
 mod schedule;
 pub mod servers;
 mod sftp;
+mod tunnel;
 
 pub async fn auth(
     state: GetState,
@@ -90,6 +91,7 @@ pub fn router(state: &State) -> OpenApiRouter<State> {
         .nest("/servers", servers::router(state))
         .nest("/backups", backups::router(state))
         .nest("/schedule", schedule::router(state))
+        .nest("/tunnel", tunnel::router(state))
         .route_layer(axum::middleware::from_fn_with_state(state.clone(), auth))
         .with_state(state.clone())
 }

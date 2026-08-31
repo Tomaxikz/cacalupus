@@ -121,6 +121,10 @@ mod put {
         #[garde(skip)]
         max_firewall_rule_source_count: Option<u64>,
         #[garde(skip)]
+        max_tunnel_connection_count: Option<u64>,
+        #[garde(skip)]
+        max_tunnel_port_count: Option<u64>,
+        #[garde(skip)]
         max_database_instance_database_count: Option<u64>,
         #[garde(skip)]
         max_database_instance_user_count: Option<u64>,
@@ -429,6 +433,12 @@ mod put {
             }
             if let Some(max_firewall_rule_source_count) = server.max_firewall_rule_source_count {
                 settings.server.max_firewall_rule_source_count = max_firewall_rule_source_count;
+            }
+            if let Some(max_tunnel_connection_count) = server.max_tunnel_connection_count {
+                settings.server.max_tunnel_connection_count = max_tunnel_connection_count;
+            }
+            if let Some(max_tunnel_port_count) = server.max_tunnel_port_count {
+                settings.server.max_tunnel_port_count = max_tunnel_port_count;
             }
             if let Some(max_database_instance_database_count) =
                 server.max_database_instance_database_count

@@ -10,6 +10,7 @@ pub mod commands;
 #[serde(tag = "entityType", rename_all = "camelCase")]
 pub enum DDLEntry {
     Tables { name: String },
+    Sequences { name: String },
     Enums { name: String },
     Columns { table: String, name: String },
     Indexes { table: String, name: String },
@@ -29,6 +30,16 @@ impl MigrationSnapshot {
             .iter()
             .filter_map(|entry| match entry {
                 DDLEntry::Tables { name } => Some(name),
+                _ => None,
+            })
+            .collect()
+    }
+
+    pub fn sequences(&self) -> Vec<&String> {
+        self.ddl
+            .iter()
+            .filter_map(|entry| match entry {
+                DDLEntry::Sequences { name } => Some(name),
                 _ => None,
             })
             .collect()

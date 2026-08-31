@@ -42,6 +42,7 @@ pub mod response;
 pub mod settings;
 pub mod storage;
 pub mod telemetry;
+pub mod tunnel;
 pub mod updates;
 pub mod utils;
 

@@ -16,6 +16,8 @@ pub struct AppSettingsServer {
     pub max_backup_group_count: u64,
     pub max_firewall_rule_count: u64,
     pub max_firewall_rule_source_count: u64,
+    pub max_tunnel_connection_count: u64,
+    pub max_tunnel_port_count: u64,
     pub max_database_instance_database_count: u64,
     pub max_database_instance_user_count: u64,
 
@@ -66,6 +68,14 @@ impl SettingsSerializeExt for AppSettingsServer {
             .write_raw_setting(
                 "max_firewall_rule_source_count",
                 self.max_firewall_rule_source_count.to_compact_string(),
+            )
+            .write_raw_setting(
+                "max_tunnel_connection_count",
+                self.max_tunnel_connection_count.to_compact_string(),
+            )
+            .write_raw_setting(
+                "max_tunnel_port_count",
+                self.max_tunnel_port_count.to_compact_string(),
             )
             .write_raw_setting(
                 "max_database_instance_database_count",
@@ -139,6 +149,14 @@ impl SettingsDeserializeExt for AppSettingsServerDeserializer {
                 .take_raw_setting("max_firewall_rule_source_count")
                 .and_then(|s| s.parse().ok())
                 .unwrap_or(50),
+            max_tunnel_connection_count: deserializer
+                .take_raw_setting("max_tunnel_connection_count")
+                .and_then(|s| s.parse().ok())
+                .unwrap_or(25),
+            max_tunnel_port_count: deserializer
+                .take_raw_setting("max_tunnel_port_count")
+                .and_then(|s| s.parse().ok())
+                .unwrap_or(10),
             max_database_instance_database_count: deserializer
                 .take_raw_setting("max_database_instance_database_count")
                 .and_then(|s| s.parse().ok())

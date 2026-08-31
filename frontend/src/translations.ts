@@ -2037,6 +2037,8 @@ const baseTranslations = defineTranslations({
                   maxScheduleStepCount: 'Max Schedule Steps',
                   maxFirewallRuleCount: 'Max Firewall Rules',
                   maxFirewallRuleSourceCount: 'Max Firewall Rule Sources',
+                  maxTunnelConnectionCount: 'Max Private Connections per Server',
+                  maxTunnelPortCount: 'Max Private Ports per Server',
                   maxFileManagerContentSearchSize: 'Max File Manager Content Search Size',
                   maxFileManagerSearchResults: 'Max File Manager Search Results',
                   maxSubuserCount: 'Max Subuser Count',
@@ -2914,6 +2916,109 @@ const baseTranslations = defineTranslations({
                     progress: 'Progress',
                     archiveRate: 'Archive Rate',
                     networkRate: 'Network Rate',
+                  },
+                },
+              },
+            },
+            tunnel: {
+              title: 'Private Network',
+              page: {
+                title: 'Node Private Network',
+                description:
+                  'Servers on this node can then be connected privately to servers on any other node that is also on the network. Traffic goes node to node over an encrypted tunnel and never touches the public internet.',
+                alert: {
+                  unreachable: 'The node could not be reached, so its side of the network could not be checked.',
+                  notSupported:
+                    'This node **cannot run the private network**. It is either turned off in the node configuration, or the node uses rootless Docker, which is unsupported.',
+                  noCertificate:
+                    "This node has **not reported a certificate**, so no peer can open a connection to it. Restart the node's tunnel daemon to re-enrol it.",
+                },
+                form: {
+                  host: 'Host',
+                  hostDescription: 'The hostname or IP other nodes dial this one on. Resolved at connection time.',
+                  port: 'Port',
+                  portDescription: 'The UDP port the node listens on for other nodes. Must be reachable from them.',
+                },
+                section: {
+                  settings: 'Network Settings',
+                },
+                state: {
+                  title: 'Node State',
+                  daemon: 'Daemon',
+                  connected: 'Connected',
+                  disconnected: 'Disconnected',
+                  unknown: 'Unknown',
+                  epoch: 'State version',
+                  certificate: 'Certificate fingerprint',
+                  noCertificate: 'Not reported yet',
+                },
+                metrics: {
+                  title: 'Live Peer Links',
+                  loading: 'Asking the node for its metrics...',
+                  unreachable: 'The node could not be reached, so live metrics are unavailable.',
+                  applied: 'State version {epoch}, {snapshots} applied',
+                  stat: {
+                    peers: 'Peers Connected',
+                    uptime: 'Daemon Uptime',
+                    frontends: 'Bound Frontends',
+                    flowsOpen: '{count} flows open',
+                    localDrops: 'Same-Node Drops',
+                    frozenFlows: '{count} flows frozen',
+                  },
+                  column: {
+                    peer: 'Peer',
+                    role: 'Role',
+                    address: 'Address',
+                    rtt: 'RTT',
+                    mtu: 'MTU',
+                    transferred: 'Transferred',
+                    streams: 'Streams',
+                    flows: 'Flows',
+                    drops: 'Drops',
+                    connected: 'Connected',
+                  },
+                  value: {
+                    rtt: '{rtt} ms',
+                  },
+                  role: {
+                    initiator: 'Dialled Out',
+                    acceptor: 'Accepted',
+                  },
+                  tooltip: {
+                    roleInitiator: 'This node opened the connection, dialling the peer on its host and port.',
+                    roleAcceptor: 'The peer opened the connection, dialling this node on its host and port.',
+                  },
+                  drop: {
+                    sendBufferFull: 'Send buffer full',
+                    unknownFlow: 'Unknown flow',
+                    fragTimeout: 'Fragment timeout',
+                    fragLimit: 'Fragment limit',
+                    oversize: 'Oversized',
+                    malformed: 'Malformed',
+                  },
+                },
+                button: {
+                  enable: 'Enable',
+                  disable: 'Disable',
+                  rotate: 'Rotate Identity',
+                },
+                toast: {
+                  connectionLost: 'Lost connection to the node tunnel metrics stream.',
+                  enabled: 'Node added to the private network.',
+                  updated: 'Private network settings saved.',
+                  disabled: 'Node removed from the private network.',
+                  rotated: 'Node identity rotated.',
+                },
+                modal: {
+                  disable: {
+                    title: 'Confirm Removal From the Private Network',
+                    content:
+                      'Every connection to and from the servers on this node is dropped, and those servers lose their private addresses.',
+                  },
+                  rotate: {
+                    title: 'Confirm Identity Rotation',
+                    content:
+                      'Peers sever their connections to this node immediately. It re-admits itself with a fresh certificate within a minute, and connections re-establish on their own.',
                   },
                 },
               },
@@ -5646,7 +5751,7 @@ const baseTranslations = defineTranslations({
             anyMustBeTrue: 'Any condition must be true:',
             mustNotBeTrue: 'Condition must not be true:',
             renderer: {
-              none: 'No condition — this always matches.',
+              none: 'No condition - this always matches.',
               empty: 'No conditions added yet.',
               serverState: 'Server state is {state}',
               uptime: 'Uptime {comparator} {value}',
@@ -6372,6 +6477,139 @@ const baseTranslations = defineTranslations({
             removeRule: {
               title: 'Confirm Rule Removal',
               content: 'Are you sure you want to remove this firewall rule?',
+            },
+          },
+        },
+        tunnel: {
+          title: 'Connections',
+          subtitle: 'Reach other servers directly, without going over the public internet.',
+          empty: {
+            title: 'Not on the Private Network',
+            description:
+              'Join to give this server a private address that the servers you connect it to can reach it on.',
+            descriptionReadOnly: 'This server has no private address, so no other server can reach it privately.',
+          },
+          ports: {
+            empty: 'No ports offered yet, so nothing can be reached on this server.',
+          },
+          outgoing: {
+            empty: 'This server cannot reach any other server yet. Connect one to start the graph.',
+          },
+          button: {
+            join: 'Join Private Network',
+            leave: 'Leave Private Network',
+            connect: 'Connect a Server',
+            addPort: 'Add Port',
+            editPorts: 'Offered Ports',
+          },
+          action: {
+            rename: 'Change Hostname',
+            editPorts: 'Edit Offered Ports',
+            removeOutgoing: 'Stop Reaching This Server',
+            removeIncoming: 'Stop This Server Reaching Us',
+            grantOutgoing: 'Let This Server Reach It',
+            grantIncoming: 'Let It Reach This Server',
+          },
+          canvas: {
+            hint: 'Click a connection to turn that direction on or off. Drag to move around, hold Ctrl and scroll to zoom, or pinch on a touchscreen.',
+            legend: {
+              outbound: 'Outbound',
+              inbound: 'Inbound',
+            },
+            edge: {
+              outboundActive: 'This server reaches {server}. Click to stop it.',
+              outboundInactive: 'This server cannot reach {server}. Click to allow it.',
+              inboundActive: '{server} reaches this server. Click to stop it.',
+              inboundInactive: '{server} cannot reach this server. Click to allow it.',
+            },
+            zoomIn: 'Zoom in',
+            zoomOut: 'Zoom out',
+            fit: 'Recentre',
+          },
+          node: {
+            actions: 'Server actions',
+            noPorts: 'Offers no ports, so nothing on it can be reached.',
+            noPortsSelf: 'You offer no ports, so nothing on this server can be reached.',
+            inboundOnly: 'Reaches this server. Nothing on it can be reached from here.',
+            caption: {
+              self: 'Other servers reach this one at',
+              peer: 'This server reaches it at',
+            },
+          },
+          tooltip: {
+            nodeNotOnNetwork: 'The node this server runs on is not on the private network.',
+            connectionLimitReached: 'This server is limited to {max} outgoing connections.',
+          },
+          alert: {
+            nodeNotOnNetwork:
+              'The node this server runs on is **not on the private network**, so it cannot join. Ask an administrator to enable it for the node.',
+            nodeLeftNetwork:
+              'The node this server runs on was **taken off the private network**, so none of its connections work. Ask an administrator to put the node back on.',
+            bypassesFirewall:
+              "Private connections do not pass through this server's firewall rules: the connection itself is the access grant. Every connection works in one direction only, so a server this one reaches cannot reach back unless that is granted separately.",
+          },
+          form: {
+            name: 'Hostname',
+            nameDescription:
+              'Lowercase letters, digits and dashes, up to 63 characters, and unique across the whole network.',
+            namePlaceholder: 'Leave empty to derive one from the server name',
+            port: 'Port',
+            protocols: 'Protocols',
+            server: 'Server',
+            serverDescription: 'Only servers already on the private network are listed.',
+          },
+          toast: {
+            joined: 'Joined the private network.',
+            left: 'Left the private network.',
+            renamed: 'Hostname changed.',
+            portsSaved: 'Offered ports saved.',
+            connected: 'Server connected.',
+            disconnected: 'Connection removed.',
+          },
+          modal: {
+            join: {
+              title: 'Join the Private Network',
+              description:
+                'Pick the hostname other servers will reach this one on. It has to be free across the whole network, and you can change it later.',
+            },
+            rename: {
+              title: 'Change Hostname',
+              warning:
+                'Connected servers pick the new hostname up within a minute, and nothing is disconnected. Anything still using the old one stops resolving, so update it there too - or use **{alias}.tunnel**, which never changes.',
+            },
+            ports: {
+              title: 'Offered Ports',
+              description: 'The ports connected servers may reach. Not limited to your allocations.',
+              fromAllocations: "Add from this server's allocations",
+              count: '{count} of {max} used',
+              duplicate: 'The same port is listed more than once.',
+            },
+            connect: {
+              title: 'Connect a Server',
+              empty: 'No servers available. A server has to be on the private network before it can be connected.',
+              outbound: 'This server reaches {server}',
+              inbound: '{server} reaches this server',
+              alreadyOn: 'Already connected in this direction.',
+              collision: 'This server uses port {port} for its own allocations, so it can never reach {server} on it.',
+              collisionReverse:
+                '{server} uses port {port} for its own allocations, so it can never reach this server on it.',
+              noPermission: 'You are not allowed to grant this from {server}.',
+              noPermissionTo: 'You are not allowed to connect to {server}.',
+              offersNothing: '{server} offers no ports yet, so there would be nothing to reach.',
+              youOfferNothing: 'This server offers no ports yet, so there would be nothing for it to reach.',
+              addPortTo: 'Offer on {server}',
+              offersNothingAlert:
+                '**{server}** offers no ports. Connecting would give you a hostname that resolves but refuses every connection. Someone with access to {server} has to offer a port first.',
+            },
+            disconnect: {
+              title: 'Confirm Connection Removal',
+              content: 'Are you sure you want to stop this server from reaching **{server}**?',
+              contentIncoming: 'Are you sure you want to stop **{server}** from reaching this server?',
+            },
+            leave: {
+              title: 'Confirm Leaving the Private Network',
+              content:
+                'This server loses its private address, its offered ports and every connection in both directions. Rejoining assigns a new address.',
             },
           },
         },

@@ -11,6 +11,7 @@ import {
   faLayerGroup,
   faNetworkWired,
   faPenRuler,
+  faShareNodes,
 } from '@fortawesome/free-solid-svg-icons';
 import { useParams } from 'react-router';
 import getNode from '@/api/admin/nodes/getNode.ts';
@@ -33,6 +34,7 @@ import NodeOverview from './overview/NodeOverview.tsx';
 import AdminNodeServers from './servers/AdminNodeServers.tsx';
 import AdminNodeStatistics from './statistics/AdminNodeStatistics.tsx';
 import AdminNodeTransfers from './transfers/AdminNodeTransfers.tsx';
+import AdminNodeTunnel from './tunnel/AdminNodeTunnel.tsx';
 
 export default function NodeView() {
   const { t } = useTranslations();
@@ -134,6 +136,14 @@ export default function NodeView() {
                 path: `/transfers`,
                 element: <AdminNodeTransfers node={node} />,
                 permission: 'nodes.transfers',
+              },
+              {
+                name: t('pages.admin.nodes.tabs.tunnel.title', {}),
+                icon: faShareNodes,
+                path: `/tunnel`,
+                hidden: isNodeAIO(node),
+                element: <AdminNodeTunnel node={node} />,
+                permission: 'nodes.tunnel',
               },
             ]}
           />
