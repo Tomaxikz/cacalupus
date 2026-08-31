@@ -6,7 +6,6 @@ import { z } from 'zod';
 import createEggConfiguration from '@/api/admin/egg-configurations/createEggConfiguration.ts';
 import deleteEggConfiguration from '@/api/admin/egg-configurations/deleteEggConfiguration.ts';
 import updateEggConfiguration from '@/api/admin/egg-configurations/updateEggConfiguration.ts';
-import getAllEggs from '@/api/admin/nests/getAllEggs.ts';
 import { httpErrorToHuman } from '@/api/axios.ts';
 import Alert from '@/elements/Alert.tsx';
 import Button from '@/elements/Button.tsx';
@@ -25,6 +24,7 @@ import {
 } from '@/lib/schemas/admin/eggConfigurations.ts';
 import { eggConfigurationRouteItemSchema } from '@/lib/schemas/generic.ts';
 import EggConfigurationDuplicateModal from '@/pages/admin/eggConfigurations/modals/EggConfigurationDuplicateModal.tsx';
+import { useGroupedEggOptions } from '@/plugins/useGroupedEggOptions.ts';
 import { useResourceForm } from '@/plugins/useResourceForm.ts';
 import { useToast } from '@/providers/ToastProvider.tsx';
 import { useTranslations } from '@/providers/TranslationProvider.tsx';
@@ -44,9 +44,9 @@ export default function EggConfigurationCreateOrUpdate({
   const { t } = useTranslations();
   const languages = useGlobalStore((state) => state.languages);
 
+  const { eggOptions, loading: eggsLoading } = useGroupedEggOptions();
+
   const [openModal, setOpenModal] = useState<'delete' | 'duplicate' | null>(null);
-  const [eggs, setEggs] = useState<{ group: string; items: { label: string; value: string }[] }[]>([]);
-  const [eggsLoading, setEggsLoading] = useState(true);
   const [defaultRoutes, setDefaultRoutes] = useState<{
     order: z.infer<typeof eggConfigurationRouteItemSchema>[];
     entries: ServerRouteDefinition[];
@@ -100,23 +100,6 @@ export default function EggConfigurationCreateOrUpdate({
   }, [contextEggConfiguration]);
 
   useEffect(() => {
-    getAllEggs()
-      .then((eggs) => {
-        setEggs(
-          eggs.map((v) => ({
-            group: v.nest.name,
-            items: v.eggs.map((e) => ({
-              label: e.name,
-              value: e.uuid,
-            })),
-          })),
-        );
-      })
-      .catch((msg) => addToast(httpErrorToHuman(msg), 'error'))
-      .finally(() => setEggsLoading(false));
-  }, []);
-
-  useEffect(() => {
     loadServerRoutes()
       .then((module) => {
         const entries = [...module.default, ...window.extensionContext.extensionRegistry.routes.serverRoutes];
@@ -155,11 +138,11 @@ export default function EggConfigurationCreateOrUpdate({
         type: 'multiselectgroup',
         name: 'eggs',
         label: t('common.form.eggs', {}),
-        data: eggs,
+        data: eggOptions,
         props: {
           placeholder: t('pages.admin.eggConfigurations.tabs.general.page.form.eggsPlaceholder', {}),
           searchable: true,
-          loading: !eggs.length,
+          loading: eggsLoading,
         },
       },
       { type: 'textarea', name: 'description', label: t('common.form.description', {}), rows: 3 },
@@ -226,7 +209,7 @@ export default function EggConfigurationCreateOrUpdate({
         ),
       },
     ],
-    [t, eggs, form, defaultRoutes, languages],
+    [t, eggOptions, eggsLoading, form, defaultRoutes, languages],
   );
 
   return (
@@ -259,7 +242,7 @@ export default function EggConfigurationCreateOrUpdate({
         />
       )}
 
-      {!eggsLoading && eggs.length === 0 && (
+      {!eggsLoading && eggOptions.length === 0 && (
         <Alert color='yellow' mb='xs' icon={<FontAwesomeIcon icon={faTriangleExclamation} />}>
           {t('pages.admin.eggConfigurations.tabs.general.page.form.eggsEmpty', {})}
         </Alert>

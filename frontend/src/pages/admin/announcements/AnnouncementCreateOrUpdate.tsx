@@ -1,15 +1,11 @@
-import { useEffect, useState } from 'react';
-import { useNavigate } from 'react-router';
+import { useEffect, useMemo, useState } from 'react';
 import { z } from 'zod';
 import createAnnouncement from '@/api/admin/announcements/createAnnouncement.ts';
 import deleteAnnouncement from '@/api/admin/announcements/deleteAnnouncement.ts';
-import duplicateAnnouncement from '@/api/admin/announcements/duplicateAnnouncement.ts';
 import updateAnnouncement from '@/api/admin/announcements/updateAnnouncement.ts';
 import getBackupConfigurations from '@/api/admin/backup-configurations/getBackupConfigurations.ts';
 import getLocations from '@/api/admin/locations/getLocations.ts';
-import getAllEggs from '@/api/admin/nests/getAllEggs.ts';
 import getNodes from '@/api/admin/nodes/getNodes.ts';
-import { httpErrorToHuman } from '@/api/axios.ts';
 import Button from '@/elements/Button.tsx';
 import { AdminCan } from '@/elements/Can.tsx';
 import AdminContentContainer from '@/elements/containers/AdminContentContainer.tsx';
@@ -23,12 +19,14 @@ import {
   adminAnnouncementSchema,
   adminAnnouncementUpdateSchema,
 } from '@/lib/schemas/admin/announcements.ts';
+import { searchableMultiselectField } from '@/lib/searchableMultiselectField.ts';
+import { useGroupedEggOptions } from '@/plugins/useGroupedEggOptions.ts';
 import { useAdminCan } from '@/plugins/usePermissions.ts';
 import { useResourceForm } from '@/plugins/useResourceForm.ts';
 import { useSearchableResource } from '@/plugins/useSearchableResource.ts';
-import { useToast } from '@/providers/ToastProvider.tsx';
 import { useTranslations } from '@/providers/TranslationProvider.tsx';
 import { useGlobalStore } from '@/stores/global.ts';
+import AnnouncementDuplicateModal from './modals/AnnouncementDuplicateModal.tsx';
 
 type AnnouncementFormValues = z.infer<typeof adminAnnouncementUpdateSchema>;
 
@@ -38,7 +36,6 @@ export default function AnnouncementCreateOrUpdate({
   contextAnnouncement?: z.infer<typeof adminAnnouncementSchema>;
 }) {
   const languages = useGlobalStore((state) => state.languages);
-  const { addToast } = useToast();
   const { t, tReact } = useTranslations();
 
   const canReadLocations = useAdminCan('locations.read');
@@ -46,11 +43,9 @@ export default function AnnouncementCreateOrUpdate({
   const canReadBackupConfigurations = useAdminCan('backup-configurations.read');
 
   const [openModal, setOpenModal] = useState<'delete' | 'duplicate' | null>(null);
-  const navigate = useNavigate();
-  const [eggs, setEggs] = useState<{ group: string; items: { label: string; value: string }[] }[]>([]);
 
   const form = useFormEngine<AnnouncementFormValues>('admin.announcements.createOrUpdate', {
-    schema: adminAnnouncementUpdateSchema,
+    schema: contextAnnouncement ? adminAnnouncementUpdateSchema : adminAnnouncementCreateSchema,
     initialValues: {
       type: 'info',
       enabled: true,
@@ -70,7 +65,7 @@ export default function AnnouncementCreateOrUpdate({
     validateInputOnBlur: true,
   });
 
-  const { loading, setLoading, doCreateOrUpdate, doDelete } = useResourceForm<
+  const { loading, doCreateOrUpdate, doDelete } = useResourceForm<
     AnnouncementFormValues,
     z.infer<typeof adminAnnouncementSchema>
   >({
@@ -90,10 +85,10 @@ export default function AnnouncementCreateOrUpdate({
       form.setValues({
         type: contextAnnouncement.type,
         enabled: contextAnnouncement.enabled,
-        enabledStart: contextAnnouncement.enabledStart ? new Date(contextAnnouncement.enabledStart) : null,
-        enabledEnd: contextAnnouncement.enabledEnd ? new Date(contextAnnouncement.enabledEnd) : null,
+        enabledStart: contextAnnouncement.enabledStart,
+        enabledEnd: contextAnnouncement.enabledEnd,
         dismissible: contextAnnouncement.dismissible,
-        dismissibleEnd: contextAnnouncement.dismissibleEnd ? new Date(contextAnnouncement.dismissibleEnd) : null,
+        dismissibleEnd: contextAnnouncement.dismissibleEnd,
         title: contextAnnouncement.title,
         titleTranslations: contextAnnouncement.titleTranslations,
         content: contextAnnouncement.content,
@@ -104,43 +99,9 @@ export default function AnnouncementCreateOrUpdate({
         eggs: contextAnnouncement.eggs,
       });
     }
-  }, [contextAnnouncement]);
+  }, [contextAnnouncement?.uuid]);
 
-  const doDuplicate = () => {
-    if (!contextAnnouncement) {
-      return;
-    }
-
-    setLoading(true);
-
-    duplicateAnnouncement(contextAnnouncement.uuid)
-      .then((duplicated) => {
-        addToast(
-          t('common.toast.duplicated', { resource: t('pages.admin.announcements.resourceName', {}) }),
-          'success',
-        );
-        setOpenModal(null);
-        navigate(`/admin/announcements/${duplicated.uuid}`);
-      })
-      .catch((msg) => addToast(httpErrorToHuman(msg), 'error'))
-      .finally(() => setLoading(false));
-  };
-
-  useEffect(() => {
-    getAllEggs()
-      .then((eggs) => {
-        setEggs(
-          eggs.map((v) => ({
-            group: v.nest.name,
-            items: v.eggs.map((e) => ({
-              label: e.name,
-              value: e.uuid,
-            })),
-          })),
-        );
-      })
-      .catch((msg) => addToast(httpErrorToHuman(msg), 'error'));
-  }, []);
+  const { eggOptions, loading: eggsLoading } = useGroupedEggOptions();
 
   const locations = useSearchableResource({
     queryKey: queryKeys.admin.locations.all(),
@@ -160,109 +121,111 @@ export default function AnnouncementCreateOrUpdate({
     canRequest: canReadBackupConfigurations,
   });
 
-  const fields: FieldDef<AnnouncementFormValues>[] = [
-    {
-      type: 'select',
-      name: 'type',
-      label: t('common.form.type', {}),
-      required: true,
-      options: mappingToSelectData(announcementTypeLabelMapping),
-    },
-    {
-      type: 'localizedtext',
-      name: 'title',
-      label: t('common.form.title', {}),
-      required: true,
-      translationsName: 'titleTranslations',
+  const fields: FieldDef<AnnouncementFormValues>[] = useMemo(
+    () => [
+      {
+        type: 'select',
+        name: 'type',
+        label: t('common.form.type', {}),
+        required: true,
+        options: mappingToSelectData(announcementTypeLabelMapping),
+      },
+      {
+        type: 'localizedtext',
+        name: 'title',
+        label: t('common.form.title', {}),
+        required: true,
+        translationsName: 'titleTranslations',
+        languages,
+      },
+      {
+        type: 'localizedtextarea',
+        name: 'content',
+        label: t('common.form.content', {}),
+        required: true,
+        colSpan: 'full',
+        translationsName: 'contentTranslations',
+        languages,
+      },
+      {
+        type: 'date',
+        name: 'dismissibleEnd',
+        label: t('pages.admin.announcements.tabs.general.page.form.dismissibleEnd', {}),
+        props: { clearable: true },
+      },
+      {
+        type: 'date',
+        name: 'enabledStart',
+        label: t('pages.admin.announcements.tabs.general.page.form.enabledStart', {}),
+        props: { clearable: true },
+      },
+      {
+        type: 'date',
+        name: 'enabledEnd',
+        label: t('pages.admin.announcements.tabs.general.page.form.enabledEnd', {}),
+        props: { clearable: true },
+      },
+      searchableMultiselectField<AnnouncementFormValues>({
+        name: 'locations',
+        label: t('pages.admin.announcements.tabs.general.page.form.locations', {}),
+        description: t('pages.admin.announcements.tabs.general.page.form.locationsDescription', {}),
+        resource: locations,
+        canRead: canReadLocations,
+      }),
+      searchableMultiselectField<AnnouncementFormValues>({
+        name: 'nodes',
+        label: t('pages.admin.announcements.tabs.general.page.form.nodes', {}),
+        description: t('pages.admin.announcements.tabs.general.page.form.nodesDescription', {}),
+        resource: nodes,
+        canRead: canReadNodes,
+      }),
+      searchableMultiselectField<AnnouncementFormValues>({
+        name: 'backupConfigurations',
+        label: t('pages.admin.announcements.tabs.general.page.form.backupConfigurations', {}),
+        description: t('pages.admin.announcements.tabs.general.page.form.backupConfigurationsDescription', {}),
+        resource: backupConfigurations,
+        canRead: canReadBackupConfigurations,
+      }),
+      {
+        type: 'multiselectgroup',
+        name: 'eggs',
+        label: t('common.form.eggs', {}),
+        data: eggOptions,
+        props: {
+          placeholder: t('pages.admin.announcements.tabs.general.page.form.eggsPlaceholder', {}),
+          searchable: true,
+          loading: eggsLoading,
+        },
+      },
+      { type: 'switch', name: 'enabled', label: t('common.form.enabled', {}) },
+      {
+        type: 'switch',
+        name: 'dismissible',
+        label: t('pages.admin.announcements.tabs.general.page.form.dismissible', {}),
+      },
+    ],
+    [
+      t,
       languages,
-    },
-    {
-      type: 'localizedtextarea',
-      name: 'content',
-      label: t('common.form.content', {}),
-      required: true,
-      colSpan: 'full',
-      translationsName: 'contentTranslations',
-      languages,
-    },
-    {
-      type: 'date',
-      name: 'dismissibleEnd',
-      label: t('pages.admin.announcements.tabs.general.page.form.dismissibleEnd', {}),
-      props: { clearable: true },
-    },
-    {
-      type: 'date',
-      name: 'enabledStart',
-      label: t('pages.admin.announcements.tabs.general.page.form.enabledStart', {}),
-      props: { clearable: true },
-    },
-    {
-      type: 'date',
-      name: 'enabledEnd',
-      label: t('pages.admin.announcements.tabs.general.page.form.enabledEnd', {}),
-      props: { clearable: true },
-    },
-    {
-      type: 'multiselect',
-      name: 'locations',
-      label: t('pages.admin.announcements.tabs.general.page.form.locations', {}),
-      description: t('pages.admin.announcements.tabs.general.page.form.locationsDescription', {}),
-      options: locations.items.map((l) => ({ label: l.name, value: l.uuid })),
-      props: {
-        searchable: true,
-        searchValue: locations.search,
-        onSearchChange: locations.setSearch,
-        disabled: !canReadLocations,
-        loading: locations.loading,
-      },
-    },
-    {
-      type: 'multiselect',
-      name: 'nodes',
-      label: t('pages.admin.announcements.tabs.general.page.form.nodes', {}),
-      description: t('pages.admin.announcements.tabs.general.page.form.nodesDescription', {}),
-      options: nodes.items.map((n) => ({ label: n.name, value: n.uuid })),
-      props: {
-        searchable: true,
-        searchValue: nodes.search,
-        onSearchChange: nodes.setSearch,
-        disabled: !canReadNodes,
-        loading: nodes.loading,
-      },
-    },
-    {
-      type: 'multiselect',
-      name: 'backupConfigurations',
-      label: t('pages.admin.announcements.tabs.general.page.form.backupConfigurations', {}),
-      description: t('pages.admin.announcements.tabs.general.page.form.backupConfigurationsDescription', {}),
-      options: backupConfigurations.items.map((b) => ({ label: b.name, value: b.uuid })),
-      props: {
-        searchable: true,
-        searchValue: backupConfigurations.search,
-        onSearchChange: backupConfigurations.setSearch,
-        disabled: !canReadBackupConfigurations,
-        loading: backupConfigurations.loading,
-      },
-    },
-    {
-      type: 'multiselectgroup',
-      name: 'eggs',
-      label: t('common.form.eggs', {}),
-      data: eggs,
-      props: {
-        placeholder: t('pages.admin.announcements.tabs.general.page.form.eggsPlaceholder', {}),
-        searchable: true,
-        loading: !eggs.length,
-      },
-    },
-    { type: 'switch', name: 'enabled', label: t('common.form.enabled', {}) },
-    {
-      type: 'switch',
-      name: 'dismissible',
-      label: t('pages.admin.announcements.tabs.general.page.form.dismissible', {}),
-    },
-  ];
+      canReadLocations,
+      canReadNodes,
+      canReadBackupConfigurations,
+      locations.items,
+      locations.search,
+      locations.loading,
+      locations.setSearch,
+      nodes.items,
+      nodes.search,
+      nodes.loading,
+      nodes.setSearch,
+      backupConfigurations.items,
+      backupConfigurations.search,
+      backupConfigurations.loading,
+      backupConfigurations.setSearch,
+      eggOptions,
+      eggsLoading,
+    ],
+  );
 
   return (
     <AdminContentContainer
@@ -285,17 +248,13 @@ export default function AnnouncementCreateOrUpdate({
         {tReact('pages.admin.announcements.tabs.general.page.modal.delete.content', { title: form.getValues().title })}
       </ConfirmationModal>
 
-      <ConfirmationModal
-        opened={openModal === 'duplicate'}
-        onClose={() => setOpenModal(null)}
-        title={t('common.modal.duplicate.title', { resource: t('pages.admin.announcements.resourceName', {}) })}
-        confirm={t('common.button.duplicate', {})}
-        onConfirmed={doDuplicate}
-      >
-        {t('pages.admin.announcements.tabs.general.page.modal.duplicate.content', {
-          title: form.getValues().title,
-        }).md()}
-      </ConfirmationModal>
+      {contextAnnouncement && (
+        <AnnouncementDuplicateModal
+          announcement={contextAnnouncement}
+          opened={openModal === 'duplicate'}
+          onClose={() => setOpenModal(null)}
+        />
+      )}
 
       <form onSubmit={form.onSubmit(() => doCreateOrUpdate(false, queryKeys.admin.announcements.all()))}>
         <FormEngine form={form} fields={fields} />

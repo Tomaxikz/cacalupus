@@ -10,12 +10,12 @@ import { useTranslations } from '@/providers/TranslationProvider.tsx';
 import AnnouncementCreateOrUpdate from './AnnouncementCreateOrUpdate.tsx';
 
 export default function AnnouncementView() {
-  const params = useParams<'id'>();
+  const { id } = useParams<'id'>();
   const { t } = useTranslations();
 
   const resource = useResource({
-    queryKey: queryKeys.admin.announcements.detail(params.id!),
-    queryFn: () => getAnnouncement(params.id!),
+    queryKey: queryKeys.admin.announcements.detail(id!),
+    queryFn: () => getAnnouncement(id!),
   });
 
   return (
@@ -26,7 +26,7 @@ export default function AnnouncementView() {
           registry={window.extensionContext.extensionRegistry.pages.admin.announcements.container}
         >
           <SubNavigation
-            baseUrl={`/admin/announcements/${params.id}`}
+            baseUrl={`/admin/announcements/${id}`}
             registry={window.extensionContext.extensionRegistry.pages.admin.announcements.view.subNavigation}
             registryProps={{ announcement }}
             items={[
