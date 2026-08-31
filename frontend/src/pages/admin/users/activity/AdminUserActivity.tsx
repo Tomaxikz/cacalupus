@@ -1,13 +1,11 @@
 import { z } from 'zod';
 import getUserActivity from '@/api/admin/users/getUserActivity.ts';
-import ActivityInfoButton from '@/elements/activity/ActivityInfoButton.tsx';
-import Code from '@/elements/Code.tsx';
+import ActivityRow from '@/elements/activity/ActivityRow.tsx';
 import AdminSubContentContainer from '@/elements/containers/AdminSubContentContainer.tsx';
-import Group from '@/elements/Group.tsx';
-import Table, { TableData, TableRow } from '@/elements/Table.tsx';
-import FormattedTimestamp from '@/elements/time/FormattedTimestamp.tsx';
+import Table from '@/elements/Table.tsx';
 import { queryKeys } from '@/lib/queryKeys.ts';
 import { adminFullUserSchema } from '@/lib/schemas/admin/users.ts';
+import { activityColumns } from '@/lib/tableColumns.ts';
 import { useSearchablePaginatedTable } from '@/plugins/useSearchablePaginatedTable.ts';
 import { useTranslations } from '@/providers/TranslationProvider.tsx';
 
@@ -36,40 +34,14 @@ export default function AdminUserActivity({ user }: { user: z.infer<typeof admin
       registryProps={{ user }}
     >
       <Table
-        columns={[
-          t('common.table.columns.actor', {}),
-          t('common.table.columns.event', {}),
-          t('common.table.columns.ip', {}),
-          t('common.table.columns.when', {}),
-          '',
-        ]}
+        columns={activityColumns({ avatar: false })}
         loading={loading}
         error={error}
         pagination={userActivity}
         onPageSelect={setPage}
       >
         {userActivity?.data.map((activity, index) => (
-          <TableRow key={`${activity.created.toISOString()}-${index}`}>
-            <TableData>{activity.isApi ? t('common.api', {}) : t('common.web', {})}</TableData>
-
-            <TableData>
-              <Code>{activity.event}</Code>
-            </TableData>
-
-            <TableData>
-              <Code>{activity.ip ? activity.ip : t('common.na', {})}</Code>
-            </TableData>
-
-            <TableData>
-              <FormattedTimestamp timestamp={activity.created} />
-            </TableData>
-
-            <TableData>
-              <Group gap={4} justify='right' wrap='nowrap'>
-                {Object.keys(activity.data ?? {}).length > 0 ? <ActivityInfoButton activity={activity} /> : null}
-              </Group>
-            </TableData>
-          </TableRow>
+          <ActivityRow key={`${activity.created.toISOString()}-${index}`} activity={activity} accountScoped />
         ))}
       </Table>
     </AdminSubContentContainer>

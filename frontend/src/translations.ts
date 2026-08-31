@@ -80,6 +80,7 @@ const baseTranslations = defineTranslations({
         leavePage: 'Leave Page',
         viewDocumentation: 'View Documentation',
         undo: 'Undo',
+        clearUserFilter: 'Clear User Filter',
       },
       alert: {
         error: 'Error',
@@ -6522,9 +6523,6 @@ const baseTranslations = defineTranslations({
         },
         activity: {
           title: 'Activity',
-          button: {
-            clearUserFilter: 'Clear User Filter',
-          },
         },
       },
     },

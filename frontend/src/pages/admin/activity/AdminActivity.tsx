@@ -1,42 +1,17 @@
-import { faX } from '@fortawesome/free-solid-svg-icons';
-import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
-import { useEffect, useState } from 'react';
-import { useSearchParams } from 'react-router';
 import getAdminActivity from '@/api/admin/getAdminActivity.ts';
-import Button from '@/elements/Button.tsx';
+import ActivityRow from '@/elements/activity/ActivityRow.tsx';
+import ClearUserFilterButton from '@/elements/activity/ClearUserFilterButton.tsx';
 import AdminContentContainer from '@/elements/containers/AdminContentContainer.tsx';
 import Table from '@/elements/Table.tsx';
 import { queryKeys } from '@/lib/queryKeys.ts';
-import { adminActivityColumns } from '@/lib/tableColumns.ts';
+import { activityColumns } from '@/lib/tableColumns.ts';
 import { useSearchablePaginatedTable } from '@/plugins/useSearchablePaginatedTable.ts';
+import { useUserFilter } from '@/plugins/useUserFilter.ts';
 import { useTranslations } from '@/providers/TranslationProvider.tsx';
-import ActivityRow from './ActivityRow.tsx';
 
 export default function AdminActivity() {
   const { t } = useTranslations();
-  const [searchParams, setSearchParams] = useSearchParams();
-  const [filterUserUuid, setFilterUserUuid] = useState<string | null>(null);
-
-  useEffect(() => {
-    if (filterUserUuid) {
-      setSearchParams((prev) => {
-        prev.set('user', filterUserUuid);
-        return prev;
-      });
-    } else {
-      setSearchParams((prev) => {
-        prev.delete('user');
-        return prev;
-      });
-    }
-  }, [filterUserUuid, setSearchParams]);
-
-  useEffect(() => {
-    const userUuid = searchParams.get('user');
-    if (userUuid) {
-      setFilterUserUuid(userUuid);
-    }
-  }, [searchParams, setSearchParams]);
+  const { filterUserUuid, setFilterUserUuid } = useUserFilter();
 
   const {
     data: activities,
@@ -55,24 +30,18 @@ export default function AdminActivity() {
       title={t('pages.admin.activity.title', {})}
       search={search}
       setSearch={setSearch}
-      contentRight={
-        filterUserUuid ? (
-          <Button onClick={() => setFilterUserUuid(null)} color='gray' leftSection={<FontAwesomeIcon icon={faX} />}>
-            {t('pages.server.activity.button.clearUserFilter', {})}
-          </Button>
-        ) : null
-      }
+      contentRight={filterUserUuid ? <ClearUserFilterButton onClick={() => setFilterUserUuid(null)} /> : null}
       registry={window.extensionContext.extensionRegistry.pages.admin.activity.container}
     >
-      <Table
-        columns={adminActivityColumns()}
-        loading={loading}
-        error={error}
-        pagination={activities}
-        onPageSelect={setPage}
-      >
+      <Table columns={activityColumns()} loading={loading} error={error} pagination={activities} onPageSelect={setPage}>
         {activities?.data.map((activity, index) => (
-          <ActivityRow key={`${activity.created.toISOString()}-${index}`} activity={activity} />
+          <ActivityRow
+            key={`${activity.created.toISOString()}-${index}`}
+            activity={activity}
+            showAvatar
+            avatar={activity.user}
+            linkActor
+          />
         ))}
       </Table>
     </AdminContentContainer>

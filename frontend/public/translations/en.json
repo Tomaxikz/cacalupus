@@ -210,7 +210,8 @@
         "unsetPrimary": "Unset Primary",
         "leavePage": "Leave Page",
         "viewDocumentation": "View Documentation",
-        "undo": "Undo"
+        "undo": "Undo",
+        "clearUserFilter": "Clear User Filter"
       },
       "alert": {
         "error": "Error",
@@ -6462,10 +6463,7 @@
           }
         },
         "activity": {
-          "title": "Activity",
-          "button": {
-            "clearUserFilter": "Clear User Filter"
-          }
+          "title": "Activity"
         }
       }
     }
