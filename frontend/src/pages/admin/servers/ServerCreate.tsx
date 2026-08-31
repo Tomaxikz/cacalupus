@@ -190,6 +190,8 @@ export default function ServerCreate() {
     canRequest: canReadBackupConfigurations,
   });
 
+  const eggImages = eggs.items.find((egg) => egg.uuid === selectedEggUuid)?.dockerImages || {};
+
   useEffect(() => {
     const egg = eggs.items.find((egg) => egg.uuid === selectedEggUuid);
     if (!egg) {
@@ -311,20 +313,31 @@ export default function ServerCreate() {
   const serverConfigFields: FieldDef<ServerCreateFormValues>[] = useMemo(
     (): FieldDef<ServerCreateFormValues>[] => [
       {
-        type: 'select',
+        type: 'custom',
+        name: '_predefinedImage',
+        render: (f) => (
+          <Select
+            label={t('pages.admin.servers.tabs.general.page.form.predefinedDockerImages', {})}
+            placeholder={t('pages.admin.servers.tabs.general.page.form.predefinedDockerImagesPlaceholder', {})}
+            data={Object.entries(eggImages).map(([label, value]) => ({ label, value }))}
+            allowDeselect
+            clearable
+            searchable
+            value={
+              Object.entries(eggImages).some(([, value]) => value === form.getValues().image)
+                ? form.getValues().image
+                : null
+            }
+            onChange={(value) => f.setFieldValue('image', value || '')}
+          />
+        ),
+      },
+      {
+        type: 'text',
         name: 'image',
         label: t('common.form.dockerImage', {}),
         required: true,
-        options: Object.entries(eggs.items.find((egg) => egg.uuid === selectedEggUuid)?.dockerImages || {}).map(
-          ([label, value]) => ({
-            label,
-            value,
-          }),
-        ),
-        props: {
-          placeholder: 'ghcr.io/...',
-          searchable: true,
-        },
+        props: { placeholder: 'ghcr.io/...' },
       },
       {
         type: 'select',
@@ -364,7 +377,7 @@ export default function ServerCreate() {
         advanced: true,
       },
     ],
-    [t, eggs, selectedEggUuid],
+    [t, eggImages, form, eggs],
   );
 
   const featureLimitsFields = useMemo(() => buildFeatureLimitsFields<ServerCreateFormValues>(t), [t]);
