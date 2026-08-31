@@ -8,9 +8,9 @@ import AdminContentContainer from '@/elements/containers/AdminContentContainer.t
 import Table from '@/elements/Table.tsx';
 import { queryKeys } from '@/lib/queryKeys.ts';
 import { systemBackupPolicyTableColumns } from '@/lib/tableColumns.ts';
-import SystemBackupPolicyCreateOrUpdate from '@/pages/admin/systemBackupPolicies/SystemBackupPolicyCreateOrUpdate.tsx';
-import SystemBackupPolicyRow from '@/pages/admin/systemBackupPolicies/SystemBackupPolicyRow.tsx';
-import SystemBackupPolicyView from '@/pages/admin/systemBackupPolicies/SystemBackupPolicyView.tsx';
+import SystemBackupPolicyCreateOrUpdate from '@/pages/admin/system-backup-policies/SystemBackupPolicyCreateOrUpdate.tsx';
+import SystemBackupPolicyRow from '@/pages/admin/system-backup-policies/SystemBackupPolicyRow.tsx';
+import SystemBackupPolicyView from '@/pages/admin/system-backup-policies/SystemBackupPolicyView.tsx';
 import { useSearchablePaginatedTable } from '@/plugins/useSearchablePaginatedTable.ts';
 import { useTranslations } from '@/providers/TranslationProvider.tsx';
 import AdminPermissionGuard from '@/routers/guards/AdminPermissionGuard.tsx';

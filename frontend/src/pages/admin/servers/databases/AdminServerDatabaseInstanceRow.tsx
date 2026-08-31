@@ -9,10 +9,10 @@ import TableLink from '@/elements/TableLink.tsx';
 import FormattedTimestamp from '@/elements/time/FormattedTimestamp.tsx';
 import { databaseAgentTypeLabelMapping } from '@/lib/enums.ts';
 import { adminServerSchema, adminServerServerDatabaseAgentSchema } from '@/lib/schemas/admin/servers.ts';
+import DatabaseAgentHostInstanceDeleteModal from '@/pages/admin/database-agent-hosts/modals/DatabaseAgentHostInstanceDeleteModal.tsx';
+import DatabaseAgentHostInstanceEditModal from '@/pages/admin/database-agent-hosts/modals/DatabaseAgentHostInstanceEditModal.tsx';
 import { useAdminCan } from '@/plugins/usePermissions.ts';
 import { useTranslations } from '@/providers/TranslationProvider.tsx';
-import DatabaseAgentHostInstanceDeleteModal from '../../databaseAgentHosts/modals/DatabaseAgentHostInstanceDeleteModal.tsx';
-import DatabaseAgentHostInstanceEditModal from '../../databaseAgentHosts/modals/DatabaseAgentHostInstanceEditModal.tsx';
 
 export default function AdminServerDatabaseInstanceRow({
   server,

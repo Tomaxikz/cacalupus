@@ -31,12 +31,12 @@ import {
 } from '@/lib/schemas/admin/system.ts';
 import { databaseAgentHostTableColumns, nodeTableColumns } from '@/lib/tableColumns.ts';
 import { parseVersion } from '@/lib/version.ts';
+import DatabaseAgentHostRow from '@/pages/admin/database-agent-hosts/DatabaseAgentHostRow.tsx';
 import { useAdminCan } from '@/plugins/usePermissions.ts';
 import { useSearchablePaginatedTable } from '@/plugins/useSearchablePaginatedTable.ts';
 import { useToast } from '@/providers/ToastProvider.tsx';
 import { useTranslations } from '@/providers/TranslationProvider.tsx';
 import { useAdminStore } from '@/stores/admin.tsx';
-import DatabaseAgentHostRow from '../../databaseAgentHosts/DatabaseAgentHostRow.tsx';
 import NodeRow from '../../nodes/NodeRow.tsx';
 import OutdatedResourceCard from './OutdatedResourceCard.tsx';
 

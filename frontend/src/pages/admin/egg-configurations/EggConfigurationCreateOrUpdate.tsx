@@ -23,7 +23,7 @@ import {
   adminEggConfigurationUpdateSchema,
 } from '@/lib/schemas/admin/eggConfigurations.ts';
 import { eggConfigurationRouteItemSchema } from '@/lib/schemas/generic.ts';
-import EggConfigurationDuplicateModal from '@/pages/admin/eggConfigurations/modals/EggConfigurationDuplicateModal.tsx';
+import EggConfigurationDuplicateModal from '@/pages/admin/egg-configurations/modals/EggConfigurationDuplicateModal.tsx';
 import { useGroupedEggOptions } from '@/plugins/useGroupedEggOptions.ts';
 import { useResourceForm } from '@/plugins/useResourceForm.ts';
 import { useToast } from '@/providers/ToastProvider.tsx';

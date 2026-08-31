@@ -5,7 +5,7 @@ import AdminContentContainer from '@/elements/containers/AdminContentContainer.t
 import ResourceView from '@/elements/ResourceView.tsx';
 import SubNavigation from '@/elements/SubNavigation.tsx';
 import { queryKeys } from '@/lib/queryKeys.ts';
-import AdminDatabaseHostDatabases from '@/pages/admin/databaseHosts/databases/AdminDatabaseHostDatabases.tsx';
+import AdminDatabaseHostDatabases from '@/pages/admin/database-hosts/databases/AdminDatabaseHostDatabases.tsx';
 import { useResource } from '@/plugins/useResource.ts';
 import { useTranslations } from '@/providers/TranslationProvider.tsx';
 import DatabaseHostCreateOrUpdate from './DatabaseHostCreateOrUpdate.tsx';

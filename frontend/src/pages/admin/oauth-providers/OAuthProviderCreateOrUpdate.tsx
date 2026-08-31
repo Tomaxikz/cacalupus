@@ -21,7 +21,7 @@ import { serializeForApi } from '@/lib/api-transform.ts';
 import { downloadTextFile } from '@/lib/download.ts';
 import { queryKeys } from '@/lib/queryKeys.ts';
 import { adminOAuthProviderSchema, adminOAuthProviderUpdateSchema } from '@/lib/schemas/admin/oauthProviders.ts';
-import OAuthProviderDuplicateModal from '@/pages/admin/oAuthProviders/modals/OAuthProviderDuplicateModal.tsx';
+import OAuthProviderDuplicateModal from '@/pages/admin/oauth-providers/modals/OAuthProviderDuplicateModal.tsx';
 import { useResourceForm } from '@/plugins/useResourceForm.ts';
 import { useToast } from '@/providers/ToastProvider.tsx';
 import { useTranslations } from '@/providers/TranslationProvider.tsx';

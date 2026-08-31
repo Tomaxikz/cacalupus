@@ -25,7 +25,7 @@ import {
   adminDatabaseAgentTemplateSchema,
   adminDatabaseAgentTemplateUpdateSchema,
 } from '@/lib/schemas/admin/databaseAgentTemplates.ts';
-import DatabaseAgentTemplateDuplicateModal from '@/pages/admin/databaseAgentTemplates/modals/DatabaseAgentTemplateDuplicateModal.tsx';
+import DatabaseAgentTemplateDuplicateModal from '@/pages/admin/database-agent-templates/modals/DatabaseAgentTemplateDuplicateModal.tsx';
 import { useResourceForm } from '@/plugins/useResourceForm.ts';
 import { useToast } from '@/providers/ToastProvider.tsx';
 import { useTranslations } from '@/providers/TranslationProvider.tsx';

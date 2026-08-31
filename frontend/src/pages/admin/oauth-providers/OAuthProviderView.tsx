@@ -5,8 +5,8 @@ import AdminContentContainer from '@/elements/containers/AdminContentContainer.t
 import ResourceView from '@/elements/ResourceView.tsx';
 import SubNavigation from '@/elements/SubNavigation.tsx';
 import { queryKeys } from '@/lib/queryKeys.ts';
-import AdminOAuthProviderMappings from '@/pages/admin/oAuthProviders/mappings/AdminOAuthProviderMappings.tsx';
-import AdminOAuthProviderUsers from '@/pages/admin/oAuthProviders/users/AdminOAuthProviderUsers.tsx';
+import AdminOAuthProviderMappings from '@/pages/admin/oauth-providers/mappings/AdminOAuthProviderMappings.tsx';
+import AdminOAuthProviderUsers from '@/pages/admin/oauth-providers/users/AdminOAuthProviderUsers.tsx';
 import { useResource } from '@/plugins/useResource.ts';
 import { useTranslations } from '@/providers/TranslationProvider.tsx';
 import OAuthProviderCreateOrUpdate from './OAuthProviderCreateOrUpdate.tsx';
