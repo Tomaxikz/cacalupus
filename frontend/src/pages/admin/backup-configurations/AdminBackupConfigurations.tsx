@@ -8,9 +8,9 @@ import AdminContentContainer from '@/elements/containers/AdminContentContainer.t
 import Table from '@/elements/Table.tsx';
 import { queryKeys } from '@/lib/queryKeys.ts';
 import { backupConfigurationTableColumns } from '@/lib/tableColumns.ts';
-import BackupConfigurationCreateOrUpdate from '@/pages/admin/backupConfigurations/BackupConfigurationCreateOrUpdate.tsx';
-import BackupConfigurationRow from '@/pages/admin/backupConfigurations/BackupConfigurationRow.tsx';
-import BackupConfigurationView from '@/pages/admin/backupConfigurations/BackupConfigurationView.tsx';
+import BackupConfigurationCreateOrUpdate from '@/pages/admin/backup-configurations/BackupConfigurationCreateOrUpdate.tsx';
+import BackupConfigurationRow from '@/pages/admin/backup-configurations/BackupConfigurationRow.tsx';
+import BackupConfigurationView from '@/pages/admin/backup-configurations/BackupConfigurationView.tsx';
 import { useSearchablePaginatedTable } from '@/plugins/useSearchablePaginatedTable.ts';
 import { useTranslations } from '@/providers/TranslationProvider.tsx';
 import AdminPermissionGuard from '@/routers/guards/AdminPermissionGuard.tsx';

@@ -25,7 +25,7 @@ import type { LazyString } from '@/lib/lazy.ts';
 import AdminActivity from '@/pages/admin/activity/AdminActivity.tsx';
 import AdminAnnouncements from '@/pages/admin/announcements/AdminAnnouncements.tsx';
 import AdminAssets from '@/pages/admin/assets/AdminAssets.tsx';
-import AdminBackupConfigurations from '@/pages/admin/backupConfigurations/AdminBackupConfigurations.tsx';
+import AdminBackupConfigurations from '@/pages/admin/backup-configurations/AdminBackupConfigurations.tsx';
 import AdminDatabaseAgentHosts from '@/pages/admin/databaseAgentHosts/AdminDatabaseAgentHosts.tsx';
 import AdminDatabaseAgentTemplates from '@/pages/admin/databaseAgentTemplates/AdminDatabaseAgentTemplates.tsx';
 import AdminDatabaseHosts from '@/pages/admin/databaseHosts/AdminDatabaseHosts.tsx';

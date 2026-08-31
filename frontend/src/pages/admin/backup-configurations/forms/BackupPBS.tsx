@@ -1,11 +1,9 @@
 import { UseFormReturnType } from '@mantine/form';
 import { z } from 'zod';
-import Divider from '@/elements/Divider.tsx';
 import { type FieldDef, FormEngine } from '@/elements/form-engine/index.ts';
-import Stack from '@/elements/Stack.tsx';
-import Title from '@/elements/Title.tsx';
 import { adminBackupConfigurationPbsSchema } from '@/lib/schemas/admin/backupConfigurations.ts';
 import { useTranslations } from '@/providers/TranslationProvider.tsx';
+import BackupProviderSection from './BackupProviderSection.tsx';
 
 type PbsFormValues = z.infer<typeof adminBackupConfigurationPbsSchema>;
 
@@ -58,13 +56,8 @@ export default function BackupPBS({ form }: { form: UseFormReturnType<PbsFormVal
   ];
 
   return (
-    <Stack gap='xs' mt='md'>
-      <Stack gap={0}>
-        <Title order={2}>{t('pages.admin.backupConfigurations.tabs.general.page.pbs.title', {})}</Title>
-        <Divider />
-      </Stack>
-
-      <FormEngine id='admin.backupConfigurations.pbs' form={form} fields={fields} />
-    </Stack>
+    <BackupProviderSection title={t('pages.admin.backupConfigurations.tabs.general.page.pbs.title', {})}>
+      <FormEngine form={form} fields={fields} />
+    </BackupProviderSection>
   );
 }

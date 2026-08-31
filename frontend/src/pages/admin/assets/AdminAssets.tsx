@@ -44,7 +44,7 @@ export default function AdminAssets() {
 
   const [openModal, setOpenModal] = useState<'newDirectory' | null>(null);
 
-  const { data, loading, search, setSearch, page, setPage } = useSearchablePaginatedTable<AssetsQueryData>({
+  const { data, loading, search, setSearch, setPage } = useSearchablePaginatedTable<AssetsQueryData>({
     queryKey: queryKeys.admin.assets.all(),
     deps: [currentDirectory],
     paginationKey: 'pagination',

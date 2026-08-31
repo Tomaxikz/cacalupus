@@ -1,15 +1,15 @@
 import { ModalProps } from '@mantine/core';
-import { FormEvent, useEffect, useState } from 'react';
+import { useEffect } from 'react';
 import { useNavigate } from 'react-router';
 import { z } from 'zod';
 import duplicateBackupConfiguration from '@/api/admin/backup-configurations/duplicateBackupConfiguration.ts';
-import { httpErrorToHuman } from '@/api/axios.ts';
 import Button from '@/elements/Button.tsx';
 import TextInput from '@/elements/input/TextInput.tsx';
 import FormModal from '@/elements/modals/FormModal.tsx';
 import { ModalFooter } from '@/elements/modals/Modal.tsx';
 import Stack from '@/elements/Stack.tsx';
 import { adminBackupConfigurationSchema } from '@/lib/schemas/admin/backupConfigurations.ts';
+import { useModalForm } from '@/plugins/useModalForm.ts';
 import { useToast } from '@/providers/ToastProvider.tsx';
 import { useTranslations } from '@/providers/TranslationProvider.tsx';
 
@@ -21,48 +21,46 @@ export default function BackupConfigurationDuplicateModal({
   const { addToast } = useToast();
   const navigate = useNavigate();
 
-  const [loading, setLoading] = useState(false);
-  const [name, setName] = useState('');
+  const { form, handleClose, handleSubmit, loading, isDirty } = useModalForm<{ name: string }>({
+    initialValues: { name: '' },
+    onClose: props.onClose,
+    onSubmit: async ({ name }) => {
+      const duplicated = await duplicateBackupConfiguration(backupConfiguration.uuid, name);
+      addToast(
+        t('common.toast.duplicated', { resource: t('pages.admin.backupConfigurations.resourceName', {}) }),
+        'success',
+      );
+      navigate(`/admin/backup-configurations/${duplicated.uuid}`);
+    },
+  });
 
-  useEffect(() => setName(`${backupConfiguration.name} (copy)`), [backupConfiguration, props.opened]);
+  useEffect(() => {
+    if (!props.opened) {
+      return;
+    }
 
-  const doDuplicate = (e: FormEvent<HTMLFormElement>) => {
-    e.preventDefault();
-    setLoading(true);
-
-    duplicateBackupConfiguration(backupConfiguration.uuid, name)
-      .then((duplicated) => {
-        addToast(
-          t('common.toast.duplicated', { resource: t('pages.admin.backupConfigurations.resourceName', {}) }),
-          'success',
-        );
-        props.onClose();
-        navigate(`/admin/backup-configurations/${duplicated.uuid}`);
-      })
-      .catch((msg) => addToast(httpErrorToHuman(msg), 'error'))
-      .finally(() => setLoading(false));
-  };
+    const values = { name: `${backupConfiguration.name} (copy)` };
+    form.setValues(values);
+    form.resetDirty(values);
+  }, [props.opened, backupConfiguration]);
 
   return (
     <FormModal
       title={t('common.modal.duplicate.title', { resource: t('pages.admin.backupConfigurations.resourceName', {}) })}
+      isDirty={isDirty}
       loading={loading}
       {...props}
-      onSubmit={doDuplicate}
+      onClose={handleClose}
+      onSubmit={handleSubmit}
     >
       <Stack>
-        <TextInput
-          withAsterisk
-          label={t('common.form.newName', {})}
-          value={name}
-          onChange={(e) => setName(e.target.value)}
-        />
+        <TextInput withAsterisk label={t('common.form.newName', {})} {...form.getInputProps('name')} />
 
         <ModalFooter>
-          <Button type='submit' loading={loading} disabled={name.length < 1}>
+          <Button type='submit' loading={loading} disabled={form.values.name.length < 1}>
             {t('common.button.duplicate', {})}
           </Button>
-          <Button variant='default' onClick={props.onClose}>
+          <Button variant='default' onClick={handleClose}>
             {t('common.button.close', {})}
           </Button>
         </ModalFooter>

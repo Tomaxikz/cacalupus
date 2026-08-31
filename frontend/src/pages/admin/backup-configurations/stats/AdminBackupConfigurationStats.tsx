@@ -1,11 +1,10 @@
 import { faArchive } from '@fortawesome/free-solid-svg-icons';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
-import { Fragment } from 'react';
 import { z } from 'zod';
 import getBackupConfigurationStats from '@/api/admin/backup-configurations/getBackupConfigurationStats.ts';
 import Card from '@/elements/Card.tsx';
 import AdminSubContentContainer from '@/elements/containers/AdminSubContentContainer.tsx';
-import Spinner from '@/elements/Spinner.tsx';
+import ResourceView from '@/elements/ResourceView.tsx';
 import Title from '@/elements/Title.tsx';
 import TitleCard from '@/elements/TitleCard.tsx';
 import { queryKeys } from '@/lib/queryKeys.ts';
@@ -21,7 +20,7 @@ export default function AdminBackupConfigurationStats({
 }) {
   const { t } = useTranslations();
 
-  const { data: stats } = useResource({
+  const resource = useResource({
     queryKey: queryKeys.admin.backupConfigurations.stats(backupConfiguration.uuid),
     queryFn: () => getBackupConfigurationStats(backupConfiguration.uuid),
   });
@@ -33,21 +32,20 @@ export default function AdminBackupConfigurationStats({
       registry={window.extensionContext.extensionRegistry.pages.admin.backupConfigurations.view.stats.subContainer}
       registryProps={{ backupConfiguration }}
     >
-      {!stats ? (
-        <Spinner.Centered />
-      ) : (
-        <TitleCard
-          title={t('pages.admin.backupConfigurations.tabs.stats.page.card.title', {})}
-          icon={<FontAwesomeIcon icon={faArchive} />}
-          className='mt-4'
-        >
-          <div className='flex flex-col 2xl:flex-row gap-4'>
-            {(['allTime', 'today', 'week', 'month'] as const).map((period) => {
-              const periodLabel = t(`pages.admin.backupConfigurations.tabs.stats.page.periodLabel.${period}`, {});
+      <ResourceView resource={resource}>
+        {(stats) => (
+          <TitleCard
+            title={t('pages.admin.backupConfigurations.tabs.stats.page.card.title', {})}
+            icon={<FontAwesomeIcon icon={faArchive} />}
+            className='mt-4'
+          >
+            <div className='flex flex-col 2xl:flex-row gap-4'>
+              {(['allTime', 'today', 'week', 'month'] as const).map((period) => {
+                const periodLabel = t(`pages.admin.backupConfigurations.tabs.stats.page.periodLabel.${period}`, {});
 
-              return (
-                <Fragment key={period}>
+                return (
                   <TitleCard
+                    key={period}
                     title={t(`pages.admin.backupConfigurations.tabs.stats.page.period.${period}`, {})}
                     className='flex-1 min-w-0'
                   >
@@ -74,12 +72,12 @@ export default function AdminBackupConfigurationStats({
                       </Card>
                     </div>
                   </TitleCard>
-                </Fragment>
-              );
-            })}
-          </div>
-        </TitleCard>
-      )}
+                );
+              })}
+            </div>
+          </TitleCard>
+        )}
+      </ResourceView>
     </AdminSubContentContainer>
   );
 }

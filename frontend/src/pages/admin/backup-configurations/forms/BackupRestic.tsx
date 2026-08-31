@@ -7,7 +7,6 @@ import getNodes from '@/api/admin/nodes/getNodes.ts';
 import ActionIcon from '@/elements/ActionIcon.tsx';
 import Button from '@/elements/Button.tsx';
 import Card from '@/elements/Card.tsx';
-import Divider from '@/elements/Divider.tsx';
 import { type FieldDef, FormEngine } from '@/elements/form-engine/index.ts';
 import Group from '@/elements/Group.tsx';
 import MultiKeyValueInput from '@/elements/input/MultiKeyValueInput.tsx';
@@ -16,7 +15,6 @@ import PasswordInput from '@/elements/input/PasswordInput.tsx';
 import TextInput from '@/elements/input/TextInput.tsx';
 import Stack from '@/elements/Stack.tsx';
 import Text from '@/elements/Text.tsx';
-import Title from '@/elements/Title.tsx';
 import TitleCard from '@/elements/TitleCard.tsx';
 import { queryKeys } from '@/lib/queryKeys.ts';
 import { adminBackupConfigurationResticSchema } from '@/lib/schemas/admin/backupConfigurations.ts';
@@ -24,8 +22,11 @@ import { adminNodeSchema } from '@/lib/schemas/admin/nodes.ts';
 import { useAdminCan } from '@/plugins/usePermissions.ts';
 import { useSearchableResource } from '@/plugins/useSearchableResource.ts';
 import { useTranslations } from '@/providers/TranslationProvider.tsx';
+import BackupProviderSection from './BackupProviderSection.tsx';
 
-type ResticForm = UseFormReturnType<z.infer<typeof adminBackupConfigurationResticSchema>>;
+type ResticFormValues = z.infer<typeof adminBackupConfigurationResticSchema>;
+type ResticForm = UseFormReturnType<ResticFormValues>;
+type NodeResource = ReturnType<typeof useSearchableResource<z.infer<typeof adminNodeSchema>>>;
 
 function cronDescription(cron: string, language: string): string | null {
   try {
@@ -35,15 +36,8 @@ function cronDescription(cron: string, language: string): string | null {
   }
 }
 
-function PruneJobRow({ form, index }: { form: ResticForm; index: number }) {
+function PruneJobRow({ form, index, nodes }: { form: ResticForm; index: number; nodes: NodeResource }) {
   const { t, language } = useTranslations();
-  const canReadNodes = useAdminCan('nodes.read');
-
-  const nodes = useSearchableResource<z.infer<typeof adminNodeSchema>>({
-    queryKey: queryKeys.admin.nodes.all(),
-    fetcher: (search) => getNodes(1, search),
-    canRequest: canReadNodes,
-  });
 
   const description = cronDescription(form.values.pruneJobs[index].cron, language);
 
@@ -81,11 +75,16 @@ function PruneJobRow({ form, index }: { form: ResticForm; index: number }) {
   );
 }
 
-type ResticFormValues = z.infer<typeof adminBackupConfigurationResticSchema>;
-
 export default function BackupRestic({ form }: { form: ResticForm }) {
   const { t } = useTranslations();
+  const canReadNodes = useAdminCan('nodes.read');
   const pruneJobs = form.values.pruneJobs ?? [];
+
+  const nodes = useSearchableResource<z.infer<typeof adminNodeSchema>>({
+    queryKey: queryKeys.admin.nodes.all(),
+    fetcher: (search) => getNodes(1, search),
+    canRequest: canReadNodes,
+  });
 
   const fields: FieldDef<ResticFormValues>[] = [
     {
@@ -103,14 +102,9 @@ export default function BackupRestic({ form }: { form: ResticForm }) {
   ];
 
   return (
-    <Stack gap='xs' mt='md'>
-      <Stack gap={0}>
-        <Title order={2}>{t('pages.admin.backupConfigurations.tabs.general.page.restic.title', {})}</Title>
-        <Divider />
-      </Stack>
-
+    <BackupProviderSection title={t('pages.admin.backupConfigurations.tabs.general.page.restic.title', {})}>
       <Stack>
-        <FormEngine id='admin.backupConfigurations.restic' form={form} fields={fields} />
+        <FormEngine form={form} fields={fields} />
 
         <PasswordInput
           withAsterisk
@@ -140,7 +134,7 @@ export default function BackupRestic({ form }: { form: ResticForm }) {
           </Text>
 
           {pruneJobs.map((_, index) => (
-            <PruneJobRow key={form.key(`pruneJobs.${index}`)} form={form} index={index} />
+            <PruneJobRow key={form.key(`pruneJobs.${index}`)} form={form} index={index} nodes={nodes} />
           ))}
 
           <Group>
@@ -154,6 +148,6 @@ export default function BackupRestic({ form }: { form: ResticForm }) {
           </Group>
         </Stack>
       </TitleCard>
-    </Stack>
+    </BackupProviderSection>
   );
 }

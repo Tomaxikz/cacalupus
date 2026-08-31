@@ -5,10 +5,10 @@ import AdminContentContainer from '@/elements/containers/AdminContentContainer.t
 import ResourceView from '@/elements/ResourceView.tsx';
 import SubNavigation from '@/elements/SubNavigation.tsx';
 import { queryKeys } from '@/lib/queryKeys.ts';
-import AdminBackupConfigurationLocations from '@/pages/admin/backupConfigurations/locations/AdminBackupConfigurationLocations.tsx';
-import AdminBackupConfigurationNodes from '@/pages/admin/backupConfigurations/nodes/AdminBackupConfigurationNodes.tsx';
-import AdminBackupConfigurationServers from '@/pages/admin/backupConfigurations/servers/AdminBackupConfigurationServers.tsx';
-import AdminBackupConfigurationStats from '@/pages/admin/backupConfigurations/stats/AdminBackupConfigurationStats.tsx';
+import AdminBackupConfigurationLocations from '@/pages/admin/backup-configurations/locations/AdminBackupConfigurationLocations.tsx';
+import AdminBackupConfigurationNodes from '@/pages/admin/backup-configurations/nodes/AdminBackupConfigurationNodes.tsx';
+import AdminBackupConfigurationServers from '@/pages/admin/backup-configurations/servers/AdminBackupConfigurationServers.tsx';
+import AdminBackupConfigurationStats from '@/pages/admin/backup-configurations/stats/AdminBackupConfigurationStats.tsx';
 import { useResource } from '@/plugins/useResource.ts';
 import { useTranslations } from '@/providers/TranslationProvider.tsx';
 import BackupConfigurationCreateOrUpdate from './BackupConfigurationCreateOrUpdate.tsx';
