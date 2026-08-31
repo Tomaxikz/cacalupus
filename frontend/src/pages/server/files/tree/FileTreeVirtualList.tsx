@@ -89,6 +89,8 @@ export default function FileTreeVirtualList({
   onDragEnd,
   onLoadPage,
 }: FileTreeVirtualListProps) {
+  'use no memo'; // useVirtualizer() is incompatible with React Compiler; opt this component out explicitly.
+
   const { t } = useTranslations();
   const lastScrollLeftRef = useRef(0);
   const lastScrollTopRef = useRef(0);

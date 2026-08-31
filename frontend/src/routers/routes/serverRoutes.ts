@@ -22,7 +22,7 @@ import DatabaseInstanceView from '@/pages/server/databases/instances/DatabaseIns
 import ServerDatabaseInstances from '@/pages/server/databases/instances/ServerDatabaseInstances.tsx';
 import ServerDatabases from '@/pages/server/databases/ServerDatabases.tsx';
 import FileSqliteQuery from '@/pages/server/files/editor/FileSqliteQuery.tsx';
-import ServerFiles from '@/pages/server/files/list/ServerFiles.tsx';
+import ServerFiles from '@/pages/server/files/ServerFiles.tsx';
 import ServerMounts from '@/pages/server/mounts/ServerMounts.tsx';
 import ServerFirewall from '@/pages/server/network/firewall/ServerFirewall.tsx';
 import ServerNetwork from '@/pages/server/network/ServerNetwork.tsx';
