@@ -310,75 +310,72 @@ export default function ServerCreate() {
     [t],
   );
 
-  const serverConfigFields: FieldDef<ServerCreateFormValues>[] = useMemo(
-    (): FieldDef<ServerCreateFormValues>[] => [
-      {
-        type: 'custom',
-        name: '_predefinedImage',
-        render: (f) => (
-          <Select
-            label={t('pages.admin.servers.tabs.general.page.form.predefinedDockerImages', {})}
-            placeholder={t('pages.admin.servers.tabs.general.page.form.predefinedDockerImagesPlaceholder', {})}
-            data={Object.entries(eggImages).map(([label, value]) => ({ label, value }))}
-            allowDeselect
-            clearable
-            searchable
-            value={
-              Object.entries(eggImages).some(([, value]) => value === form.getValues().image)
-                ? form.getValues().image
-                : null
-            }
-            onChange={(value) => f.setFieldValue('image', value || '')}
-          />
-        ),
+  const serverConfigFields: FieldDef<ServerCreateFormValues>[] = [
+    {
+      type: 'custom',
+      name: '_predefinedImage',
+      render: (f) => (
+        <Select
+          label={t('pages.admin.servers.tabs.general.page.form.predefinedDockerImages', {})}
+          placeholder={t('pages.admin.servers.tabs.general.page.form.predefinedDockerImagesPlaceholder', {})}
+          data={Object.entries(eggImages).map(([label, value]) => ({ label, value }))}
+          allowDeselect
+          clearable
+          searchable
+          value={
+            Object.entries(eggImages).some(([, value]) => value === form.getValues().image)
+              ? form.getValues().image
+              : null
+          }
+          onChange={(value) => f.setFieldValue('image', value || '')}
+        />
+      ),
+    },
+    {
+      type: 'text',
+      name: 'image',
+      label: t('common.form.dockerImage', {}),
+      required: true,
+      props: { placeholder: 'ghcr.io/...' },
+    },
+    {
+      type: 'select',
+      name: 'timezone',
+      label: t('common.form.timezone', {}),
+      options: [{ label: t('common.form.timezoneSystem', {}), value: '' }, ...timezones],
+      props: {
+        placeholder: 'Europe/Amsterdam',
+        searchable: true,
       },
-      {
-        type: 'text',
-        name: 'image',
-        label: t('common.form.dockerImage', {}),
-        required: true,
-        props: { placeholder: 'ghcr.io/...' },
-      },
-      {
-        type: 'select',
-        name: 'timezone',
-        label: t('common.form.timezone', {}),
-        options: [{ label: t('common.form.timezoneSystem', {}), value: '' }, ...timezones],
-        props: {
-          placeholder: 'Europe/Amsterdam',
-          searchable: true,
-        },
-      },
-      buildStartupField<ServerCreateFormValues>(t, { form, eggs }),
-      {
-        type: 'switch',
-        name: 'startOnCompletion',
-        label: t('pages.admin.servers.tabs.general.page.form.startOnCompletion', {}),
-        description: t('pages.admin.servers.tabs.general.page.form.startOnCompletionDescription', {}),
-      },
-      {
-        type: 'switch',
-        name: 'skipInstaller',
-        label: t('pages.admin.servers.tabs.general.page.form.skipInstaller', {}),
-        description: t('pages.admin.servers.tabs.general.page.form.skipInstallerDescription', {}),
-      },
-      {
-        type: 'switch',
-        name: 'hugepagesPassthroughEnabled',
-        label: t('pages.admin.servers.tabs.general.page.form.hugepagesPassthroughEnabled', {}),
-        description: t('pages.admin.servers.tabs.general.page.form.hugepagesPassthroughEnabledDescription', {}),
-        advanced: true,
-      },
-      {
-        type: 'switch',
-        name: 'kvmPassthroughEnabled',
-        label: t('pages.admin.servers.tabs.general.page.form.kvmPassthroughEnabled', {}),
-        description: t('pages.admin.servers.tabs.general.page.form.kvmPassthroughEnabledDescription', {}),
-        advanced: true,
-      },
-    ],
-    [t, eggImages, form, eggs],
-  );
+    },
+    buildStartupField<ServerCreateFormValues>(t, { form, eggs }),
+    {
+      type: 'switch',
+      name: 'startOnCompletion',
+      label: t('pages.admin.servers.tabs.general.page.form.startOnCompletion', {}),
+      description: t('pages.admin.servers.tabs.general.page.form.startOnCompletionDescription', {}),
+    },
+    {
+      type: 'switch',
+      name: 'skipInstaller',
+      label: t('pages.admin.servers.tabs.general.page.form.skipInstaller', {}),
+      description: t('pages.admin.servers.tabs.general.page.form.skipInstallerDescription', {}),
+    },
+    {
+      type: 'switch',
+      name: 'hugepagesPassthroughEnabled',
+      label: t('pages.admin.servers.tabs.general.page.form.hugepagesPassthroughEnabled', {}),
+      description: t('pages.admin.servers.tabs.general.page.form.hugepagesPassthroughEnabledDescription', {}),
+      advanced: true,
+    },
+    {
+      type: 'switch',
+      name: 'kvmPassthroughEnabled',
+      label: t('pages.admin.servers.tabs.general.page.form.kvmPassthroughEnabled', {}),
+      description: t('pages.admin.servers.tabs.general.page.form.kvmPassthroughEnabledDescription', {}),
+      advanced: true,
+    },
+  ];
 
   const featureLimitsFields = useMemo(() => buildFeatureLimitsFields<ServerCreateFormValues>(t), [t]);
 

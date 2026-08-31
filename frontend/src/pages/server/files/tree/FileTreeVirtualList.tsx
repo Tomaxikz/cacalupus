@@ -1,12 +1,12 @@
 import { faChevronDown } from '@fortawesome/free-solid-svg-icons';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { useMergedRef } from '@mantine/hooks';
-import { useVirtualizer } from '@tanstack/react-virtual';
 import classNames from 'classnames';
 import { ReactNode, Ref, RefObject, useCallback, useEffect, useRef, useState, useSyncExternalStore } from 'react';
 import SelectionArea from '@/elements/SelectionArea.tsx';
 import Spinner from '@/elements/Spinner.tsx';
 import UnstyledButton from '@/elements/UnstyledButton.tsx';
+import { useElementVirtualizer } from '@/lib/elementVirtualizer.ts';
 import FileTreeRow from '@/pages/server/files/tree/FileTreeRow.tsx';
 import FileTreeScrollingRow from '@/pages/server/files/tree/FileTreeScrollingRow.tsx';
 import {
@@ -89,7 +89,7 @@ export default function FileTreeVirtualList({
   onDragEnd,
   onLoadPage,
 }: FileTreeVirtualListProps) {
-  'use no memo'; // useVirtualizer() is incompatible with React Compiler; opt this component out explicitly.
+  'use no memo'; // The virtualizer's return value cannot be memoized safely; opt this component out of the compiler.
 
   const { t } = useTranslations();
   const lastScrollLeftRef = useRef(0);
@@ -128,7 +128,7 @@ export default function FileTreeVirtualList({
     [syncScrollPosition],
   );
   // This pane owns its scroll viewport. Keep scroll-only movement out of React, but commit range jumps immediately.
-  const virtualizer = useVirtualizer({
+  const virtualizer = useElementVirtualizer<HTMLDivElement>({
     count: rows.length,
     getScrollElement,
     estimateSize: estimateRowSize,
@@ -145,6 +145,7 @@ export default function FileTreeVirtualList({
     () => virtualizer.getVirtualItems(),
   );
   const scrolling = virtualizer.isScrolling;
+  const setSizeContainer = useCallback((node: HTMLDivElement | null) => virtualizer.containerRef(node), [virtualizer]);
 
   return (
     <div ref={viewportRef} className='file-manager-tree-viewport min-h-0 flex-1 overflow-auto' onScroll={handleScroll}>
@@ -157,7 +158,7 @@ export default function FileTreeVirtualList({
         disabled={moving}
       >
         <div
-          ref={virtualizer.containerRef}
+          ref={setSizeContainer}
           role='tree'
           data-file-manager-tree-table
           className='relative min-w-(--file-manager-tree-min-content-width)'
