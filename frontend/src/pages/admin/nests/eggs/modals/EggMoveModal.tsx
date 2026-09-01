@@ -3,16 +3,13 @@ import { useState } from 'react';
 import { useNavigate } from 'react-router';
 import { z } from 'zod';
 import moveEgg from '@/api/admin/nests/eggs/moveEgg.ts';
-import getNests from '@/api/admin/nests/getNests.ts';
 import { httpErrorToHuman } from '@/api/axios.ts';
 import Button from '@/elements/Button.tsx';
-import Select from '@/elements/input/Select.tsx';
+import NestSelect from '@/elements/input/NestSelect.tsx';
 import { Modal, ModalFooter } from '@/elements/modals/Modal.tsx';
 import Stack from '@/elements/Stack.tsx';
-import { queryKeys } from '@/lib/queryKeys.ts';
 import { adminEggSchema } from '@/lib/schemas/admin/eggs.ts';
 import { adminNestSchema } from '@/lib/schemas/admin/nests.ts';
-import { useSearchableResource } from '@/plugins/useSearchableResource.ts';
 import { useToast } from '@/providers/ToastProvider.tsx';
 import { useTranslations } from '@/providers/TranslationProvider.tsx';
 
@@ -27,11 +24,6 @@ export default function EggMoveModal({
 
   const [loading, setLoading] = useState(false);
   const [selectedNest, setSelectedNest] = useState<z.infer<typeof adminNestSchema> | null>(null);
-
-  const nests = useSearchableResource<z.infer<typeof adminNestSchema>>({
-    queryKey: queryKeys.admin.nests.all(),
-    fetcher: (search) => getNests(1, search),
-  });
 
   const doMove = () => {
     if (!selectedNest) {
@@ -56,19 +48,11 @@ export default function EggMoveModal({
   return (
     <Modal title={t('pages.admin.nests.tabs.eggs.page.modal.move.title', {})} {...props}>
       <Stack>
-        <Select
+        <NestSelect
           withAsterisk
           label={t('common.form.nest', {})}
-          value={selectedNest?.uuid}
-          onChange={(value) => setSelectedNest(nests.items.find((m) => m.uuid === value) ?? null)}
-          data={nests.items.map((nest) => ({
-            label: nest.name,
-            value: nest.uuid,
-          }))}
-          searchable
-          searchValue={nests.search}
-          onSearchChange={nests.setSearch}
-          loading={nests.loading}
+          value={selectedNest?.uuid ?? null}
+          onChange={(_, next) => setSelectedNest(next)}
         />
 
         <ModalFooter>

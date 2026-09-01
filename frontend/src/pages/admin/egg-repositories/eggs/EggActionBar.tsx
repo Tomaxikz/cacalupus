@@ -8,26 +8,26 @@ import { AdminCan } from '@/elements/Can.tsx';
 import { ObjectSet } from '@/lib/objectSet.ts';
 import { adminEggRepositoryEggSchema, adminEggRepositorySchema } from '@/lib/schemas/admin/eggRepositories.ts';
 import { useTranslations } from '@/providers/TranslationProvider.tsx';
-import EggRepositoryEggsInstallModal from './modals/EggRepositoryEggsInstallModal.tsx';
+import EggRepositoryEggInstallModal from './modals/EggRepositoryEggInstallModal.tsx';
 
 export default function EggActionBar({
   eggRepository,
   selectedEggs,
-  setSelectedEggs,
+  onInstalled,
 }: {
   eggRepository: z.infer<typeof adminEggRepositorySchema>;
   selectedEggs: ObjectSet<z.infer<typeof adminEggRepositoryEggSchema>, 'uuid'>;
-  setSelectedEggs: (eggs: ObjectSet<z.infer<typeof adminEggRepositoryEggSchema>, 'uuid'>) => void;
+  onInstalled: () => void;
 }) {
   const { t } = useTranslations();
   const [openModal, setOpenModal] = useState<'install' | null>(null);
 
   return (
     <AdminCan action={['eggs.create', 'nests.read']}>
-      <EggRepositoryEggsInstallModal
+      <EggRepositoryEggInstallModal
         eggRepository={eggRepository}
-        selectedEggs={selectedEggs}
-        setSelectedEggs={setSelectedEggs}
+        eggs={selectedEggs.values()}
+        onInstalled={onInstalled}
         opened={openModal === 'install'}
         onClose={() => setOpenModal(null)}
       />

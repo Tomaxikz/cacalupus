@@ -3,18 +3,15 @@ import { FormEvent, useEffect, useState } from 'react';
 import { useNavigate } from 'react-router';
 import { z } from 'zod';
 import duplicateEgg from '@/api/admin/nests/eggs/duplicateEgg.ts';
-import getNests from '@/api/admin/nests/getNests.ts';
 import { httpErrorToHuman } from '@/api/axios.ts';
 import Button from '@/elements/Button.tsx';
-import Select from '@/elements/input/Select.tsx';
+import NestSelect from '@/elements/input/NestSelect.tsx';
 import TextInput from '@/elements/input/TextInput.tsx';
 import FormModal from '@/elements/modals/FormModal.tsx';
 import { ModalFooter } from '@/elements/modals/Modal.tsx';
 import Stack from '@/elements/Stack.tsx';
-import { queryKeys } from '@/lib/queryKeys.ts';
 import { adminEggSchema } from '@/lib/schemas/admin/eggs.ts';
 import { adminNestSchema } from '@/lib/schemas/admin/nests.ts';
-import { useSearchableResource } from '@/plugins/useSearchableResource.ts';
 import { useToast } from '@/providers/ToastProvider.tsx';
 import { useTranslations } from '@/providers/TranslationProvider.tsx';
 
@@ -38,11 +35,6 @@ export default function EggDuplicateModal({
     setName(`${egg.name} (copy)`);
     setTargetNestUuid(nest.uuid);
   }, [egg, nest, props.opened]);
-
-  const nests = useSearchableResource<z.infer<typeof adminNestSchema>>({
-    queryKey: queryKeys.admin.nests.all(),
-    fetcher: (search) => getNests(1, search),
-  });
 
   const doDuplicate = (e: FormEvent<HTMLFormElement>) => {
     e.preventDefault();
@@ -75,19 +67,12 @@ export default function EggDuplicateModal({
           value={name}
           onChange={(e) => setName(e.target.value)}
         />
-        <Select
+        <NestSelect
           withAsterisk
           label={t('common.form.nest', {})}
           value={targetNestUuid}
-          onChange={(value) => setTargetNestUuid(value ?? nest.uuid)}
-          data={[
-            { label: nest.name, value: nest.uuid },
-            ...nests.items.filter((n) => n.uuid !== nest.uuid).map((n) => ({ label: n.name, value: n.uuid })),
-          ]}
-          searchable
-          searchValue={nests.search}
-          onSearchChange={nests.setSearch}
-          loading={nests.loading}
+          onChange={(uuid) => setTargetNestUuid(uuid ?? nest.uuid)}
+          includeItems={[nest]}
         />
 
         <ModalFooter>
