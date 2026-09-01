@@ -1,37 +1,59 @@
-import { faChevronDown, faExternalLink, faFileDownload } from '@fortawesome/free-solid-svg-icons';
+import { faExternalLink } from '@fortawesome/free-solid-svg-icons';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
-import { dump } from 'js-yaml';
-import { useEffect, useMemo, useState } from 'react';
+import { useEffect, useMemo, useRef, useState } from 'react';
 import { z } from 'zod';
 import createDatabaseAgentTemplate from '@/api/admin/database-agent-templates/createDatabaseAgentTemplate.ts';
 import deleteDatabaseAgentTemplate from '@/api/admin/database-agent-templates/deleteDatabaseAgentTemplate.ts';
+import duplicateDatabaseAgentTemplate from '@/api/admin/database-agent-templates/duplicateDatabaseAgentTemplate.ts';
 import updateDatabaseAgentTemplate from '@/api/admin/database-agent-templates/updateDatabaseAgentTemplate.ts';
 import Anchor from '@/elements/Anchor.tsx';
 import Badge from '@/elements/Badge.tsx';
 import Button from '@/elements/Button.tsx';
 import { AdminCan } from '@/elements/Can.tsx';
-import ContextMenu from '@/elements/ContextMenu.tsx';
 import AdminContentContainer from '@/elements/containers/AdminContentContainer.tsx';
 import { AdvancedModeToggle, type FieldDef, FormEngine, useFormEngine } from '@/elements/form-engine/index.ts';
 import Group from '@/elements/Group.tsx';
 import MultiKeyValueInput from '@/elements/input/MultiKeyValueInput.tsx';
 import ConfirmationModal from '@/elements/modals/ConfirmationModal.tsx';
-import { serializeForApi } from '@/lib/api-transform.ts';
-import { downloadTextFile } from '@/lib/download.ts';
+import ResourceDuplicateModal from '@/elements/modals/ResourceDuplicateModal.tsx';
+import ResourceExportMenu from '@/elements/ResourceExportMenu.tsx';
 import { databaseAgentTypeLabelMapping } from '@/lib/enums.ts';
+import { downloadResourceFile, type ResourceExportFormat } from '@/lib/export.ts';
 import { queryKeys } from '@/lib/queryKeys.ts';
 import {
   adminDatabaseAgentTemplateCreateSchema,
   adminDatabaseAgentTemplateSchema,
   adminDatabaseAgentTemplateUpdateSchema,
 } from '@/lib/schemas/admin/databaseAgentTemplates.ts';
-import DatabaseAgentTemplateDuplicateModal from '@/pages/admin/database-agent-templates/modals/DatabaseAgentTemplateDuplicateModal.tsx';
 import { useResourceForm } from '@/plugins/useResourceForm.ts';
 import { useToast } from '@/providers/ToastProvider.tsx';
 import { useTranslations } from '@/providers/TranslationProvider.tsx';
 
 type DatabaseAgentTemplateFormValues = z.infer<typeof adminDatabaseAgentTemplateUpdateSchema> &
   Partial<Pick<z.infer<typeof adminDatabaseAgentTemplateCreateSchema>, 'type'>>;
+
+function templateToFormValues(
+  template: z.infer<typeof adminDatabaseAgentTemplateSchema>,
+): DatabaseAgentTemplateFormValues {
+  return {
+    name: template.name,
+    description: template.description,
+    type: template.type,
+    deploymentEnabled: template.deploymentEnabled,
+    dockerImages: template.dockerImages,
+    env: template.env,
+    imageUid: template.imageUid,
+    imageGid: template.imageGid,
+    cmd: template.cmd ?? [],
+    volumes: template.volumes,
+    socketPath: template.socketPath,
+    memory: template.memory,
+    swap: template.swap,
+    disk: template.disk,
+    ioWeight: template.ioWeight,
+    cpu: template.cpu,
+  };
+}
 
 export default function DatabaseAgentTemplateCreateOrUpdate({
   contextDatabaseAgentTemplate,
@@ -74,13 +96,13 @@ export default function DatabaseAgentTemplateCreateOrUpdate({
     z.infer<typeof adminDatabaseAgentTemplateSchema>
   >({
     form,
-    createFn: () => createDatabaseAgentTemplate(adminDatabaseAgentTemplateCreateSchema.parse(form.getValues())),
+    createFn: () =>
+      adminDatabaseAgentTemplateCreateSchema.parseAsync(form.getValues()).then(createDatabaseAgentTemplate),
     updateFn: contextDatabaseAgentTemplate
       ? () =>
-          updateDatabaseAgentTemplate(
-            contextDatabaseAgentTemplate.uuid,
-            adminDatabaseAgentTemplateUpdateSchema.parse(form.getValues()),
-          )
+          adminDatabaseAgentTemplateUpdateSchema
+            .parseAsync(form.getValues())
+            .then((values) => updateDatabaseAgentTemplate(contextDatabaseAgentTemplate.uuid, values))
       : undefined,
     deleteFn: contextDatabaseAgentTemplate
       ? () => deleteDatabaseAgentTemplate(contextDatabaseAgentTemplate.uuid)
@@ -90,42 +112,25 @@ export default function DatabaseAgentTemplateCreateOrUpdate({
     resourceName: t('pages.admin.databaseAgentTemplates.resourceName', {}),
   });
 
+  const hydratedUuidRef = useRef<string | null>(null);
   useEffect(() => {
-    if (contextDatabaseAgentTemplate) {
-      form.setValues({
-        name: contextDatabaseAgentTemplate.name,
-        description: contextDatabaseAgentTemplate.description,
-        type: contextDatabaseAgentTemplate.type,
-        deploymentEnabled: contextDatabaseAgentTemplate.deploymentEnabled,
-        dockerImages: contextDatabaseAgentTemplate.dockerImages,
-        env: contextDatabaseAgentTemplate.env,
-        imageUid: contextDatabaseAgentTemplate.imageUid,
-        imageGid: contextDatabaseAgentTemplate.imageGid,
-        cmd: contextDatabaseAgentTemplate.cmd ?? [],
-        volumes: contextDatabaseAgentTemplate.volumes,
-        socketPath: contextDatabaseAgentTemplate.socketPath,
-        memory: contextDatabaseAgentTemplate.memory,
-        swap: contextDatabaseAgentTemplate.swap,
-        disk: contextDatabaseAgentTemplate.disk,
-        ioWeight: contextDatabaseAgentTemplate.ioWeight,
-        cpu: contextDatabaseAgentTemplate.cpu,
-      });
+    if (contextDatabaseAgentTemplate && hydratedUuidRef.current !== contextDatabaseAgentTemplate.uuid) {
+      hydratedUuidRef.current = contextDatabaseAgentTemplate.uuid;
+      form.setValues(templateToFormValues(contextDatabaseAgentTemplate));
     }
   }, [contextDatabaseAgentTemplate]);
 
-  const doExport = (format: 'json' | 'yaml') => {
+  const doExport = (format: ResourceExportFormat) => {
     if (!contextDatabaseAgentTemplate) return;
 
-    addToast(t('pages.admin.databaseAgentTemplates.tabs.general.page.toast.exported', {}), 'success');
-
-    const data = serializeForApi(adminDatabaseAgentTemplateCreateSchema, contextDatabaseAgentTemplate);
-
-    const contents =
-      format === 'json' ? JSON.stringify(data, undefined, 2) : dump(data, { flowLevel: -1, forceQuotes: true });
-    downloadTextFile(
-      contents,
-      `database-agent-template-${contextDatabaseAgentTemplate.uuid}.${format === 'json' ? 'json' : 'yml'}`,
+    downloadResourceFile(
+      adminDatabaseAgentTemplateCreateSchema,
+      contextDatabaseAgentTemplate,
+      `database-agent-template-${contextDatabaseAgentTemplate.uuid}`,
+      format,
     );
+
+    addToast(t('pages.admin.databaseAgentTemplates.tabs.general.page.toast.exported', {}), 'success');
   };
 
   const fields: FieldDef<DatabaseAgentTemplateFormValues>[] = useMemo(
@@ -290,8 +295,11 @@ export default function DatabaseAgentTemplateCreateOrUpdate({
       </ConfirmationModal>
 
       {contextDatabaseAgentTemplate && (
-        <DatabaseAgentTemplateDuplicateModal
-          databaseAgentTemplate={contextDatabaseAgentTemplate}
+        <ResourceDuplicateModal
+          resourceName={t('pages.admin.databaseAgentTemplates.resourceName', {})}
+          sourceName={contextDatabaseAgentTemplate.name}
+          duplicate={(name) => duplicateDatabaseAgentTemplate(contextDatabaseAgentTemplate.uuid, name)}
+          redirectTo={(duplicated) => `/admin/database-agent-templates/${duplicated.uuid}`}
           opened={openModal === 'duplicate'}
           onClose={() => setOpenModal(null)}
         />
@@ -315,42 +323,7 @@ export default function DatabaseAgentTemplateCreateOrUpdate({
                 {t('common.button.saveAndStay', {})}
               </Button>
             )}
-            {contextDatabaseAgentTemplate && (
-              <ContextMenu
-                menuProps={{ position: 'top', offset: 40 }}
-                items={[
-                  {
-                    type: 'action',
-                    icon: faFileDownload,
-                    label: t('common.button.exportAs', { format: 'JSON' }),
-                    onClick: () => doExport('json'),
-                    color: 'gray',
-                  },
-                  {
-                    type: 'action',
-                    icon: faFileDownload,
-                    label: t('common.button.exportAs', { format: 'YAML' }),
-                    onClick: () => doExport('yaml'),
-                    color: 'gray',
-                  },
-                ]}
-              >
-                {({ openMenu }) => (
-                  <Button
-                    onClick={(e) => {
-                      e.stopPropagation();
-                      const rect = e.currentTarget.getBoundingClientRect();
-                      openMenu(rect.left, rect.bottom);
-                    }}
-                    loading={loading}
-                    variant='outline'
-                    rightSection={<FontAwesomeIcon icon={faChevronDown} />}
-                  >
-                    {t('common.button.export', {})}
-                  </Button>
-                )}
-              </ContextMenu>
-            )}
+            {contextDatabaseAgentTemplate && <ResourceExportMenu loading={loading} onExport={doExport} />}
           </AdminCan>
           {contextDatabaseAgentTemplate && (
             <AdminCan action='database-agent-templates.create'>

@@ -11,6 +11,7 @@ import Button from '@/elements/Button.tsx';
 import { AdminCan } from '@/elements/Can.tsx';
 import ContextMenu from '@/elements/ContextMenu.tsx';
 import AdminSubContentContainer from '@/elements/containers/AdminSubContentContainer.tsx';
+import ImportOverlay from '@/elements/ImportOverlay.tsx';
 import SelectionArea from '@/elements/SelectionArea.tsx';
 import Table from '@/elements/Table.tsx';
 import { ObjectSet } from '@/lib/objectSet.ts';
@@ -29,7 +30,6 @@ import { useTranslations } from '@/providers/TranslationProvider.tsx';
 import AdminPermissionGuard from '@/routers/guards/AdminPermissionGuard.tsx';
 import EggActionBar from './EggActionBar.tsx';
 import EggCreateOrUpdate from './EggCreateOrUpdate.tsx';
-import EggImportOverlay from './EggImportOverlay.tsx';
 import EggRow from './EggRow.tsx';
 import EggImportUrlModal from './modals/EggImportUrlModal.tsx';
 
@@ -205,7 +205,11 @@ function EggsContainer({ contextNest }: { contextNest: z.infer<typeof adminNestS
           refetch();
         }}
       />
-      <EggImportOverlay visible={canCreate && isDragging} />
+      <ImportOverlay
+        visible={canCreate && isDragging}
+        title={t('pages.admin.nests.tabs.eggs.page.dropzone.title', {})}
+        subtitle={t('pages.admin.nests.tabs.eggs.page.dropzone.subtitle', {})}
+      />
 
       <SelectionArea onSelectedStart={onSelectedStart} onSelected={onSelected}>
         <Table

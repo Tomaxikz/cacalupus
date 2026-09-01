@@ -9,6 +9,7 @@ import Button from '@/elements/Button.tsx';
 import { ServerCan } from '@/elements/Can.tsx';
 import ConditionalTooltip from '@/elements/ConditionalTooltip.tsx';
 import ServerContentContainer from '@/elements/containers/ServerContentContainer.tsx';
+import ImportOverlay from '@/elements/ImportOverlay.tsx';
 import Table from '@/elements/Table.tsx';
 import { queryKeys } from '@/lib/queryKeys.ts';
 import { useImportDragAndDrop } from '@/plugins/useImportDragAndDrop.ts';
@@ -19,7 +20,6 @@ import { useTranslations } from '@/providers/TranslationProvider.tsx';
 import { useServerStore } from '@/stores/server.ts';
 import ScheduleCalendarModal from './modals/ScheduleCalendarModal.tsx';
 import ScheduleCreateOrUpdateModal from './modals/ScheduleCreateOrUpdateModal.tsx';
-import ScheduleImportOverlay from './ScheduleImportOverlay.tsx';
 import ScheduleRow from './ScheduleRow.tsx';
 
 export default function ServerSchedules() {
@@ -143,7 +143,11 @@ export default function ServerSchedules() {
     >
       <ScheduleCreateOrUpdateModal opened={openModal === 'create'} onClose={() => setOpenModal(null)} />
       <ScheduleCalendarModal opened={openModal === 'calendar'} onClose={() => setOpenModal(null)} />
-      <ScheduleImportOverlay visible={canCreate && isDragging} />
+      <ImportOverlay
+        visible={canCreate && isDragging}
+        title={t('pages.server.schedules.dropzone.title', {})}
+        subtitle={t('pages.server.schedules.dropzone.subtitle', {})}
+      />
 
       <Table
         columns={[

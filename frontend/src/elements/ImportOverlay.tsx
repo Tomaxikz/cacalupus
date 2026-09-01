@@ -1,15 +1,14 @@
 import { faUpload } from '@fortawesome/free-solid-svg-icons';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { memo } from 'react';
-import { useTranslations } from '@/providers/TranslationProvider.tsx';
 
-interface DatabaseAgentTemplateImportOverlayProps {
+interface ImportOverlayProps {
   visible: boolean;
+  title: string;
+  subtitle: string;
 }
 
-function DatabaseAgentTemplateImportOverlay({ visible }: DatabaseAgentTemplateImportOverlayProps) {
-  const { t } = useTranslations();
-
+function ImportOverlay({ visible, title, subtitle }: ImportOverlayProps) {
   if (!visible) return null;
 
   return (
@@ -18,10 +17,8 @@ function DatabaseAgentTemplateImportOverlay({ visible }: DatabaseAgentTemplateIm
         <div className='bg-(--mantine-color-body) rounded-lg p-8 shadow-2xl border-2 border-dashed border-(--mantine-color-blue-5)'>
           <div className='flex flex-col items-center gap-4 z-100'>
             <FontAwesomeIcon icon={faUpload} className='text-6xl text-(--mantine-color-blue-5) animate-bounce' />
-            <p className='text-xl font-semibold'>{t('pages.admin.databaseAgentTemplates.dropzone.title', {})}</p>
-            <p className='text-sm text-(--mantine-color-dimmed)'>
-              {t('pages.admin.databaseAgentTemplates.dropzone.subtitle', {})}
-            </p>
+            <p className='text-xl font-semibold'>{title}</p>
+            <p className='text-sm text-(--mantine-color-dimmed)'>{subtitle}</p>
           </div>
         </div>
       </div>
@@ -29,4 +26,4 @@ function DatabaseAgentTemplateImportOverlay({ visible }: DatabaseAgentTemplateIm
   );
 }
 
-export default memo(DatabaseAgentTemplateImportOverlay);
+export default memo(ImportOverlay);
