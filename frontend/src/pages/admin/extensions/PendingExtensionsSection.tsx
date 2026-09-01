@@ -1,56 +1,51 @@
 import { faBan, faRefresh } from '@fortawesome/free-solid-svg-icons';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
-import { z } from 'zod';
 import { ExtensionStatus } from '@/api/admin/extensions/manage/getExtensionStatus.ts';
 import Button from '@/elements/Button.tsx';
 import { AdminCan } from '@/elements/Can.tsx';
 import ConditionalTooltip from '@/elements/ConditionalTooltip.tsx';
 import Group from '@/elements/Group.tsx';
 import Title from '@/elements/Title.tsx';
-import { adminBackendExtensionSchema } from '@/lib/schemas/admin/backendExtension.ts';
+import { AdminBackendExtension } from '@/lib/schemas/admin/backendExtension.ts';
 import { useTranslations } from '@/providers/TranslationProvider.tsx';
 import ExtensionCard from './ExtensionCard.tsx';
+import ExtensionGrid from './ExtensionGrid.tsx';
 
-export interface ExtensionBuildState {
+export default function PendingExtensionsSection({
+  extensionStatus,
+  phase,
+  isBuilding,
+  buildFailed,
+  cancellingBuild,
+  onCancelBuild,
+  onRebuild,
+  onRemove,
+}: {
+  extensionStatus: ExtensionStatus;
   phase: string | null;
   isBuilding: boolean;
   buildFailed: boolean;
   cancellingBuild: number | null;
-}
-
-export interface ExtensionBuildActions {
   onCancelBuild: () => void;
   onRebuild: (force: boolean) => void;
-}
-
-export default function PendingExtensionsSection({
-  extensionStatus,
-  buildState,
-  buildActions,
-  handleRemove,
-}: {
-  extensionStatus: ExtensionStatus;
-  buildState: ExtensionBuildState;
-  buildActions: ExtensionBuildActions;
-  handleRemove: (backendExtension: z.infer<typeof adminBackendExtensionSchema>, removeMigrations: boolean) => void;
+  onRemove: (backendExtension: AdminBackendExtension, removeMigrations: boolean) => void;
 }) {
   const { t } = useTranslations();
-  const { phase, isBuilding, buildFailed, cancellingBuild } = buildState;
-  const { onCancelBuild: handleCancelBuild, onRebuild: handleRebuild } = buildActions;
+  const { pendingExtensions, removedExtensions } = extensionStatus;
 
   return (
     <section className='mt-10'>
-      <div className='mb-4 flex items-center justify-between border-b border-zinc-700/60 pb-3'>
+      <div className='mb-4 flex items-center justify-between border-b border-(--mantine-color-default-border) pb-3'>
         <Title order={2}>
           {t('pages.admin.extensions.section.pendingExtensions', {})}
-          {extensionStatus.pendingExtensions.length > 0 && (
-            <span className='ml-2 text-xs text-zinc-500'>({extensionStatus.pendingExtensions.length})</span>
+          {pendingExtensions.length > 0 && (
+            <span className='ml-2 text-xs text-(--mantine-color-dimmed)'>({pendingExtensions.length})</span>
           )}
         </Title>
 
         <AdminCan action='extensions.manage'>
           <Group gap='xs'>
-            {phase && <span className='text-sm text-zinc-400'>{phase}</span>}
+            {phase && <span className='text-sm text-(--mantine-color-dimmed)'>{phase}</span>}
 
             {isBuilding && (
               <ConditionalTooltip
@@ -61,7 +56,7 @@ export default function PendingExtensionsSection({
                   variant='default'
                   leftSection={<FontAwesomeIcon icon={faBan} />}
                   disabled={cancellingBuild !== null}
-                  onClick={handleCancelBuild}
+                  onClick={onCancelBuild}
                 >
                   {t('pages.admin.extensions.button.cancelBuild', {})}
                 </Button>
@@ -69,12 +64,7 @@ export default function PendingExtensionsSection({
             )}
 
             <ConditionalTooltip
-              enabled={
-                (!extensionStatus.pendingExtensions.length &&
-                  !extensionStatus.removedExtensions.length &&
-                  !buildFailed) ||
-                isBuilding
-              }
+              enabled={(!pendingExtensions.length && !removedExtensions.length && !buildFailed) || isBuilding}
               label={
                 isBuilding
                   ? t('pages.admin.extensions.tooltip.building', {})
@@ -85,7 +75,7 @@ export default function PendingExtensionsSection({
                 color='red'
                 leftSection={<FontAwesomeIcon icon={faRefresh} />}
                 loading={isBuilding}
-                onClick={() => handleRebuild(buildFailed)}
+                onClick={() => onRebuild(buildFailed)}
               >
                 {buildFailed
                   ? t('pages.admin.extensions.button.retryBuild', {})
@@ -96,19 +86,21 @@ export default function PendingExtensionsSection({
         </AdminCan>
       </div>
 
-      {!extensionStatus.pendingExtensions.length ? (
-        <p className='text-sm text-zinc-500'>{t('pages.admin.extensions.section.noPendingExtensions', {})}</p>
+      {!pendingExtensions.length ? (
+        <p className='text-sm text-(--mantine-color-dimmed)'>
+          {t('pages.admin.extensions.section.noPendingExtensions', {})}
+        </p>
       ) : (
-        <div className='grid grid-cols-[repeat(auto-fill,minmax(300px,1fr))] gap-3'>
-          {extensionStatus.pendingExtensions.map((extension) => (
+        <ExtensionGrid>
+          {pendingExtensions.map((extension) => (
             <ExtensionCard
               key={extension.metadataToml.packageName}
               backendExtension={extension}
               isPending
-              onRemove={extensionStatus ? () => handleRemove(extension, false) : undefined}
+              onRemove={() => onRemove(extension, false)}
             />
           ))}
-        </div>
+        </ExtensionGrid>
       )}
     </section>
   );
