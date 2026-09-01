@@ -139,6 +139,9 @@ pub enum MailMode {
         #[garde(skip)]
         #[serde(default)]
         skip_cert_validation: bool,
+        #[garde(length(chars, min = 1, max = 255))]
+        #[serde(default)]
+        helo_domain: Option<compact_str::CompactString>,
 
         #[garde(length(chars, min = 1, max = 255), email)]
         from_address: compact_str::CompactString,
@@ -456,6 +459,7 @@ impl SettingsSerializeExt for AppSettings {
                 password,
                 tls_mode,
                 skip_cert_validation,
+                helo_domain,
                 from_address,
                 from_name,
             } => {
@@ -490,6 +494,10 @@ impl SettingsSerializeExt for AppSettings {
                     .write_raw_setting(
                         "mail_smtp_skip_cert_validation",
                         skip_cert_validation.to_compact_string(),
+                    )
+                    .write_raw_setting(
+                        "mail_smtp_helo_domain",
+                        helo_domain.clone().unwrap_or_default(),
                     )
                     .write_raw_setting("mail_smtp_from_address", &**from_address)
                     .write_raw_setting(
@@ -745,6 +753,9 @@ impl SettingsDeserializeExt for AppSettingsDeserializer {
                         .take_raw_setting("mail_smtp_skip_cert_validation")
                         .map(|s| s == "true")
                         .unwrap_or(false),
+                    helo_domain: deserializer
+                        .take_raw_setting("mail_smtp_helo_domain")
+                        .and_then(|s| s.into_optional()),
                     from_address: deserializer
                         .take_raw_setting("mail_smtp_from_address")
                         .unwrap_or_else(|| "noreply@example.com".into()),
@@ -1265,6 +1276,7 @@ mod tests {
                 password: Some("hunter2".into()),
                 tls_mode: TlsMode::StartTls,
                 skip_cert_validation: false,
+                helo_domain: None,
                 from_address: "panel@example.com".into(),
                 from_name: Some("Panel".into()),
             }

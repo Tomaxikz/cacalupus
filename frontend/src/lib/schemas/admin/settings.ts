@@ -71,6 +71,7 @@ export const adminSettingsEmailSmtpSchema = z.object({
   password: z.preprocess(nullableString, z.string().min(1).max(255).nullable()),
   tlsMode: z.enum(['none', 'start_tls', 'implicit_tls']),
   skipCertValidation: z.boolean(),
+  heloDomain: z.preprocess(nullableString, hostnameSchema.nullable()),
   fromAddress: z.email().max(255),
   fromName: z.preprocess(nullableString, z.string().min(1).max(255).nullable()),
 });

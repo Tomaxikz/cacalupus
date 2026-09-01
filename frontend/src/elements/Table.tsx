@@ -21,20 +21,31 @@ import { useTranslations } from '@/providers/TranslationProvider.tsx';
 
 export interface TableHeaderProps {
   name?: LazyString;
+  hint?: LazyString;
   rightSection?: ReactNode;
   onClick?: () => void;
 }
 
-export const TableHeader = ({ name, rightSection, onClick }: TableHeaderProps) => {
+export const TableHeader = ({ name, hint, rightSection, onClick }: TableHeaderProps) => {
   const resolvedName = resolveString(name);
   if (!resolvedName) {
     return <MantineTable.Th className='py-2' />;
   }
 
+  const resolvedHint = resolveString(hint);
+
   return (
     <MantineTable.Th className='font-normal! text-nowrap' onClick={onClick}>
       <div className='flex flex-row items-center gap-2'>
-        <span>{resolvedName}</span> {rightSection}
+        {resolvedHint ? (
+          <div className='flex flex-col'>
+            <span>{resolvedName}</span>
+            <span className='text-xs text-(--mantine-color-dimmed)'>{resolvedHint}</span>
+          </div>
+        ) : (
+          <span>{resolvedName}</span>
+        )}{' '}
+        {rightSection}
       </div>
     </MantineTable.Th>
   );

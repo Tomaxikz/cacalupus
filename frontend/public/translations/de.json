@@ -2020,7 +2020,9 @@
                 "smtp": {
                   "form": {
                     "tlsMode": "TLS-Modus",
-                    "skipCertValidation": "Zertifikatsvalidierung überspringen"
+                    "skipCertValidation": "Zertifikatsvalidierung überspringen",
+                    "heloDomain": "HELO/EHLO-Domain",
+                    "heloDomainDescription": "Domain, die in der HELO/EHLO-Begrüßung gesendet wird. Manche Anbieter, etwa Google Workspace, lehnen den Standardwert ab."
                   }
                 }
               }
@@ -3001,6 +3003,7 @@
                   "stat": {
                     "peers": "Verbundene Peers",
                     "uptime": "Daemon-Laufzeit",
+                    "controlLink": "Steuerverbindung",
                     "frontends": "Gebundene Frontends",
                     "flowsOpen": "{count} Flows offen",
                     "localDrops": "Verworfen auf derselben Node",
@@ -3010,16 +3013,27 @@
                     "peer": "Peer",
                     "role": "Rolle",
                     "address": "Adresse",
-                    "rtt": "RTT",
-                    "mtu": "MTU",
+                    "path": "Pfad",
+                    "loss": "Verlust",
                     "transferred": "Übertragen",
                     "streams": "Streams",
                     "flows": "Flows",
                     "drops": "Verworfen",
                     "connected": "Verbunden seit"
                   },
+                  "hint": {
+                    "rttMtu": "RTT / MTU",
+                    "packetsEvents": "Pakete / Überlastung",
+                    "inOut": "ein / aus",
+                    "openTotal": "offen / gesamt",
+                    "udpOpenTotal": "UDP offen / gesamt",
+                    "datagrams": "Datagramme"
+                  },
                   "value": {
-                    "rtt": "{rtt} ms"
+                    "path": "{rtt} ms / {mtu}",
+                    "tcpOpen": "{count} TCP offen",
+                    "linkUp": "Aktiv",
+                    "linkDown": "Getrennt"
                   },
                   "role": {
                     "initiator": "Ausgehend",

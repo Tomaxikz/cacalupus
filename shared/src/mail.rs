@@ -49,6 +49,7 @@ impl Mail {
                 password,
                 tls_mode,
                 skip_cert_validation,
+                helo_domain,
                 from_address,
                 from_name,
             } => {
@@ -80,6 +81,20 @@ impl Mail {
                             )
                         }
                     });
+
+                if let Some(helo_domain) = helo_domain {
+                    transport = transport.hello_name(match helo_domain.parse() {
+                        Ok(std::net::IpAddr::V4(ip)) => {
+                            lettre::transport::smtp::extension::ClientId::Ipv4(ip)
+                        }
+                        Ok(std::net::IpAddr::V6(ip)) => {
+                            lettre::transport::smtp::extension::ClientId::Ipv6(ip)
+                        }
+                        Err(_) => lettre::transport::smtp::extension::ClientId::Domain(
+                            helo_domain.to_string(),
+                        ),
+                    });
+                }
 
                 if let Some(username) = username {
                     transport = transport.credentials(

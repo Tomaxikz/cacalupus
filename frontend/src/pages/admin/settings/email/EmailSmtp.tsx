@@ -18,6 +18,7 @@ export default function EmailSmtp({ form }: { form: UseFormReturnType<SmtpValues
       password: form.values.password ?? null,
       tlsMode: form.values.tlsMode ?? 'start_tls',
       skipCertValidation: form.values.skipCertValidation ?? false,
+      heloDomain: form.values.heloDomain ?? null,
       fromAddress: form.values.fromAddress ?? '',
       fromName: form.values.fromName ?? null,
     });
@@ -52,6 +53,12 @@ export default function EmailSmtp({ form }: { form: UseFormReturnType<SmtpValues
       type: 'switch',
       name: 'skipCertValidation',
       label: t('pages.admin.settings.tabs.mail.page.smtp.form.skipCertValidation', {}),
+    },
+    {
+      type: 'text',
+      name: 'heloDomain',
+      label: t('pages.admin.settings.tabs.mail.page.smtp.form.heloDomain', {}),
+      description: t('pages.admin.settings.tabs.mail.page.smtp.form.heloDomainDescription', {}),
     },
     {
       type: 'text',

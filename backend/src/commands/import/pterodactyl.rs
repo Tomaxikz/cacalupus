@@ -187,6 +187,7 @@ impl shared::extensions::commands::CliCommand<PterodactylArgs> for PterodactylCo
                                     shared::settings::TlsMode::None
                                 },
                                 skip_cert_validation: false,
+                                helo_domain: None,
                                 from_address,
                                 from_name: source_settings.remove("settings::mail:from:name"),
                             };

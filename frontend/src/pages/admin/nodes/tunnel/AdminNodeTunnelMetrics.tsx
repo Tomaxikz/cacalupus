@@ -2,6 +2,7 @@ import {
   faArrowDown,
   faArrowUp,
   faDiagramProject,
+  faLink,
   faPlug,
   faStopwatch,
   faTrash,
@@ -16,7 +17,7 @@ import CopyOnClick from '@/elements/CopyOnClick.tsx';
 import Group from '@/elements/Group.tsx';
 import Stack from '@/elements/Stack.tsx';
 import StatCard from '@/elements/StatCard.tsx';
-import Table, { TableData, TableRow } from '@/elements/Table.tsx';
+import Table, { TableData, TableHeaderProps, TableRow } from '@/elements/Table.tsx';
 import Text from '@/elements/Text.tsx';
 import TitleCard from '@/elements/TitleCard.tsx';
 import Tooltip from '@/elements/Tooltip.tsx';
@@ -39,6 +40,10 @@ const DROP_REASONS = [
   'oversize',
   'malformed',
 ] as const satisfies (keyof Peer['drops'])[];
+
+function column(name: string, hint?: string): TableHeaderProps {
+  return { name, hint };
+}
 
 function PeerRow({ peer }: { peer: Peer }) {
   const { t } = useTranslations();
@@ -66,7 +71,7 @@ function PeerRow({ peer }: { peer: Peer }) {
               : t('pages.admin.nodes.tabs.tunnel.page.metrics.tooltip.roleAcceptor', {})
           }
         >
-          <Badge variant='default' tt='none'>
+          <Badge className='w-max!' variant='default' tt='none'>
             {peer.role === 'initiator'
               ? t('pages.admin.nodes.tabs.tunnel.page.metrics.role.initiator', {})
               : t('pages.admin.nodes.tabs.tunnel.page.metrics.role.acceptor', {})}
@@ -77,9 +82,20 @@ function PeerRow({ peer }: { peer: Peer }) {
         <CopyOnClick content={peer.remoteAddr}>{peer.remoteAddr}</CopyOnClick>
       </TableData>
       <TableData>
-        {t('pages.admin.nodes.tabs.tunnel.page.metrics.value.rtt', { rtt: peer.path.rttMs.toFixed(1) })}
+        {t('pages.admin.nodes.tabs.tunnel.page.metrics.value.path', {
+          rtt: peer.path.rttMs.toFixed(1),
+          mtu: String(peer.path.currentMtu),
+        })}
       </TableData>
-      <TableData>{peer.path.currentMtu}</TableData>
+      <TableData>
+        {peer.path.lostPackets === 0 && peer.path.congestionEvents === 0 ? (
+          <Text c='dimmed'>0 / 0</Text>
+        ) : (
+          <Text>
+            {peer.path.lostPackets} / {peer.path.congestionEvents}
+          </Text>
+        )}
+      </TableData>
       <TableData>
         <Group gap='sm' wrap='nowrap'>
           <Text size='sm'>
@@ -96,7 +112,14 @@ function PeerRow({ peer }: { peer: Peer }) {
         {peer.relay.streamsOpen} / {peer.relay.streamsTotal}
       </TableData>
       <TableData>
-        {peer.flows.open} / {peer.flows.openedTotal}
+        <Stack gap={0}>
+          <Text>
+            {peer.flows.open} / {peer.flows.openedTotal}
+          </Text>
+          <Text size='xs' c='dimmed'>
+            {t('pages.admin.nodes.tabs.tunnel.page.metrics.value.tcpOpen', { count: peer.flows.tcpOpen })}
+          </Text>
+        </Stack>
       </TableData>
       <TableData>
         {dropped === 0 ? (
@@ -150,7 +173,7 @@ export default function AdminNodeTunnelMetrics({ nodeUuid }: { nodeUuid: string 
 
   return (
     <Stack>
-      <SimpleGrid cols={{ base: 1, sm: 2, lg: 4 }}>
+      <SimpleGrid cols={{ base: 1, sm: 2, lg: 3, xl: 5 }}>
         <StatCard
           icon={faDiagramProject}
           label={t('pages.admin.nodes.tabs.tunnel.page.metrics.stat.peers', {})}
@@ -160,6 +183,15 @@ export default function AdminNodeTunnelMetrics({ nodeUuid }: { nodeUuid: string 
           icon={faStopwatch}
           label={t('pages.admin.nodes.tabs.tunnel.page.metrics.stat.uptime', {})}
           value={formatMilliseconds(data.node.uptimeSecs * 1000)}
+        />
+        <StatCard
+          icon={faLink}
+          label={t('pages.admin.nodes.tabs.tunnel.page.metrics.stat.controlLink', {})}
+          value={
+            data.node.remoteLink === 'up'
+              ? t('pages.admin.nodes.tabs.tunnel.page.metrics.value.linkUp', {})
+              : t('pages.admin.nodes.tabs.tunnel.page.metrics.value.linkDown', {})
+          }
         />
         <StatCard
           icon={faPlug}
@@ -190,16 +222,34 @@ export default function AdminNodeTunnelMetrics({ nodeUuid }: { nodeUuid: string 
         <Table
           flush
           columns={[
-            t('pages.admin.nodes.tabs.tunnel.page.metrics.column.peer', {}),
-            t('pages.admin.nodes.tabs.tunnel.page.metrics.column.role', {}),
-            t('pages.admin.nodes.tabs.tunnel.page.metrics.column.address', {}),
-            t('pages.admin.nodes.tabs.tunnel.page.metrics.column.rtt', {}),
-            t('pages.admin.nodes.tabs.tunnel.page.metrics.column.mtu', {}),
-            t('pages.admin.nodes.tabs.tunnel.page.metrics.column.transferred', {}),
-            t('pages.admin.nodes.tabs.tunnel.page.metrics.column.streams', {}),
-            t('pages.admin.nodes.tabs.tunnel.page.metrics.column.flows', {}),
-            t('pages.admin.nodes.tabs.tunnel.page.metrics.column.drops', {}),
-            t('pages.admin.nodes.tabs.tunnel.page.metrics.column.connected', {}),
+            column(t('pages.admin.nodes.tabs.tunnel.page.metrics.column.peer', {})),
+            column(t('pages.admin.nodes.tabs.tunnel.page.metrics.column.role', {})),
+            column(t('pages.admin.nodes.tabs.tunnel.page.metrics.column.address', {})),
+            column(
+              t('pages.admin.nodes.tabs.tunnel.page.metrics.column.path', {}),
+              t('pages.admin.nodes.tabs.tunnel.page.metrics.hint.rttMtu', {}),
+            ),
+            column(
+              t('pages.admin.nodes.tabs.tunnel.page.metrics.column.loss', {}),
+              t('pages.admin.nodes.tabs.tunnel.page.metrics.hint.packetsEvents', {}),
+            ),
+            column(
+              t('pages.admin.nodes.tabs.tunnel.page.metrics.column.transferred', {}),
+              t('pages.admin.nodes.tabs.tunnel.page.metrics.hint.inOut', {}),
+            ),
+            column(
+              t('pages.admin.nodes.tabs.tunnel.page.metrics.column.streams', {}),
+              t('pages.admin.nodes.tabs.tunnel.page.metrics.hint.openTotal', {}),
+            ),
+            column(
+              t('pages.admin.nodes.tabs.tunnel.page.metrics.column.flows', {}),
+              t('pages.admin.nodes.tabs.tunnel.page.metrics.hint.udpOpenTotal', {}),
+            ),
+            column(
+              t('pages.admin.nodes.tabs.tunnel.page.metrics.column.drops', {}),
+              t('pages.admin.nodes.tabs.tunnel.page.metrics.hint.datagrams', {}),
+            ),
+            column(t('pages.admin.nodes.tabs.tunnel.page.metrics.column.connected', {})),
           ]}
           pagination={{ total: data.peers.length, perPage: data.peers.length, page: 1, data: data.peers }}
         >

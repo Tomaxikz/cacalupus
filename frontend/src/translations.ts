@@ -1944,6 +1944,9 @@ const baseTranslations = defineTranslations({
                   form: {
                     tlsMode: 'TLS Mode',
                     skipCertValidation: 'Skip Certificate Validation',
+                    heloDomain: 'HELO/EHLO Domain',
+                    heloDomainDescription:
+                      'Domain sent in the HELO/EHLO greeting. Some providers, such as Google Workspace, reject the default.',
                   },
                 },
               },
@@ -2961,6 +2964,7 @@ const baseTranslations = defineTranslations({
                   stat: {
                     peers: 'Peers Connected',
                     uptime: 'Daemon Uptime',
+                    controlLink: 'Control Link',
                     frontends: 'Bound Frontends',
                     flowsOpen: '{count} flows open',
                     localDrops: 'Same-Node Drops',
@@ -2970,16 +2974,27 @@ const baseTranslations = defineTranslations({
                     peer: 'Peer',
                     role: 'Role',
                     address: 'Address',
-                    rtt: 'RTT',
-                    mtu: 'MTU',
+                    path: 'Path',
+                    loss: 'Loss',
                     transferred: 'Transferred',
                     streams: 'Streams',
                     flows: 'Flows',
                     drops: 'Drops',
                     connected: 'Connected',
                   },
+                  hint: {
+                    rttMtu: 'RTT / MTU',
+                    packetsEvents: 'packets / congestion',
+                    inOut: 'in / out',
+                    openTotal: 'open / total',
+                    udpOpenTotal: 'UDP open / total',
+                    datagrams: 'datagrams',
+                  },
                   value: {
-                    rtt: '{rtt} ms',
+                    path: '{rtt} ms / {mtu}',
+                    tcpOpen: '{count} TCP open',
+                    linkUp: 'Up',
+                    linkDown: 'Down',
                   },
                   role: {
                     initiator: 'Dialled Out',
