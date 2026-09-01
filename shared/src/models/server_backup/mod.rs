@@ -1442,7 +1442,8 @@ impl ServerBackup {
             .fetch_cached(&state.database)
             .await?
             .api_client(&state.database)
-            .await?;
+            .await?
+            .ignoring(server.subuser_ignored_files.clone().unwrap_or_default());
 
         match client
             .post_backups_backup_export(
@@ -1453,7 +1454,6 @@ impl ServerBackup {
                     path,
                     archive_format,
                     foreground,
-                    ignored: server.subuser_ignored_files.clone().unwrap_or_default(),
                 },
             )
             .await

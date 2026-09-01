@@ -94,7 +94,6 @@ mod put {
         let request_body = wings_api::servers_server_files_chmod::post::RequestBody {
             root: data.root,
             files,
-            ignored: server.0.subuser_ignored_files.unwrap_or_default(),
         };
 
         let data = match server
@@ -104,6 +103,7 @@ mod put {
             .await?
             .api_client(&state.database)
             .await?
+            .ignoring(server.0.subuser_ignored_files.unwrap_or_default())
             .post_servers_server_files_chmod(server.0.uuid, &request_body)
             .await
         {

@@ -61,8 +61,11 @@ mod put {
                 })
                 .collect(),
             root: data.root,
-            ignored: server.0.subuser_ignored_files.unwrap_or_default(),
+        };
+
+        let extra = wings_api::servers_server_files_rename::put::Extra {
             create_directories: permissions.has_server_permission("files.create").is_ok(),
+            ..Default::default()
         };
 
         let data = match server
@@ -72,7 +75,8 @@ mod put {
             .await?
             .api_client(&state.database)
             .await?
-            .put_servers_server_files_rename(server.0.uuid, &request_body)
+            .ignoring(server.0.subuser_ignored_files.unwrap_or_default())
+            .put_servers_server_files_rename_with(server.0.uuid, &request_body, &extra)
             .await
         {
             Ok(data) => data,

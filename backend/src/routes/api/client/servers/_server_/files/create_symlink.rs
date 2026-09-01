@@ -79,7 +79,6 @@ mod post {
             root: data.root,
             link: data.link,
             target: data.target,
-            ignored: server.0.subuser_ignored_files.unwrap_or_default(),
         };
 
         match server
@@ -89,6 +88,7 @@ mod post {
             .await?
             .api_client(&state.database)
             .await?
+            .ignoring(server.0.subuser_ignored_files.unwrap_or_default())
             .post_servers_server_files_create_symlink(server.0.uuid, &request_body)
             .await
         {

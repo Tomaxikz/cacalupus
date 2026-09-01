@@ -64,7 +64,6 @@ mod post {
         let request_body = wings_api::servers_server_files_create_directory::post::RequestBody {
             root: data.root,
             name: data.name,
-            ignored: server.0.subuser_ignored_files.unwrap_or_default(),
         };
 
         match server
@@ -74,6 +73,7 @@ mod post {
             .await?
             .api_client(&state.database)
             .await?
+            .ignoring(server.0.subuser_ignored_files.unwrap_or_default())
             .post_servers_server_files_create_directory(server.0.uuid, &request_body)
             .await
         {

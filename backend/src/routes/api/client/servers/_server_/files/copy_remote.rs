@@ -170,8 +170,6 @@ mod post {
             files: data.files,
             destination_server: destination_server.uuid,
             destination_path: data.destination,
-            ignored: server.0.subuser_ignored_files.unwrap_or_default(),
-            destination_ignored: destination_server.subuser_ignored_files.unwrap_or_default(),
             foreground: data.foreground,
         };
 
@@ -183,6 +181,8 @@ mod post {
                 .await?
                 .api_client(&state.database)
                 .await?
+                .ignoring(server.0.subuser_ignored_files.unwrap_or_default())
+                .ignoring_destination(destination_server.subuser_ignored_files.unwrap_or_default())
                 .post_servers_server_files_copy_remote(server.0.uuid, &request_body)
                 .await
             {

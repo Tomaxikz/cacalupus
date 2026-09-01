@@ -931,3 +931,81 @@ impl super::client::WingsClient {
             .await
     }
 }
+
+#[cfg(test)]
+mod tests {
+    use super::*;
+
+    fn encode(value: &impl Serialize) -> Vec<u8> {
+        let mut bytes = Vec::new();
+        let mut serializer = rmp_serde::Serializer::new(&mut bytes)
+            .with_struct_map()
+            .with_human_readable();
+        value.serialize(&mut serializer).unwrap();
+
+        bytes
+    }
+
+    /// The generated client sends the compat properties that were taken out of the `RequestBody`
+    /// structs through a flattened overlay, which makes the outer map an unknown-length one. Assert
+    /// rmp-serde still writes exactly what a plain struct would, since a mismatch would only ever
+    /// show up against a real node.
+    #[test]
+    fn overlay_matches_flat_body() {
+        #[derive(Serialize)]
+        struct Inner {
+            root: compact_str::CompactString,
+            files: Vec<compact_str::CompactString>,
+            nested: Vec<Nested>,
+            foreground: Option<bool>,
+        }
+
+        #[derive(Serialize)]
+        struct Nested {
+            #[serde(rename = "toName")]
+            to_name: compact_str::CompactString,
+        }
+
+        #[derive(Serialize)]
+        struct Overlay<'a> {
+            #[serde(flatten)]
+            inner: &'a Inner,
+            ignored: &'a Vec<compact_str::CompactString>,
+        }
+
+        #[derive(Serialize)]
+        struct Flat {
+            root: compact_str::CompactString,
+            files: Vec<compact_str::CompactString>,
+            nested: Vec<Nested>,
+            foreground: Option<bool>,
+            ignored: Vec<compact_str::CompactString>,
+        }
+
+        let ignored = vec!["*.log".into(), "secret/**".into()];
+        let inner = Inner {
+            root: "/".into(),
+            files: vec!["a.txt".into()],
+            nested: vec![Nested {
+                to_name: "b.txt".into(),
+            }],
+            foreground: Some(true),
+        };
+
+        assert_eq!(
+            encode(&Overlay {
+                inner: &inner,
+                ignored: &ignored,
+            }),
+            encode(&Flat {
+                root: inner.root.clone(),
+                files: inner.files.clone(),
+                nested: vec![Nested {
+                    to_name: "b.txt".into(),
+                }],
+                foreground: inner.foreground,
+                ignored,
+            })
+        );
+    }
+}

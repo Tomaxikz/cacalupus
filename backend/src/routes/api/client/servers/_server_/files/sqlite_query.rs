@@ -97,14 +97,14 @@ mod post {
             .await?
             .api_client(&state.database)
             .await?
+            .ignoring(server.0.subuser_ignored_files.unwrap_or_default())
             .post_servers_server_files_sqlite_query(
-                server.uuid,
+                server.0.uuid,
                 &wings_api::servers_server_files_sqlite_query::post::RequestBody {
                     file: data.file.clone(),
                     query: data.query.clone().into(),
                     read_only: data.read_only,
                     rows: data.rows,
-                    ignored: server.0.subuser_ignored_files.unwrap_or_default(),
                 },
             )
             .await

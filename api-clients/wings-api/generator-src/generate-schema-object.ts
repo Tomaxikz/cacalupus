@@ -3,7 +3,7 @@ import fs from "fs"
 import { oas31 } from "openapi3-ts"
 import generateSchemaProperty, { convertType } from "@/generate-schema-property"
 
-export default function generateSchemaObject(output: fs.WriteStream, _spaces: number, parent: string | null, name: string, object: oas31.SchemaObject, inlined: boolean = false) {
+export default function generateSchemaObject(output: fs.WriteStream, _spaces: number, parent: string | null, name: string, object: oas31.SchemaObject, inlined: boolean = false, options: { skip?: string[], serdeDefault?: string[] } = {}) {
     const spaces = ' '.repeat(_spaces)
 
     if (object.enum) {
@@ -41,8 +41,10 @@ export default function generateSchemaObject(output: fs.WriteStream, _spaces: nu
 
         if (object.properties) {
             for (const [propertyName, property] of Object.entries(object.properties)) {
+                if (options.skip?.includes(propertyName)) continue
+
                 const p = parent?.startsWith(pascalCase(name)) ? parent?.replace(pascalCase(name), '') ?? '' : pascalCase(name)
-                generateSchemaProperty(output, _spaces + (parent ? 0 : 8), p, propertyName, property)
+                generateSchemaProperty(output, _spaces + (parent ? 0 : 8), p, propertyName, property, options.serdeDefault?.includes(propertyName))
             }
         }
 

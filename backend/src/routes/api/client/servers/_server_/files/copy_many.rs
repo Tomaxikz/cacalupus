@@ -76,7 +76,6 @@ mod post {
             root: data.root,
             overwrite: data.overwrite,
             foreground: data.foreground,
-            ignored: server.0.subuser_ignored_files.unwrap_or_default(),
         };
 
         tokio::spawn(async move {
@@ -87,6 +86,7 @@ mod post {
                 .await?
                 .api_client(&state.database)
                 .await?
+                .ignoring(server.0.subuser_ignored_files.unwrap_or_default())
                 .post_servers_server_files_copy_many(server.0.uuid, &request_body)
                 .await
             {

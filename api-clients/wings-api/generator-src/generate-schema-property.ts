@@ -44,10 +44,11 @@ function rustPropertyEscape(property: string): string {
     return keywords.includes(property) ? `r#${property}` : property
 }
 
-export default function generateSchemaProperty(output: fs.WriteStream, _spaces: number, parent: string, name: string, object: oas31.SchemaObject | oas31.ReferenceObject) {
+export default function generateSchemaProperty(output: fs.WriteStream, _spaces: number, parent: string, name: string, object: oas31.SchemaObject | oas31.ReferenceObject, serdeDefault: boolean = false) {
     const spaces = ' '.repeat(_spaces)
 
     output.write(`${spaces}#[schema(inline)]\n`)
+    if (serdeDefault) output.write(`${spaces}#[serde(default)]\n`)
     output.write(`${spaces}${name !== snakeCase(name) ? `#[serde(rename = "${name}")] ` : ''}`)
     output.write(`pub ${rustPropertyEscape(snakeCase(name))}: `)
 

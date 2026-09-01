@@ -164,12 +164,38 @@ async fn request_impl<T: DeserializeOwned + 'static>(
 pub struct WingsClient {
     base_url: String,
     token: String,
+    ignored: Vec<compact_str::CompactString>,
+    destination_ignored: Vec<compact_str::CompactString>,
 }
 
 impl WingsClient {
     #[inline]
     pub fn new(base_url: String, token: String) -> Self {
-        Self { base_url, token }
+        Self {
+            base_url,
+            token,
+            ignored: Vec::new(),
+            destination_ignored: Vec::new(),
+        }
+    }
+
+    /// Paths the node has to treat as invisible for every request made through this client,
+    /// mirroring the ignore rules of the subuser the request is made on behalf of. Empty by
+    /// default, which is what an unrestricted caller wants.
+    #[inline]
+    pub fn ignoring(mut self, ignored: Vec<compact_str::CompactString>) -> Self {
+        self.ignored = ignored;
+        self
+    }
+
+    /// [WingsClient::ignoring] for the destination server of a cross-server transfer.
+    #[inline]
+    pub fn ignoring_destination(
+        mut self,
+        destination_ignored: Vec<compact_str::CompactString>,
+    ) -> Self {
+        self.destination_ignored = destination_ignored;
+        self
     }
 
     pub fn request_raw(
@@ -260,7 +286,10 @@ impl WingsClient {
             self,
             Method::POST,
             format!("/api/backups/{backup}/export"),
-            Some(data),
+            Some(&BackupsBackupExportPostBody {
+                inner: data,
+                ignored: &self.ignored,
+            }),
             None,
         )
         .await
@@ -458,7 +487,10 @@ impl WingsClient {
             self,
             Method::POST,
             format!("/api/servers/{server}/files/chmod"),
-            Some(data),
+            Some(&ServersServerFilesChmodPostBody {
+                inner: data,
+                ignored: &self.ignored,
+            }),
             None,
         )
         .await
@@ -473,7 +505,10 @@ impl WingsClient {
             self,
             Method::POST,
             format!("/api/servers/{server}/files/compress"),
-            Some(data),
+            Some(&ServersServerFilesCompressPostBody {
+                inner: data,
+                ignored: &self.ignored,
+            }),
             None,
         )
         .await
@@ -523,7 +558,10 @@ impl WingsClient {
             self,
             Method::POST,
             format!("/api/servers/{server}/files/copy"),
-            Some(data),
+            Some(&ServersServerFilesCopyPostBody {
+                inner: data,
+                ignored: &self.ignored,
+            }),
             None,
         )
         .await
@@ -538,7 +576,10 @@ impl WingsClient {
             self,
             Method::POST,
             format!("/api/servers/{server}/files/copy-many"),
-            Some(data),
+            Some(&ServersServerFilesCopyManyPostBody {
+                inner: data,
+                ignored: &self.ignored,
+            }),
             None,
         )
         .await
@@ -553,7 +594,11 @@ impl WingsClient {
             self,
             Method::POST,
             format!("/api/servers/{server}/files/copy-remote"),
-            Some(data),
+            Some(&ServersServerFilesCopyRemotePostBody {
+                inner: data,
+                ignored: &self.ignored,
+                destination_ignored: &self.destination_ignored,
+            }),
             None,
         )
         .await
@@ -568,7 +613,10 @@ impl WingsClient {
             self,
             Method::POST,
             format!("/api/servers/{server}/files/create-directory"),
-            Some(data),
+            Some(&ServersServerFilesCreateDirectoryPostBody {
+                inner: data,
+                ignored: &self.ignored,
+            }),
             None,
         )
         .await
@@ -583,7 +631,10 @@ impl WingsClient {
             self,
             Method::POST,
             format!("/api/servers/{server}/files/create-symlink"),
-            Some(data),
+            Some(&ServersServerFilesCreateSymlinkPostBody {
+                inner: data,
+                ignored: &self.ignored,
+            }),
             None,
         )
         .await
@@ -598,7 +649,10 @@ impl WingsClient {
             self,
             Method::POST,
             format!("/api/servers/{server}/files/decompress"),
-            Some(data),
+            Some(&ServersServerFilesDecompressPostBody {
+                inner: data,
+                ignored: &self.ignored,
+            }),
             None,
         )
         .await
@@ -613,7 +667,10 @@ impl WingsClient {
             self,
             Method::POST,
             format!("/api/servers/{server}/files/delete"),
-            Some(data),
+            Some(&ServersServerFilesDeletePostBody {
+                inner: data,
+                ignored: &self.ignored,
+            }),
             None,
         )
         .await
@@ -797,7 +854,10 @@ impl WingsClient {
             self,
             Method::POST,
             format!("/api/servers/{server}/files/pull"),
-            Some(data),
+            Some(&ServersServerFilesPullPostBody {
+                inner: data,
+                ignored: &self.ignored,
+            }),
             None,
         )
         .await
@@ -838,11 +898,25 @@ impl WingsClient {
         server: uuid::Uuid,
         data: &super::servers_server_files_rename::put::RequestBody,
     ) -> Result<super::servers_server_files_rename::put::Response, ApiHttpError> {
+        self.put_servers_server_files_rename_with(server, data, &Default::default())
+            .await
+    }
+
+    pub async fn put_servers_server_files_rename_with(
+        &self,
+        server: uuid::Uuid,
+        data: &super::servers_server_files_rename::put::RequestBody,
+        extra: &super::servers_server_files_rename::put::Extra,
+    ) -> Result<super::servers_server_files_rename::put::Response, ApiHttpError> {
         request_impl(
             self,
             Method::PUT,
             format!("/api/servers/{server}/files/rename"),
-            Some(data),
+            Some(&ServersServerFilesRenamePutBody {
+                inner: data,
+                ignored: &self.ignored,
+                create_directories: &extra.create_directories,
+            }),
             None,
         )
         .await
@@ -931,7 +1005,10 @@ impl WingsClient {
             self,
             Method::POST,
             format!("/api/servers/{server}/files/sqlite-query"),
-            Some(data),
+            Some(&ServersServerFilesSqliteQueryPostBody {
+                inner: data,
+                ignored: &self.ignored,
+            }),
             None,
         )
         .await
@@ -1449,4 +1526,97 @@ impl WingsClient {
     ) -> Result<super::update::post::Response, ApiHttpError> {
         request_impl(self, Method::POST, "/api/update", Some(data), None).await
     }
+}
+
+#[derive(Serialize)]
+struct BackupsBackupExportPostBody<'a> {
+    #[serde(flatten)]
+    inner: &'a super::backups_backup_export::post::RequestBody,
+    ignored: &'a Vec<compact_str::CompactString>,
+}
+
+#[derive(Serialize)]
+struct ServersServerFilesChmodPostBody<'a> {
+    #[serde(flatten)]
+    inner: &'a super::servers_server_files_chmod::post::RequestBody,
+    ignored: &'a Vec<compact_str::CompactString>,
+}
+
+#[derive(Serialize)]
+struct ServersServerFilesCompressPostBody<'a> {
+    #[serde(flatten)]
+    inner: &'a super::servers_server_files_compress::post::RequestBody,
+    ignored: &'a Vec<compact_str::CompactString>,
+}
+
+#[derive(Serialize)]
+struct ServersServerFilesCopyPostBody<'a> {
+    #[serde(flatten)]
+    inner: &'a super::servers_server_files_copy::post::RequestBody,
+    ignored: &'a Vec<compact_str::CompactString>,
+}
+
+#[derive(Serialize)]
+struct ServersServerFilesCopyManyPostBody<'a> {
+    #[serde(flatten)]
+    inner: &'a super::servers_server_files_copy_many::post::RequestBody,
+    ignored: &'a Vec<compact_str::CompactString>,
+}
+
+#[derive(Serialize)]
+struct ServersServerFilesCopyRemotePostBody<'a> {
+    #[serde(flatten)]
+    inner: &'a super::servers_server_files_copy_remote::post::RequestBody,
+    ignored: &'a Vec<compact_str::CompactString>,
+    destination_ignored: &'a Vec<compact_str::CompactString>,
+}
+
+#[derive(Serialize)]
+struct ServersServerFilesCreateDirectoryPostBody<'a> {
+    #[serde(flatten)]
+    inner: &'a super::servers_server_files_create_directory::post::RequestBody,
+    ignored: &'a Vec<compact_str::CompactString>,
+}
+
+#[derive(Serialize)]
+struct ServersServerFilesCreateSymlinkPostBody<'a> {
+    #[serde(flatten)]
+    inner: &'a super::servers_server_files_create_symlink::post::RequestBody,
+    ignored: &'a Vec<compact_str::CompactString>,
+}
+
+#[derive(Serialize)]
+struct ServersServerFilesDecompressPostBody<'a> {
+    #[serde(flatten)]
+    inner: &'a super::servers_server_files_decompress::post::RequestBody,
+    ignored: &'a Vec<compact_str::CompactString>,
+}
+
+#[derive(Serialize)]
+struct ServersServerFilesDeletePostBody<'a> {
+    #[serde(flatten)]
+    inner: &'a super::servers_server_files_delete::post::RequestBody,
+    ignored: &'a Vec<compact_str::CompactString>,
+}
+
+#[derive(Serialize)]
+struct ServersServerFilesPullPostBody<'a> {
+    #[serde(flatten)]
+    inner: &'a super::servers_server_files_pull::post::RequestBody,
+    ignored: &'a Vec<compact_str::CompactString>,
+}
+
+#[derive(Serialize)]
+struct ServersServerFilesRenamePutBody<'a> {
+    #[serde(flatten)]
+    inner: &'a super::servers_server_files_rename::put::RequestBody,
+    ignored: &'a Vec<compact_str::CompactString>,
+    create_directories: &'a bool,
+}
+
+#[derive(Serialize)]
+struct ServersServerFilesSqliteQueryPostBody<'a> {
+    #[serde(flatten)]
+    inner: &'a super::servers_server_files_sqlite_query::post::RequestBody,
+    ignored: &'a Vec<compact_str::CompactString>,
 }

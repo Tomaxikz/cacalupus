@@ -9,6 +9,36 @@ function rustIdent(name: string): string {
     return ['type', 'override', 'match', 'move', 'ref', 'virtual', 'self', 'use', 'mod'].includes(name) ? `r#${name}` : name
 }
 
+/**
+ * Request body properties that must not become fields of the generated `RequestBody` structs.
+ *
+ * Extensions build these structs with plain struct literals, so every property added to one is a
+ * source-breaking change for every extension compiled against an older panel. Properties listed
+ * here are sent from somewhere the caller does not have to name: `client` takes the value off the
+ * `WingsClient` (`.ignoring()`), `extra` takes it from the `_with` variant of the client method,
+ * which uses the same `Default` + `__priv` shape as `Query` and so stays additive forever.
+ */
+const compatBodyProperties: Record<string, Record<string, 'client' | 'extra'>> = {
+    'post /api/backups/{backup}/export': { ignored: 'client' },
+    'post /api/servers/{server}/files/chmod': { ignored: 'client' },
+    'post /api/servers/{server}/files/compress': { ignored: 'client' },
+    'post /api/servers/{server}/files/copy': { ignored: 'client' },
+    'post /api/servers/{server}/files/copy-many': { ignored: 'client' },
+    'post /api/servers/{server}/files/copy-remote': { ignored: 'client', destination_ignored: 'client' },
+    'post /api/servers/{server}/files/create-directory': { ignored: 'client' },
+    'post /api/servers/{server}/files/create-symlink': { ignored: 'client' },
+    'post /api/servers/{server}/files/decompress': { ignored: 'client' },
+    'post /api/servers/{server}/files/delete': { ignored: 'client' },
+    'post /api/servers/{server}/files/pull': { ignored: 'client' },
+    'put /api/servers/{server}/files/rename': { ignored: 'client', create_directories: 'extra' },
+    'post /api/servers/{server}/files/sqlite-query': { ignored: 'client' },
+}
+
+/** Properties wings only started sending after the schema shipped, so older nodes omit them. */
+const serdeDefaultProperties: Record<string, string[]> = {
+    QueryResultSet: ['truncated'],
+}
+
 const openapi: oas31.OpenAPIObject = JSON.parse(fs.readFileSync('../openapi.json', 'utf-8'))
 const output = fs.createWriteStream('../src/lib.rs', { flags: 'w' })
 
@@ -33,6 +63,7 @@ pub use extra::*;
 `)
 
 const clientOutput = fs.createWriteStream('../src/client.rs', { flags: 'w' })
+const overlays: string[] = []
 
 clientOutput.write(`// This file is auto-generated from OpenAPI spec. Do not edit manually.
 use super::*;
@@ -200,12 +231,38 @@ async fn request_impl<T: DeserializeOwned + 'static>(
 pub struct WingsClient {
     base_url: String,
     token: String,
+    ignored: Vec<compact_str::CompactString>,
+    destination_ignored: Vec<compact_str::CompactString>,
 }
 
 impl WingsClient {
     #[inline]
     pub fn new(base_url: String, token: String) -> Self {
-        Self { base_url, token }
+        Self {
+            base_url,
+            token,
+            ignored: Vec::new(),
+            destination_ignored: Vec::new(),
+        }
+    }
+
+    /// Paths the node has to treat as invisible for every request made through this client,
+    /// mirroring the ignore rules of the subuser the request is made on behalf of. Empty by
+    /// default, which is what an unrestricted caller wants.
+    #[inline]
+    pub fn ignoring(mut self, ignored: Vec<compact_str::CompactString>) -> Self {
+        self.ignored = ignored;
+        self
+    }
+
+    /// [WingsClient::ignoring] for the destination server of a cross-server transfer.
+    #[inline]
+    pub fn ignoring_destination(
+        mut self,
+        destination_ignored: Vec<compact_str::CompactString>,
+    ) -> Self {
+        self.destination_ignored = destination_ignored;
+        self
     }
 
     pub fn request_raw(
@@ -280,7 +337,7 @@ for (const [name, schema] of Object.entries(openapi.components?.schemas || {})) 
     // internally tagged enums the generator cannot represent, hand-written in extra.rs
     if (name === 'QueryValue' || name === 'ServerSelector') continue
 
-    generateSchemaObject(output, 0, null, name, schema as oas31.SchemaObject)
+    generateSchemaObject(output, 0, null, name, schema as oas31.SchemaObject, false, { serdeDefault: serdeDefaultProperties[name] })
 }
 
 for (const [path, route] of Object.entries(openapi.paths ?? {})) {
@@ -297,6 +354,10 @@ for (const [path, route] of Object.entries(openapi.paths ?? {})) {
         output.write(`\n    pub mod ${method} {\n`)
         output.write('        use super::*;\n\n')
 
+        const compat = compatBodyProperties[`${method} ${path}`] ?? {}
+        const compatEntries = Object.entries(compat)
+        const extraProps = compatEntries.filter(([, source]) => source === 'extra').map(([name]) => name)
+
         if (data.requestBody) {
             const body = data.requestBody as oas31.RequestBodyObject
             const schema = Object.values(body.content)[0].schema
@@ -307,7 +368,7 @@ for (const [path, route] of Object.entries(openapi.paths ?? {})) {
                     const type = (schema as oas31.SchemaObject).type === 'string' ? 'AsyncRequestReader' : convertType(schema as any)
                     output.write(`        pub type RequestBody = ${type};\n\n`)
                 } else {
-                    generateSchemaObject(output, 8, null, `RequestBody`, schema as any)
+                    generateSchemaObject(output, 8, null, `RequestBody`, schema as any, false, { skip: Object.keys(compat) })
                 }
             }
         }
@@ -359,6 +420,20 @@ for (const [path, route] of Object.entries(openapi.paths ?? {})) {
             output.write('        }\n')
         }
 
+        if (extraProps.length) {
+            const schema = Object.values((data.requestBody as oas31.RequestBodyObject).content)[0].schema as oas31.SchemaObject
+
+            output.write('\n        #[derive(Debug, Clone, Default)]\n')
+            output.write('        #[allow(clippy::manual_non_exhaustive)]\n')
+            output.write('        pub struct Extra {\n')
+            for (const name of extraProps) {
+                output.write(`            pub ${rustIdent(name)}: ${convertType(schema.properties![name] as any)},\n`)
+            }
+            output.write('            #[doc(hidden)]\n')
+            output.write('            pub __priv: (),\n')
+            output.write('        }\n')
+        }
+
         {
             const modName = snakeCase(path).slice(4)
             const args: string[] = []
@@ -368,25 +443,55 @@ for (const [path, route] of Object.entries(openapi.paths ?? {})) {
                 args.push(`${rustIdent(param.name)}: ${type === 'compact_str::CompactString' ? '&str' : type}`)
             }
 
-            const body = data.requestBody
+            const streamBody = data.requestBody
                 ? (Object.values((data.requestBody as oas31.RequestBodyObject).content)[0].schema as oas31.SchemaObject).type === 'string'
+                : false
+            const overlay = pascalCase(`${modName}_${method}_body`)
+
+            if (compatEntries.length) {
+                const schema = Object.values((data.requestBody as oas31.RequestBodyObject).content)[0].schema as oas31.SchemaObject
+
+                overlays.push(
+                    '#[derive(Serialize)]\n'
+                    + `struct ${overlay}<'a> {\n`
+                    + '    #[serde(flatten)]\n'
+                    + `    inner: &'a super::${modName}::${method}::RequestBody,\n`
+                    + compatEntries.map(([name]) => `    ${rustIdent(name)}: &'a ${convertType(schema.properties![name] as any)},\n`).join('')
+                    + '}\n'
+                )
+            }
+
+            const body = data.requestBody
+                ? streamBody
                     ? 'None::<&()>, Some(data)'
-                    : 'Some(data), None'
+                    : compatEntries.length
+                        ? `Some(&${overlay} { inner: data, ${compatEntries.map(([name, source]) => `${rustIdent(name)}: &${source === 'client' ? `self.${name}` : `extra.${rustIdent(name)}`}`).join(', ')} }), None`
+                        : 'Some(data), None'
                 : 'None::<&()>, None'
 
             if (data.requestBody) {
-                if (body === 'None::<&()>, Some(data)') {
-                    args.push(`data: super::${modName}::${method}::RequestBody`)
-                } else {
-                    args.push(`data: &super::${modName}::${method}::RequestBody`)
-                }
+                args.push(`data: ${streamBody ? '' : '&'}super::${modName}::${method}::RequestBody`)
             }
 
             if (queryParams.length) {
                 args.push(`query: &super::${modName}::${method}::Query`)
             }
 
-            clientOutput.write(`    pub async fn ${method}_${modName}(&self${args.length ? `, ${args.join(', ')}` : ''})`)
+            if (extraProps.length) {
+                const forwarded = pathParams.map((param) => rustIdent(param.name))
+                if (data.requestBody) forwarded.push('data')
+                if (queryParams.length) forwarded.push('query')
+                forwarded.push('&Default::default()')
+
+                clientOutput.write(`    pub async fn ${method}_${modName}(&self${args.length ? `, ${args.join(', ')}` : ''})`)
+                clientOutput.write(` -> Result<super::${modName}::${method}::Response, ApiHttpError> {\n`)
+                clientOutput.write(`        self.${method}_${modName}_with(${forwarded.join(', ')}).await\n`)
+                clientOutput.write('    }\n\n')
+
+                args.push(`extra: &super::${modName}::${method}::Extra`)
+            }
+
+            clientOutput.write(`    pub async fn ${method}_${modName}${extraProps.length ? '_with' : ''}(&self${args.length ? `, ${args.join(', ')}` : ''})`)
             clientOutput.write(` -> Result<super::${modName}::${method}::Response, ApiHttpError> {\n`)
 
             let endpoint: string
@@ -441,3 +546,7 @@ for (const [path, route] of Object.entries(openapi.paths ?? {})) {
 }
 
 clientOutput.write('}\n')
+
+for (const overlay of overlays) {
+    clientOutput.write(`\n${overlay}`)
+}

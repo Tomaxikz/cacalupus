@@ -58,7 +58,6 @@ mod post {
         let request_body = wings_api::servers_server_files_delete::post::RequestBody {
             root: data.root,
             files,
-            ignored: server.0.subuser_ignored_files.unwrap_or_default(),
         };
 
         let data = match server
@@ -68,6 +67,7 @@ mod post {
             .await?
             .api_client(&state.database)
             .await?
+            .ignoring(server.0.subuser_ignored_files.unwrap_or_default())
             .post_servers_server_files_delete(server.0.uuid, &request_body)
             .await
         {
