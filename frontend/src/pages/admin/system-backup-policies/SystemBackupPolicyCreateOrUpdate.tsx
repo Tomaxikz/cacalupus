@@ -30,6 +30,7 @@ import { useResourceForm } from '@/plugins/useResourceForm.ts';
 import { useSearchableResource } from '@/plugins/useSearchableResource.ts';
 import { useToast } from '@/providers/ToastProvider.tsx';
 import { useTranslations } from '@/providers/TranslationProvider.tsx';
+import { systemBackupPolicyEmptyFormValues, systemBackupPolicyToFormValues } from './systemBackupPolicyFormValues.ts';
 
 type SystemBackupPolicyFormValues = z.infer<typeof adminSystemBackupPolicyUpdateSchema>;
 
@@ -68,16 +69,7 @@ export default function SystemBackupPolicyCreateOrUpdate({
 
   const form = useFormEngine<SystemBackupPolicyFormValues>('admin.systemBackupPolicies.createOrUpdate', {
     schema: adminSystemBackupPolicyUpdateSchema.unwrap(),
-    initialValues: {
-      name: '',
-      description: null,
-      backupConfigurationUuid: null,
-      enabled: true,
-      cron: '0 0 0 * * *',
-      retentionCount: null,
-      retentionDays: null,
-      parallelism: 2,
-    },
+    initialValues: systemBackupPolicyEmptyFormValues,
     validateInputOnBlur: true,
   });
 
@@ -104,16 +96,7 @@ export default function SystemBackupPolicyCreateOrUpdate({
 
   useEffect(() => {
     if (contextSystemBackupPolicy) {
-      form.setValues({
-        name: contextSystemBackupPolicy.name,
-        description: contextSystemBackupPolicy.description,
-        backupConfigurationUuid: contextSystemBackupPolicy.backupConfiguration?.uuid ?? null,
-        enabled: contextSystemBackupPolicy.enabled,
-        cron: contextSystemBackupPolicy.cron,
-        retentionCount: contextSystemBackupPolicy.retentionCount,
-        retentionDays: contextSystemBackupPolicy.retentionDays,
-        parallelism: contextSystemBackupPolicy.parallelism,
-      });
+      form.setValues(systemBackupPolicyToFormValues(contextSystemBackupPolicy));
     }
   }, [contextSystemBackupPolicy]);
 

@@ -13,11 +13,11 @@ import Text from '@/elements/Text.tsx';
 import { eggConfigurationDeploymentDefaultMapping } from '@/lib/enums.ts';
 import {
   adminEggConfigurationUpdateSchema,
-  defaultEggConfigurationPrimaryAllocation,
   EggConfigurationDeployment,
 } from '@/lib/schemas/admin/eggConfigurations.ts';
 import { useTranslations } from '@/providers/TranslationProvider.tsx';
 import DeploymentItemEditor from './DeploymentItemEditor.tsx';
+import { defaultEggConfigurationPrimaryAllocation } from './eggConfigurationFormValues.ts';
 
 type EggConfigFormValues = z.infer<typeof adminEggConfigurationUpdateSchema>;
 

@@ -17,6 +17,7 @@ import { adminMountSchema, adminMountUpdateSchema } from '@/lib/schemas/admin/mo
 import MountDuplicateModal from '@/pages/admin/mounts/modals/MountDuplicateModal.tsx';
 import { useResourceForm } from '@/plugins/useResourceForm.ts';
 import { useTranslations } from '@/providers/TranslationProvider.tsx';
+import { mountEmptyFormValues, mountToFormValues } from './mountFormValues.ts';
 
 type MountFormValues = z.infer<typeof adminMountUpdateSchema>;
 
@@ -26,14 +27,7 @@ export default function MountCreateOrUpdate({ contextMount }: { contextMount?: z
 
   const form = useFormEngine<MountFormValues>('admin.mounts.createOrUpdate', {
     schema: adminMountUpdateSchema.unwrap(),
-    initialValues: {
-      name: '',
-      description: null,
-      source: '',
-      target: '',
-      readOnly: false,
-      userMountable: false,
-    },
+    initialValues: mountEmptyFormValues,
     validateInputOnBlur: true,
   });
 
@@ -51,14 +45,7 @@ export default function MountCreateOrUpdate({ contextMount }: { contextMount?: z
 
   useEffect(() => {
     if (contextMount) {
-      form.setValues({
-        name: contextMount.name,
-        description: contextMount.description,
-        source: contextMount.source,
-        target: contextMount.target,
-        readOnly: contextMount.readOnly,
-        userMountable: contextMount.userMountable,
-      });
+      form.setValues(mountToFormValues(contextMount));
     }
   }, [contextMount]);
 

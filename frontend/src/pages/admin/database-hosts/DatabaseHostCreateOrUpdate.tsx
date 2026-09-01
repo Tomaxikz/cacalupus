@@ -18,9 +18,7 @@ import ForceDeleteModal from '@/elements/modals/ForceDeleteModal.tsx';
 import { databaseCredentialTypeLabelMapping, databaseTypeLabelMapping, mappingToSelectData } from '@/lib/enums.ts';
 import { queryKeys } from '@/lib/queryKeys.ts';
 import {
-  AdminDatabaseCredentialType,
   adminDatabaseCredentialsConnectionStringSchema,
-  adminDatabaseCredentialsDefaults,
   adminDatabaseCredentialsDetailsSchema,
   adminDatabaseHostCreateSchema,
   adminDatabaseHostSchema,
@@ -29,20 +27,16 @@ import {
 import { useHostAction } from '@/plugins/useHostAction.ts';
 import { useResourceForm } from '@/plugins/useResourceForm.ts';
 import { useTranslations } from '@/providers/TranslationProvider.tsx';
+import {
+  type AdminDatabaseCredentialType,
+  adminDatabaseCredentialsDefaults,
+  databaseHostEmptyFormValues,
+  databaseHostToFormValues,
+} from './databaseHostFormValues.ts';
 import CredentialConnectionString from './forms/CredentialConnectionString.tsx';
 import CredentialDetails from './forms/CredentialDetails.tsx';
 
 type DatabaseHostFormValues = z.infer<typeof adminDatabaseHostUpdateSchema>;
-
-const toFormValues = (dh: z.infer<typeof adminDatabaseHostSchema>): Partial<DatabaseHostFormValues> => ({
-  name: dh.name,
-  type: dh.type,
-  deploymentEnabled: dh.deploymentEnabled,
-  maintenanceEnabled: dh.maintenanceEnabled,
-  publicHost: dh.publicHost,
-  publicPort: dh.publicPort,
-  credentials: undefined,
-});
 
 export default function DatabaseHostCreateOrUpdate({
   contextDatabaseHost,
@@ -56,15 +50,7 @@ export default function DatabaseHostCreateOrUpdate({
 
   const form = useFormEngine<DatabaseHostFormValues>('admin.databaseHosts.createOrUpdate', {
     schema: (contextDatabaseHost ? adminDatabaseHostUpdateSchema : adminDatabaseHostCreateSchema).unwrap(),
-    initialValues: {
-      name: '',
-      type: 'mysql',
-      deploymentEnabled: true,
-      maintenanceEnabled: false,
-      publicHost: null,
-      publicPort: null,
-      credentials: undefined,
-    },
+    initialValues: databaseHostEmptyFormValues,
     validateInputOnBlur: true,
   });
 
@@ -90,7 +76,7 @@ export default function DatabaseHostCreateOrUpdate({
   useEffect(() => {
     form.setValues(
       contextDatabaseHost
-        ? toFormValues(contextDatabaseHost)
+        ? databaseHostToFormValues(contextDatabaseHost)
         : { credentials: adminDatabaseCredentialsDefaults.connection_string },
     );
   }, [contextDatabaseHost]);

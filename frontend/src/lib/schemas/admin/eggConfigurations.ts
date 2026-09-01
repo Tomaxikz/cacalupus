@@ -105,30 +105,3 @@ export const adminEggConfigurationUpdateSchema = z.lazy(() =>
 );
 
 export type AdminEggConfiguration = z.infer<typeof adminEggConfigurationSchema>;
-export type EggConfigurationAllocations = NonNullable<AdminEggConfiguration['configAllocations']>;
-export type EggConfigurationPrimaryAllocation = NonNullable<EggConfigurationAllocations['deployment']['primary']>;
-export type EggConfigurationStartup = NonNullable<AdminEggConfiguration['configStartup']>;
-
-export const defaultEggConfigurationPrimaryAllocation: EggConfigurationPrimaryAllocation = {
-  startPort: 1,
-  endPort: 65535,
-  assignToVariable: null,
-};
-
-export const defaultEggConfigurationAllocations: EggConfigurationAllocations = {
-  deployment: {
-    additional: [],
-    dedicated: false,
-    primary: null,
-  },
-  userSelfAssign: {
-    enabled: false,
-    requirePrimaryAllocation: true,
-    startPort: 1,
-    endPort: 65535,
-  },
-};
-
-export const defaultEggConfigurationStartup: EggConfigurationStartup = {
-  allowCustomStartupCommand: false,
-};

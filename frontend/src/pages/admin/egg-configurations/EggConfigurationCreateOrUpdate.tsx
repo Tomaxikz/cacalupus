@@ -20,8 +20,6 @@ import { queryKeys } from '@/lib/queryKeys.ts';
 import {
   adminEggConfigurationSchema,
   adminEggConfigurationUpdateSchema,
-  defaultEggConfigurationAllocations,
-  defaultEggConfigurationStartup,
 } from '@/lib/schemas/admin/eggConfigurations.ts';
 import { eggConfigurationRouteItemSchema } from '@/lib/schemas/generic.ts';
 import EggConfigurationDuplicateModal from '@/pages/admin/egg-configurations/modals/EggConfigurationDuplicateModal.tsx';
@@ -31,30 +29,16 @@ import { useToast } from '@/providers/ToastProvider.tsx';
 import { useTranslations } from '@/providers/TranslationProvider.tsx';
 import { useGlobalStore } from '@/stores/global.ts';
 import EggConfigurationAllocationsSection from './EggConfigurationAllocationsSection.tsx';
+import {
+  defaultEggConfigurationAllocations,
+  defaultEggConfigurationStartup,
+  eggConfigurationEmptyFormValues,
+  eggConfigurationToFormValues,
+} from './eggConfigurationFormValues.ts';
 
 const loadServerRoutes = () => import('@/routers/routes/serverRoutes.ts');
 
 type EggConfigFormValues = z.infer<typeof adminEggConfigurationUpdateSchema>;
-
-const emptyFormValues: EggConfigFormValues = {
-  name: '',
-  description: null,
-  order: 0,
-  eggs: [],
-  configAllocations: null,
-  configStartup: null,
-  configRoutes: null,
-};
-
-const toFormValues = (ec: z.infer<typeof adminEggConfigurationSchema>): EggConfigFormValues => ({
-  name: ec.name,
-  description: ec.description,
-  order: ec.order,
-  eggs: ec.eggs,
-  configAllocations: ec.configAllocations,
-  configStartup: ec.configStartup,
-  configRoutes: ec.configRoutes,
-});
 
 export default function EggConfigurationCreateOrUpdate({
   contextEggConfiguration,
@@ -75,7 +59,7 @@ export default function EggConfigurationCreateOrUpdate({
 
   const form = useFormEngine<EggConfigFormValues>('admin.eggConfigurations.createOrUpdate', {
     schema: adminEggConfigurationUpdateSchema.unwrap(),
-    initialValues: emptyFormValues,
+    initialValues: eggConfigurationEmptyFormValues,
     validateInputOnBlur: true,
   });
 
@@ -100,7 +84,7 @@ export default function EggConfigurationCreateOrUpdate({
 
   useEffect(() => {
     if (contextEggConfiguration) {
-      form.setValues(toFormValues(contextEggConfiguration));
+      form.setValues(eggConfigurationToFormValues(contextEggConfiguration));
     }
   }, [contextEggConfiguration]);
 

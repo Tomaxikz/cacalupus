@@ -40,6 +40,7 @@ import { useToast } from '@/providers/ToastProvider.tsx';
 import { useTranslations } from '@/providers/TranslationProvider.tsx';
 import { EggExportMenu, EggUpdateFromMenu } from './EggActionsMenu.tsx';
 import EggConfigFilesEditor from './EggConfigFilesEditor.tsx';
+import { eggEmptyFormValues, eggToFormValues } from './eggFormValues.ts';
 import EggDuplicateModal from './modals/EggDuplicateModal.tsx';
 import EggMoveModal from './modals/EggMoveModal.tsx';
 import EggUpdateUrlModal from './modals/EggUpdateUrlModal.tsx';
@@ -62,27 +63,7 @@ export default function EggCreateOrUpdate({
 
   const form = useForm<z.infer<typeof adminEggUpdateSchema>>({
     mode: 'uncontrolled',
-    initialValues: {
-      eggRepositoryEggUuid: null,
-      author: '',
-      name: '',
-      description: null,
-      configFiles: [],
-      configStartup: {
-        done: [],
-        stripAnsi: false,
-      },
-      configStop: {
-        type: '',
-        value: null,
-      },
-      startupCommands: { Default: '' },
-      forceOutgoingIp: false,
-      separatePort: false,
-      features: [],
-      dockerImages: {},
-      fileDenylist: [],
-    },
+    initialValues: eggEmptyFormValues,
     onValuesChange: () => setIsValid(form.isValid()),
     validateInputOnBlur: true,
     validate: zod4Resolver(adminEggUpdateSchema),
@@ -116,21 +97,7 @@ export default function EggCreateOrUpdate({
 
   useEffect(() => {
     if (contextEgg) {
-      form.setValues({
-        eggRepositoryEggUuid: contextEgg.eggRepositoryEgg?.uuid || null,
-        author: contextEgg.author,
-        name: contextEgg.name,
-        description: contextEgg.description,
-        configFiles: contextEgg.configFiles,
-        configStartup: contextEgg.configStartup,
-        configStop: contextEgg.configStop,
-        startupCommands: contextEgg.startupCommands,
-        forceOutgoingIp: contextEgg.forceOutgoingIp,
-        separatePort: contextEgg.separatePort,
-        features: contextEgg.features,
-        dockerImages: contextEgg.dockerImages,
-        fileDenylist: contextEgg.fileDenylist,
-      });
+      form.setValues(eggToFormValues(contextEgg));
     }
   }, [contextEgg]);
 

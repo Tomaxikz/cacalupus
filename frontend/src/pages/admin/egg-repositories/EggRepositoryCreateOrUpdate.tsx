@@ -18,8 +18,6 @@ import ConfirmationModal from '@/elements/modals/ConfirmationModal.tsx';
 import { eggRepositoryCredentialTypeLabelMapping, mappingToSelectData } from '@/lib/enums.ts';
 import { queryKeys } from '@/lib/queryKeys.ts';
 import {
-  AdminEggRepositoryCredentialType,
-  adminEggRepositoryCredentialsDefaults,
   adminEggRepositoryCredentialsPasswordSchema,
   adminEggRepositoryCredentialsPrivateKeySchema,
   adminEggRepositorySchema,
@@ -28,17 +26,16 @@ import {
 import { useHostAction } from '@/plugins/useHostAction.ts';
 import { useResourceForm } from '@/plugins/useResourceForm.ts';
 import { useTranslations } from '@/providers/TranslationProvider.tsx';
+import {
+  type AdminEggRepositoryCredentialType,
+  adminEggRepositoryCredentialsDefaults,
+  eggRepositoryEmptyFormValues,
+  eggRepositoryToFormValues,
+} from './eggRepositoryFormValues.ts';
 import CredentialPassword from './forms/CredentialPassword.tsx';
 import CredentialPrivateKey from './forms/CredentialPrivateKey.tsx';
 
 type EggRepositoryFormValues = z.infer<typeof adminEggRepositoryUpdateSchema>;
-
-const toFormValues = (er: z.infer<typeof adminEggRepositorySchema>): Partial<EggRepositoryFormValues> => ({
-  name: er.name,
-  description: er.description,
-  gitRepository: er.gitRepository,
-  credentials: undefined,
-});
 
 export default function EggRepositoryCreateOrUpdate({
   contextEggRepository,
@@ -51,12 +48,7 @@ export default function EggRepositoryCreateOrUpdate({
 
   const form = useFormEngine<EggRepositoryFormValues>('admin.eggRepositories.createOrUpdate', {
     schema: adminEggRepositoryUpdateSchema.unwrap(),
-    initialValues: {
-      name: '',
-      description: null,
-      gitRepository: '',
-      credentials: undefined,
-    },
+    initialValues: eggRepositoryEmptyFormValues,
     validateInputOnBlur: true,
   });
 
@@ -79,7 +71,7 @@ export default function EggRepositoryCreateOrUpdate({
 
   useEffect(() => {
     if (contextEggRepository) {
-      form.setValues(toFormValues(contextEggRepository));
+      form.setValues(eggRepositoryToFormValues(contextEggRepository));
     }
   }, [contextEggRepository]);
 

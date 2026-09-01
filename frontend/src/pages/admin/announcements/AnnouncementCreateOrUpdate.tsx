@@ -26,6 +26,7 @@ import { useResourceForm } from '@/plugins/useResourceForm.ts';
 import { useSearchableResource } from '@/plugins/useSearchableResource.ts';
 import { useTranslations } from '@/providers/TranslationProvider.tsx';
 import { useGlobalStore } from '@/stores/global.ts';
+import { announcementEmptyFormValues, announcementToFormValues } from './announcementFormValues.ts';
 import AnnouncementDuplicateModal from './modals/AnnouncementDuplicateModal.tsx';
 
 type AnnouncementFormValues = z.infer<typeof adminAnnouncementUpdateSchema>;
@@ -46,22 +47,7 @@ export default function AnnouncementCreateOrUpdate({
 
   const form = useFormEngine<AnnouncementFormValues>('admin.announcements.createOrUpdate', {
     schema: contextAnnouncement ? adminAnnouncementUpdateSchema : adminAnnouncementCreateSchema,
-    initialValues: {
-      type: 'info',
-      enabled: true,
-      enabledStart: null,
-      enabledEnd: null,
-      dismissible: false,
-      dismissibleEnd: null,
-      title: '',
-      titleTranslations: {},
-      content: '',
-      contentTranslations: {},
-      locations: [],
-      nodes: [],
-      backupConfigurations: [],
-      eggs: [],
-    },
+    initialValues: announcementEmptyFormValues,
     validateInputOnBlur: true,
   });
 
@@ -82,22 +68,7 @@ export default function AnnouncementCreateOrUpdate({
 
   useEffect(() => {
     if (contextAnnouncement) {
-      form.setValues({
-        type: contextAnnouncement.type,
-        enabled: contextAnnouncement.enabled,
-        enabledStart: contextAnnouncement.enabledStart,
-        enabledEnd: contextAnnouncement.enabledEnd,
-        dismissible: contextAnnouncement.dismissible,
-        dismissibleEnd: contextAnnouncement.dismissibleEnd,
-        title: contextAnnouncement.title,
-        titleTranslations: contextAnnouncement.titleTranslations,
-        content: contextAnnouncement.content,
-        contentTranslations: contextAnnouncement.contentTranslations,
-        locations: contextAnnouncement.locations,
-        nodes: contextAnnouncement.nodes,
-        backupConfigurations: contextAnnouncement.backupConfigurations,
-        eggs: contextAnnouncement.eggs,
-      });
+      form.setValues(announcementToFormValues(contextAnnouncement));
     }
   }, [contextAnnouncement?.uuid]);
 

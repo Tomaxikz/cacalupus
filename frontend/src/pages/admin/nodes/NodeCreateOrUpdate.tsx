@@ -31,6 +31,7 @@ import { useResourceForm } from '@/plugins/useResourceForm.ts';
 import { useSearchableResource } from '@/plugins/useSearchableResource.ts';
 import { useToast } from '@/providers/ToastProvider.tsx';
 import { useTranslations } from '@/providers/TranslationProvider.tsx';
+import { nodeEmptyFormValues, nodeToFormValues } from './nodeFormValues.ts';
 
 type NodeFormValues = z.infer<typeof adminNodeUpdateSchema>;
 
@@ -48,20 +49,7 @@ export default function NodeCreateOrUpdate({ contextNode }: { contextNode?: z.in
   const form = useFormEngine<NodeFormValues>('admin.nodes.createOrUpdate', {
     schema: adminNodeUpdateSchema.unwrap(),
     mode: 'uncontrolled',
-    initialValues: {
-      locationUuid: '',
-      backupConfigurationUuid: null,
-      name: '',
-      deploymentEnabled: true,
-      maintenanceEnabled: false,
-      description: null,
-      publicUrl: null,
-      url: '',
-      sftpHost: null,
-      sftpPort: 2022,
-      memory: 8192,
-      disk: 10240,
-    },
+    initialValues: nodeEmptyFormValues,
     onValuesChange: (values) => {
       setIsValid(form.isValid());
       setUrlValue(values.url ?? '');
@@ -86,20 +74,7 @@ export default function NodeCreateOrUpdate({ contextNode }: { contextNode?: z.in
 
   useEffect(() => {
     if (contextNode) {
-      form.setValues({
-        locationUuid: contextNode.location.uuid,
-        backupConfigurationUuid: contextNode.backupConfiguration?.uuid ?? null,
-        name: contextNode.name,
-        deploymentEnabled: contextNode.deploymentEnabled,
-        maintenanceEnabled: contextNode.maintenanceEnabled,
-        description: contextNode.description,
-        publicUrl: contextNode.publicUrl,
-        url: contextNode.url,
-        sftpHost: contextNode.sftpHost,
-        sftpPort: contextNode.sftpPort,
-        memory: contextNode.memory,
-        disk: contextNode.disk,
-      });
+      form.setValues(nodeToFormValues(contextNode));
       setUrlValue(contextNode.url);
     }
   }, [contextNode]);

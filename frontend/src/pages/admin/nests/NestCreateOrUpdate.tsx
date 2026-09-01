@@ -14,6 +14,7 @@ import { queryKeys } from '@/lib/queryKeys.ts';
 import { adminNestSchema, adminNestUpdateSchema } from '@/lib/schemas/admin/nests.ts';
 import { useResourceForm } from '@/plugins/useResourceForm.ts';
 import { useTranslations } from '@/providers/TranslationProvider.tsx';
+import { nestEmptyFormValues, nestToFormValues } from './nestFormValues.ts';
 
 type NestFormValues = z.infer<typeof adminNestUpdateSchema>;
 
@@ -24,11 +25,7 @@ export default function NestCreateOrUpdate({ contextNest }: { contextNest?: z.in
 
   const form = useFormEngine<NestFormValues>('admin.nests.createOrUpdate', {
     schema: adminNestUpdateSchema.unwrap(),
-    initialValues: {
-      author: '',
-      name: '',
-      description: null,
-    },
+    initialValues: nestEmptyFormValues,
     validateInputOnBlur: true,
   });
 
@@ -46,11 +43,7 @@ export default function NestCreateOrUpdate({ contextNest }: { contextNest?: z.in
 
   useEffect(() => {
     if (contextNest) {
-      form.setValues({
-        author: contextNest.author,
-        name: contextNest.name,
-        description: contextNest.description,
-      });
+      form.setValues(nestToFormValues(contextNest));
     }
   }, [contextNest]);
 

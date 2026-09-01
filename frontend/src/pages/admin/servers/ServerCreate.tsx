@@ -46,6 +46,7 @@ import { useResourceForm } from '@/plugins/useResourceForm.ts';
 import { useSearchableResource } from '@/plugins/useSearchableResource.ts';
 import { useToast } from '@/providers/ToastProvider.tsx';
 import { useTranslations } from '@/providers/TranslationProvider.tsx';
+import { serverCreateEmptyFormValues } from './serverCreateFormValues.ts';
 import {
   buildBasicInfoFields,
   buildFeatureLimitsFields,
@@ -75,40 +76,7 @@ export default function ServerCreate() {
   const form = useFormEngine<ServerCreateFormValues>('admin.servers.create', {
     schema: adminServerCreateSchema.unwrap(),
     mode: 'uncontrolled',
-    initialValues: {
-      externalId: null,
-      name: '',
-      description: null,
-      startOnCompletion: true,
-      skipInstaller: false,
-      limits: {
-        cpu: 100,
-        memory: 1024,
-        memoryOverhead: 0,
-        swap: 0,
-        disk: 10240,
-        ioWeight: null,
-      },
-      pinnedCpus: [],
-      startup: '',
-      image: '',
-      timezone: Intl.DateTimeFormat().resolvedOptions().timeZone,
-      hugepagesPassthroughEnabled: false,
-      kvmPassthroughEnabled: false,
-      featureLimits: {
-        allocations: 5,
-        databases: 5,
-        backups: 5,
-        schedules: 5,
-      },
-      nodeUuid: '',
-      ownerUuid: '',
-      eggUuid: '',
-      backupConfigurationUuid: null,
-      allocationUuid: null,
-      allocationUuids: [],
-      variables: [],
-    },
+    initialValues: serverCreateEmptyFormValues,
     onValuesChange: () => setIsValid(form.isValid()),
     validateInputOnBlur: true,
   });

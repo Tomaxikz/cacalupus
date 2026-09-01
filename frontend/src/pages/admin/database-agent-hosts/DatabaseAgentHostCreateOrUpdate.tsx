@@ -26,6 +26,7 @@ import { getUrlConnectPort, withUrlPort } from '@/lib/url.ts';
 import { useHostAction } from '@/plugins/useHostAction.ts';
 import { useResourceForm } from '@/plugins/useResourceForm.ts';
 import { useTranslations } from '@/providers/TranslationProvider.tsx';
+import { databaseAgentHostEmptyFormValues, databaseAgentHostToFormValues } from './databaseAgentHostFormValues.ts';
 
 type DatabaseAgentHostFormValues = z.infer<typeof adminDatabaseAgentHostUpdateSchema>;
 type DatabaseAgentTypeKey = keyof typeof databaseAgentTypeLabelMapping;
@@ -46,21 +47,7 @@ export default function DatabaseAgentHostCreateOrUpdate({
       ? adminDatabaseAgentHostUpdateSchema
       : adminDatabaseAgentHostCreateSchema
     ).unwrap(),
-    initialValues: {
-      name: '',
-      description: null,
-      deploymentEnabled: true,
-      maintenanceEnabled: false,
-      url: '',
-      memory: 0,
-      disk: 0,
-      types: Object.fromEntries(
-        (Object.keys(databaseAgentTypeLabelMapping) as DatabaseAgentTypeKey[]).map((type) => [
-          type,
-          { enabled: true, publicHost: null, publicPort: databaseAgentTypeDefaultPortMapping[type] },
-        ]),
-      ) as DatabaseAgentHostFormValues['types'],
-    },
+    initialValues: databaseAgentHostEmptyFormValues,
     validateInputOnBlur: true,
   });
 
@@ -87,16 +74,7 @@ export default function DatabaseAgentHostCreateOrUpdate({
 
   useEffect(() => {
     if (contextDatabaseAgentHost) {
-      form.setValues({
-        name: contextDatabaseAgentHost.name,
-        description: contextDatabaseAgentHost.description,
-        deploymentEnabled: contextDatabaseAgentHost.deploymentEnabled,
-        maintenanceEnabled: contextDatabaseAgentHost.maintenanceEnabled,
-        url: contextDatabaseAgentHost.url,
-        memory: contextDatabaseAgentHost.memory,
-        disk: contextDatabaseAgentHost.disk,
-        types: contextDatabaseAgentHost.types,
-      });
+      form.setValues(databaseAgentHostToFormValues(contextDatabaseAgentHost));
     }
   }, [contextDatabaseAgentHost]);
 

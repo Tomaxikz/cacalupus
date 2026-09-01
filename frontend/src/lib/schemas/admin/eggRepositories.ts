@@ -52,17 +52,6 @@ export const adminEggRepositoryCredentialsUpdateSchema = z.discriminatedUnion('t
   adminEggRepositoryCredentialsPrivateKeyUpdateSchema,
 ]);
 
-export type AdminEggRepositoryCredentialType = z.infer<typeof adminEggRepositoryCredentialsUpdateSchema>['type'];
-
-export const adminEggRepositoryCredentialsDefaults: Record<
-  AdminEggRepositoryCredentialType,
-  z.infer<typeof adminEggRepositoryCredentialsSchema>
-> = {
-  none: { type: 'none' },
-  password: { type: 'password', username: '', password: '' },
-  private_key: { type: 'private_key', username: 'git', privateKey: '', passphrase: null },
-};
-
 export const adminEggRepositoryUpdateSchema = z.lazy(() =>
   adminEggRepositorySchema
     .omit({

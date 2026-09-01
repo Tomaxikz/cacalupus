@@ -25,6 +25,7 @@ import { useResourceForm } from '@/plugins/useResourceForm.ts';
 import { useToast } from '@/providers/ToastProvider.tsx';
 import { useTranslations } from '@/providers/TranslationProvider.tsx';
 import { useGlobalStore } from '@/stores/global.ts';
+import { oauthProviderEmptyFormValues, oauthProviderToFormValues } from './oauthProviderFormValues.ts';
 
 type OAuthFormValues = z.infer<typeof adminOAuthProviderUpdateSchema>;
 
@@ -43,27 +44,7 @@ export default function OAuthProviderCreateOrUpdate({
   const form = useFormEngine<OAuthFormValues>('admin.oAuthProviders.createOrUpdate', {
     schema: adminOAuthProviderUpdateSchema.unwrap(),
     mode: 'uncontrolled',
-    initialValues: {
-      name: '',
-      description: null,
-      clientId: '',
-      clientSecret: '',
-      authUrl: '',
-      tokenUrl: '',
-      infoUrl: '',
-      scopes: [],
-      identifierPath: '',
-      emailPath: null,
-      usernamePath: null,
-      nameFirstPath: null,
-      nameLastPath: null,
-      enabled: true,
-      loginOnly: false,
-      loginBypassTwoFactor: false,
-      linkViewable: true,
-      userManageable: true,
-      basicAuth: false,
-    },
+    initialValues: oauthProviderEmptyFormValues,
     onValuesChange: () => setIsValid(form.isValid()),
     validateInputOnBlur: true,
   });
@@ -85,27 +66,7 @@ export default function OAuthProviderCreateOrUpdate({
 
   useEffect(() => {
     if (contextOAuthProvider) {
-      form.setValues({
-        name: contextOAuthProvider.name,
-        description: contextOAuthProvider.description,
-        clientId: contextOAuthProvider.clientId,
-        clientSecret: contextOAuthProvider.clientSecret,
-        authUrl: contextOAuthProvider.authUrl,
-        tokenUrl: contextOAuthProvider.tokenUrl,
-        infoUrl: contextOAuthProvider.infoUrl,
-        scopes: contextOAuthProvider.scopes,
-        identifierPath: contextOAuthProvider.identifierPath,
-        emailPath: contextOAuthProvider.emailPath,
-        usernamePath: contextOAuthProvider.usernamePath,
-        nameFirstPath: contextOAuthProvider.nameFirstPath,
-        nameLastPath: contextOAuthProvider.nameLastPath,
-        enabled: contextOAuthProvider.enabled,
-        loginOnly: contextOAuthProvider.loginOnly,
-        loginBypassTwoFactor: contextOAuthProvider.loginBypassTwoFactor,
-        linkViewable: contextOAuthProvider.linkViewable,
-        userManageable: contextOAuthProvider.userManageable,
-        basicAuth: contextOAuthProvider.basicAuth,
-      });
+      form.setValues(oauthProviderToFormValues(contextOAuthProvider));
     }
   }, [contextOAuthProvider]);
 
