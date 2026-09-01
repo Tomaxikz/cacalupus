@@ -6,7 +6,6 @@ import deleteDatabaseAgentHost from '@/api/admin/database-agent-hosts/deleteData
 import resetDatabaseAgentHostToken from '@/api/admin/database-agent-hosts/resetDatabaseAgentHostToken.ts';
 import testDatabaseAgentHost from '@/api/admin/database-agent-hosts/testDatabaseAgentHost.ts';
 import updateDatabaseAgentHost from '@/api/admin/database-agent-hosts/updateDatabaseAgentHost.ts';
-import { httpErrorToHuman } from '@/api/axios.ts';
 import Button from '@/elements/Button.tsx';
 import { AdminCan } from '@/elements/Can.tsx';
 import AdminContentContainer from '@/elements/containers/AdminContentContainer.tsx';
@@ -24,8 +23,8 @@ import {
   adminDatabaseAgentHostUpdateSchema,
 } from '@/lib/schemas/admin/databaseAgentHosts.ts';
 import { getUrlConnectPort, withUrlPort } from '@/lib/url.ts';
+import { useHostAction } from '@/plugins/useHostAction.ts';
 import { useResourceForm } from '@/plugins/useResourceForm.ts';
-import { useToast } from '@/providers/ToastProvider.tsx';
 import { useTranslations } from '@/providers/TranslationProvider.tsx';
 
 type DatabaseAgentHostFormValues = z.infer<typeof adminDatabaseAgentHostUpdateSchema>;
@@ -37,7 +36,6 @@ export default function DatabaseAgentHostCreateOrUpdate({
   contextDatabaseAgentHost?: z.infer<typeof adminDatabaseAgentHostSchema>;
 }) {
   const { t } = useTranslations();
-  const { addToast } = useToast();
   const queryClient = useQueryClient();
 
   const [openModal, setOpenModal] = useState<'delete' | null>(null);
@@ -102,21 +100,7 @@ export default function DatabaseAgentHostCreateOrUpdate({
     }
   }, [contextDatabaseAgentHost]);
 
-  const runHostAction = (action: (uuid: string) => Promise<unknown>, success: string, onSuccess?: () => void) => {
-    if (!contextDatabaseAgentHost) {
-      return;
-    }
-
-    setLoading(true);
-
-    action(contextDatabaseAgentHost.uuid)
-      .then(() => {
-        addToast(success, 'success');
-        onSuccess?.();
-      })
-      .catch((msg) => addToast(httpErrorToHuman(msg), 'error'))
-      .finally(() => setLoading(false));
-  };
+  const runHostAction = useHostAction(contextDatabaseAgentHost?.uuid, setLoading);
 
   const doResetToken = () =>
     runHostAction(
@@ -232,7 +216,11 @@ export default function DatabaseAgentHostCreateOrUpdate({
               {t('common.button.save', {})}
             </Button>
             {!contextDatabaseAgentHost && (
-              <Button onClick={() => doCreateOrUpdate(true)} disabled={!form.isValid()} loading={loading}>
+              <Button
+                onClick={() => doCreateOrUpdate(true, queryKeys.admin.databaseAgentHosts.all())}
+                disabled={!form.isValid()}
+                loading={loading}
+              >
                 {t('common.button.saveAndStay', {})}
               </Button>
             )}
