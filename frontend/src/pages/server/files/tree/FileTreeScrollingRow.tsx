@@ -1,4 +1,4 @@
-import { faChevronDown, faChevronRight } from '@fortawesome/free-solid-svg-icons';
+import { faCheck, faChevronDown, faChevronRight } from '@fortawesome/free-solid-svg-icons';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import classNames from 'classnames';
 import { bytesToString } from '@/lib/size.ts';
@@ -27,7 +27,7 @@ export default function FileTreeScrollingRow({
     <div
       role='treeitem'
       aria-level={row.depth + 1}
-      aria-expanded={row.entry.directory ? row.expanded : undefined}
+      aria-expanded={row.expandable ? row.expanded : undefined}
       aria-current={active ? 'true' : undefined}
       aria-selected={selected}
       data-active-file={active || undefined}
@@ -51,13 +51,15 @@ export default function FileTreeScrollingRow({
         <span
           aria-hidden='true'
           className={classNames(
-            'h-4 w-4 shrink-0 rounded border',
+            'flex h-4 w-4 shrink-0 items-center justify-center rounded border',
             selected
               ? 'border-(--mantine-primary-color-filled) bg-(--mantine-primary-color-filled)'
               : 'border-(--mantine-color-default-border)',
           )}
-        />
-        {row.entry.directory ? (
+        >
+          {selected && <FontAwesomeIcon icon={faCheck} className='text-[0.5rem] text-white' />}
+        </span>
+        {row.expandable ? (
           <FontAwesomeIcon
             icon={row.expanded ? faChevronDown : faChevronRight}
             className='w-2.5 shrink-0 text-xs text-(--mantine-color-dimmed)'
@@ -65,7 +67,7 @@ export default function FileTreeScrollingRow({
         ) : (
           <span className='w-2.5 shrink-0' />
         )}
-        <FileRowIcon file={row.entry} className='w-4 shrink-0' />
+        <FileRowIcon file={row.entry} archive={row.expandable && !row.entry.directory} className='w-4 shrink-0' />
         <FileTreeName name={row.entry.name} directory={row.entry.directory} className='flex-1' />
       </div>
       <span className='truncate text-xs text-(--mantine-color-dimmed)'>

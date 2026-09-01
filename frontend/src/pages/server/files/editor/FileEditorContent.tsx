@@ -1,6 +1,7 @@
 import { type OnMount } from '@monaco-editor/react';
 import { type EditorChangeEvent } from '@pierre/diffs/edit';
 import { RefObject } from 'react';
+import { FileEditorActionContext } from 'shared/src/registries/pages/server/files';
 import { useShallow } from 'zustand/react/shallow';
 import MonacoEditor from '@/elements/MonacoEditor.tsx';
 import PierreEditor, { type PierreEditorHandle } from '@/elements/PierreEditor.tsx';
@@ -21,6 +22,8 @@ interface FileEditorContentProps {
   blobContent: Blob;
   setBlobContent: (content: Blob) => void;
   fileName: string;
+  readOnly: boolean;
+  context?: FileEditorActionContext;
   handleContentChange: (value: string) => void;
   handlePierreChangeEvent: (event: EditorChangeEvent<undefined>) => void;
   attachPierreEditor: (editor: PierreEditorHandle) => void;
@@ -41,6 +44,8 @@ export default function FileEditorContent({
   blobContent,
   setBlobContent,
   fileName,
+  readOnly,
+  context,
   handleContentChange,
   handlePierreChangeEvent,
   attachPierreEditor,
@@ -49,26 +54,34 @@ export default function FileEditorContent({
   pierreEditorRef,
   saveShortcutRef,
 }: FileEditorContentProps) {
-  const { editorEngine, editorLineOverflow, editorFontSize, editorMinimap, browsingWritableDirectory } = useFileManager(
+  const { editorEngine, editorLineOverflow, editorFontSize, editorMinimap } = useFileManager(
     useShallow((state) => ({
       editorEngine: state.editorEngine,
       editorLineOverflow: state.editorLineOverflow,
       editorFontSize: state.editorFontSize,
       editorMinimap: state.editorMinimap,
-      browsingWritableDirectory: state.browsingWritableDirectory,
     })),
   );
 
   return (
     <div ref={containerRef} className='flex max-w-full w-full z-1 absolute'>
       {matchedFileEditorAction?.contentType === 'string' ? (
-        <matchedFileEditorAction.content content={content} setContent={setContent} dirty={dirty} setDirty={setDirty} />
+        <matchedFileEditorAction.content
+          content={content}
+          setContent={setContent}
+          dirty={dirty}
+          setDirty={setDirty}
+          readOnly={readOnly}
+          context={context}
+        />
       ) : matchedFileEditorAction?.contentType === 'blob' ? (
         <matchedFileEditorAction.content
           content={blobContent}
           setContent={setBlobContent}
           dirty={dirty}
           setDirty={setDirty}
+          readOnly={readOnly}
+          context={context}
         />
       ) : action === 'image' ? (
         <FileImagePreview src={content} name={fileName} />
@@ -80,7 +93,7 @@ export default function FileEditorContent({
           width='100%'
           path={fileName}
           defaultValue={content}
-          readOnly={!browsingWritableDirectory}
+          readOnly={readOnly}
           wordWrap={editorLineOverflow}
           fontSize={editorFontSize}
           onChange={handleContentChange}
@@ -97,7 +110,7 @@ export default function FileEditorContent({
           defaultValue={content}
           path={fileName}
           options={{
-            readOnly: !browsingWritableDirectory,
+            readOnly,
             stickyScroll: { enabled: false },
             minimap: { enabled: editorMinimap },
             wordWrap: editorLineOverflow ? 'on' : 'off',

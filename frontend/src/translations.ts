@@ -1457,6 +1457,9 @@ const baseTranslations = defineTranslations({
             renameFile: 'Rename file',
             deselectAll: 'Deselect all files',
             deleteFiles: 'Delete selected files',
+            closeEditorTab: 'Close the active editor tab',
+            nextEditorTab: 'Next editor tab',
+            previousEditorTab: 'Previous editor tab',
           },
           table: {
             title: 'Table Navigation',
@@ -4886,6 +4889,7 @@ const baseTranslations = defineTranslations({
           },
           searchBanner: {
             resultsTitle: 'Search Results ({files} found)',
+            root: 'Root:',
             query: 'Query:',
             excluded: 'Excluded:',
             content: 'Content:',

@@ -79,7 +79,9 @@ export default function FileTreeEditorTabs({
               aria-selected={active}
               tabIndex={active ? 0 : -1}
               onClick={() => onSelect(tabId)}
-              className='flex min-w-0 flex-1 items-center gap-2 overflow-hidden py-2 pl-4! text-sm'
+              // Not overflow-hidden: that clips the virtual-file badge on the icon, and the tab
+              // itself already clips, with min-w-0 keeping the name truncating.
+              className='flex min-w-0 flex-1 items-center gap-2 py-2 pl-4! text-sm'
             >
               <FileRowIcon file={tab.file} className='w-4 shrink-0' />
               <FileTreeName name={tab.file.name} className='flex-1' />

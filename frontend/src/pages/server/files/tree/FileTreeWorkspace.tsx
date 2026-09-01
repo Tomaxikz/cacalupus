@@ -1,6 +1,7 @@
 import { join } from 'pathe';
 import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
 import { useNavigate, useSearchParams } from 'react-router';
+import loadDirectory from '@/api/server/files/loadDirectory.ts';
 import ConfirmationModal from '@/elements/modals/ConfirmationModal.tsx';
 import { isOpenableFile } from '@/lib/files/files.ts';
 import FileTree from '@/pages/server/files/tree/FileTree.tsx';
@@ -22,7 +23,9 @@ import {
   storeFileTreeWorkspace,
 } from '@/pages/server/files/tree/fileTreeWorkspaceState.ts';
 import useFileTreeEditorShortcuts from '@/pages/server/files/tree/useFileTreeEditorShortcuts.ts';
+import { useContainerAutoHeight } from '@/plugins/useContainerAutoHeight.ts';
 import { useServerCan } from '@/plugins/usePermissions.ts';
+import { useCurrentWindow } from '@/providers/CurrentWindowProvider.tsx';
 import { useToast } from '@/providers/ToastProvider.tsx';
 import { useTranslations } from '@/providers/TranslationProvider.tsx';
 import { useFileManagerApi } from '@/stores/fileManager.ts';
@@ -51,6 +54,8 @@ export default function FileTreeWorkspace({
   const server = useServerStore((state) => state.server);
   const canReadContent = useServerCan('files.read-content');
   const store = useFileManagerApi();
+  const workspaceRef = useRef<HTMLDivElement>(null);
+  const { getParent } = useCurrentWindow();
   const [workspace, setWorkspace] = useState<FileTreeEditorWorkspaceState>(() => restoreFileTreeWorkspace(server.uuid));
   const [dirtyTabIds, setDirtyTabIds] = useState(() => new Set<string>());
   const draftContentsRef = useRef(new Map<string, string>());
@@ -64,6 +69,58 @@ export default function FileTreeWorkspace({
   const activeSelection = (activePane?.activeTabId && tabsById.get(activePane.activeTabId)) || null;
 
   useEffect(() => storeFileTreeWorkspace(server.uuid, workspace), [server.uuid, workspace]);
+
+  // The CSS fallback guesses how much page chrome sits above the workspace; measure it instead so
+  // the panes end exactly at the viewport bottom rather than pushing the page into a short scroll.
+  useContainerAutoHeight({
+    containerRef: workspaceRef,
+    loading: false,
+    getParent,
+    layout: () => undefined,
+    cssVariable: '--file-manager-workspace-height',
+    useVisualViewportInset: true,
+    deps: [getParent],
+  });
+
+  // Restored tabs carry writable/primary snapshots from when they were opened; verify them against the
+  // live filesystem once per mount (the component is keyed by server uuid).
+  useEffect(() => {
+    const directories = new Set(workspace.tabs.map((tab) => tab.directory));
+    if (directories.size === 0) return;
+
+    let cancelled = false;
+    for (const directory of directories) {
+      // Loaded directly rather than through the query cache: the list view holds this directory
+      // under an infinite query, and writing a single page under that key breaks its pagination.
+      loadDirectory(server.uuid, directory, 1, 'name_asc')
+        .then((response) => {
+          if (cancelled) return;
+
+          setWorkspace((current) => {
+            const stale = current.tabs.some(
+              (tab) =>
+                tab.directory === directory &&
+                (tab.writable !== response.isFilesystemWritable || tab.primary !== response.isFilesystemPrimary),
+            );
+            if (!stale) return current;
+
+            return {
+              ...current,
+              tabs: current.tabs.map((tab) =>
+                tab.directory === directory
+                  ? { ...tab, writable: response.isFilesystemWritable, primary: response.isFilesystemPrimary }
+                  : tab,
+              ),
+            };
+          });
+        })
+        .catch(() => undefined);
+    }
+
+    return () => {
+      cancelled = true;
+    };
+  }, []);
 
   useEffect(() => {
     store.getState().doSelectFiles([]);
@@ -376,66 +433,74 @@ export default function FileTreeWorkspace({
 
   return (
     <>
-      <div data-file-manager-workspace className='w-full max-w-none self-stretch overflow-x-auto overflow-y-hidden'>
+      {/* The workspace is measured to the viewport bottom, so it is taken out of flow like the file
+          editor's - left in it, its full height would push the page into a permanent short scroll. */}
+      <div className='relative w-full min-w-0 self-stretch'>
         <div
-          data-file-manager-workspace-grid
-          data-file-manager-tree-visible={fileTreeVisible}
-          className='file-manager-workspace-grid'
+          ref={workspaceRef}
+          data-file-manager-workspace
+          className='absolute inset-x-0 top-0 max-w-none overflow-x-auto overflow-y-hidden'
         >
           <div
-            data-file-manager-tree-shell
-            data-file-manager-tree-collapsed={!fileTreeVisible}
-            className={`file-manager-tree-shell h-(--file-manager-workspace-height) min-h-(--file-manager-workspace-min-height) min-w-0 overflow-hidden transition-[width] duration-[180ms] [transition-timing-function:ease] motion-reduce:transition-none max-[47.999rem]:w-full ${
-              fileTreeVisible
-                ? 'w-(--file-manager-tree-width)'
-                : 'w-(--file-manager-tree-collapsed-width) max-[47.999rem]:h-11 max-[47.999rem]:min-h-11'
-            }`}
+            data-file-manager-workspace-grid
+            data-file-manager-tree-visible={fileTreeVisible}
+            className='file-manager-workspace-grid'
           >
-            <FileTree
-              activePath={activeSelection ? join(activeSelection.directory, activeSelection.file.name) : null}
-              initialDirectory={initialDirectory}
-              collapsed={!fileTreeVisible}
-              onToggleCollapsed={onToggleFileTree}
-              onOpenFile={openFile}
+            <div
+              data-file-manager-tree-shell
+              data-file-manager-tree-collapsed={!fileTreeVisible}
+              className={`file-manager-tree-shell h-(--file-manager-workspace-height) min-h-(--file-manager-workspace-min-height) min-w-0 overflow-hidden transition-[width] duration-[180ms] [transition-timing-function:ease] motion-reduce:transition-none max-[47.999rem]:w-full ${
+                fileTreeVisible
+                  ? 'w-(--file-manager-tree-width)'
+                  : 'w-(--file-manager-tree-collapsed-width) max-[47.999rem]:h-11 max-[47.999rem]:min-h-11'
+              }`}
+            >
+              <FileTree
+                activePath={activeSelection ? join(activeSelection.directory, activeSelection.file.name) : null}
+                initialDirectory={initialDirectory}
+                collapsed={!fileTreeVisible}
+                onToggleCollapsed={onToggleFileTree}
+                onOpenFile={openFile}
+              />
+            </div>
+            <FileTreeEditorSplit
+              panes={workspace.panes}
+              activePaneId={workspace.activePaneId}
+              dropLabel={t('pages.server.files.tree.dropToSplit', {})}
+              resizeLabel={t('pages.server.files.tree.resizeEditorPanes', {})}
+              onActivatePane={(paneId) => setWorkspace((current) => ({ ...current, activePaneId: paneId }))}
+              onDrop={handleEditorDrop}
+              onResize={resizePanes}
+              renderPane={(pane, paneIndex) => {
+                const paneTabs = pane.tabIds.flatMap((tabId) => {
+                  const tab = tabsById.get(tabId);
+                  return tab ? [tab] : [];
+                });
+                const selection = (pane.activeTabId && tabsById.get(pane.activeTabId)) || null;
+
+                return (
+                  <FileTreeEditorPane
+                    key={`${pane.id}:${pane.activeTabId ?? 'empty'}`}
+                    paneId={pane.id}
+                    paneIndex={paneIndex}
+                    paneCount={workspace.panes.length}
+                    active={pane.id === workspace.activePaneId}
+                    tabs={paneTabs}
+                    activeTabId={pane.activeTabId}
+                    dirtyTabIds={dirtyTabIds}
+                    selection={selection}
+                    draftContent={pane.activeTabId ? draftContentsRef.current.get(pane.activeTabId) : undefined}
+                    onSelectTab={(tabId) => requestSelectTab(pane.id, tabId)}
+                    onCloseTab={(tabId) => requestCloseTab(pane.id, tabId)}
+                    onClose={() => pane.activeTabId && requestCloseTab(pane.id, pane.activeTabId)}
+                    onMissing={(tabId) => commitCloseTab(pane.id, tabId)}
+                    onDirtyChange={handleDirtyChange}
+                    onDraftChange={handleDraftChange}
+                  />
+                );
+              }}
             />
           </div>
-          <FileTreeEditorSplit
-            panes={workspace.panes}
-            activePaneId={workspace.activePaneId}
-            dropLabel={t('pages.server.files.tree.dropToSplit', {})}
-            resizeLabel={t('pages.server.files.tree.resizeEditorPanes', {})}
-            onActivatePane={(paneId) => setWorkspace((current) => ({ ...current, activePaneId: paneId }))}
-            onDrop={handleEditorDrop}
-            onResize={resizePanes}
-            renderPane={(pane, paneIndex) => {
-              const paneTabs = pane.tabIds.flatMap((tabId) => {
-                const tab = tabsById.get(tabId);
-                return tab ? [tab] : [];
-              });
-              const selection = (pane.activeTabId && tabsById.get(pane.activeTabId)) || null;
-
-              return (
-                <FileTreeEditorPane
-                  key={`${pane.id}:${pane.activeTabId ?? 'empty'}`}
-                  paneId={pane.id}
-                  paneIndex={paneIndex}
-                  paneCount={workspace.panes.length}
-                  active={pane.id === workspace.activePaneId}
-                  tabs={paneTabs}
-                  activeTabId={pane.activeTabId}
-                  dirtyTabIds={dirtyTabIds}
-                  selection={selection}
-                  draftContent={pane.activeTabId ? draftContentsRef.current.get(pane.activeTabId) : undefined}
-                  onSelectTab={(tabId) => requestSelectTab(pane.id, tabId)}
-                  onCloseTab={(tabId) => requestCloseTab(pane.id, tabId)}
-                  onClose={() => pane.activeTabId && requestCloseTab(pane.id, pane.activeTabId)}
-                  onMissing={(tabId) => commitCloseTab(pane.id, tabId)}
-                  onDirtyChange={handleDirtyChange}
-                  onDraftChange={handleDraftChange}
-                />
-              );
-            }}
-          />
         </div>
       </div>
 

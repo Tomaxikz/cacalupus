@@ -87,6 +87,8 @@ export default function QuickActionsPalette() {
 }
 
 function Palette() {
+  'use no memo';
+
   const { t } = useTranslations();
   const navigate = useNavigate();
   const { user } = useAuth();
@@ -98,8 +100,7 @@ function Palette() {
   const setQuery = useQuickActionsStore((state) => state.setQuery);
   const actionProviders = useQuickActionsStore((state) => state.actions);
   const modeProviders = useQuickActionsStore((state) => state.modes);
-  // Subscribed purely to repaint when a provider's host re-renders; providers are read lazily below.
-  useQuickActionsStore((state) => state.revision);
+  const revision = useQuickActionsStore((state) => state.revision);
   const userRouteOrder = useGlobalStore((state) => state.settings.user?.routeOrder);
   const [showOthers] = useServerListShowOthers();
 
@@ -206,7 +207,7 @@ function Palette() {
             definition.perform();
           },
         })),
-    [coreDefinitions, actionProviders, scope, user, canServer, setOpen],
+    [coreDefinitions, actionProviders, scope, user, canServer, setOpen, open, revision],
   );
 
   const navItems: QuickActionItem[] = useMemo(() => {

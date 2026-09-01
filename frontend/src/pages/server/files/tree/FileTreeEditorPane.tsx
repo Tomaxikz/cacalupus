@@ -36,6 +36,7 @@ import { FileAudioPreview, FileImagePreview } from '@/pages/server/files/editor/
 import FileSqliteQuery from '@/pages/server/files/editor/FileSqliteQuery.tsx';
 import { findFileEditorAction } from '@/pages/server/files/editor/useFileEditorPresentation.ts';
 import useFileCollab from '@/pages/server/files/hooks/useFileCollab.ts';
+import FileEditorConflictDiffModal from '@/pages/server/files/modals/FileEditorConflictDiffModal.tsx';
 import FileTreeEditorTabs from '@/pages/server/files/tree/FileTreeEditorTabs.tsx';
 import { FileTreeEditorSelection } from '@/pages/server/files/tree/fileTreeEditor.ts';
 import { useServerCan } from '@/plugins/usePermissions.ts';
@@ -99,6 +100,9 @@ export default function FileTreeEditorPane({
   const [dirty, setDirty] = useState(draftContent !== undefined);
   const [revertConfirm, setRevertConfirm] = useState(false);
   const [revisionsOpen, setRevisionsOpen] = useState(false);
+  const [conflictDiffOpen, setConflictDiffOpen] = useState(false);
+  const [conflictDiskContent, setConflictDiskContent] = useState<string | null>(null);
+  const [conflictModifiedContent, setConflictModifiedContent] = useState('');
   const [content, setContent] = useState('');
   const [blobContent, setBlobContent] = useState(new Blob());
   const contentRef = useRef('');
@@ -110,6 +114,7 @@ export default function FileTreeEditorPane({
   const collabActiveRef = useRef(false);
   const collabSavingRef = useRef(false);
   const collabSaveTimerRef = useRef<number | null>(null);
+  const conflictModelsRef = useRef<{ dispose: () => void }[]>([]);
 
   useEffect(() => {
     onMissingRef.current = onMissing;
@@ -170,7 +175,8 @@ export default function FileTreeEditorPane({
       addToast(message, 'error');
     },
   });
-  const canSave = !!selection && editableText && selection.writable && (collab.active ? canUpdate : canCreate);
+  const contentWritable = !!selection && selection.writable && (collab.active ? canUpdate : canCreate);
+  const canSave = contentWritable && editableText;
 
   useEffect(() => {
     collabActiveRef.current = collab.active;
@@ -239,9 +245,15 @@ export default function FileTreeEditorPane({
   useEffect(
     () => () => {
       if (collabSaveTimerRef.current) window.clearTimeout(collabSaveTimerRef.current);
+      conflictModelsRef.current.forEach((model) => model.dispose());
+      conflictModelsRef.current = [];
     },
     [],
   );
+
+  useEffect(() => {
+    if (!collab.conflict) setConflictDiffOpen(false);
+  }, [collab.conflict]);
 
   const updateContent = (value: string) => {
     const changed = collabActiveRef.current ? true : value !== savedContentRef.current;
@@ -296,6 +308,20 @@ export default function FileTreeEditorPane({
   useEffect(() => {
     saveRef.current = () => void save();
   }, [save]);
+
+  const openConflictDiff = () => {
+    setConflictModifiedContent(contentRef.current);
+    setConflictDiskContent(null);
+    setConflictDiffOpen(true);
+
+    getFileContent(server.uuid, filePath)
+      .then((blob) => blob.text())
+      .then((text) => setConflictDiskContent(text))
+      .catch((error) => {
+        setConflictDiffOpen(false);
+        reportFileError(error);
+      });
+  };
 
   const revertToDisk = async () => {
     if (!selection) return;
@@ -446,13 +472,12 @@ export default function FileTreeEditorPane({
               </span>
               <Group gap='xs'>
                 {!collab.conflict.deleted && (
-                  <Button
-                    size='xs'
-                    variant='default'
-                    onClick={() => {
-                      collab.reload();
-                    }}
-                  >
+                  <Button size='xs' variant='default' onClick={openConflictDiff}>
+                    {t('pages.server.files.button.viewDiff', {})}
+                  </Button>
+                )}
+                {canUpdate && !collab.conflict.deleted && (
+                  <Button size='xs' variant='default' onClick={() => setRevertConfirm(true)}>
                     <FontAwesomeIcon icon={faArrowsRotate} className='mr-2' />
                     {t('pages.server.files.button.loadDisk', {})}
                   </Button>
@@ -493,6 +518,7 @@ export default function FileTreeEditorPane({
               setContent={updateContent}
               dirty={dirty}
               setDirty={setDirty}
+              readOnly={!contentWritable}
               context={editorContext}
             />
           ) : matchedAction?.contentType === 'blob' ? (
@@ -501,6 +527,7 @@ export default function FileTreeEditorPane({
               setContent={setBlobContent}
               dirty={dirty}
               setDirty={setDirty}
+              readOnly={!contentWritable}
               context={editorContext}
             />
           ) : selection.action === 'image' && content ? (
@@ -554,6 +581,24 @@ export default function FileTreeEditorPane({
           )}
         </div>
       </div>
+
+      <FileEditorConflictDiffModal
+        opened={conflictDiffOpen}
+        onClose={() => setConflictDiffOpen(false)}
+        conflictDiskContent={conflictDiskContent}
+        conflictModifiedContent={conflictModifiedContent}
+        fileName={selection.file.name}
+        getEditorValue={() => contentRef.current}
+        conflictModelsRef={conflictModelsRef}
+        onKeepEditor={() => {
+          setConflictDiffOpen(false);
+          beginCollabSave(true);
+        }}
+        onLoadDisk={() => {
+          setConflictDiffOpen(false);
+          setRevertConfirm(true);
+        }}
+      />
 
       <ConfirmationModal
         title={t('pages.server.files.modal.revertToDisk.title', {})}

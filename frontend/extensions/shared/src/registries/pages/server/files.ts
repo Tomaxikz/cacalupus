@@ -58,6 +58,7 @@ export interface FileEditorStringContentProps {
   setContent: (content: string) => void;
   dirty: boolean;
   setDirty: (dirty: boolean) => void;
+  readOnly?: boolean;
   context?: FileEditorActionContext;
 }
 
@@ -66,6 +67,7 @@ export interface FileEditorBlobContentProps {
   setContent: (content: Blob) => void;
   dirty: boolean;
   setDirty: (dirty: boolean) => void;
+  readOnly?: boolean;
   context?: FileEditorActionContext;
 }
 

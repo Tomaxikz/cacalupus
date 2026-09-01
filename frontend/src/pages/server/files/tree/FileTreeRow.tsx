@@ -1,7 +1,7 @@
 import { faChevronDown, faChevronRight, faEllipsis } from '@fortawesome/free-solid-svg-icons';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import classNames from 'classnames';
-import { memo, useEffect, useMemo } from 'react';
+import { memo, useEffect, useMemo, useRef } from 'react';
 import ActionIcon from '@/elements/ActionIcon.tsx';
 import Checkbox from '@/elements/input/Checkbox.tsx';
 import FormattedTimestamp from '@/elements/time/FormattedTimestamp.tsx';
@@ -11,7 +11,7 @@ import FileRowContextMenu from '@/pages/server/files/list/FileRowContextMenu.tsx
 import FileRowIcon from '@/pages/server/files/list/FileRowIcon.tsx';
 import FileTreeName from '@/pages/server/files/tree/FileTreeName.tsx';
 import { useTranslations } from '@/providers/TranslationProvider.tsx';
-import { useFileManagerApi } from '@/stores/fileManager.ts';
+import { useFileManagerApi, useFileManagerStore } from '@/stores/fileManager.ts';
 import { FileTreeRow as FileTreeRowData, TreeSelectionItem } from './fileTreeData.ts';
 
 type EntryRow = Extract<FileTreeRowData, { type: 'entry' }>;
@@ -34,6 +34,7 @@ interface FileTreeRowProps {
   openMassMenu: (x: number, y: number) => void;
   onOpenContextMenu: (item: TreeSelectionItem, x: number, y: number) => void;
   onOpen: (item: TreeSelectionItem) => void;
+  onSelect: (item: TreeSelectionItem) => void;
   onToggleSelection: (item: TreeSelectionItem) => void;
   onStartDrag: (event: React.DragEvent, item: TreeSelectionItem) => void;
   onDragEnd: () => void;
@@ -65,12 +66,24 @@ function FileTreeRow({
   openMassMenu,
   onOpenContextMenu,
   onOpen,
+  onSelect,
   onToggleSelection,
   onStartDrag,
   onDragEnd,
 }: FileTreeRowProps) {
   const { t } = useTranslations();
   const store = useFileManagerApi();
+  const anyActing = useFileManagerStore((state) => state.actingFiles.size > 0);
+  const clickOnce = useFileManagerStore((state) => state.clickOnce);
+  const clickCount = useRef(0);
+  const clickTimer = useRef<ReturnType<typeof setTimeout> | null>(null);
+
+  useEffect(
+    () => () => {
+      if (clickTimer.current) clearTimeout(clickTimer.current);
+    },
+    [],
+  );
   const openMode = useMemo(
     () =>
       isOpenableFile(row.entry, {
@@ -81,7 +94,28 @@ function FileTreeRow({
       }),
     [parentFast, parentWritable, row.entry, row.parent, store],
   );
-  const canDrag = (canUpdateFiles && parentWritable && !moving) || (!row.entry.directory && openMode.openable);
+  const canDrag =
+    (canUpdateFiles && parentWritable && !moving && !anyActing) || (!row.entry.directory && openMode.openable);
+
+  const handleClick = (event: React.MouseEvent) => {
+    if (clickOnce) {
+      onOpen(item);
+      return;
+    }
+
+    clickCount.current += 1;
+    if (clickTimer.current) return;
+
+    if (event.ctrlKey || event.metaKey) onToggleSelection(item);
+    else onSelect(item);
+
+    clickTimer.current = setTimeout(() => {
+      if (clickCount.current >= 2) onOpen(item);
+
+      clickCount.current = 0;
+      clickTimer.current = null;
+    }, 250);
+  };
 
   const prepareFileManager = () => {
     const state = store.getState();
@@ -101,7 +135,7 @@ function FileTreeRow({
         role='treeitem'
         tabIndex={0}
         aria-level={row.depth + 1}
-        aria-expanded={row.entry.directory ? row.expanded : undefined}
+        aria-expanded={row.expandable ? row.expanded : undefined}
         aria-current={active ? 'true' : undefined}
         aria-selected={selected}
         data-active-file={active || undefined}
@@ -109,7 +143,7 @@ function FileTreeRow({
         data-file-tree-directory={row.entry.directory ? row.path : undefined}
         data-file-tree-drop-target={row.entry.directory ? row.path : row.parent}
         data-file-tree-drop-writable={String(row.entry.directory ? directoryWritable : parentWritable)}
-        onClick={() => onOpen(item)}
+        onClick={handleClick}
         onContextMenu={(event) => {
           event.preventDefault();
           event.stopPropagation();
@@ -122,7 +156,8 @@ function FileTreeRow({
           onOpen(item);
         }}
         className={classNames(
-          'grid w-full cursor-pointer grid-cols-(--file-manager-tree-columns) items-center gap-x-2 text-left text-sm [contain:layout_paint] hover:bg-(--mantine-color-default-hover)! focus-visible:outline-2 focus-visible:outline-(--mantine-primary-color-filled)',
+          'grid w-full select-none grid-cols-(--file-manager-tree-columns) items-center gap-x-2 text-left text-sm [contain:layout_paint] hover:bg-(--mantine-color-default-hover)! focus-visible:outline-2 focus-visible:outline-(--mantine-primary-color-filled)',
+          clickOnce && openMode.openable && 'cursor-pointer',
           dragged && 'opacity-60',
         )}
         style={{
@@ -155,14 +190,30 @@ function FileTreeRow({
             onChange={() => onToggleSelection(item)}
             onClick={(event) => event.stopPropagation()}
             onMouseDown={(event) => event.stopPropagation()}
-            onKeyDown={(event) => event.stopPropagation()}
+            onKeyDown={(event) => {
+              // Only swallow the keys the row itself acts on; anything else has to reach the
+              // window so file manager shortcuts still work while a checkbox holds focus.
+              if (event.key === 'Enter' || event.key === ' ') event.stopPropagation();
+            }}
           />
 
-          {row.entry.directory ? (
-            <FontAwesomeIcon
-              icon={row.expanded ? faChevronDown : faChevronRight}
-              className='w-2.5 shrink-0 text-xs text-(--mantine-color-dimmed)'
-            />
+          {row.expandable ? (
+            <span
+              aria-hidden='true'
+              // The chevron is the expand affordance itself, so it toggles on a single click even
+              // when the row is waiting for a double one.
+              onClick={(event) => {
+                event.stopPropagation();
+                onOpen(item);
+              }}
+              onMouseDown={(event) => event.stopPropagation()}
+              className='shrink-0 cursor-pointer'
+            >
+              <FontAwesomeIcon
+                icon={row.expanded ? faChevronDown : faChevronRight}
+                className='w-2.5 text-xs text-(--mantine-color-dimmed)'
+              />
+            </span>
           ) : (
             <span className='w-2.5 shrink-0' />
           )}
@@ -175,7 +226,12 @@ function FileTreeRow({
             onDragEnd={onDragEnd}
             className={classNames('flex min-w-0 items-center gap-2', canDrag && 'cursor-grab active:cursor-grabbing')}
           >
-            <FileRowIcon file={row.entry} openable={openMode.openable} className='w-4 shrink-0' />
+            <FileRowIcon
+              file={row.entry}
+              openable={openMode.openable}
+              archive={row.expandable && !row.entry.directory}
+              className='w-4 shrink-0'
+            />
             <FileTreeName name={row.entry.name} directory={row.entry.directory} className='flex-1' />
           </span>
         </div>

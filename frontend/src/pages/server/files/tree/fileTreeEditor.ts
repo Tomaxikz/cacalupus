@@ -36,6 +36,7 @@ const editorDragItemSchema = z.object({
     path: z.string(),
     parent: z.string(),
     entry: serverDirectoryEntrySchema,
+    expandable: z.boolean(),
   }),
   capabilities: z.object({
     primary: z.boolean(),

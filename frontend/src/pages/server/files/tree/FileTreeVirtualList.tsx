@@ -30,11 +30,13 @@ interface FileTreeVirtualListProps {
   openMassMenu: (x: number, y: number) => void;
   headerRef: RefObject<HTMLDivElement | null>;
   viewportRef: RefObject<HTMLDivElement | null>;
+  scrollToRowRef: RefObject<((index: number) => void) | null>;
   getDirectoryCapabilities: (path: string) => TreeDirectoryCapabilities;
   isDirectoryWritable: (path: string, parent: string, virtual: boolean) => boolean;
   onSelectedStart: (event: React.MouseEvent | MouseEvent) => void;
   onSelected: (items: TreeSelectionItem[]) => void;
   onOpen: (item: TreeSelectionItem) => void;
+  onSelect: (item: TreeSelectionItem) => void;
   onToggleSelection: (item: TreeSelectionItem) => void;
   onStartDrag: (event: React.DragEvent, item: TreeSelectionItem) => void;
   onDragEnd: () => void;
@@ -79,11 +81,13 @@ export default function FileTreeVirtualList({
   openMassMenu,
   headerRef,
   viewportRef,
+  scrollToRowRef,
   getDirectoryCapabilities,
   isDirectoryWritable,
   onSelectedStart,
   onSelected,
   onOpen,
+  onSelect,
   onToggleSelection,
   onStartDrag,
   onDragEnd,
@@ -145,6 +149,15 @@ export default function FileTreeVirtualList({
     () => virtualizer.getVirtualItems(),
   );
   const scrolling = virtualizer.isScrolling;
+
+  useEffect(() => {
+    scrollToRowRef.current = (index: number) => virtualizer.scrollToIndex(index, { align: 'auto' });
+
+    return () => {
+      scrollToRowRef.current = null;
+    };
+  }, [scrollToRowRef, virtualizer]);
+
   const setSizeContainer = useCallback((node: HTMLDivElement | null) => virtualizer.containerRef(node), [virtualizer]);
 
   return (
@@ -265,6 +278,7 @@ export default function FileTreeVirtualList({
                         openMassMenu={openMassMenu}
                         onOpenContextMenu={openRowContextMenu}
                         onOpen={onOpen}
+                        onSelect={onSelect}
                         onToggleSelection={onToggleSelection}
                         onStartDrag={onStartDrag}
                         onDragEnd={onDragEnd}

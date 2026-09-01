@@ -84,7 +84,7 @@ export default function FileSearchModal({ ...props }: ModalProps) {
       const entries = await searchFiles(server.uuid, { root: browsingDirectory, ...searchFilters });
       startTransition(() => {
         setBrowsingEntries({ total: entries.length, page: 1, perPage: entries.length, data: entries });
-        setSearchInfo({ query, filters: searchFilters });
+        setSearchInfo({ query, root: browsingDirectory, filters: searchFilters });
         doSelectFiles([]);
         clearActingFiles();
       });

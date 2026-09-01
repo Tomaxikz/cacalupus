@@ -1,4 +1,5 @@
 import { useEffect } from 'react';
+import { matchesShortcut } from '@/plugins/useKeyboardShortcuts.ts';
 
 interface FileTreeEditorShortcutsOptions {
   tabIds: string[];
@@ -23,24 +24,26 @@ export default function useFileTreeEditorShortcuts({
     };
 
     const onKeyDown = (event: KeyboardEvent) => {
-      const modifier = event.ctrlKey || event.metaKey;
-      if (!modifier || event.altKey) return;
+      if (matchesShortcut(event, 'files.closeEditorTab')) {
+        if (!activeTabId) return;
 
-      const key = event.key.toLowerCase();
-      if (key === 'w' && activeTabId) {
         event.preventDefault();
         onClose(activeTabId);
         return;
       }
 
-      if (key === 'tab' || key === 'pagedown' || key === 'pageup') {
-        const backwards = event.shiftKey || key === 'pageup';
+      const modifier = event.ctrlKey || event.metaKey;
+      const key = event.key.toLowerCase();
+      const pageJump = modifier && !event.altKey && (key === 'pageup' || key === 'pagedown');
+      const previous = matchesShortcut(event, 'files.previousEditorTab');
+
+      if (previous || pageJump || matchesShortcut(event, 'files.nextEditorTab')) {
         if (tabIds.length > 0) event.preventDefault();
-        selectRelative(backwards ? -1 : 1);
+        selectRelative(previous || key === 'pageup' ? -1 : 1);
         return;
       }
 
-      if (!event.shiftKey && /^[1-9]$/.test(key) && tabIds.length > 0) {
+      if (modifier && !event.altKey && !event.shiftKey && /^[1-9]$/.test(key) && tabIds.length > 0) {
         const requestedIndex = Number(key) - 1;
         const index = requestedIndex === 8 ? tabIds.length - 1 : Math.min(requestedIndex, tabIds.length - 1);
         event.preventDefault();

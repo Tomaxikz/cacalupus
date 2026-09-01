@@ -1,8 +1,9 @@
-import { faFileCirclePlus, faFolderPlus } from '@fortawesome/free-solid-svg-icons';
-import { dirname, join, resolve } from 'pathe';
+import { faFileCirclePlus, faFolderPlus, faLink } from '@fortawesome/free-solid-svg-icons';
+import { dirname, resolve } from 'pathe';
 import { memo, useCallback, useEffect, useMemo, useRef, useState } from 'react';
 import { createSearchParams, useNavigate, useSearchParams } from 'react-router';
 import { httpErrorToHuman } from '@/api/axios.ts';
+import copyFile from '@/api/server/files/copyFile.ts';
 import loadDirectory from '@/api/server/files/loadDirectory.ts';
 import searchFiles from '@/api/server/files/searchFiles.ts';
 import Card from '@/elements/Card.tsx';
@@ -25,11 +26,13 @@ import {
   identifyTreeItem,
   isExternalFileDrag,
   ROOT_DIRECTORY,
+  searchRow,
   TREE_ROW_HEIGHT,
   TreeDirectoryCapabilities,
   TreeSelectionItem,
 } from '@/pages/server/files/tree/fileTreeData.ts';
 import { setFileTreeEditorDragData } from '@/pages/server/files/tree/fileTreeEditor.ts';
+import { isInputFocused, matchesActiveShortcut, useKeyboardShortcuts } from '@/plugins/useKeyboardShortcuts.ts';
 import { useServerCan } from '@/plugins/usePermissions.ts';
 import { useSelectionArea } from '@/plugins/useSelectionArea.ts';
 import useWebsocketEvent, { SocketEvent } from '@/plugins/useWebsocketEvent.ts';
@@ -37,6 +40,7 @@ import { useToast } from '@/providers/ToastProvider.tsx';
 import { useTranslations } from '@/providers/TranslationProvider.tsx';
 import { useFileManagerApi, useFileManagerStore } from '@/stores/fileManager.ts';
 import { useServerStore } from '@/stores/server.ts';
+import { fileManagerUndoScope, runLastUndoEntry } from '@/stores/undoHistory.ts';
 
 function FileTree({ onOpenFile, activePath, initialDirectory, collapsed, onToggleCollapsed }: FileTreeProps) {
   const { t } = useTranslations();
@@ -48,14 +52,20 @@ function FileTree({ onOpenFile, activePath, initialDirectory, collapsed, onToggl
   const canUpdateFiles = useServerCan('files.update');
   const store = useFileManagerApi();
   const preferPhysicalSize = useFileManagerStore((state) => state.preferPhysicalSize);
+  const modalSearchInfo = useFileManagerStore((state) => state.searchInfo);
+  const modalSearchEntries = useFileManagerStore((state) => (state.searchInfo ? state.browsingEntries : null));
   const treeRef = useRef<HTMLDivElement>(null);
   const headerRef = useRef<HTMLDivElement>(null);
+  const typeAheadBuffer = useRef('');
+  const typeAheadTimeout = useRef<ReturnType<typeof setTimeout>>(null);
   const viewportRef = useRef<HTMLDivElement>(null);
+  const scrollToRowRef = useRef<((index: number) => void) | null>(null);
   const activeServerRef = useRef(server.uuid);
   const loadingDirectoriesRef = useRef(new Set<string>());
   const directoriesRef = useRef<Record<string, DirectoryState>>({});
   const expandedDirectoriesRef = useRef(new Set<string>());
   const selectedPathsRef = useRef(new Set<string>());
+  const syncingStoreSelectionRef = useRef(false);
   const itemsByPathRef = useRef(new Map<string, TreeSelectionItem>());
   const highlightedDropTargetRef = useRef<{ element: HTMLElement; target: string } | null>(null);
   const clearDropTargetTimerRef = useRef<number | null>(null);
@@ -219,7 +229,9 @@ function FileTree({ onOpenFile, activePath, initialDirectory, collapsed, onToggl
     setSelectedPaths(new Set());
     setDraggedPaths(new Set());
     store.getState().clearDraggingFiles();
+    syncingStoreSelectionRef.current = true;
     store.getState().doSelectFiles([]);
+    syncingStoreSelectionRef.current = false;
     clearDropTarget();
     setSearchOpen(false);
     setSearchQuery('');
@@ -265,7 +277,27 @@ function FileTree({ onOpenFile, activePath, initialDirectory, collapsed, onToggl
   );
 
   useEffect(() => store.getState().registerRefreshListener(() => reloadTreeRef.current()), [store]);
-  useEffect(() => () => store.getState().doSelectFiles([]), [store]);
+  useEffect(
+    () => () => {
+      syncingStoreSelectionRef.current = true;
+      store.getState().doSelectFiles([]);
+      syncingStoreSelectionRef.current = false;
+    },
+    [store],
+  );
+
+  useEffect(
+    () =>
+      store.subscribe((state, previous) => {
+        if (syncingStoreSelectionRef.current || state.selectedFiles === previous.selectedFiles) return;
+
+        if (state.selectedFiles.size === 0 && selectedPathsRef.current.size > 0) {
+          selectedPathsRef.current = new Set();
+          setSelectedPaths(new Set());
+        }
+      }),
+    [store],
+  );
 
   useEffect(() => {
     const query = searchQuery.trim();
@@ -320,31 +352,48 @@ function FileTree({ onOpenFile, activePath, initialDirectory, collapsed, onToggl
         return [{ type: 'searchEmpty', key: 'search:empty', depth: 0 } satisfies FileTreeRowData];
       }
 
-      return searchResults.map((entry): FileTreeRowData => {
-        const path = join(ROOT_DIRECTORY, entry.name);
-        return {
-          type: 'entry',
-          key: `search:${path}`,
-          path,
-          parent: dirname(path),
-          depth: 0,
-          entry,
-          expanded: false,
-        };
-      });
+      return searchResults.map(
+        (entry): FileTreeRowData => searchRow(ROOT_DIRECTORY, entry, getDirectoryCapabilities(ROOT_DIRECTORY).fast),
+      );
+    }
+
+    if (modalSearchInfo && modalSearchEntries) {
+      if (modalSearchEntries.data.length === 0) {
+        return [{ type: 'searchEmpty', key: 'search:empty', depth: 0 } satisfies FileTreeRowData];
+      }
+
+      return modalSearchEntries.data.map(
+        (entry): FileTreeRowData =>
+          searchRow(modalSearchInfo.root, entry, getDirectoryCapabilities(modalSearchInfo.root).fast),
+      );
     }
 
     const result: FileTreeRowData[] = [];
     appendDirectoryRows(result, ROOT_DIRECTORY, 0, directories, expandedDirectories);
 
     return result;
-  }, [directories, expandedDirectories, searching, searchLoading, searchResults, searchError]);
+  }, [
+    directories,
+    expandedDirectories,
+    searching,
+    searchLoading,
+    searchResults,
+    searchError,
+    modalSearchInfo,
+    modalSearchEntries,
+  ]);
 
   const { itemsByPath, visiblePaths } = useMemo(() => {
     const items = new Map<string, TreeSelectionItem>();
 
     for (const row of rows) {
-      if (row.type === 'entry') items.set(row.path, { path: row.path, parent: row.parent, entry: row.entry });
+      if (row.type === 'entry')
+        items.set(row.path, {
+          path: row.path,
+          parent: row.parent,
+          entry: row.entry,
+          expandable: row.expandable,
+        });
     }
 
     return { itemsByPath: items, visiblePaths: Array.from(items.keys()) };
@@ -362,7 +411,17 @@ function FileTree({ onOpenFile, activePath, initialDirectory, collapsed, onToggl
   const isDirectoryWritable = (path: string, parent: string, virtual: boolean) =>
     directories[path]?.writable ?? (!virtual && (directories[parent]?.writable ?? false));
   const getDirectoryCapabilities = useCallback((path: string): TreeDirectoryCapabilities => {
-    const directory = directoriesRef.current[path] ?? directoriesRef.current[ROOT_DIRECTORY];
+    let current = path;
+    let directory = directoriesRef.current[current];
+
+    while (!directory && current !== ROOT_DIRECTORY) {
+      const parent = dirname(current);
+      if (parent === current) break;
+      current = parent;
+      directory = directoriesRef.current[current];
+    }
+
+    directory ??= directoriesRef.current[ROOT_DIRECTORY];
     return {
       primary: directory?.primary ?? false,
       writable: directory?.writable ?? false,
@@ -376,15 +435,20 @@ function FileTree({ onOpenFile, activePath, initialDirectory, collapsed, onToggl
       selectedPathsRef.current = paths;
       setSelectedPaths(paths);
 
-      const fileManager = store.getState();
-      const sourceDirectory = items[0]?.parent;
-      if (!sourceDirectory || !items.every((item) => item.parent === sourceDirectory)) {
-        fileManager.doSelectFiles([]);
-        return;
-      }
+      syncingStoreSelectionRef.current = true;
+      try {
+        const fileManager = store.getState();
+        const sourceDirectory = items[0]?.parent;
+        if (!sourceDirectory || !items.every((item) => item.parent === sourceDirectory)) {
+          fileManager.doSelectFiles([]);
+          return;
+        }
 
-      fileManager.setBrowsingContext({ directory: sourceDirectory, ...getDirectoryCapabilities(sourceDirectory) });
-      fileManager.doSelectFiles(items.map((item) => item.entry));
+        fileManager.setBrowsingContext({ directory: sourceDirectory, ...getDirectoryCapabilities(sourceDirectory) });
+        fileManager.doSelectFiles(items.map((item) => item.entry));
+      } finally {
+        syncingStoreSelectionRef.current = false;
+      }
     },
     [getDirectoryCapabilities, store],
   );
@@ -441,7 +505,16 @@ function FileTree({ onOpenFile, activePath, initialDirectory, collapsed, onToggl
 
   const prepareCreateTarget = () => {
     const fileManager = store.getState();
-    fileManager.setBrowsingContext({ directory: createTarget, writable: createTargetWritable });
+    syncingStoreSelectionRef.current = true;
+    try {
+      fileManager.setBrowsingContext({
+        directory: createTarget,
+        ...getDirectoryCapabilities(createTarget),
+        writable: createTargetWritable,
+      });
+    } finally {
+      syncingStoreSelectionRef.current = false;
+    }
     return fileManager;
   };
 
@@ -454,6 +527,12 @@ function FileTree({ onOpenFile, activePath, initialDirectory, collapsed, onToggl
     prepareCreateTarget();
     setSearchParams({ directory: createTarget });
     store.getState().doOpenModal('nameDirectory');
+  };
+
+  const openCreateSymlink = () => {
+    prepareCreateTarget();
+    setSearchParams({ directory: createTarget });
+    store.getState().doOpenModal('nameSymlink', []);
   };
 
   const openFileUpload = () => {
@@ -475,6 +554,11 @@ function FileTree({ onOpenFile, activePath, initialDirectory, collapsed, onToggl
   const reloadTree = () => {
     if (searching) {
       setSearchRevision((current) => current + 1);
+      return;
+    }
+
+    if (store.getState().searchInfo) {
+      store.getState().invalidateFilemanager(false);
       return;
     }
 
@@ -523,18 +607,28 @@ function FileTree({ onOpenFile, activePath, initialDirectory, collapsed, onToggl
 
   const openItem = useCallback(
     (item: TreeSelectionItem) => {
-      store.getState().doSelectFiles([]);
+      const parentCapabilities = getDirectoryCapabilities(item.parent);
 
-      if (item.entry.directory) {
-        const capabilities = getDirectoryCapabilities(item.path);
-        store.getState().setBrowsingContext({ directory: item.path, ...capabilities });
+      syncingStoreSelectionRef.current = true;
+      try {
+        store.getState().doSelectFiles([]);
+        if (item.expandable) {
+          store.getState().setBrowsingContext({ directory: item.path, ...getDirectoryCapabilities(item.path) });
+        }
+      } finally {
+        syncingStoreSelectionRef.current = false;
+      }
+
+      if (item.expandable) {
         toggleDirectory(item.path);
       } else {
-        onOpenFileRef.current(item, getDirectoryCapabilities(item.parent));
+        onOpenFileRef.current(item, parentCapabilities);
       }
     },
     [getDirectoryCapabilities, store, toggleDirectory],
   );
+
+  const selectSingleItem = useCallback((item: TreeSelectionItem) => setSelectedItems([item]), [setSelectedItems]);
 
   const toggleItemSelection = useCallback(
     (item: TreeSelectionItem) => {
@@ -551,6 +645,135 @@ function FileTree({ onOpenFile, activePath, initialDirectory, collapsed, onToggl
     [setSelectedItems],
   );
 
+  const moveSelection = (direction: -1 | 1) => {
+    const selected = getSelectedItems();
+    if (selected.length === 0 || visiblePaths.length === 0) return;
+
+    const indexByPath = new Map(visiblePaths.map((path, index) => [path, index]));
+    const selectedIndices = selected.map((item) => indexByPath.get(item.path) ?? -1).filter((index) => index !== -1);
+    if (selectedIndices.length === 0) return;
+
+    const targetIndices = selectedIndices.map(
+      (index) => (index + direction + visiblePaths.length) % visiblePaths.length,
+    );
+
+    setSelectedItems(
+      targetIndices.flatMap((index): TreeSelectionItem[] => {
+        const item = itemsByPath.get(visiblePaths[index]);
+        return item ? [item] : [];
+      }),
+    );
+    scrollToRowRef.current?.(direction === 1 ? Math.max(...targetIndices) : Math.min(...targetIndices));
+  };
+
+  useKeyboardShortcuts({
+    shortcuts: [
+      {
+        id: 'files.selectAll',
+        callback: () =>
+          setSelectedItems(
+            visiblePaths.flatMap((path): TreeSelectionItem[] => {
+              const item = itemsByPath.get(path);
+              return item ? [item] : [];
+            }),
+          ),
+      },
+      {
+        id: 'files.search',
+        callback: () => {
+          if (collapsed) onToggleCollapsed();
+          setSearchOpen(true);
+        },
+      },
+      {
+        id: 'files.moveUpSelection',
+        callback: () => moveSelection(-1),
+      },
+      {
+        id: 'files.moveDownSelection',
+        callback: () => moveSelection(1),
+      },
+      {
+        id: 'files.duplicate',
+        callback: () => {
+          const selected = getSelectedItems();
+          if (!canCreateFiles || selected.length !== 1 || !getDirectoryCapabilities(selected[0].parent).writable) {
+            return;
+          }
+
+          copyFile(server.uuid, selected[0].path, null)
+            .then(() => addToast(t('pages.server.files.toast.fileCopyingStarted', {}), 'success'))
+            .catch((msg) => addToast(httpErrorToHuman(msg), 'error'));
+        },
+      },
+      {
+        id: 'files.rename',
+        callback: () => {
+          const selected = getSelectedItems();
+          if (!canUpdateFiles || selected.length !== 1) return;
+
+          const capabilities = getDirectoryCapabilities(selected[0].parent);
+          if (!capabilities.writable) return;
+
+          const fileManager = store.getState();
+          fileManager.setBrowsingContext({ directory: selected[0].parent, ...capabilities });
+          fileManager.doOpenModal('rename', [selected[0].entry]);
+        },
+      },
+      {
+        id: 'general.undo',
+        callback: () => void runLastUndoEntry(fileManagerUndoScope(server.uuid)),
+      },
+      {
+        key: 'Enter',
+        preventDefault: false,
+        callback: (event) => {
+          if (event.defaultPrevented) return;
+          if (event.target instanceof Element && event.target.closest('[data-file-manager-tree-row]')) return;
+
+          const selected = getSelectedItems();
+          if (selected.length === 1 && store.getState().openModal === null) openItem(selected[0]);
+        },
+      },
+    ],
+    deps: [collapsed, canCreateFiles, canUpdateFiles, visiblePaths, itemsByPath, openItem],
+  });
+
+  useEffect(() => {
+    const handleKeyDown = (event: KeyboardEvent) => {
+      if (collapsed) return;
+      if (event.ctrlKey || event.metaKey || event.altKey || store.getState().openModal !== null) return;
+      if (document.activeElement instanceof HTMLInputElement && event.key === ' ') return;
+      if (isInputFocused()) return;
+      if (event.key.length !== 1) return;
+      if (matchesActiveShortcut(event)) return;
+
+      event.preventDefault();
+
+      if (typeAheadTimeout.current) clearTimeout(typeAheadTimeout.current);
+      typeAheadBuffer.current += event.key.toLowerCase();
+
+      for (const [index, path] of visiblePaths.entries()) {
+        const item = itemsByPath.get(path);
+        if (item?.entry.name.toLowerCase().startsWith(typeAheadBuffer.current)) {
+          setSelectedItems([item]);
+          scrollToRowRef.current?.(index);
+          break;
+        }
+      }
+
+      typeAheadTimeout.current = setTimeout(() => {
+        typeAheadBuffer.current = '';
+      }, 1000);
+    };
+
+    window.addEventListener('keydown', handleKeyDown);
+    return () => {
+      window.removeEventListener('keydown', handleKeyDown);
+      if (typeAheadTimeout.current) clearTimeout(typeAheadTimeout.current);
+    };
+  }, [collapsed, store, visiblePaths, itemsByPath, setSelectedItems]);
+
   const clearDragState = useCallback(() => {
     setDraggedPaths(new Set());
     store.getState().clearDraggingFiles();
@@ -563,6 +786,7 @@ function FileTree({ onOpenFile, activePath, initialDirectory, collapsed, onToggl
       const canMove =
         canUpdateFiles &&
         !movingRef.current &&
+        store.getState().actingFiles.size === 0 &&
         items.every((selected) => directoriesRef.current[selected.parent]?.writable);
       const editorItems = items
         .filter((selected) => !selected.entry.directory)
@@ -702,6 +926,13 @@ function FileTree({ onOpenFile, activePath, initialDirectory, collapsed, onToggl
           onClick: openCreateDirectory,
           color: 'gray',
         },
+        {
+          type: 'action',
+          icon: faLink,
+          label: t('pages.server.files.button.symlink', {}),
+          onClick: openCreateSymlink,
+          color: 'gray',
+        },
       ]}
       registry={window.extensionContext.extensionRegistry.pages.server.files.newFileContextMenu}
       registryProps={{}}
@@ -796,11 +1027,13 @@ function FileTree({ onOpenFile, activePath, initialDirectory, collapsed, onToggl
                 openMassMenu={openMassMenu}
                 headerRef={headerRef}
                 viewportRef={viewportRef}
+                scrollToRowRef={scrollToRowRef}
                 getDirectoryCapabilities={getDirectoryCapabilities}
                 isDirectoryWritable={isDirectoryWritable}
                 onSelectedStart={onSelectedStart}
                 onSelected={onSelected}
                 onOpen={openItem}
+                onSelect={selectSingleItem}
                 onToggleSelection={toggleItemSelection}
                 onStartDrag={startDrag}
                 onDragEnd={clearDragState}

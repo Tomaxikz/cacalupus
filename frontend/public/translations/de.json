@@ -1551,7 +1551,10 @@
             "moveDownSelection": "Auswahl nach unten verschieben",
             "renameFile": "Datei umbenennen",
             "deselectAll": "Alle Dateien abwählen",
-            "deleteFiles": "Ausgewählte Dateien löschen"
+            "deleteFiles": "Ausgewählte Dateien löschen",
+            "closeEditorTab": "Aktiven Editor-Tab schließen",
+            "nextEditorTab": "Nächster Editor-Tab",
+            "previousEditorTab": "Vorheriger Editor-Tab"
           },
           "table": {
             "title": "Tabellen-Navigation",
@@ -4827,6 +4830,7 @@
           },
           "searchBanner": {
             "resultsTitle": "Suchergebnisse ({files} gefunden)",
+            "root": "Wurzelverzeichnis:",
             "query": "Suchbegriff:",
             "excluded": "Ausgeschlossen:",
             "content": "Inhalt:",

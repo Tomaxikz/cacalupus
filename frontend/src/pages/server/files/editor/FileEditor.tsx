@@ -2,8 +2,9 @@ import { faTriangleExclamation } from '@fortawesome/free-solid-svg-icons';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { type OnMount } from '@monaco-editor/react';
 import { join } from 'pathe';
-import { startTransition, useEffect, useRef, useState } from 'react';
+import { startTransition, useEffect, useMemo, useRef, useState } from 'react';
 import { createSearchParams, useLocation, useNavigate, useParams, useSearchParams } from 'react-router';
+import { FileEditorActionContext } from 'shared/src/registries/pages/server/files';
 import { useShallow } from 'zustand/react/shallow';
 import { httpErrorToHuman } from '@/api/axios.ts';
 import getFileContent from '@/api/server/files/getFileContent.ts';
@@ -461,6 +462,17 @@ function FileEditorComponent() {
 
   const title = useFileEditorTitle(params.action, fileName, matchedFileEditorAction?.title(fileName));
 
+  const editorContext = useMemo<FileEditorActionContext>(
+    () => ({
+      surface: 'page',
+      directory: browsingDirectory,
+      file: fileName,
+      path: join(browsingDirectory, fileName),
+      params: Object.fromEntries(Array.from(searchParams).filter(([key]) => key !== 'directory' && key !== 'file')),
+    }),
+    [browsingDirectory, fileName, searchParams],
+  );
+
   if (!matchedFileEditorAction && !['new', 'edit', 'image', 'audio'].includes(params.action!)) {
     return (
       <ServerContentContainer title={t('pages.server.files.editorNotFound.title', {})} hideTitleComponent>
@@ -634,6 +646,8 @@ function FileEditorComponent() {
               blobContent={blobContent}
               setBlobContent={setBlobContent}
               fileName={fileName}
+              readOnly={!browsingWritableDirectory || !(collab.active ? canUpdate : canCreate)}
+              context={editorContext}
               handleContentChange={handleContentChange}
               handlePierreChangeEvent={collab.handlePierreChangeEvent}
               attachPierreEditor={collab.attachPierreEditor}

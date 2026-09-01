@@ -87,9 +87,30 @@ export function matchActiveInputShortcut(event: KeyboardEvent): ActiveShortcutMa
   return null;
 }
 
-function isInputFocused(): boolean {
+/**
+ * Whether some registered shortcut already claims this event. Type-ahead handlers listen on the
+ * window themselves, so without this they also fire for single-letter bindings such as duplicate.
+ */
+export function matchesActiveShortcut(event: KeyboardEvent): boolean {
+  const inputFocused = isInputFocused();
+
+  for (const provider of activeProviders) {
+    for (const shortcut of provider()) {
+      const { binding, allowWhenInputFocused } = resolveShortcut(shortcut);
+
+      if (!binding) continue;
+      if (inputFocused && !allowWhenInputFocused) continue;
+      if (eventMatchesBinding(event, binding)) return true;
+    }
+  }
+
+  return false;
+}
+
+export function isInputFocused(): boolean {
   const target = document.activeElement as HTMLElement | null;
-  return target?.tagName === 'INPUT' || target?.tagName === 'TEXTAREA' || target?.isContentEditable === true;
+  if (target instanceof HTMLInputElement) return target.type !== 'checkbox' && target.type !== 'radio';
+  return target?.tagName === 'TEXTAREA' || target?.isContentEditable === true;
 }
 
 export function useKeyboardShortcuts({ shortcuts, enabled = true, deps = [] }: UseKeyboardShortcutsOptions) {

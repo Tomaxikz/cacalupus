@@ -29,6 +29,7 @@ function getFileIcon(
   file: z.infer<typeof serverDirectoryEntrySchema>,
   fileManagerContext: FileManagerStore,
   openable?: boolean,
+  archive?: boolean,
 ): IconDefinition {
   for (const handler of window.extensionContext.extensionRegistry.pages.server.files.fileIconHandlers) {
     const icon = handler(file, fileManagerContext);
@@ -49,7 +50,7 @@ function getFileIcon(
     return faImage;
   } else if (isListenableAudio(file)) {
     return faFileAudio;
-  } else if (isViewableArchive(file, fileManagerContext)) {
+  } else if (archive ?? isViewableArchive(file, fileManagerContext.browsingFastDirectory)) {
     return faFolderTree;
   } else if (isSqliteDatabase(file)) {
     return faDatabase;
@@ -65,17 +66,19 @@ function FileRowIcon({
   className,
   directory,
   openable,
+  archive,
 }: {
   file?: z.infer<typeof serverDirectoryEntrySchema> | null;
   className?: string;
   directory?: boolean;
   openable?: boolean;
+  archive?: boolean;
 }) {
   const { t } = useTranslations();
   const store = useFileManagerApi();
   const isDirectory = directory || file?.directory;
   const iconColor = isDirectory ? 'text-(--mantine-color-yellow-5)' : 'text-(--mantine-color-dimmed)';
-  const iconDefinition = file ? getFileIcon(file, store.getState(), openable) : directory ? faFolder : faFile;
+  const iconDefinition = file ? getFileIcon(file, store.getState(), openable, archive) : directory ? faFolder : faFile;
 
   if (!file?.virtual) {
     return (

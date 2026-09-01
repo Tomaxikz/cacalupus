@@ -8,6 +8,8 @@ interface UseContainerAutoHeightOptions {
   layout: () => void;
   extraObserveRef?: RefObject<HTMLDivElement | null>;
   useVisualViewportInset?: boolean;
+  /** Set this custom property to the measured height instead of sizing the element itself. */
+  cssVariable?: string;
   deps: unknown[];
 }
 
@@ -18,6 +20,7 @@ export function useContainerAutoHeight({
   layout,
   extraObserveRef,
   useVisualViewportInset = false,
+  cssVariable,
   deps,
 }: UseContainerAutoHeightOptions) {
   useEffect(() => {
@@ -39,7 +42,8 @@ export function useContainerAutoHeight({
       }
 
       const newHeight = Math.max(0, bottomEdge - elRect.top);
-      el.style.height = `${newHeight}px`;
+      if (cssVariable) el.style.setProperty(cssVariable, `${newHeight}px`);
+      else el.style.height = `${newHeight}px`;
 
       layout();
     };

@@ -46,7 +46,7 @@ import ServerFilesColumnRightSection, {
   columnOnClick,
   type ServerFilesColumn,
 } from '@/pages/server/files/list/ServerFilesColumnRightSection.tsx';
-import { useKeyboardShortcuts } from '@/plugins/useKeyboardShortcuts.ts';
+import { isInputFocused, matchesActiveShortcut, useKeyboardShortcuts } from '@/plugins/useKeyboardShortcuts.ts';
 import { useServerCan } from '@/plugins/usePermissions.ts';
 import { useSelectionArea } from '@/plugins/useSelectionArea.ts';
 import { FileManagerProvider } from '@/providers/FileManagerProvider.tsx';
@@ -83,8 +83,6 @@ function FileBrowser() {
 
   const canCreate = useServerCan('files.create');
   const canUpdate = useServerCan('files.update');
-
-  useFileBrowserQuickActions();
 
   const { onSelectedStart, onSelected } = useSelectionArea({
     identify: (file) => file.name,
@@ -142,9 +140,11 @@ function FileBrowser() {
       const state = store.getState();
 
       if (e.ctrlKey || e.metaKey || e.altKey || state.openModal !== null) return;
-      if (e.target instanceof HTMLInputElement || e.target instanceof HTMLTextAreaElement) return;
+      if (document.activeElement instanceof HTMLInputElement && e.key === ' ') return;
+      if (isInputFocused()) return;
 
       if (e.key.length !== 1) return;
+      if (matchesActiveShortcut(e)) return;
 
       e.preventDefault();
 
@@ -419,9 +419,12 @@ function ServerFilesComponent() {
   const serverUuid = useServerStore((state) => state.server.uuid);
   const doOpenModal = useFileManagerStore((state) => state.doOpenModal);
   const browsingDirectory = useFileManagerStore((state) => state.browsingDirectory);
+  const resetEntries = useFileManagerStore((state) => state.resetEntries);
   const [view, setView] = useState<FileManagerView>(getStoredFileManagerView);
   const [fileTreeVisible, setFileTreeVisible] = useState(() => getStoredFileTreeVisibility(serverUuid));
   const [treeInitialDirectory, setTreeInitialDirectory] = useState(browsingDirectory);
+
+  useFileBrowserQuickActions({ treeView: view === 'tree' });
 
   useEffect(() => setFileTreeVisible(getStoredFileTreeVisibility(serverUuid)), [serverUuid]);
 
@@ -505,20 +508,23 @@ function ServerFilesComponent() {
       {view === 'list' ? (
         <FileBrowser />
       ) : (
-        <Suspense
-          fallback={
-            <div className='flex justify-center py-16'>
-              <Spinner size={48} />
-            </div>
-          }
-        >
-          <FileTreeWorkspace
-            key={serverUuid}
-            initialDirectory={treeInitialDirectory}
-            fileTreeVisible={fileTreeVisible}
-            onToggleFileTree={toggleFileTree}
-          />
-        </Suspense>
+        <>
+          <FileSearchBanner resetEntries={resetEntries} />
+          <Suspense
+            fallback={
+              <div className='flex justify-center py-16'>
+                <Spinner size={48} />
+              </div>
+            }
+          >
+            <FileTreeWorkspace
+              key={serverUuid}
+              initialDirectory={treeInitialDirectory}
+              fileTreeVisible={fileTreeVisible}
+              onToggleFileTree={toggleFileTree}
+            />
+          </Suspense>
+        </>
       )}
     </div>
   );

@@ -21,7 +21,7 @@ import { useTranslations } from '@/providers/TranslationProvider.tsx';
 import { useFileManagerApi } from '@/stores/fileManager.ts';
 import { useServerStore } from '@/stores/server.ts';
 
-export function useFileBrowserQuickActions() {
+export function useFileBrowserQuickActions({ treeView = false }: { treeView?: boolean } = {}) {
   const { t } = useTranslations();
   const { addToast } = useToast();
   const navigate = useNavigate();
@@ -114,6 +114,8 @@ export function useFileBrowserQuickActions() {
           directory: join(store.getState().browsingDirectory, '..'),
         }),
       isVisible: () => {
+        if (treeView) return false;
+
         const { browsingDirectory, browsingBackup, searchInfo } = store.getState();
         const directory = join('/', browsingDirectory);
 

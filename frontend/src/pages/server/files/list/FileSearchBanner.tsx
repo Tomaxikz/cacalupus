@@ -33,10 +33,17 @@ export default function FileSearchBanner({ resetEntries }: { resetEntries: () =>
       mb='md'
     >
       {(searchInfo.query ||
+        searchInfo.root !== '/' ||
         searchInfo.filters.contentFilter ||
         searchInfo.filters.sizeFilter ||
         (searchInfo.filters.pathFilter?.exclude && searchInfo.filters.pathFilter.exclude.length > 0)) && (
         <div className='flex flex-col gap-1 text-sm'>
+          {searchInfo.root !== '/' && (
+            <div>
+              <span className='font-medium'>{t('pages.server.files.searchBanner.root', {})}</span>{' '}
+              <span className='text-(--mantine-color-dimmed)'>{searchInfo.root}</span>
+            </div>
+          )}
           {searchInfo.query && (
             <div>
               <span className='font-medium'>{t('pages.server.files.searchBanner.query', {})}</span>{' '}

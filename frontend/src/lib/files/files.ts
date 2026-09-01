@@ -40,14 +40,11 @@ export function isSqliteDatabase(file: z.infer<typeof serverDirectoryEntrySchema
   );
 }
 
-export function isViewableArchive(
-  file: z.infer<typeof serverDirectoryEntrySchema>,
-  fileManagerContext: FileManagerContextType,
-) {
+export function isViewableArchive(file: z.infer<typeof serverDirectoryEntrySchema>, fastDirectory: boolean) {
   const validExtensions = ['.zip', '.7z', '.ddup'];
 
   return (
-    fileManagerContext.browsingFastDirectory &&
+    fastDirectory &&
     (['application/zip', 'application/x-7z-compressed'].includes(file.mime) || file.name.endsWith('.ddup')) &&
     validExtensions.some((ext) => file.name.endsWith(ext))
   );
@@ -79,7 +76,7 @@ export function isOpenableFile(
   file: z.infer<typeof serverDirectoryEntrySchema>,
   fileManagerContext: FileManagerContextType,
 ): FileOpenMode {
-  if (file.directory || isViewableArchive(file, fileManagerContext)) {
+  if (file.directory || isViewableArchive(file, fileManagerContext.browsingFastDirectory)) {
     return {
       openable: true,
       handleOpen: ({ handleDirectoryOpen }) => {

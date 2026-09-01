@@ -1,5 +1,6 @@
 import { dirname, join } from 'pathe';
 import { z } from 'zod';
+import { isViewableArchive } from '@/lib/files/files.ts';
 import { serverDirectoryEntrySchema } from '@/lib/schemas/server/files.ts';
 import { FileMoveGroup } from '@/pages/server/files/list/fileMove.ts';
 
@@ -24,6 +25,7 @@ export type FileTreeRow =
       parent: string;
       depth: number;
       entry: DirectoryEntry;
+      expandable: boolean;
       expanded: boolean;
     }
   | {
@@ -63,6 +65,7 @@ export interface TreeSelectionItem {
   path: string;
   parent: string;
   entry: DirectoryEntry;
+  expandable: boolean;
 }
 
 export interface TreeDirectoryCapabilities {
@@ -93,6 +96,10 @@ export const EMPTY_DIRECTORY_STATE: DirectoryState = {
   loading: false,
   error: null,
 };
+
+/** Archives with a browsable index expand in place, the way the list view browses into them. */
+export const isExpandableEntry = (entry: DirectoryEntry, fast: boolean) =>
+  entry.directory || isViewableArchive(entry, fast);
 
 export const truncateFileTreeName = (name: string, directory: boolean, maxLength = 30) => {
   if (name.length <= maxLength) return name;
@@ -147,6 +154,26 @@ export const groupTreeItems = (items: TreeSelectionItem[]): FileMoveGroup[] => {
   }));
 };
 
+/**
+ * Search hits are named relative to the search root ("PluginMetrics/config.yml"), so the row keeps
+ * that root as its parent - deriving one from the hit's own path would double the shared segments
+ * when the entry name is later resolved against it.
+ */
+export const searchRow = (root: string, entry: DirectoryEntry, fast: boolean): FileTreeRow => {
+  const path = join(root, entry.name);
+
+  return {
+    type: 'entry',
+    key: `search:${path}`,
+    path,
+    parent: root,
+    depth: 0,
+    entry,
+    expandable: isExpandableEntry(entry, fast),
+    expanded: false,
+  };
+};
+
 export const appendDirectoryRows = (
   rows: FileTreeRow[],
   directory: string,
@@ -163,9 +190,10 @@ export const appendDirectoryRows = (
 
   for (const entry of state.entries) {
     const path = join(directory, entry.name);
-    const expanded = entry.directory && expandedDirectories.has(path);
+    const expandable = isExpandableEntry(entry, state.fast);
+    const expanded = expandable && expandedDirectories.has(path);
 
-    rows.push({ type: 'entry', key: path, path, parent: directory, depth, entry, expanded });
+    rows.push({ type: 'entry', key: path, path, parent: directory, depth, entry, expandable, expanded });
 
     if (expanded) {
       appendDirectoryRows(rows, path, depth + 1, directories, expandedDirectories);

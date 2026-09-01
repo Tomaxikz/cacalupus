@@ -45,6 +45,7 @@ export type ModalType =
 
 export interface SearchInfo {
   query?: string;
+  root: string;
   filters: z.infer<typeof serverFilesSearchSchema>;
 }
 
@@ -374,7 +375,7 @@ export const createFileManagerStore = (
         const { serverUuid, queryClient } = externals;
 
         if (searchInfo) {
-          searchFiles(serverUuid, { root: browsingDirectory, ...searchInfo.filters }).then((entries) => {
+          searchFiles(serverUuid, { root: searchInfo.root, ...searchInfo.filters }).then((entries) => {
             startTransition(() => {
               set({ browsingEntries: { total: entries.length, page: 1, perPage: entries.length, data: entries } });
               doSelectFiles([]);
