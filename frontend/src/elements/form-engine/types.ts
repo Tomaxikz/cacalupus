@@ -153,6 +153,20 @@ export interface CustomFieldDef<T extends Record<string, unknown>> {
   render: (form: UseFormReturnType<T>) => ReactNode;
 }
 
+export type SectionNullableDefault = Record<string, unknown> | (() => Record<string, unknown>);
+
+export interface SectionFieldDef<T extends Record<string, unknown>> {
+  type: 'section';
+  name: string;
+  icon: ReactNode;
+  title: LazyString;
+  nullableDefault?: SectionNullableDefault;
+  advanced?: boolean;
+  colSpan?: ColSpan;
+  when?: (values: T) => boolean;
+  render: (form: UseFormReturnType<T>) => ReactNode;
+}
+
 export type FieldDef<T extends Record<string, unknown> = Record<string, unknown>> =
   | TextFieldDef<T>
   | PasswordFieldDef<T>
@@ -171,7 +185,8 @@ export type FieldDef<T extends Record<string, unknown> = Record<string, unknown>
   | LocalizedTextAreaFieldDef<T>
   | MultiSelectGroupFieldDef<T>
   | DividerFieldDef<T>
-  | CustomFieldDef<T>;
+  | CustomFieldDef<T>
+  | SectionFieldDef<T>;
 
 export type FieldTransform<T extends Record<string, unknown> = Record<string, unknown>> = (
   fields: FieldDef<T>[],

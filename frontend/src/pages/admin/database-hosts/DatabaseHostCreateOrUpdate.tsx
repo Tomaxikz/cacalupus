@@ -18,9 +18,10 @@ import ForceDeleteModal from '@/elements/modals/ForceDeleteModal.tsx';
 import { databaseCredentialTypeLabelMapping, databaseTypeLabelMapping, mappingToSelectData } from '@/lib/enums.ts';
 import { queryKeys } from '@/lib/queryKeys.ts';
 import {
+  AdminDatabaseCredentialType,
   adminDatabaseCredentialsConnectionStringSchema,
+  adminDatabaseCredentialsDefaults,
   adminDatabaseCredentialsDetailsSchema,
-  adminDatabaseCredentialsUpdateSchema,
   adminDatabaseHostCreateSchema,
   adminDatabaseHostSchema,
   adminDatabaseHostUpdateSchema,
@@ -32,16 +33,6 @@ import CredentialConnectionString from './forms/CredentialConnectionString.tsx';
 import CredentialDetails from './forms/CredentialDetails.tsx';
 
 type DatabaseHostFormValues = z.infer<typeof adminDatabaseHostUpdateSchema>;
-
-export type AdminDatabaseCredentialType = z.infer<typeof adminDatabaseCredentialsUpdateSchema>['type'];
-
-export const adminDatabaseCredentialsDefaults: Record<
-  AdminDatabaseCredentialType,
-  z.infer<typeof adminDatabaseCredentialsUpdateSchema>
-> = {
-  connection_string: { type: 'connection_string', connectionString: '' },
-  details: { type: 'details', username: '', password: '', host: '', port: 3306 },
-};
 
 const toFormValues = (dh: z.infer<typeof adminDatabaseHostSchema>): Partial<DatabaseHostFormValues> => ({
   name: dh.name,

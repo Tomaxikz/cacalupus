@@ -74,3 +74,13 @@ export const adminDatabaseHostUpdateSchema = z.lazy(() =>
     })
     .partial(),
 );
+
+export type AdminDatabaseCredentialType = z.infer<typeof adminDatabaseCredentialsUpdateSchema>['type'];
+
+export const adminDatabaseCredentialsDefaults: Record<
+  AdminDatabaseCredentialType,
+  z.infer<typeof adminDatabaseCredentialsUpdateSchema>
+> = {
+  connection_string: { type: 'connection_string', connectionString: '' },
+  details: { type: 'details', username: '', password: '', host: '', port: 3306 },
+};
