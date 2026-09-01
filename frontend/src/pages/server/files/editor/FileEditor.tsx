@@ -19,6 +19,7 @@ import ScreenBlock from '@/elements/ScreenBlock.tsx';
 import Spinner from '@/elements/Spinner.tsx';
 import { draftKey, FileDraft, hashContent, purgeExpiredDrafts } from '@/lib/files/fileDrafts.ts';
 import { useBlocker } from '@/plugins/useBlocker.ts';
+import { useContainerAutoHeight } from '@/plugins/useContainerAutoHeight.ts';
 import { useServerCan } from '@/plugins/usePermissions.ts';
 import { useCurrentWindow } from '@/providers/CurrentWindowProvider.tsx';
 import { FileManagerProvider, useFileManager } from '@/providers/FileManagerProvider.tsx';
@@ -27,7 +28,6 @@ import { useTranslations } from '@/providers/TranslationProvider.tsx';
 import { useServerStore } from '@/stores/server.ts';
 import FileRevisionsDrawer from '../drawers/FileRevisionsDrawer.tsx';
 import FileBreadcrumbs from '../FileBreadcrumbs.tsx';
-import { useEditorContainerAutoHeight } from '../hooks/useEditorContainerAutoHeight.ts';
 import useFileCollab from '../hooks/useFileCollab.ts';
 import FileEditorConflictDiffModal from '../modals/FileEditorConflictDiffModal.tsx';
 import FileEditorDraftModal from '../modals/FileEditorDraftModal.tsx';
@@ -264,7 +264,7 @@ function FileEditorComponent() {
     }
   }, [collab.conflict]);
 
-  useEditorContainerAutoHeight({
+  useContainerAutoHeight({
     containerRef: editorContainerRef,
     loading,
     getParent,

@@ -210,7 +210,7 @@ export default function ServerTunnel() {
           />
         ),
       },
-      ...[...merged.values()].map(peerNode),
+      ...[...merged.values()].toSorted((a, b) => a.peer.serverName.localeCompare(b.peer.serverName)).map(peerNode),
     ];
   }, [data, canCreate, canUpdate, canDelete, server.name, t]);
 
@@ -387,19 +387,16 @@ export default function ServerTunnel() {
               <>
                 <Alert color='gray'>{t('pages.server.tunnel.alert.bypassesFirewall', {})}</Alert>
 
-                <TunnelCanvas nodes={nodes} items={canvasItems} onPan={hideContextMenu} />
-
-                {view.outgoing.length === 0 && view.incoming.length === 0 ? (
-                  canCreate && (
-                    <Text size='sm' c='dimmed' ta='center'>
-                      {t('pages.server.tunnel.outgoing.empty', {})}
-                    </Text>
-                  )
-                ) : (
-                  <Text size='xs' c='dimmed' ta='center'>
-                    {t('pages.server.tunnel.canvas.hint', {})}
-                  </Text>
-                )}
+                <TunnelCanvas
+                  nodes={nodes}
+                  items={canvasItems}
+                  hint={
+                    view.outgoing.length === 0 && view.incoming.length === 0
+                      ? canCreate && t('pages.server.tunnel.outgoing.empty', {})
+                      : t('pages.server.tunnel.canvas.hint', {})
+                  }
+                  onPan={hideContextMenu}
+                />
               </>
             )}
           </Stack>

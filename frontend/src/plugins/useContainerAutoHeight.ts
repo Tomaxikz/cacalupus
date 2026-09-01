@@ -1,7 +1,7 @@
 import { RefObject, useEffect } from 'react';
 import { visualViewportBottomInset } from '@/plugins/useVisualViewport.ts';
 
-interface UseEditorContainerAutoHeightOptions {
+interface UseContainerAutoHeightOptions {
   containerRef: RefObject<HTMLDivElement | null>;
   loading: boolean;
   getParent: () => HTMLElement | null | undefined;
@@ -11,7 +11,7 @@ interface UseEditorContainerAutoHeightOptions {
   deps: unknown[];
 }
 
-export function useEditorContainerAutoHeight({
+export function useContainerAutoHeight({
   containerRef,
   loading,
   getParent,
@@ -19,7 +19,7 @@ export function useEditorContainerAutoHeight({
   extraObserveRef,
   useVisualViewportInset = false,
   deps,
-}: UseEditorContainerAutoHeightOptions) {
+}: UseContainerAutoHeightOptions) {
   useEffect(() => {
     const el = containerRef.current;
     if (!el || loading) return;

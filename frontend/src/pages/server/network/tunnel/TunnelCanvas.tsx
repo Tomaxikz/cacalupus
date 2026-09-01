@@ -11,16 +11,23 @@ import {
 import ActionIcon from '@/elements/ActionIcon.tsx';
 import ContextMenu, { ContextMenuItem } from '@/elements/ContextMenu.tsx';
 import Group from '@/elements/Group.tsx';
+import Text from '@/elements/Text.tsx';
 import Tooltip from '@/elements/Tooltip.tsx';
+import { useContainerAutoHeight } from '@/plugins/useContainerAutoHeight.ts';
+import { useCurrentWindow } from '@/providers/CurrentWindowProvider.tsx';
 import { useTranslations } from '@/providers/TranslationProvider.tsx';
 import { INBOUND_COLOR, OUTBOUND_COLOR } from './directions.ts';
 
 const NODE_WIDTH = 288;
 const COLUMN_GAP = 260;
 const ROW_GAP = 24;
-const MIN_SCALE = 0.35;
+const MIN_SCALE = 0.2;
+const FIT_MIN_SCALE = 0.7;
 const FIT_PADDING = 32;
-const MIN_CANVAS_HEIGHT = 400;
+const LABEL_PEER_LIMIT = 6;
+// smooth zooming multiplies this by the raw deltaY, so the library default moves a whole scale
+// unit per notch of a mouse wheel
+const WHEEL_STEP = 0.001;
 const EDGE_OFFSET = 14;
 const EDGE_GAP = 6;
 
@@ -109,12 +116,14 @@ function Edge({
   to,
   color,
   marker,
+  labelled,
 }: {
   edge: CanvasEdge;
   from: Point;
   to: Point;
   color: string;
   marker: string;
+  labelled: boolean;
 }) {
   const path = edgePath(from, to);
   const mid = edgeMidpoint(from, to);
@@ -131,20 +140,22 @@ function Edge({
         markerEnd={`url(#${marker})`}
       />
 
-      <text
-        x={mid.x}
-        y={mid.y}
-        textAnchor='middle'
-        dominantBaseline='middle'
-        fontSize={12}
-        fill={color}
-        stroke='var(--mantine-color-body)'
-        strokeWidth={4}
-        paintOrder='stroke'
-        className='pointer-events-none select-none'
-      >
-        {edge.label}
-      </text>
+      {labelled && (
+        <text
+          x={mid.x}
+          y={mid.y}
+          textAnchor='middle'
+          dominantBaseline='middle'
+          fontSize={12}
+          fill={color}
+          stroke='var(--mantine-color-body)'
+          strokeWidth={4}
+          paintOrder='stroke'
+          className='pointer-events-none select-none'
+        >
+          {edge.label}
+        </text>
+      )}
 
       {interactive && (
         <path
@@ -250,16 +261,21 @@ function CloseMenusOnPan({ onPan }: { onPan: () => void }) {
 export default function TunnelCanvas({
   nodes,
   items = [],
+  hint,
   onPan,
 }: {
   nodes: CanvasNode[];
   items?: ContextMenuItem[];
+  hint?: ReactNode;
   onPan: () => void;
 }) {
   const { t } = useTranslations();
+  const { getParent } = useCurrentWindow();
   const [heights, setHeights] = useState<Record<string, number>>({});
   const elements = useRef<Record<string, HTMLDivElement | null>>({});
   const controls = useRef<ReactZoomPanPinchRef>(null);
+  const container = useRef<HTMLDivElement>(null);
+  const fitted = useRef('');
 
   const measure = (key: string) => (element: HTMLDivElement | null) => {
     elements.current[key] = element;
@@ -281,21 +297,56 @@ export default function TunnelCanvas({
 
   const { placed, width, height } = layout(nodes, heights);
   const centre = placed.find((node) => node.column === 0);
+  const centreX = centre?.x ?? 0;
+  const centreY = centre?.y ?? 0;
+  const centreHeight = centre?.height ?? 0;
+  const labelled = placed.filter((node) => node.edges).length <= LABEL_PEER_LIMIT;
 
-  const fit = useCallback(() => {
-    const wrapper = controls.current?.instance.wrapperComponent;
-    if (!wrapper) return;
+  const fit = useCallback(
+    (force = false) => {
+      const wrapper = controls.current?.instance.wrapperComponent;
+      if (!wrapper) return;
 
-    const scale = Math.min(
-      1,
-      (wrapper.clientWidth - FIT_PADDING) / width,
-      (wrapper.clientHeight - FIT_PADDING) / height,
-    );
+      // the container is resized by more than a changed graph, and refitting on every one of those
+      // would throw away wherever the user had panned to
+      const signature = `${width}:${height}:${wrapper.clientWidth}:${wrapper.clientHeight}`;
+      if (!force && fitted.current === signature) return;
+      fitted.current = signature;
 
-    controls.current?.centerView(Math.max(scale, MIN_SCALE), 0);
-  }, [width, height]);
+      const scale = Math.min(
+        1,
+        (wrapper.clientWidth - FIT_PADDING) / width,
+        (wrapper.clientHeight - FIT_PADDING) / height,
+      );
 
-  useLayoutEffect(fit, [fit]);
+      if (scale >= FIT_MIN_SCALE) {
+        controls.current?.centerView(scale, 0);
+        return;
+      }
+
+      // the graph only fits at an illegible scale, so keep it readable and anchor on this server,
+      // leaving the peers it does not reach to panning
+      const scaledWidth = width * FIT_MIN_SCALE;
+
+      controls.current?.setTransform(
+        scaledWidth <= wrapper.clientWidth
+          ? (wrapper.clientWidth - scaledWidth) / 2
+          : wrapper.clientWidth / 2 - (centreX + NODE_WIDTH / 2) * FIT_MIN_SCALE,
+        wrapper.clientHeight / 2 - (centreY + centreHeight / 2) * FIT_MIN_SCALE,
+        FIT_MIN_SCALE,
+        0,
+      );
+    },
+    [width, height, centreX, centreY, centreHeight],
+  );
+
+  useContainerAutoHeight({
+    containerRef: container,
+    loading: false,
+    getParent,
+    layout: fit,
+    deps: [fit, getParent],
+  });
 
   const backgroundItems = useMemo<ContextMenuItem[]>(
     () => [
@@ -307,7 +358,7 @@ export default function TunnelCanvas({
         type: 'action',
         icon: faArrowsToDot,
         label: t('pages.server.tunnel.canvas.fit', {}),
-        onClick: fit,
+        onClick: () => fit(true),
         color: 'gray',
       },
       {
@@ -331,91 +382,102 @@ export default function TunnelCanvas({
   return (
     <ContextMenu items={backgroundItems}>
       {({ openMenu }) => (
-        <div
-          className='relative w-full overflow-hidden rounded-md border border-(--chart-grid-color) bg-(--mantine-color-body)'
-          style={{ height: `min(70vh, max(${MIN_CANVAS_HEIGHT}px, ${height + FIT_PADDING * 2}px))` }}
-          onContextMenu={(event) => {
-            event.preventDefault();
-            openMenu(event.clientX, event.clientY);
-          }}
-        >
-          <TransformWrapper
-            ref={controls}
-            minScale={MIN_SCALE}
-            maxScale={2}
-            limitToBounds={false}
-            doubleClick={{ disabled: true }}
-            wheel={{ activationKeys: ['Control', 'Meta'] }}
-            panning={{
-              velocityDisabled: true,
-              excluded: ['input', 'button', 'a', 'textarea'],
+        <div className='relative'>
+          <div
+            ref={container}
+            className='absolute w-full overflow-hidden rounded-md border border-(--chart-grid-color) bg-(--mantine-color-body)'
+            onContextMenu={(event) => {
+              event.preventDefault();
+              openMenu(event.clientX, event.clientY);
             }}
           >
-            <Dots />
-            <CloseMenusOnPan onPan={onPan} />
-            {placed.some((node) => node.edges) && <Legend />}
-            <Controls onFit={fit} />
+            <TransformWrapper
+              ref={controls}
+              minScale={MIN_SCALE}
+              maxScale={2}
+              limitToBounds={false}
+              doubleClick={{ disabled: true }}
+              wheel={{ step: WHEEL_STEP, activationKeys: (keys) => keys.includes('Control') || keys.includes('Meta') }}
+              panning={{
+                velocityDisabled: true,
+                excluded: ['input', 'button', 'a', 'textarea'],
+              }}
+            >
+              <Dots />
+              <CloseMenusOnPan onPan={onPan} />
+              {placed.some((node) => node.edges) && <Legend />}
+              <Controls onFit={() => fit(true)} />
+              {hint && (
+                <div className='absolute bottom-3 left-3 z-10 max-w-[60%] rounded-md bg-(--mantine-color-body)/80 px-2 py-1'>
+                  <Text size='xs' c='dimmed'>
+                    {hint}
+                  </Text>
+                </div>
+              )}
 
-            <TransformComponent wrapperClass='h-full! w-full! cursor-grab active:cursor-grabbing'>
-              <div className='relative' style={{ width, height }}>
-                <svg className='absolute inset-0 overflow-visible' width={width} height={height}>
-                  <defs>
-                    {[
-                      ['tunnel-arrow-outbound', OUTBOUND_COLOR],
-                      ['tunnel-arrow-inbound', INBOUND_COLOR],
-                    ].map(([id, color]) => (
-                      <marker
-                        key={id}
-                        id={id}
-                        viewBox='0 0 10 10'
-                        refX='9'
-                        refY='5'
-                        markerWidth='6'
-                        markerHeight='6'
-                        orient='auto-start-reverse'
-                      >
-                        <path d='M 0 0 L 10 5 L 0 10 z' fill={color} />
-                      </marker>
-                    ))}
-                  </defs>
+              <TransformComponent wrapperClass='h-full! w-full! cursor-grab active:cursor-grabbing'>
+                <div className='relative' style={{ width, height }}>
+                  <svg className='absolute inset-0 overflow-visible' width={width} height={height}>
+                    <defs>
+                      {[
+                        ['tunnel-arrow-outbound', OUTBOUND_COLOR],
+                        ['tunnel-arrow-inbound', INBOUND_COLOR],
+                      ].map(([id, color]) => (
+                        <marker
+                          key={id}
+                          id={id}
+                          viewBox='0 0 10 10'
+                          refX='9'
+                          refY='5'
+                          markerWidth='6'
+                          markerHeight='6'
+                          orient='auto-start-reverse'
+                        >
+                          <path d='M 0 0 L 10 5 L 0 10 z' fill={color} />
+                        </marker>
+                      ))}
+                    </defs>
 
-                  {centre &&
-                    placed
-                      .filter((node) => node.edges)
-                      .flatMap((node) => {
-                        const centreRight = centre.x + NODE_WIDTH;
-                        const centreMid = centre.y + centre.height / 2;
-                        const peerMid = node.y + node.height / 2;
+                    {centre &&
+                      placed
+                        .filter((node) => node.edges)
+                        .flatMap((node) => {
+                          const centreRight = centre.x + NODE_WIDTH;
+                          const centreMid = centre.y + centre.height / 2;
+                          const peerMid = node.y + node.height / 2;
 
-                        return [
-                          <Edge
-                            key={`${node.key}-outbound`}
-                            edge={node.edges!.outbound}
-                            from={{ x: centreRight + EDGE_GAP, y: centreMid - EDGE_OFFSET }}
-                            to={{ x: node.x - EDGE_GAP, y: peerMid - EDGE_OFFSET }}
-                            color={OUTBOUND_COLOR}
-                            marker='tunnel-arrow-outbound'
-                          />,
-                          <Edge
-                            key={`${node.key}-inbound`}
-                            edge={node.edges!.inbound}
-                            from={{ x: node.x - EDGE_GAP, y: peerMid + EDGE_OFFSET }}
-                            to={{ x: centreRight + EDGE_GAP, y: centreMid + EDGE_OFFSET }}
-                            color={INBOUND_COLOR}
-                            marker='tunnel-arrow-inbound'
-                          />,
-                        ];
-                      })}
-                </svg>
+                          return [
+                            <Edge
+                              key={`${node.key}-outbound`}
+                              edge={node.edges!.outbound}
+                              from={{ x: centreRight + EDGE_GAP, y: centreMid - EDGE_OFFSET }}
+                              to={{ x: node.x - EDGE_GAP, y: peerMid - EDGE_OFFSET }}
+                              color={OUTBOUND_COLOR}
+                              marker='tunnel-arrow-outbound'
+                              labelled={labelled}
+                            />,
+                            <Edge
+                              key={`${node.key}-inbound`}
+                              edge={node.edges!.inbound}
+                              from={{ x: node.x - EDGE_GAP, y: peerMid + EDGE_OFFSET }}
+                              to={{ x: centreRight + EDGE_GAP, y: centreMid + EDGE_OFFSET }}
+                              color={INBOUND_COLOR}
+                              marker='tunnel-arrow-inbound'
+                              labelled={labelled}
+                            />,
+                          ];
+                        })}
+                  </svg>
 
-                {placed.map((node) => (
-                  <div key={node.key} className='absolute' style={{ left: node.x, top: node.y, width: NODE_WIDTH }}>
-                    {node.render(measure(node.key))}
-                  </div>
-                ))}
-              </div>
-            </TransformComponent>
-          </TransformWrapper>
+                  {placed.map((node) => (
+                    <div key={node.key} className='absolute' style={{ left: node.x, top: node.y, width: NODE_WIDTH }}>
+                      {node.render(measure(node.key))}
+                    </div>
+                  ))}
+                </div>
+              </TransformComponent>
+            </TransformWrapper>
+          </div>
         </div>
       )}
     </ContextMenu>
