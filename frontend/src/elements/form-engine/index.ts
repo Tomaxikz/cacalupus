@@ -20,6 +20,8 @@ export type {
   NumberFieldDef,
   PasswordFieldDef,
   RegisteredFormIds,
+  SectionFieldDef,
+  SectionNullableDefault,
   SelectFieldDef,
   SizeFieldDef,
   SwitchFieldDef,

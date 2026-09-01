@@ -7,18 +7,18 @@ import {
   faServer,
 } from '@fortawesome/free-solid-svg-icons';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
-import { SimpleGrid, Text } from '@mantine/core';
+import { SimpleGrid } from '@mantine/core';
 import { z } from 'zod';
 import getDatabaseAgentHostCapacity from '@/api/admin/database-agent-hosts/getDatabaseAgentHostCapacity.ts';
 import getDatabaseAgentHostSystemOverview from '@/api/admin/database-agent-hosts/getDatabaseAgentHostSystemOverview.ts';
+import CapacityCard from '@/elements/admin/CapacityCard.tsx';
+import InfoRow from '@/elements/admin/InfoRow.tsx';
 import Badge from '@/elements/Badge.tsx';
-import Card from '@/elements/Card.tsx';
 import AdminSubContentContainer from '@/elements/containers/AdminSubContentContainer.tsx';
 import Group from '@/elements/Group.tsx';
-import SemiCircleProgress from '@/elements/SemiCircleProgress.tsx';
 import Spinner from '@/elements/Spinner.tsx';
 import Stack from '@/elements/Stack.tsx';
-import Title from '@/elements/Title.tsx';
+import Text from '@/elements/Text.tsx';
 import TitleCard from '@/elements/TitleCard.tsx';
 import { queryKeys } from '@/lib/queryKeys.ts';
 import { adminDatabaseAgentHostSchema } from '@/lib/schemas/admin/databaseAgentHosts.ts';
@@ -30,82 +30,6 @@ import { useTranslations } from '@/providers/TranslationProvider.tsx';
 import { useAdminStore } from '@/stores/admin.tsx';
 
 type DatabaseAgentHost = z.infer<typeof adminDatabaseAgentHostSchema>;
-
-const defaultFormatValue = (value: number) => bytesToString(mbToBytes(value));
-
-function InfoRow({ label, children }: { label: string; children: React.ReactNode }) {
-  return (
-    <div className='flex items-start justify-between gap-4 py-1.5 border-b border-(--mantine-color-default-border) last:border-b-0'>
-      <Text size='sm' c='dimmed' className='shrink-0'>
-        {label}
-      </Text>
-      <div className='text-right text-sm'>{children}</div>
-    </div>
-  );
-}
-
-function CapacityResource({
-  label,
-  icon,
-  allocated,
-  limit,
-  footer,
-  formatValue = defaultFormatValue,
-}: {
-  label: string;
-  icon: React.ReactNode;
-  allocated: number;
-  limit: number;
-  footer?: React.ReactNode;
-  formatValue?: (value: number) => React.ReactNode;
-}) {
-  const { t } = useTranslations();
-  const percent = limit > 0 ? (allocated / limit) * 100 : 0;
-
-  if (limit === 0) {
-    return (
-      <Card>
-        <Group grow>
-          <div className='flex justify-center'>
-            <SemiCircleProgress value={100} label='--' filledSegmentColor='gray' />
-          </div>
-          <div className='flex flex-col text-right flex-1'>
-            <Title order={2}>
-              {icon} {label}
-            </Title>
-            <h2>{formatValue(allocated)}</h2>
-            <p className='text-xs'>
-              {footer ?? t('pages.admin.databaseAgentHosts.tabs.overview.page.label.noLimit', {})}
-            </p>
-          </div>
-        </Group>
-      </Card>
-    );
-  }
-
-  return (
-    <Card>
-      <Group grow>
-        <div className='flex justify-center'>
-          <SemiCircleProgress
-            value={Math.min(percent, 100)}
-            label={<>{percent.toFixed(1)}%</>}
-            filledSegmentColor={percent >= 90 ? 'red' : undefined}
-          />
-        </div>
-        <div className='flex flex-col text-right flex-1'>
-          <Title order={2}>
-            {icon} {label}
-          </Title>
-          <h2>
-            {formatValue(allocated)} / {formatValue(limit)}
-          </h2>
-          {footer}
-        </div>
-      </Group>
-    </Card>
-  );
-}
 
 export default function DatabaseAgentHostOverview({ databaseAgentHost }: { databaseAgentHost: DatabaseAgentHost }) {
   const { t } = useTranslations();
@@ -250,11 +174,12 @@ export default function DatabaseAgentHostOverview({ databaseAgentHost }: { datab
             <Spinner.Centered />
           ) : (
             <div className='grid grid-cols-1 lg:grid-cols-2 2xl:grid-cols-3 gap-4'>
-              <CapacityResource
+              <CapacityCard
                 label={t('pages.admin.databaseAgentHosts.tabs.overview.page.label.memory', {})}
                 icon={<FontAwesomeIcon icon={faMemory} />}
                 allocated={capacity.allocated.memory}
                 limit={capacity.limits.memory}
+                noLimitLabel={t('pages.admin.databaseAgentHosts.tabs.overview.page.label.noLimit', {})}
                 footer={
                   <p className='text-xs'>
                     {t('pages.admin.databaseAgentHosts.tabs.overview.page.label.free', {
@@ -263,11 +188,12 @@ export default function DatabaseAgentHostOverview({ databaseAgentHost }: { datab
                   </p>
                 }
               />
-              <CapacityResource
+              <CapacityCard
                 label={t('pages.admin.databaseAgentHosts.tabs.overview.page.label.disk', {})}
                 icon={<FontAwesomeIcon icon={faHardDrive} />}
                 allocated={capacity.allocated.disk}
                 limit={capacity.limits.disk}
+                noLimitLabel={t('pages.admin.databaseAgentHosts.tabs.overview.page.label.noLimit', {})}
                 footer={
                   <p className='text-xs'>
                     {t('pages.admin.databaseAgentHosts.tabs.overview.page.label.free', {
@@ -276,11 +202,12 @@ export default function DatabaseAgentHostOverview({ databaseAgentHost }: { datab
                   </p>
                 }
               />
-              <CapacityResource
+              <CapacityCard
                 label={t('common.stat.cpu', {})}
                 icon={<FontAwesomeIcon icon={faMicrochip} />}
                 allocated={capacity.allocated.cpu}
                 limit={0}
+                noLimitLabel={t('pages.admin.databaseAgentHosts.tabs.overview.page.label.noLimit', {})}
                 formatValue={(value) => `${value}%`}
                 footer={t('pages.admin.databaseAgentHosts.tabs.overview.page.label.cores', {
                   cores: (capacity.allocated.cpu / 100).toFixed(2),

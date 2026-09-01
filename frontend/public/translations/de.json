@@ -6662,10 +6662,7 @@
           }
         },
         "activity": {
-          "title": "Aktivität",
-          "button": {
-            "clearUserFilter": "Benutzerfilter löschen"
-          }
+          "title": "Aktivität"
         }
       }
     }

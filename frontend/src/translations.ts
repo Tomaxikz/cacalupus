@@ -3752,15 +3752,11 @@ const baseTranslations = defineTranslations({
                   },
                 },
                 toast: {
-                  installed: 'Egg installed.',
-                  installedBulk: '{eggs} installed.',
+                  installed: '{eggs} installed.',
                 },
                 modal: {
                   install: {
-                    title: 'Install Egg Repository Egg',
-                  },
-                  installBulk: {
-                    title: 'Install Egg Repository Eggs',
+                    title: 'Install {eggs}',
                     button: 'Install {eggs}',
                   },
                 },

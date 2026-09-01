@@ -42,6 +42,7 @@ import {
   buildResourceLimitsFields,
   buildStartupField,
 } from './serverFormFields.tsx';
+import { serverToFormValues, serverUpdateEmptyFormValues } from './serverUpdateFormValues.ts';
 
 const timezones = getTimezoneOptions();
 
@@ -60,34 +61,7 @@ export default function ServerUpdate({ contextServer }: { contextServer: z.infer
   const form = useFormEngine<ServerUpdateFormValues>('admin.servers.update', {
     schema: adminServerUpdateSchema.unwrap(),
     mode: 'uncontrolled',
-    initialValues: {
-      ownerUuid: '',
-      eggUuid: '',
-      backupConfigurationUuid: null,
-      externalId: null,
-      name: '',
-      description: null,
-      limits: {
-        cpu: 100,
-        memory: 1024,
-        memoryOverhead: 0,
-        swap: 0,
-        disk: 10240,
-        ioWeight: null,
-      },
-      pinnedCpus: [],
-      startup: '',
-      image: '',
-      timezone: Intl.DateTimeFormat().resolvedOptions().timeZone,
-      hugepagesPassthroughEnabled: false,
-      kvmPassthroughEnabled: false,
-      featureLimits: {
-        allocations: 5,
-        databases: 5,
-        backups: 5,
-        schedules: 5,
-      },
-    },
+    initialValues: serverUpdateEmptyFormValues,
     onValuesChange: () => setIsValid(form.isValid()),
     validateInputOnBlur: true,
   });
@@ -105,22 +79,7 @@ export default function ServerUpdate({ contextServer }: { contextServer: z.infer
 
   useEffect(() => {
     if (contextServer) {
-      form.setValues({
-        ownerUuid: contextServer.owner.uuid,
-        eggUuid: contextServer.egg.uuid,
-        backupConfigurationUuid: contextServer.backupConfiguration?.uuid ?? null,
-        externalId: contextServer.externalId,
-        name: contextServer.name,
-        description: contextServer.description,
-        limits: contextServer.limits,
-        pinnedCpus: contextServer.pinnedCpus,
-        startup: contextServer.startup,
-        image: contextServer.image,
-        timezone: contextServer.timezone,
-        hugepagesPassthroughEnabled: contextServer.hugepagesPassthroughEnabled,
-        kvmPassthroughEnabled: contextServer.kvmPassthroughEnabled,
-        featureLimits: contextServer.featureLimits,
-      });
+      form.setValues(serverToFormValues(contextServer));
     }
   }, [contextServer]);
 

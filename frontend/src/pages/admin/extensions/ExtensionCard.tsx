@@ -2,7 +2,6 @@ import { faPuzzlePiece, faTrash, faWrench } from '@fortawesome/free-solid-svg-ic
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { Link } from 'react-router';
 import { Extension } from 'shared';
-import { z } from 'zod';
 import ActionIcon from '@/elements/ActionIcon.tsx';
 import Badge from '@/elements/Badge.tsx';
 import Button from '@/elements/Button.tsx';
@@ -12,7 +11,8 @@ import Divider from '@/elements/Divider.tsx';
 import Switch from '@/elements/input/Switch.tsx';
 import ScrollingText from '@/elements/ScrollingText.tsx';
 import Tooltip from '@/elements/Tooltip.tsx';
-import { adminBackendExtensionSchema } from '@/lib/schemas/admin/backendExtension.ts';
+import { getExtensionBadges } from '@/lib/extensions.ts';
+import { AdminBackendExtension } from '@/lib/schemas/admin/backendExtension.ts';
 import { useTranslations } from '@/providers/TranslationProvider.tsx';
 
 export default function ExtensionCard({
@@ -26,7 +26,7 @@ export default function ExtensionCard({
   onToggle,
 }: {
   extension?: Extension;
-  backendExtension?: z.infer<typeof adminBackendExtensionSchema>;
+  backendExtension?: AdminBackendExtension;
   isPending?: boolean;
   isRemoved?: boolean;
   isDisabled?: boolean;
@@ -35,10 +35,26 @@ export default function ExtensionCard({
   onToggle?: (enabled: boolean) => void;
 }) {
   const { t } = useTranslations();
-  const isPendingRestart = isDisabled !== isPendingDisabled;
+
   const name =
     backendExtension?.metadataToml.name || extension?.packageName || t('pages.admin.extensions.unknownExtension', {});
   const packageName = backendExtension?.metadataToml.packageName || extension?.packageName;
+
+  const badges = getExtensionBadges(t, {
+    hasFrontend: !!extension,
+    hasBackend: !!backendExtension,
+    isPendingBuild: !!isPending,
+    isPendingRemoval: !!isRemoved,
+    isDisabled: !!isDisabled,
+    isPendingDisabled: !!isPendingDisabled,
+  });
+
+  const configureDisabled = !backendExtension || !!isDisabled || !extension?.cardConfigurationPage;
+  const configureButton = (
+    <Button leftSection={<FontAwesomeIcon icon={faWrench} />} disabled={configureDisabled} className='w-full!'>
+      {t('pages.admin.extensions.button.configure', {})}
+    </Button>
+  );
 
   return (
     <Card>
@@ -58,50 +74,29 @@ export default function ExtensionCard({
         </div>
       </div>
 
-      {(!extension || !backendExtension || isPending || isRemoved || isDisabled || isPendingRestart) && (
+      {badges.length > 0 && (
         <div className='mb-2.5 flex flex-wrap gap-1.5'>
-          {isDisabled && (
-            <Badge color='gray' variant='light' size='sm'>
-              {t('pages.admin.extensions.badge.disabled', {})}
+          {badges.map((badge) => (
+            <Badge key={badge.key} color={badge.color} variant='light' size='sm'>
+              {badge.label}
             </Badge>
-          )}
-          {isPendingRestart && (
-            <Badge color='yellow' variant='light' size='sm'>
-              {t('pages.admin.extensions.badge.pendingRestart', {})}
-            </Badge>
-          )}
-          {!extension && !isDisabled && (
-            <Badge color='red' variant='light' size='sm'>
-              {t('pages.admin.extensions.badge.frontendMissing', {})}
-            </Badge>
-          )}
-          {!backendExtension && (
-            <Badge color='red' variant='light' size='sm'>
-              {t('pages.admin.extensions.badge.backendMissing', {})}
-            </Badge>
-          )}
-          {isPending && (
-            <Badge color='yellow' variant='light' size='sm'>
-              {t('pages.admin.extensions.badge.pendingBuild', {})}
-            </Badge>
-          )}
-          {isRemoved && (
-            <Badge color='yellow' variant='light' size='sm'>
-              {t('pages.admin.extensions.badge.pendingRemoval', {})}
-            </Badge>
-          )}
+          ))}
         </div>
       )}
 
       {backendExtension && (
         <div className='mb-3 flex flex-col gap-1.5'>
           <div className='flex items-center justify-between'>
-            <span className='text-xs text-zinc-500'>{t('pages.admin.extensions.card.version', {})}</span>
-            <span className='font-mono text-xs text-zinc-300'>{backendExtension.version}</span>
+            <span className='text-xs text-(--mantine-color-dimmed)'>
+              {t('pages.admin.extensions.card.version', {})}
+            </span>
+            <span className='font-mono text-xs text-(--mantine-color-text)'>{backendExtension.version}</span>
           </div>
           <div className='flex items-center justify-between gap-2 min-w-0'>
-            <span className='text-xs text-zinc-500 shrink-0'>{t('pages.admin.extensions.card.authors', {})}</span>
-            <span className='text-xs text-zinc-300 min-w-0'>
+            <span className='text-xs text-(--mantine-color-dimmed) shrink-0'>
+              {t('pages.admin.extensions.card.authors', {})}
+            </span>
+            <span className='text-xs text-(--mantine-color-text) min-w-0'>
               <ScrollingText>{backendExtension.authors.join(', ') || t('common.unknown', {})}</ScrollingText>
             </span>
           </div>
@@ -109,7 +104,7 @@ export default function ExtensionCard({
       )}
 
       {backendExtension?.description && (
-        <p className='flex-1 text-xs leading-relaxed text-zinc-400'>{backendExtension.description}</p>
+        <p className='flex-1 text-xs leading-relaxed text-(--mantine-color-dimmed)'>{backendExtension.description}</p>
       )}
 
       {extension?.cardComponent && (
@@ -124,7 +119,7 @@ export default function ExtensionCard({
 
       <div className='mt-auto flex items-center gap-2'>
         <ConditionalTooltip
-          enabled={!backendExtension || isDisabled || !extension?.cardConfigurationPage}
+          enabled={configureDisabled}
           label={
             !backendExtension
               ? t('pages.admin.extensions.tooltip.noBackend', {})
@@ -134,15 +129,13 @@ export default function ExtensionCard({
           }
           className='flex-1'
         >
-          <Link to={`/admin/extensions/${extension?.packageName}`} className='block w-full'>
-            <Button
-              leftSection={<FontAwesomeIcon icon={faWrench} />}
-              disabled={!backendExtension || isDisabled || !extension?.cardConfigurationPage}
-              className='w-full!'
-            >
-              {t('pages.admin.extensions.button.configure', {})}
-            </Button>
-          </Link>
+          {configureDisabled || !extension ? (
+            configureButton
+          ) : (
+            <Link to={`/admin/extensions/${extension.packageName}`} className='block w-full'>
+              {configureButton}
+            </Link>
+          )}
         </ConditionalTooltip>
         {backendExtension && onToggle && (
           <Tooltip

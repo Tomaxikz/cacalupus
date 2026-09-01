@@ -12,3 +12,5 @@ export const adminBackendExtensionSchema = z.object({
   authors: z.array(z.string()),
   version: z.string(),
 });
+
+export type AdminBackendExtension = z.infer<typeof adminBackendExtensionSchema>;

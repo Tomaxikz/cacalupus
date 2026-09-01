@@ -7,31 +7,24 @@ import { AdminCan } from '@/elements/Can.tsx';
 import Code from '@/elements/Code.tsx';
 import { useTranslations } from '@/providers/TranslationProvider.tsx';
 
-export interface ExtensionBuildStatus {
-  buildFailed: boolean;
-  failureReason: string | null;
-}
-
-export interface ExtensionRestartState {
-  pendingRestart: boolean;
-  isBuilding: boolean;
-  onRestart: () => void;
-}
-
 export default function ExtensionStatusAlerts({
   extensionStatus,
   supervisor,
-  buildStatus,
-  restart,
+  buildFailed,
+  failureReason,
+  pendingRestart,
+  isBuilding,
+  onRestart,
 }: {
   extensionStatus: ExtensionStatus | undefined;
   supervisor: ExtensionStatus['supervisor'];
-  buildStatus: ExtensionBuildStatus;
-  restart: ExtensionRestartState;
+  buildFailed: boolean;
+  failureReason: string | null;
+  pendingRestart: boolean;
+  isBuilding: boolean;
+  onRestart: () => void;
 }) {
   const { t } = useTranslations();
-  const { buildFailed, failureReason } = buildStatus;
-  const { pendingRestart, isBuilding, onRestart: handleRestart } = restart;
 
   return (
     <>
@@ -75,7 +68,7 @@ export default function ExtensionStatusAlerts({
                   variant='default'
                   leftSection={<FontAwesomeIcon icon={faPowerOff} />}
                   disabled={isBuilding}
-                  onClick={handleRestart}
+                  onClick={onRestart}
                 >
                   {t('pages.admin.extensions.button.restart', {})}
                 </Button>

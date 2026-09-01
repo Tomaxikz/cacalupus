@@ -1,4 +1,4 @@
-import { faExternalLink, faTriangleExclamation, faUnlockKeyhole } from '@fortawesome/free-solid-svg-icons';
+import { faExternalLink, faUnlockKeyhole } from '@fortawesome/free-solid-svg-icons';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { UseFormReturnType } from '@mantine/form';
 import { useEffect, useState } from 'react';
@@ -7,8 +7,6 @@ import createDatabaseHost from '@/api/admin/database-hosts/createDatabaseHost.ts
 import deleteDatabaseHost from '@/api/admin/database-hosts/deleteDatabaseHost.ts';
 import testDatabaseHost from '@/api/admin/database-hosts/testDatabaseHost.ts';
 import updateDatabaseHost from '@/api/admin/database-hosts/updateDatabaseHost.ts';
-import { httpErrorToHuman } from '@/api/axios.ts';
-import Alert from '@/elements/Alert.tsx';
 import Button from '@/elements/Button.tsx';
 import { AdminCan } from '@/elements/Can.tsx';
 import CollapsibleSection from '@/elements/CollapsibleSection.tsx';
@@ -16,10 +14,7 @@ import AdminContentContainer from '@/elements/containers/AdminContentContainer.t
 import { type FieldDef, FormEngine, useFormEngine } from '@/elements/form-engine/index.ts';
 import Group from '@/elements/Group.tsx';
 import Select from '@/elements/input/Select.tsx';
-import Switch from '@/elements/input/Switch.tsx';
-import ConfirmationModal from '@/elements/modals/ConfirmationModal.tsx';
-import Stack from '@/elements/Stack.tsx';
-import Text from '@/elements/Text.tsx';
+import ForceDeleteModal from '@/elements/modals/ForceDeleteModal.tsx';
 import { databaseCredentialTypeLabelMapping, databaseTypeLabelMapping, mappingToSelectData } from '@/lib/enums.ts';
 import { queryKeys } from '@/lib/queryKeys.ts';
 import {
@@ -29,9 +24,15 @@ import {
   adminDatabaseHostSchema,
   adminDatabaseHostUpdateSchema,
 } from '@/lib/schemas/admin/databaseHosts.ts';
+import { useHostAction } from '@/plugins/useHostAction.ts';
 import { useResourceForm } from '@/plugins/useResourceForm.ts';
-import { useToast } from '@/providers/ToastProvider.tsx';
 import { useTranslations } from '@/providers/TranslationProvider.tsx';
+import {
+  type AdminDatabaseCredentialType,
+  adminDatabaseCredentialsDefaults,
+  databaseHostEmptyFormValues,
+  databaseHostToFormValues,
+} from './databaseHostFormValues.ts';
 import CredentialConnectionString from './forms/CredentialConnectionString.tsx';
 import CredentialDetails from './forms/CredentialDetails.tsx';
 
@@ -43,22 +44,13 @@ export default function DatabaseHostCreateOrUpdate({
   contextDatabaseHost?: z.infer<typeof adminDatabaseHostSchema>;
 }) {
   const { t } = useTranslations();
-  const { addToast } = useToast();
 
   const [openModal, setOpenModal] = useState<'delete' | null>(null);
   const [deleteDoForce, setDeleteDoForce] = useState(false);
 
   const form = useFormEngine<DatabaseHostFormValues>('admin.databaseHosts.createOrUpdate', {
     schema: (contextDatabaseHost ? adminDatabaseHostUpdateSchema : adminDatabaseHostCreateSchema).unwrap(),
-    initialValues: {
-      name: '',
-      type: 'mysql',
-      deploymentEnabled: true,
-      maintenanceEnabled: false,
-      publicHost: null,
-      publicPort: null,
-      credentials: undefined,
-    },
+    initialValues: databaseHostEmptyFormValues,
     validateInputOnBlur: true,
   });
 
@@ -79,43 +71,18 @@ export default function DatabaseHostCreateOrUpdate({
     resourceName: t('pages.admin.databaseHosts.resourceName', {}),
   });
 
+  const runHostAction = useHostAction(contextDatabaseHost?.uuid, setLoading);
+
   useEffect(() => {
-    if (contextDatabaseHost) {
-      form.setValues({
-        name: contextDatabaseHost.name,
-        type: contextDatabaseHost.type,
-        deploymentEnabled: contextDatabaseHost.deploymentEnabled,
-        maintenanceEnabled: contextDatabaseHost.maintenanceEnabled,
-        publicHost: contextDatabaseHost.publicHost,
-        publicPort: contextDatabaseHost.publicPort,
-        credentials: undefined,
-      });
-    } else {
-      form.setValues({
-        credentials: {
-          type: 'connection_string',
-          connectionString: '',
-        },
-      });
-    }
+    form.setValues(
+      contextDatabaseHost
+        ? databaseHostToFormValues(contextDatabaseHost)
+        : { credentials: adminDatabaseCredentialsDefaults.connection_string },
+    );
   }, [contextDatabaseHost]);
 
-  const doTest = () => {
-    if (!contextDatabaseHost) {
-      return;
-    }
-
-    setLoading(true);
-
-    testDatabaseHost(contextDatabaseHost.uuid)
-      .then(() => {
-        addToast(t('pages.admin.databaseHosts.tabs.general.page.toast.tested', {}), 'success');
-      })
-      .catch((msg) => {
-        addToast(httpErrorToHuman(msg), 'error');
-      })
-      .finally(() => setLoading(false));
-  };
+  const doTest = () =>
+    runHostAction(testDatabaseHost, t('pages.admin.databaseHosts.tabs.general.page.toast.tested', {}));
 
   const fields: FieldDef<DatabaseHostFormValues>[] = [
     { type: 'text', name: 'name', label: t('common.form.name', {}), required: true },
@@ -142,13 +109,11 @@ export default function DatabaseHostCreateOrUpdate({
           icon={<FontAwesomeIcon icon={faUnlockKeyhole} />}
           enabled={!!f.values.credentials}
           onToggle={(enabled) =>
-            enabled
-              ? f.setValues({
-                  credentials: contextDatabaseHost
-                    ? contextDatabaseHost.credentials
-                    : { type: 'connection_string', connectionString: '' },
-                })
-              : f.setValues({ credentials: undefined })
+            f.setValues({
+              credentials: enabled
+                ? (contextDatabaseHost?.credentials ?? adminDatabaseCredentialsDefaults.connection_string)
+                : undefined,
+            })
           }
           title={t('pages.admin.databaseHosts.tabs.general.page.form.connectionCredentials', {})}
         >
@@ -158,6 +123,11 @@ export default function DatabaseHostCreateOrUpdate({
             data={mappingToSelectData(databaseCredentialTypeLabelMapping)}
             key={f.key('credentials.type')}
             {...f.getInputProps('credentials.type')}
+            onChange={(value) => {
+              if (value && value !== f.values.credentials?.type) {
+                f.setValues({ credentials: adminDatabaseCredentialsDefaults[value as AdminDatabaseCredentialType] });
+              }
+            }}
           />
 
           {f.values.credentials?.type === 'connection_string' ? (
@@ -194,38 +164,16 @@ export default function DatabaseHostCreateOrUpdate({
       fullscreen={!!contextDatabaseHost}
       titleOrder={2}
     >
-      <ConfirmationModal
+      <ForceDeleteModal
         opened={openModal === 'delete'}
-        onClose={() => {
-          setOpenModal(null);
-          setDeleteDoForce(false);
-        }}
+        onClose={() => setOpenModal(null)}
         title={t('pages.admin.databaseHosts.tabs.general.page.modal.delete.title', {})}
-        confirm={t('common.button.delete', {})}
+        name={form.getValues().name ?? ''}
+        force={deleteDoForce}
+        onForceChange={setDeleteDoForce}
+        forceWarning={t('pages.admin.databaseHosts.tabs.general.page.modal.delete.alert.forceWarning', {})}
         onConfirmed={doDelete}
-      >
-        <Stack>
-          <Text size='sm'>
-            {t('common.modal.delete.content', {
-              name: form.getValues().name ?? '',
-            }).md()}
-          </Text>
-
-          <Switch
-            label={t('common.form.force', {})}
-            name='force'
-            color='red'
-            checked={deleteDoForce}
-            onChange={(e) => setDeleteDoForce(e.target.checked)}
-          />
-
-          {deleteDoForce && (
-            <Alert color='red' icon={<FontAwesomeIcon icon={faTriangleExclamation} />}>
-              {t('pages.admin.databaseHosts.tabs.general.page.modal.delete.alert.forceWarning', {})}
-            </Alert>
-          )}
-        </Stack>
-      </ConfirmationModal>
+      />
 
       <form onSubmit={form.onSubmit(() => doCreateOrUpdate(false, queryKeys.admin.databaseHosts.all()))}>
         <FormEngine form={form} fields={fields} />
@@ -236,7 +184,11 @@ export default function DatabaseHostCreateOrUpdate({
               {t('common.button.save', {})}
             </Button>
             {!contextDatabaseHost && (
-              <Button onClick={() => doCreateOrUpdate(true)} disabled={!form.isValid()} loading={loading}>
+              <Button
+                onClick={() => doCreateOrUpdate(true, queryKeys.admin.databaseHosts.all())}
+                disabled={!form.isValid()}
+                loading={loading}
+              >
                 {t('common.button.saveAndStay', {})}
               </Button>
             )}

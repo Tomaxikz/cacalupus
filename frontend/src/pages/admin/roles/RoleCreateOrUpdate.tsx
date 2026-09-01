@@ -21,6 +21,7 @@ import RoleDuplicateModal from '@/pages/admin/roles/modals/RoleDuplicateModal.ts
 import { useResourceForm } from '@/plugins/useResourceForm.ts';
 import { useTranslations } from '@/providers/TranslationProvider.tsx';
 import { useGlobalStore } from '@/stores/global.ts';
+import { roleEmptyFormValues, roleToFormValues } from './roleFormValues.ts';
 
 type RoleFormValues = z.infer<typeof adminRoleUpdateSchema>;
 
@@ -33,13 +34,7 @@ export default function RoleCreateOrUpdate({ contextRole }: { contextRole?: z.in
 
   const form = useFormEngine<RoleFormValues>('admin.roles.createOrUpdate', {
     schema: adminRoleUpdateSchema.unwrap(),
-    initialValues: {
-      name: '',
-      description: null,
-      requireTwoFactor: false,
-      adminPermissions: [],
-      serverPermissions: [],
-    },
+    initialValues: roleEmptyFormValues,
     validateInputOnBlur: true,
   });
 
@@ -60,12 +55,7 @@ export default function RoleCreateOrUpdate({ contextRole }: { contextRole?: z.in
 
   useEffect(() => {
     if (contextRole) {
-      form.setValues({
-        name: contextRole.name,
-        description: contextRole.description,
-        adminPermissions: contextRole.adminPermissions,
-        serverPermissions: contextRole.serverPermissions,
-      });
+      form.setValues(roleToFormValues(contextRole));
     }
   }, [contextRole]);
 

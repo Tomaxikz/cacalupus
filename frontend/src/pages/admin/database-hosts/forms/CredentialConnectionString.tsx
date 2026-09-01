@@ -1,5 +1,4 @@
 import { UseFormReturnType } from '@mantine/form';
-import { useEffect } from 'react';
 import { z } from 'zod';
 import PasswordInput from '@/elements/input/PasswordInput.tsx';
 import Stack from '@/elements/Stack.tsx';
@@ -12,15 +11,6 @@ export default function CredentialConnectionString({
   form: UseFormReturnType<{ credentials: z.infer<typeof adminDatabaseCredentialsConnectionStringSchema> }>;
 }) {
   const { t } = useTranslations();
-
-  useEffect(() => {
-    form.setValues({
-      credentials: {
-        type: 'connection_string',
-        connectionString: form.values.credentials.connectionString ?? '',
-      },
-    });
-  }, []);
 
   return (
     <Stack mt='md'>

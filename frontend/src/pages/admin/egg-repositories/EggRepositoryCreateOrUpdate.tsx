@@ -7,7 +7,6 @@ import createEggRepository from '@/api/admin/egg-repositories/createEggRepositor
 import deleteEggRepository from '@/api/admin/egg-repositories/deleteEggRepository.ts';
 import syncEggRepository from '@/api/admin/egg-repositories/syncEggRepository.ts';
 import updateEggRepository from '@/api/admin/egg-repositories/updateEggRepository.ts';
-import { httpErrorToHuman } from '@/api/axios.ts';
 import Button from '@/elements/Button.tsx';
 import { AdminCan } from '@/elements/Can.tsx';
 import CollapsibleSection from '@/elements/CollapsibleSection.tsx';
@@ -24,9 +23,15 @@ import {
   adminEggRepositorySchema,
   adminEggRepositoryUpdateSchema,
 } from '@/lib/schemas/admin/eggRepositories.ts';
+import { useHostAction } from '@/plugins/useHostAction.ts';
 import { useResourceForm } from '@/plugins/useResourceForm.ts';
-import { useToast } from '@/providers/ToastProvider.tsx';
 import { useTranslations } from '@/providers/TranslationProvider.tsx';
+import {
+  type AdminEggRepositoryCredentialType,
+  adminEggRepositoryCredentialsDefaults,
+  eggRepositoryEmptyFormValues,
+  eggRepositoryToFormValues,
+} from './eggRepositoryFormValues.ts';
 import CredentialPassword from './forms/CredentialPassword.tsx';
 import CredentialPrivateKey from './forms/CredentialPrivateKey.tsx';
 
@@ -38,18 +43,12 @@ export default function EggRepositoryCreateOrUpdate({
   contextEggRepository?: z.infer<typeof adminEggRepositorySchema>;
 }) {
   const { t, tItem } = useTranslations();
-  const { addToast } = useToast();
 
   const [openModal, setOpenModal] = useState<'delete' | null>(null);
 
   const form = useFormEngine<EggRepositoryFormValues>('admin.eggRepositories.createOrUpdate', {
     schema: adminEggRepositoryUpdateSchema.unwrap(),
-    initialValues: {
-      name: '',
-      description: null,
-      gitRepository: '',
-      credentials: undefined,
-    },
+    initialValues: eggRepositoryEmptyFormValues,
     validateInputOnBlur: true,
   });
 
@@ -68,36 +67,18 @@ export default function EggRepositoryCreateOrUpdate({
     resourceName: t('pages.admin.eggRepositories.resourceName', {}),
   });
 
+  const runRepoAction = useHostAction(contextEggRepository?.uuid, setLoading);
+
   useEffect(() => {
     if (contextEggRepository) {
-      form.setValues({
-        name: contextEggRepository.name,
-        description: contextEggRepository.description,
-        gitRepository: contextEggRepository.gitRepository,
-        credentials: undefined,
-      });
+      form.setValues(eggRepositoryToFormValues(contextEggRepository));
     }
   }, [contextEggRepository]);
 
-  const doSync = () => {
-    if (!contextEggRepository) {
-      return;
-    }
-
-    setLoading(true);
-
-    syncEggRepository(contextEggRepository.uuid)
-      .then((found) => {
-        addToast(
-          t('pages.admin.eggRepositories.tabs.general.page.toast.synced', { eggs: tItem('egg', found) }),
-          'success',
-        );
-      })
-      .catch((msg) => {
-        addToast(httpErrorToHuman(msg), 'error');
-      })
-      .finally(() => setLoading(false));
-  };
+  const doSync = () =>
+    runRepoAction(syncEggRepository, (found) =>
+      t('pages.admin.eggRepositories.tabs.general.page.toast.synced', { eggs: tItem('egg', found) }),
+    );
 
   const fields: FieldDef<EggRepositoryFormValues>[] = [
     { type: 'text', name: 'name', label: t('common.form.name', {}), required: true },
@@ -118,7 +99,9 @@ export default function EggRepositoryCreateOrUpdate({
           enabled={!!f.values.credentials}
           onToggle={(enabled) =>
             f.setValues({
-              credentials: enabled ? (contextEggRepository?.credentials ?? { type: 'none' }) : undefined,
+              credentials: enabled
+                ? (contextEggRepository?.credentials ?? adminEggRepositoryCredentialsDefaults.none)
+                : undefined,
             })
           }
           title={t('pages.admin.eggRepositories.tabs.general.page.form.credentials', {})}
@@ -129,6 +112,13 @@ export default function EggRepositoryCreateOrUpdate({
             data={mappingToSelectData(eggRepositoryCredentialTypeLabelMapping)}
             key={f.key('credentials.type')}
             {...f.getInputProps('credentials.type')}
+            onChange={(value) => {
+              if (value && value !== f.values.credentials?.type) {
+                f.setValues({
+                  credentials: adminEggRepositoryCredentialsDefaults[value as AdminEggRepositoryCredentialType],
+                });
+              }
+            }}
           />
 
           {f.values.credentials?.type === 'password' ? (
@@ -183,7 +173,11 @@ export default function EggRepositoryCreateOrUpdate({
               {t('common.button.save', {})}
             </Button>
             {!contextEggRepository && (
-              <Button onClick={() => doCreateOrUpdate(true)} disabled={!form.isValid()} loading={loading}>
+              <Button
+                onClick={() => doCreateOrUpdate(true, queryKeys.admin.eggRepositories.all())}
+                disabled={!form.isValid()}
+                loading={loading}
+              >
                 {t('common.button.saveAndStay', {})}
               </Button>
             )}

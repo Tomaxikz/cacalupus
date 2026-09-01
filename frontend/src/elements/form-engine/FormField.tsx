@@ -2,6 +2,7 @@ import { faCircleQuestion } from '@fortawesome/free-solid-svg-icons';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { UseFormReturnType } from '@mantine/form';
 import { ReactNode } from 'react';
+import CollapsibleSection from '@/elements/CollapsibleSection.tsx';
 import Divider from '@/elements/Divider.tsx';
 import Autocomplete from '@/elements/input/Autocomplete.tsx';
 import Checkbox from '@/elements/input/Checkbox.tsx';
@@ -39,7 +40,7 @@ function resolveOptions(options: FieldOption[]) {
 
 function fieldLabel<T extends Record<string, unknown>>(field: FieldDef<T>): ReactNode {
   const label = 'label' in field ? resolveString(field.label) : undefined;
-  if (field.type === 'custom' || field.type === 'divider' || !field.tooltip) return label;
+  if (field.type === 'custom' || field.type === 'divider' || field.type === 'section' || !field.tooltip) return label;
 
   return (
     <span className='inline-flex items-center gap-1'>
@@ -327,5 +328,26 @@ export function FormField<T extends Record<string, unknown>>({ form, field }: Pr
 
     case 'custom':
       return <div className={colSpanClass}>{field.render(form)}</div>;
+
+    case 'section': {
+      const enabled = field.nullableDefault === undefined || getByPath(f.getValues(), field.name) != null;
+      return (
+        <div className={colSpanClass}>
+          <CollapsibleSection
+            icon={field.icon}
+            title={resolveString(field.title)}
+            enabled={enabled}
+            onToggle={(next) => {
+              if (field.nullableDefault === undefined) return;
+              const value =
+                typeof field.nullableDefault === 'function' ? field.nullableDefault() : field.nullableDefault;
+              f.setFieldValue(field.name, next ? value : null);
+            }}
+          >
+            {enabled ? field.render(form) : null}
+          </CollapsibleSection>
+        </div>
+      );
+    }
   }
 }

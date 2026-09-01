@@ -1,59 +1,56 @@
 import { ModalProps } from '@mantine/core';
 import { useEffect, useState } from 'react';
 import { z } from 'zod';
-import installEgg from '@/api/admin/egg-repositories/eggs/installEgg.ts';
-import getNests from '@/api/admin/nests/getNests.ts';
+import installEggs from '@/api/admin/egg-repositories/eggs/installEggs.ts';
 import { httpErrorToHuman } from '@/api/axios.ts';
 import Button from '@/elements/Button.tsx';
-import Select from '@/elements/input/Select.tsx';
+import NestSelect from '@/elements/input/NestSelect.tsx';
 import { Modal, ModalFooter } from '@/elements/modals/Modal.tsx';
 import Stack from '@/elements/Stack.tsx';
-import { queryKeys } from '@/lib/queryKeys.ts';
 import { adminEggRepositoryEggSchema, adminEggRepositorySchema } from '@/lib/schemas/admin/eggRepositories.ts';
-import { adminNestSchema } from '@/lib/schemas/admin/nests.ts';
-import { useSearchableResource } from '@/plugins/useSearchableResource.ts';
 import { useToast } from '@/providers/ToastProvider.tsx';
 import { useTranslations } from '@/providers/TranslationProvider.tsx';
 
 export default function EggRepositoryEggInstallModal({
   eggRepository,
-  egg,
+  eggs,
+  onInstalled,
   ...props
 }: ModalProps & {
   eggRepository: z.infer<typeof adminEggRepositorySchema>;
-  egg: z.infer<typeof adminEggRepositoryEggSchema>;
+  eggs: z.infer<typeof adminEggRepositoryEggSchema>[];
+  onInstalled?: () => void;
 }) {
-  const { t } = useTranslations();
+  const { t, tItem } = useTranslations();
   const { addToast } = useToast();
 
   const [loading, setLoading] = useState(false);
-  const [selectedNest, setSelectedNest] = useState<z.infer<typeof adminNestSchema> | null>(null);
-
-  const nests = useSearchableResource<z.infer<typeof adminNestSchema>>({
-    queryKey: queryKeys.admin.nests.all(),
-    canRequest: props.opened,
-    fetcher: (search) => getNests(1, search),
-    deps: [props.opened],
-  });
+  const [selectedNest, setSelectedNest] = useState<string | null>(null);
 
   useEffect(() => {
     if (!props.opened) {
-      nests.setSearch('');
       setSelectedNest(null);
     }
   }, [props.opened]);
 
   const doInstall = () => {
-    if (!selectedNest) {
+    if (!selectedNest || eggs.length === 0) {
       return;
     }
 
     setLoading(true);
 
-    installEgg(eggRepository.uuid, egg.uuid, selectedNest.uuid)
-      .then(() => {
-        addToast(t('pages.admin.eggRepositories.tabs.eggs.page.toast.installed', {}), 'success');
-
+    installEggs(
+      eggRepository.uuid,
+      eggs.map((egg) => egg.uuid),
+      selectedNest,
+    )
+      .then((installed) => {
+        addToast(
+          t('pages.admin.eggRepositories.tabs.eggs.page.toast.installed', { eggs: tItem('egg', installed) }),
+          'success',
+        );
+        onInstalled?.();
         props.onClose();
       })
       .catch((msg) => {
@@ -63,26 +60,23 @@ export default function EggRepositoryEggInstallModal({
   };
 
   return (
-    <Modal title={t('pages.admin.eggRepositories.tabs.eggs.page.modal.install.title', {})} {...props}>
+    <Modal
+      title={t('pages.admin.eggRepositories.tabs.eggs.page.modal.install.title', { eggs: tItem('egg', eggs.length) })}
+      {...props}
+    >
       <Stack>
-        <Select
+        <NestSelect
           withAsterisk
           label={t('common.form.nest', {})}
-          value={selectedNest?.uuid}
-          onChange={(value) => setSelectedNest(nests.items.find((m) => m.uuid === value) ?? null)}
-          data={nests.items.map((mount) => ({
-            label: mount.name,
-            value: mount.uuid,
-          }))}
-          searchable
-          searchValue={nests.search}
-          onSearchChange={nests.setSearch}
-          loading={nests.loading}
+          value={selectedNest}
+          onChange={(uuid) => setSelectedNest(uuid)}
         />
 
         <ModalFooter>
           <Button onClick={doInstall} loading={loading} disabled={!selectedNest}>
-            {t('common.button.install', {})}
+            {t('pages.admin.eggRepositories.tabs.eggs.page.modal.install.button', {
+              eggs: tItem('egg', eggs.length),
+            })}
           </Button>
           <Button variant='default' onClick={props.onClose}>
             {t('common.button.close', {})}

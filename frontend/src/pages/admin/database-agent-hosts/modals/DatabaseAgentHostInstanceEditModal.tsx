@@ -38,16 +38,18 @@ export default function DatabaseAgentHostInstanceEditModal({ hostUuid, instance,
   const { addToast } = useToast();
   const queryClient = useQueryClient();
 
+  const buildInitialValues = (): FormValues => ({
+    image: instance.imageOverride ?? '',
+    env: instance.envOverrides ?? {},
+    memory: instance.memoryOverride,
+    swap: instance.swapOverride,
+    disk: instance.diskOverride,
+    ioWeight: instance.ioWeightOverride,
+    cpu: instance.cpuOverride,
+  });
+
   const { form, handleClose, handleSubmit, loading, isDirty } = useModalForm<FormValues>({
-    initialValues: {
-      image: instance.imageOverride ?? '',
-      env: instance.envOverrides ?? {},
-      memory: instance.memoryOverride,
-      swap: instance.swapOverride,
-      disk: instance.diskOverride,
-      ioWeight: instance.ioWeightOverride,
-      cpu: instance.cpuOverride,
-    },
+    initialValues: buildInitialValues(),
     onClose: props.onClose,
     onSubmit: async (values) => {
       await updateDatabaseAgentHostInstance(hostUuid, instance.uuid, {
@@ -66,16 +68,7 @@ export default function DatabaseAgentHostInstanceEditModal({ hostUuid, instance,
 
   useEffect(() => {
     if (props.opened) {
-      const initial = {
-        image: instance.imageOverride ?? '',
-        env: instance.envOverrides ?? {},
-        memory: instance.memoryOverride,
-        swap: instance.swapOverride,
-        disk: instance.diskOverride,
-        ioWeight: instance.ioWeightOverride,
-        cpu: instance.cpuOverride,
-      };
-
+      const initial = buildInitialValues();
       form.setValues(initial);
       form.resetDirty(initial);
     }

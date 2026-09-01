@@ -1,15 +1,10 @@
-import { faTriangleExclamation } from '@fortawesome/free-solid-svg-icons';
-import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
-import { Alert, ModalProps } from '@mantine/core';
+import { ModalProps } from '@mantine/core';
 import { useQueryClient } from '@tanstack/react-query';
 import { useState } from 'react';
 import { z } from 'zod';
 import deleteDatabaseAgentHostInstance from '@/api/admin/database-agent-hosts/deleteDatabaseAgentHostInstance.ts';
 import { httpErrorToHuman } from '@/api/axios.ts';
-import Switch from '@/elements/input/Switch.tsx';
-import ConfirmationModal from '@/elements/modals/ConfirmationModal.tsx';
-import Stack from '@/elements/Stack.tsx';
-import Text from '@/elements/Text.tsx';
+import ForceDeleteModal from '@/elements/modals/ForceDeleteModal.tsx';
 import { queryKeys } from '@/lib/queryKeys.ts';
 import { adminDatabaseAgentBaseSchema } from '@/lib/schemas/admin/servers.ts';
 import { useToast } from '@/providers/ToastProvider.tsx';
@@ -25,10 +20,10 @@ export default function DatabaseAgentHostInstanceDeleteModal({ hostUuid, instanc
   const { addToast } = useToast();
   const queryClient = useQueryClient();
 
-  const [deleteDoForce, setDeleteDoForce] = useState(false);
+  const [force, setForce] = useState(false);
 
   const doDelete = () =>
-    deleteDatabaseAgentHostInstance(hostUuid, instance.uuid, { force: deleteDoForce })
+    deleteDatabaseAgentHostInstance(hostUuid, instance.uuid, { force })
       .then(() => {
         addToast(
           t('pages.admin.databaseAgentHosts.tabs.instances.page.modal.deleteInstance.toast.deleted', {}),
@@ -42,32 +37,14 @@ export default function DatabaseAgentHostInstanceDeleteModal({ hostUuid, instanc
       });
 
   return (
-    <ConfirmationModal
-      title={t('pages.admin.databaseAgentHosts.tabs.instances.page.modal.deleteInstance.title', {})}
-      onConfirmed={doDelete}
+    <ForceDeleteModal
       {...props}
-    >
-      <Stack>
-        <Text size='sm'>
-          {t('common.modal.delete.content', {
-            name: instance.name,
-          }).md()}
-        </Text>
-
-        <Switch
-          label={t('common.form.force', {})}
-          name='force'
-          color='red'
-          checked={deleteDoForce}
-          onChange={(e) => setDeleteDoForce(e.target.checked)}
-        />
-
-        {deleteDoForce && (
-          <Alert color='red' icon={<FontAwesomeIcon icon={faTriangleExclamation} />}>
-            {t('pages.admin.databaseAgentHosts.tabs.instances.page.modal.deleteInstance.alert.forceWarning', {})}
-          </Alert>
-        )}
-      </Stack>
-    </ConfirmationModal>
+      title={t('pages.admin.databaseAgentHosts.tabs.instances.page.modal.deleteInstance.title', {})}
+      name={instance.name}
+      force={force}
+      onForceChange={setForce}
+      forceWarning={t('pages.admin.databaseAgentHosts.tabs.instances.page.modal.deleteInstance.alert.forceWarning', {})}
+      onConfirmed={doDelete}
+    />
   );
 }

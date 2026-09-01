@@ -18,6 +18,7 @@ import { useAdminCan } from '@/plugins/usePermissions.ts';
 import { useSearchableResource } from '@/plugins/useSearchableResource.ts';
 import { useToast } from '@/providers/ToastProvider.tsx';
 import { useTranslations } from '@/providers/TranslationProvider.tsx';
+import { locationEmptyFormValues } from '../locationFormValues.ts';
 
 interface LocationCreateOrUpdateModalProps {
   opened: boolean;
@@ -40,12 +41,7 @@ export default function LocationCreateOrUpdateModal({
   const { form, handleClose, handleSubmit, loading, isDirty } = useModalForm<LocationFormValues>({
     formId: 'admin.nodes.locationModal',
     schema: adminLocationUpdateSchema.unwrap(),
-    initialValues: {
-      name: '',
-      description: null,
-      flag: null,
-      backupConfigurationUuid: null,
-    },
+    initialValues: locationEmptyFormValues,
     onClose,
     onSubmit: async (values) => {
       await createLocation(adminLocationUpdateSchema.parse(values));

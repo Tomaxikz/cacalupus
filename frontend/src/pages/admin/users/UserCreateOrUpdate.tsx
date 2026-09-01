@@ -26,6 +26,7 @@ import { useAuth } from '@/providers/AuthProvider.tsx';
 import { useToast } from '@/providers/ToastProvider.tsx';
 import { useTranslations } from '@/providers/TranslationProvider.tsx';
 import { useGlobalStore } from '@/stores/global.ts';
+import { userEmptyFormValues, userToFormValues } from './userFormValues.ts';
 
 type UserFormValues = z.infer<typeof adminUserUpdateSchema>;
 
@@ -46,19 +47,7 @@ export default function UserCreateOrUpdate({ contextUser }: { contextUser?: z.in
 
   const form = useFormEngine<UserFormValues>('admin.users.createOrUpdate', {
     schema: adminUserUpdateSchema.unwrap(),
-    initialValues: {
-      externalId: null,
-      username: '',
-      email: '',
-      nameFirst: '',
-      nameLast: '',
-      password: null,
-      admin: false,
-      frozen: false,
-      suspended: false,
-      language: settings.app.language,
-      roleUuid: null,
-    },
+    initialValues: { ...userEmptyFormValues, language: settings.app.language },
   });
 
   const { loading, doCreateOrUpdate, doDelete } = useResourceForm<UserFormValues, z.infer<typeof adminFullUserSchema>>({
@@ -75,19 +64,7 @@ export default function UserCreateOrUpdate({ contextUser }: { contextUser?: z.in
 
   useEffect(() => {
     if (contextUser) {
-      form.setValues({
-        externalId: contextUser.externalId,
-        username: contextUser.username,
-        email: contextUser.email,
-        nameFirst: contextUser.nameFirst,
-        nameLast: contextUser.nameLast,
-        password: null,
-        admin: contextUser.admin,
-        frozen: contextUser.frozen,
-        suspended: contextUser.suspended,
-        language: contextUser.language,
-        roleUuid: contextUser.role?.uuid ?? null,
-      });
+      form.setValues(userToFormValues(contextUser));
     }
   }, [contextUser]);
 

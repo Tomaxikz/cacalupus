@@ -2,17 +2,14 @@ import { ModalProps } from '@mantine/core';
 import { useState } from 'react';
 import { z } from 'zod';
 import moveEggs from '@/api/admin/nests/eggs/moveEggs.ts';
-import getNests from '@/api/admin/nests/getNests.ts';
 import { httpErrorToHuman } from '@/api/axios.ts';
 import Button from '@/elements/Button.tsx';
-import Select from '@/elements/input/Select.tsx';
+import NestSelect from '@/elements/input/NestSelect.tsx';
 import { Modal, ModalFooter } from '@/elements/modals/Modal.tsx';
 import Stack from '@/elements/Stack.tsx';
 import { ObjectSet } from '@/lib/objectSet.ts';
-import { queryKeys } from '@/lib/queryKeys.ts';
 import { adminEggSchema } from '@/lib/schemas/admin/eggs.ts';
 import { adminNestSchema } from '@/lib/schemas/admin/nests.ts';
-import { useSearchableResource } from '@/plugins/useSearchableResource.ts';
 import { useToast } from '@/providers/ToastProvider.tsx';
 import { useTranslations } from '@/providers/TranslationProvider.tsx';
 
@@ -30,12 +27,7 @@ export default function EggsMoveModal({
   const { t, tItem } = useTranslations();
 
   const [loading, setLoading] = useState(false);
-  const [selectedNest, setSelectedNest] = useState<z.infer<typeof adminNestSchema> | null>(null);
-
-  const nests = useSearchableResource<z.infer<typeof adminNestSchema>>({
-    queryKey: queryKeys.admin.nests.all(),
-    fetcher: (search) => getNests(1, search),
-  });
+  const [selectedNest, setSelectedNest] = useState<string | null>(null);
 
   const doMove = () => {
     if (!selectedNest) {
@@ -44,7 +36,7 @@ export default function EggsMoveModal({
 
     setLoading(true);
 
-    moveEggs(nest.uuid, selectedEggs.keys(), selectedNest.uuid)
+    moveEggs(nest.uuid, selectedEggs.keys(), selectedNest)
       .then(({ moved }) => {
         addToast(t('pages.admin.nests.tabs.eggs.page.toast.movedBulk', { eggs: tItem('egg', moved) }), 'success');
         invalidateEggs();
@@ -59,19 +51,11 @@ export default function EggsMoveModal({
   return (
     <Modal title={t('pages.admin.nests.tabs.eggs.page.modal.moveBulk.title', {})} {...props}>
       <Stack>
-        <Select
+        <NestSelect
           withAsterisk
           label={t('common.form.nest', {})}
-          value={selectedNest?.uuid}
-          onChange={(value) => setSelectedNest(nests.items.find((m) => m.uuid === value) ?? null)}
-          data={nests.items.map((nest) => ({
-            label: nest.name,
-            value: nest.uuid,
-          }))}
-          searchable
-          searchValue={nests.search}
-          onSearchChange={nests.setSearch}
-          loading={nests.loading}
+          value={selectedNest}
+          onChange={(uuid) => setSelectedNest(uuid)}
         />
 
         <ModalFooter>

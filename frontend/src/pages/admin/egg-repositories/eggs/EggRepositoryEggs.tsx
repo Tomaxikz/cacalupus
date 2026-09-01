@@ -1,16 +1,14 @@
-import { Ref, useCallback, useEffect, useState } from 'react';
+import { Ref, useState } from 'react';
 import { z } from 'zod';
 import getEggRepositoryEggs from '@/api/admin/egg-repositories/eggs/getEggRepositoryEggs.ts';
 import AdminSubContentContainer from '@/elements/containers/AdminSubContentContainer.tsx';
 import SelectionArea from '@/elements/SelectionArea.tsx';
 import Table from '@/elements/Table.tsx';
-import { ObjectSet } from '@/lib/objectSet.ts';
 import { queryKeys } from '@/lib/queryKeys.ts';
 import { adminEggRepositoryEggSchema, adminEggRepositorySchema } from '@/lib/schemas/admin/eggRepositories.ts';
 import { eggRepositoryEggTableColumns } from '@/lib/tableColumns.ts';
-import { useKeyboardShortcuts } from '@/plugins/useKeyboardShortcuts.ts';
+import { useObjectSetSelection } from '@/plugins/useObjectSetSelection.ts';
 import { useSearchablePaginatedTable } from '@/plugins/useSearchablePaginatedTable.ts';
-import { useSelectionArea } from '@/plugins/useSelectionArea.ts';
 import { useTranslations } from '@/providers/TranslationProvider.tsx';
 import EggRepositoryEggDrawer from './drawers/EggRepositoryEggDrawer.tsx';
 import EggActionBar from './EggActionBar.tsx';
@@ -22,35 +20,7 @@ export default function EggRepositoryEggs({
   contextEggRepository: z.infer<typeof adminEggRepositorySchema>;
 }) {
   const { t } = useTranslations();
-  const [selectedEggs, setSelectedEggs] = useState(
-    new ObjectSet<z.infer<typeof adminEggRepositoryEggSchema>, 'uuid'>('uuid'),
-  );
   const [drawerEgg, setDrawerEgg] = useState<z.infer<typeof adminEggRepositoryEggSchema> | null>(null);
-
-  useEffect(() => {
-    setSelectedEggs(new ObjectSet('uuid'));
-  }, []);
-
-  const { onSelectedStart, onSelected } = useSelectionArea({
-    identify: (egg) => egg.uuid,
-    getSelected: () => selectedEggs.values(),
-    setSelected: (eggs) => setSelectedEggs(new ObjectSet('uuid', eggs)),
-  });
-
-  const handleEggSelectionChange = useCallback(
-    (egg: z.infer<typeof adminEggRepositoryEggSchema>, selected: boolean) => {
-      setSelectedEggs((prev) => {
-        const newSet = prev.clone();
-        if (selected) {
-          newSet.add(egg);
-        } else {
-          newSet.delete(egg);
-        }
-        return newSet;
-      });
-    },
-    [],
-  );
 
   const {
     data: eggRepositoryEggs,
@@ -64,20 +34,7 @@ export default function EggRepositoryEggs({
     fetcher: (page, search) => getEggRepositoryEggs(contextEggRepository.uuid, page, search),
   });
 
-  useKeyboardShortcuts({
-    shortcuts: [
-      {
-        key: 'a',
-        modifiers: ['ctrlOrMeta'],
-        callback: () => setSelectedEggs(new ObjectSet('uuid', eggRepositoryEggs?.data)),
-      },
-      {
-        key: 'Escape',
-        callback: () => setSelectedEggs(new ObjectSet('uuid')),
-      },
-    ],
-    deps: [eggRepositoryEggs?.data],
-  });
+  const { selected, add, remove, clear, selectionAreaProps } = useObjectSetSelection(eggRepositoryEggs?.data);
 
   return (
     <AdminSubContentContainer
@@ -88,11 +45,7 @@ export default function EggRepositoryEggs({
       registry={window.extensionContext.extensionRegistry.pages.admin.eggRepositories.view.eggs.subContainer}
       registryProps={{ eggRepository: contextEggRepository }}
     >
-      <EggActionBar
-        eggRepository={contextEggRepository}
-        selectedEggs={selectedEggs}
-        setSelectedEggs={setSelectedEggs}
-      />
+      <EggActionBar eggRepository={contextEggRepository} selectedEggs={selected} onInstalled={clear} />
 
       <EggRepositoryEggDrawer
         eggRepository={contextEggRepository}
@@ -101,7 +54,7 @@ export default function EggRepositoryEggs({
         onClose={() => setDrawerEgg(null)}
       />
 
-      <SelectionArea onSelectedStart={onSelectedStart} onSelected={onSelected} disabled={drawerEgg !== null}>
+      <SelectionArea {...selectionAreaProps} disabled={drawerEgg !== null}>
         <Table
           columns={eggRepositoryEggTableColumns()}
           loading={loading}
@@ -117,8 +70,8 @@ export default function EggRepositoryEggs({
                   key={eggRepositoryEgg.uuid}
                   egg={eggRepositoryEgg}
                   ref={innerRef as Ref<HTMLTableRowElement>}
-                  isSelected={selectedEggs.has(eggRepositoryEgg.uuid)}
-                  onSelectionChange={(selected) => handleEggSelectionChange(eggRepositoryEgg, selected)}
+                  isSelected={selected.has(eggRepositoryEgg.uuid)}
+                  onSelectionChange={(isSelected) => (isSelected ? add(eggRepositoryEgg) : remove(eggRepositoryEgg))}
                   onOpen={() => setDrawerEgg(eggRepositoryEgg)}
                 />
               )}

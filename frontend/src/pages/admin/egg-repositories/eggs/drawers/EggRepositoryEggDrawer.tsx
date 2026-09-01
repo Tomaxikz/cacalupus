@@ -49,7 +49,7 @@ export default function EggRepositoryEggDrawer({
           <AdminCan action={['eggs.create', 'nests.read']}>
             <EggRepositoryEggInstallModal
               eggRepository={eggRepository}
-              egg={displayEgg}
+              eggs={[displayEgg]}
               opened={installOpen}
               onClose={() => setInstallOpen(false)}
             />

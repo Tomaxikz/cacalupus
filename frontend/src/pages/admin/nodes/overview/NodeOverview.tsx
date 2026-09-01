@@ -11,15 +11,14 @@ import { SimpleGrid, Text } from '@mantine/core';
 import { z } from 'zod';
 import getNodeCapacity from '@/api/admin/nodes/getNodeCapacity.ts';
 import getNodeSystemOverview from '@/api/admin/nodes/system/getNodeSystemOverview.ts';
+import CapacityCard from '@/elements/admin/CapacityCard.tsx';
+import InfoRow from '@/elements/admin/InfoRow.tsx';
 import Badge from '@/elements/Badge.tsx';
-import Card from '@/elements/Card.tsx';
 import AdminSubContentContainer from '@/elements/containers/AdminSubContentContainer.tsx';
 import Group from '@/elements/Group.tsx';
-import SemiCircleProgress from '@/elements/SemiCircleProgress.tsx';
 import Spinner from '@/elements/Spinner.tsx';
 import Stack from '@/elements/Stack.tsx';
 import TableLink from '@/elements/TableLink.tsx';
-import Title from '@/elements/Title.tsx';
 import TitleCard from '@/elements/TitleCard.tsx';
 import { queryKeys } from '@/lib/queryKeys.ts';
 import { adminNodeSchema } from '@/lib/schemas/admin/nodes.ts';
@@ -31,80 +30,6 @@ import { useTranslations } from '@/providers/TranslationProvider.tsx';
 import { useAdminStore } from '@/stores/admin.tsx';
 
 type Node = z.infer<typeof adminNodeSchema>;
-
-const defaultFormatValue = (value: number) => bytesToString(mbToBytes(value));
-
-function InfoRow({ label, children }: { label: string; children: React.ReactNode }) {
-  return (
-    <div className='flex items-start justify-between gap-4 py-1.5 border-b border-(--mantine-color-default-border) last:border-b-0'>
-      <Text size='sm' c='dimmed' className='shrink-0'>
-        {label}
-      </Text>
-      <div className='text-right text-sm'>{children}</div>
-    </div>
-  );
-}
-
-function CapacityResource({
-  label,
-  icon,
-  allocated,
-  limit,
-  footer,
-  formatValue = defaultFormatValue,
-}: {
-  label: string;
-  icon: React.ReactNode;
-  allocated: number;
-  limit: number;
-  footer?: React.ReactNode;
-  formatValue?: (value: number) => React.ReactNode;
-}) {
-  const { t } = useTranslations();
-  const percent = limit > 0 ? (allocated / limit) * 100 : 0;
-
-  if (limit === 0) {
-    return (
-      <Card>
-        <div className='flex flex-col md:flex-row gap-4 md:items-center'>
-          <div className='flex justify-center md:flex-1'>
-            <SemiCircleProgress value={100} label='--' filledSegmentColor='gray' />
-          </div>
-          <div className='flex flex-col text-center md:text-right flex-1'>
-            <Title order={2}>
-              {icon} {label}
-            </Title>
-            <h2>{formatValue(allocated)}</h2>
-            <p className='text-xs'>{footer ?? t('pages.admin.nodes.tabs.capacity.page.label.noLimit', {})}</p>
-          </div>
-        </div>
-      </Card>
-    );
-  }
-
-  return (
-    <Card>
-      <div className='flex flex-col md:flex-row gap-4 md:items-center'>
-        <div className='flex justify-center md:flex-1'>
-          <SemiCircleProgress
-            value={Math.min(percent, 100)}
-            label={<>{percent.toFixed(1)}%</>}
-            filledSegmentColor={percent >= 90 ? 'red' : undefined}
-          />
-        </div>
-        <div className='flex flex-col text-center md:text-right flex-1'>
-          <Title order={2}>
-            {icon} {label}
-          </Title>
-          <h2>
-            {formatValue(allocated)} / {formatValue(limit)}
-          </h2>
-          {footer}
-        </div>
-      </div>
-    </Card>
-  );
-}
 
 export default function NodeOverview({ node }: { node: Node }) {
   const { t } = useTranslations();
@@ -284,11 +209,12 @@ export default function NodeOverview({ node }: { node: Node }) {
             <Spinner.Centered />
           ) : (
             <div className='grid grid-cols-1 lg:grid-cols-2 2xl:grid-cols-3 gap-4'>
-              <CapacityResource
+              <CapacityCard
                 label={t('pages.admin.nodes.tabs.capacity.page.label.memory', {})}
                 icon={<FontAwesomeIcon icon={faMemory} />}
                 allocated={capacity.allocated.memory}
                 limit={capacity.limits.memory}
+                noLimitLabel={t('pages.admin.nodes.tabs.capacity.page.label.noLimit', {})}
                 footer={
                   capacity.limits.memory === 0 ? (
                     capacity.allocated.memoryOverhead > 0 ? (
@@ -311,11 +237,12 @@ export default function NodeOverview({ node }: { node: Node }) {
                   )
                 }
               />
-              <CapacityResource
+              <CapacityCard
                 label={t('pages.admin.nodes.tabs.capacity.page.label.disk', {})}
                 icon={<FontAwesomeIcon icon={faHardDrive} />}
                 allocated={capacity.allocated.disk}
                 limit={capacity.limits.disk}
+                noLimitLabel={t('pages.admin.nodes.tabs.capacity.page.label.noLimit', {})}
                 footer={
                   capacity.limits.disk === 0 ? undefined : (
                     <p className='text-xs'>
@@ -326,11 +253,12 @@ export default function NodeOverview({ node }: { node: Node }) {
                   )
                 }
               />
-              <CapacityResource
+              <CapacityCard
                 label={t('common.stat.cpu', {})}
                 icon={<FontAwesomeIcon icon={faMicrochip} />}
                 allocated={capacity.allocated.cpu}
                 limit={0}
+                noLimitLabel={t('pages.admin.nodes.tabs.capacity.page.label.noLimit', {})}
                 formatValue={(value) => `${value}%`}
                 footer={t('pages.admin.nodes.tabs.capacity.page.label.cores', {
                   cores: (capacity.allocated.cpu / 100).toFixed(2),

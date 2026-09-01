@@ -1,31 +1,31 @@
-import { faChevronDown, faExternalLink, faFileDownload } from '@fortawesome/free-solid-svg-icons';
+import { faExternalLink } from '@fortawesome/free-solid-svg-icons';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
-import { dump } from 'js-yaml';
 import { useEffect, useState } from 'react';
 import { z } from 'zod';
 import createOAuthProvider from '@/api/admin/oauth-providers/createOAuthProvider.ts';
 import deleteOAuthProvider from '@/api/admin/oauth-providers/deleteOAuthProvider.ts';
+import duplicateOAuthProvider from '@/api/admin/oauth-providers/duplicateOAuthProvider.ts';
 import updateOAuthProvider from '@/api/admin/oauth-providers/updateOAuthProvider.ts';
 import Anchor from '@/elements/Anchor.tsx';
 import Button from '@/elements/Button.tsx';
 import { AdminCan } from '@/elements/Can.tsx';
 import Card from '@/elements/Card.tsx';
 import Code from '@/elements/Code.tsx';
-import ContextMenu from '@/elements/ContextMenu.tsx';
 import AdminContentContainer from '@/elements/containers/AdminContentContainer.tsx';
 import { type FieldDef, FormEngine, useFormEngine } from '@/elements/form-engine/index.ts';
 import Group from '@/elements/Group.tsx';
 import ConfirmationModal from '@/elements/modals/ConfirmationModal.tsx';
+import ResourceDuplicateModal from '@/elements/modals/ResourceDuplicateModal.tsx';
+import ResourceExportMenu from '@/elements/ResourceExportMenu.tsx';
 import Title from '@/elements/Title.tsx';
-import { serializeForApi } from '@/lib/api-transform.ts';
-import { downloadTextFile } from '@/lib/download.ts';
+import { downloadResourceFile, type ResourceExportFormat } from '@/lib/export.ts';
 import { queryKeys } from '@/lib/queryKeys.ts';
 import { adminOAuthProviderSchema, adminOAuthProviderUpdateSchema } from '@/lib/schemas/admin/oauthProviders.ts';
-import OAuthProviderDuplicateModal from '@/pages/admin/oauth-providers/modals/OAuthProviderDuplicateModal.tsx';
 import { useResourceForm } from '@/plugins/useResourceForm.ts';
 import { useToast } from '@/providers/ToastProvider.tsx';
 import { useTranslations } from '@/providers/TranslationProvider.tsx';
 import { useGlobalStore } from '@/stores/global.ts';
+import { oauthProviderEmptyFormValues, oauthProviderToFormValues } from './oauthProviderFormValues.ts';
 
 type OAuthFormValues = z.infer<typeof adminOAuthProviderUpdateSchema>;
 
@@ -44,27 +44,7 @@ export default function OAuthProviderCreateOrUpdate({
   const form = useFormEngine<OAuthFormValues>('admin.oAuthProviders.createOrUpdate', {
     schema: adminOAuthProviderUpdateSchema.unwrap(),
     mode: 'uncontrolled',
-    initialValues: {
-      name: '',
-      description: null,
-      clientId: '',
-      clientSecret: '',
-      authUrl: '',
-      tokenUrl: '',
-      infoUrl: '',
-      scopes: [],
-      identifierPath: '',
-      emailPath: null,
-      usernamePath: null,
-      nameFirstPath: null,
-      nameLastPath: null,
-      enabled: true,
-      loginOnly: false,
-      loginBypassTwoFactor: false,
-      linkViewable: true,
-      userManageable: true,
-      basicAuth: false,
-    },
+    initialValues: oauthProviderEmptyFormValues,
     onValuesChange: () => setIsValid(form.isValid()),
     validateInputOnBlur: true,
   });
@@ -86,42 +66,22 @@ export default function OAuthProviderCreateOrUpdate({
 
   useEffect(() => {
     if (contextOAuthProvider) {
-      form.setValues({
-        name: contextOAuthProvider.name,
-        description: contextOAuthProvider.description,
-        clientId: contextOAuthProvider.clientId,
-        clientSecret: contextOAuthProvider.clientSecret,
-        authUrl: contextOAuthProvider.authUrl,
-        tokenUrl: contextOAuthProvider.tokenUrl,
-        infoUrl: contextOAuthProvider.infoUrl,
-        scopes: contextOAuthProvider.scopes,
-        identifierPath: contextOAuthProvider.identifierPath,
-        emailPath: contextOAuthProvider.emailPath,
-        usernamePath: contextOAuthProvider.usernamePath,
-        nameFirstPath: contextOAuthProvider.nameFirstPath,
-        nameLastPath: contextOAuthProvider.nameLastPath,
-        enabled: contextOAuthProvider.enabled,
-        loginOnly: contextOAuthProvider.loginOnly,
-        loginBypassTwoFactor: contextOAuthProvider.loginBypassTwoFactor,
-        linkViewable: contextOAuthProvider.linkViewable,
-        userManageable: contextOAuthProvider.userManageable,
-        basicAuth: contextOAuthProvider.basicAuth,
-      });
+      form.setValues(oauthProviderToFormValues(contextOAuthProvider));
     }
   }, [contextOAuthProvider]);
 
-  const doExport = (format: 'json' | 'yaml') => {
+  const doExport = (format: ResourceExportFormat) => {
     if (!contextOAuthProvider) return;
 
+    downloadResourceFile(
+      adminOAuthProviderUpdateSchema,
+      contextOAuthProvider,
+      `oauth-provider-${contextOAuthProvider.uuid}`,
+      format,
+      ['client_id', 'client_secret'],
+    );
+
     addToast(t('pages.admin.oAuthProviders.tabs.general.page.toast.exported', {}), 'success');
-
-    const data = serializeForApi(adminOAuthProviderUpdateSchema, contextOAuthProvider) as Record<string, unknown>;
-    delete data.client_id;
-    delete data.client_secret;
-
-    const contents =
-      format === 'json' ? JSON.stringify(data, undefined, 2) : dump(data, { flowLevel: -1, forceQuotes: true });
-    downloadTextFile(contents, `oauth-provider-${contextOAuthProvider.uuid}.${format === 'json' ? 'json' : 'yml'}`);
   };
 
   const fieldsTop: FieldDef<OAuthFormValues>[] = [
@@ -254,8 +214,11 @@ export default function OAuthProviderCreateOrUpdate({
       </ConfirmationModal>
 
       {contextOAuthProvider && (
-        <OAuthProviderDuplicateModal
-          oauthProvider={contextOAuthProvider}
+        <ResourceDuplicateModal
+          resourceName={t('pages.admin.oAuthProviders.resourceName', {})}
+          sourceName={contextOAuthProvider.name}
+          duplicate={(name) => duplicateOAuthProvider(contextOAuthProvider.uuid, name)}
+          redirectTo={(duplicated) => `/admin/oauth-providers/${duplicated.uuid}`}
           opened={openModal === 'duplicate'}
           onClose={() => setOpenModal(null)}
         />
@@ -285,42 +248,7 @@ export default function OAuthProviderCreateOrUpdate({
                 {t('common.button.saveAndStay', {})}
               </Button>
             )}
-            {contextOAuthProvider && (
-              <ContextMenu
-                menuProps={{ position: 'top', offset: 40 }}
-                items={[
-                  {
-                    type: 'action',
-                    icon: faFileDownload,
-                    label: t('common.button.exportAs', { format: 'JSON' }),
-                    onClick: () => doExport('json'),
-                    color: 'gray',
-                  },
-                  {
-                    type: 'action',
-                    icon: faFileDownload,
-                    label: t('common.button.exportAs', { format: 'YAML' }),
-                    onClick: () => doExport('yaml'),
-                    color: 'gray',
-                  },
-                ]}
-              >
-                {({ openMenu }) => (
-                  <Button
-                    onClick={(e) => {
-                      e.stopPropagation();
-                      const rect = e.currentTarget.getBoundingClientRect();
-                      openMenu(rect.left, rect.bottom);
-                    }}
-                    loading={loading}
-                    variant='outline'
-                    rightSection={<FontAwesomeIcon icon={faChevronDown} />}
-                  >
-                    {t('common.button.export', {})}
-                  </Button>
-                )}
-              </ContextMenu>
-            )}
+            {contextOAuthProvider && <ResourceExportMenu loading={loading} onExport={doExport} />}
           </AdminCan>
           {contextOAuthProvider && (
             <AdminCan action='oauth-providers.create'>

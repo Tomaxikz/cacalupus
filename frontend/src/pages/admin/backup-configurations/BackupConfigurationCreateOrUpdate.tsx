@@ -29,6 +29,14 @@ import BackupS3 from '@/pages/admin/backup-configurations/forms/BackupS3.tsx';
 import BackupConfigurationDuplicateModal from '@/pages/admin/backup-configurations/modals/BackupConfigurationDuplicateModal.tsx';
 import { useResourceForm } from '@/plugins/useResourceForm.ts';
 import { useTranslations } from '@/providers/TranslationProvider.tsx';
+import {
+  backupConfigurationEmptyFormValues,
+  backupConfigurationKopiaEmptyFormValues,
+  backupConfigurationPbsEmptyFormValues,
+  backupConfigurationResticEmptyFormValues,
+  backupConfigurationS3EmptyFormValues,
+  backupConfigurationToFormValues,
+} from './backupConfigurationFormValues.ts';
 import BackupKopia from './forms/BackupKopia.tsx';
 
 type BackupConfigFormValues = Partial<z.infer<typeof adminBackupConfigurationUpdateSchema>>;
@@ -79,28 +87,13 @@ export default function BackupConfigurationCreateOrUpdate({
 
   const form = useFormEngine<BackupConfigFormValues>('admin.backupConfigurations.createOrUpdate', {
     schema: adminBackupConfigurationUpdateSchema.unwrap(),
-    initialValues: {
-      name: '',
-      description: null,
-      maintenanceEnabled: false,
-      shared: false,
-      backupDisk: 'local',
-    },
+    initialValues: backupConfigurationEmptyFormValues,
     validateInputOnBlur: true,
   });
 
   const s3Form = useFormEngine<z.infer<typeof adminBackupConfigurationS3Schema>>('admin.backupConfigurations.s3', {
     schema: adminBackupConfigurationS3Schema,
-    initialValues: {
-      accessKey: '',
-      secretKey: '',
-      bucket: '',
-      region: '',
-      endpoint: '',
-      compressionType: 'zstd',
-      partSize: 1024 * 1024 * 1024,
-      pathStyle: true,
-    },
+    initialValues: backupConfigurationS3EmptyFormValues,
     validateInputOnBlur: true,
   });
 
@@ -108,27 +101,14 @@ export default function BackupConfigurationCreateOrUpdate({
     'admin.backupConfigurations.restic',
     {
       schema: adminBackupConfigurationResticSchema,
-      initialValues: {
-        repository: '',
-        retryLockSeconds: 0,
-        environment: {},
-        pruneJobs: [],
-      },
+      initialValues: backupConfigurationResticEmptyFormValues,
       validateInputOnBlur: true,
     },
   );
 
   const pbsForm = useFormEngine<z.infer<typeof adminBackupConfigurationPbsSchema>>('admin.backupConfigurations.pbs', {
     schema: adminBackupConfigurationPbsSchema,
-    initialValues: {
-      url: '',
-      datastore: '',
-      namespace: '',
-      tokenId: '',
-      tokenSecret: '',
-      fingerprint: '',
-      backupIdPrefix: '',
-    },
+    initialValues: backupConfigurationPbsEmptyFormValues,
     validateInputOnBlur: true,
   });
 
@@ -136,13 +116,7 @@ export default function BackupConfigurationCreateOrUpdate({
     'admin.backupConfigurations.kopia',
     {
       schema: adminBackupConfigurationKopiaSchema,
-      initialValues: {
-        url: '',
-        username: '',
-        password: '',
-        fingerprint: '',
-        tags: {},
-      },
+      initialValues: backupConfigurationKopiaEmptyFormValues,
       validateInputOnBlur: true,
     },
   );
@@ -196,13 +170,7 @@ export default function BackupConfigurationCreateOrUpdate({
       return;
     }
 
-    form.setValues({
-      name: contextBackupConfiguration.name,
-      description: contextBackupConfiguration.description,
-      maintenanceEnabled: contextBackupConfiguration.maintenanceEnabled,
-      shared: contextBackupConfiguration.shared,
-      backupDisk: contextBackupConfiguration.backupDisk,
-    });
+    form.setValues(backupConfigurationToFormValues(contextBackupConfiguration));
 
     const configs = contextBackupConfiguration.backupConfigs;
     if (configs?.s3) {

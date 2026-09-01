@@ -103,3 +103,5 @@ export const adminEggConfigurationUpdateSchema = z.lazy(() =>
     created: true,
   }),
 );
+
+export type AdminEggConfiguration = z.infer<typeof adminEggConfigurationSchema>;

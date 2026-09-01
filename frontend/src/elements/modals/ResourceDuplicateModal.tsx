@@ -1,22 +1,31 @@
 import { ModalProps } from '@mantine/core';
-import { FormEvent, useEffect, useState } from 'react';
+import { FormEvent, ReactNode, useEffect, useState } from 'react';
 import { useNavigate } from 'react-router';
-import { z } from 'zod';
-import duplicateDatabaseAgentTemplate from '@/api/admin/database-agent-templates/duplicateDatabaseAgentTemplate.ts';
 import { httpErrorToHuman } from '@/api/axios.ts';
 import Button from '@/elements/Button.tsx';
 import TextInput from '@/elements/input/TextInput.tsx';
 import FormModal from '@/elements/modals/FormModal.tsx';
 import { ModalFooter } from '@/elements/modals/Modal.tsx';
 import Stack from '@/elements/Stack.tsx';
-import { adminDatabaseAgentTemplateSchema } from '@/lib/schemas/admin/databaseAgentTemplates.ts';
 import { useToast } from '@/providers/ToastProvider.tsx';
 import { useTranslations } from '@/providers/TranslationProvider.tsx';
 
-export default function DatabaseAgentTemplateDuplicateModal({
-  databaseAgentTemplate,
+interface ResourceDuplicateModalProps<T extends { uuid: string }> extends ModalProps {
+  resourceName: string;
+  sourceName: string;
+  duplicate: (name: string) => Promise<T>;
+  redirectTo: (duplicated: T) => string;
+  children?: ReactNode;
+}
+
+export default function ResourceDuplicateModal<T extends { uuid: string }>({
+  resourceName,
+  sourceName,
+  duplicate,
+  redirectTo,
+  children,
   ...props
-}: ModalProps & { databaseAgentTemplate: z.infer<typeof adminDatabaseAgentTemplateSchema> }) {
+}: ResourceDuplicateModalProps<T>) {
   const { t } = useTranslations();
   const { addToast } = useToast();
   const navigate = useNavigate();
@@ -24,20 +33,17 @@ export default function DatabaseAgentTemplateDuplicateModal({
   const [loading, setLoading] = useState(false);
   const [name, setName] = useState('');
 
-  useEffect(() => setName(`${databaseAgentTemplate.name} (copy)`), [databaseAgentTemplate, props.opened]);
+  useEffect(() => setName(`${sourceName} (copy)`), [sourceName, props.opened]);
 
   const doDuplicate = (e: FormEvent<HTMLFormElement>) => {
     e.preventDefault();
     setLoading(true);
 
-    duplicateDatabaseAgentTemplate(databaseAgentTemplate.uuid, name)
+    duplicate(name)
       .then((duplicated) => {
-        addToast(
-          t('common.toast.duplicated', { resource: t('pages.admin.databaseAgentTemplates.resourceName', {}) }),
-          'success',
-        );
+        addToast(t('common.toast.duplicated', { resource: resourceName }), 'success');
         props.onClose();
-        navigate(`/admin/database-agent-templates/${duplicated.uuid}`);
+        navigate(redirectTo(duplicated));
       })
       .catch((msg) => addToast(httpErrorToHuman(msg), 'error'))
       .finally(() => setLoading(false));
@@ -45,7 +51,7 @@ export default function DatabaseAgentTemplateDuplicateModal({
 
   return (
     <FormModal
-      title={t('common.modal.duplicate.title', { resource: t('pages.admin.databaseAgentTemplates.resourceName', {}) })}
+      title={t('common.modal.duplicate.title', { resource: resourceName })}
       loading={loading}
       {...props}
       onSubmit={doDuplicate}
@@ -57,6 +63,8 @@ export default function DatabaseAgentTemplateDuplicateModal({
           value={name}
           onChange={(e) => setName(e.target.value)}
         />
+
+        {children}
 
         <ModalFooter>
           <Button type='submit' loading={loading} disabled={name.length < 1}>

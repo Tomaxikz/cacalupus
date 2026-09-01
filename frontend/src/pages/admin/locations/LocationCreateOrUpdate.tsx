@@ -20,6 +20,7 @@ import { useAdminCan } from '@/plugins/usePermissions.ts';
 import { useResourceForm } from '@/plugins/useResourceForm.ts';
 import { useSearchableResource } from '@/plugins/useSearchableResource.ts';
 import { useTranslations } from '@/providers/TranslationProvider.tsx';
+import { locationEmptyFormValues, locationToFormValues } from './locationFormValues.ts';
 
 type LocationFormValues = z.infer<typeof adminLocationUpdateSchema>;
 
@@ -31,12 +32,7 @@ export default ({ contextLocation }: { contextLocation?: z.infer<typeof adminLoc
 
   const form = useFormEngine<LocationFormValues>('admin.locations.createOrUpdate', {
     schema: adminLocationUpdateSchema.unwrap(),
-    initialValues: {
-      name: '',
-      description: null,
-      flag: null,
-      backupConfigurationUuid: null,
-    },
+    initialValues: locationEmptyFormValues,
     validateInputOnBlur: true,
   });
 
@@ -57,12 +53,7 @@ export default ({ contextLocation }: { contextLocation?: z.infer<typeof adminLoc
 
   useEffect(() => {
     if (contextLocation) {
-      form.setValues({
-        name: contextLocation.name,
-        description: contextLocation.description,
-        flag: contextLocation.flag,
-        backupConfigurationUuid: contextLocation.backupConfiguration?.uuid ?? null,
-      });
+      form.setValues(locationToFormValues(contextLocation));
     }
   }, [contextLocation]);
 
