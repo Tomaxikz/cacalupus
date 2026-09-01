@@ -10,7 +10,7 @@ jobs:
   lint-frontend:
     name: Lint Frontend
     runs-on: ubuntu-24.04
-    if: github.base_ref != 'l10n_crowdin_translations'
+    if: github.ref_name != 'l10n_crowdin_translations' && github.head_ref != 'l10n_crowdin_translations'
     permissions:
       contents: read
 
@@ -84,7 +84,7 @@ jobs:
   lint-backend:
     name: Lint Backend
     runs-on: ubuntu-24.04
-    if: github.base_ref != 'l10n_crowdin_translations'
+    if: github.ref_name != 'l10n_crowdin_translations' && github.head_ref != 'l10n_crowdin_translations'
     permissions:
       contents: read
 

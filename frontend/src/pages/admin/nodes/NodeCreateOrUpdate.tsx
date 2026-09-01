@@ -1,4 +1,4 @@
-import { faExclamationTriangle, faGlobe } from '@fortawesome/free-solid-svg-icons';
+import { faGlobe } from '@fortawesome/free-solid-svg-icons';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { useQueryClient } from '@tanstack/react-query';
 import { useEffect, useState } from 'react';
@@ -11,7 +11,6 @@ import resetNodeToken from '@/api/admin/nodes/resetNodeToken.ts';
 import updateNode from '@/api/admin/nodes/updateNode.ts';
 import { httpErrorToHuman } from '@/api/axios.ts';
 import ActionIcon from '@/elements/ActionIcon.tsx';
-import Alert from '@/elements/Alert.tsx';
 import Button from '@/elements/Button.tsx';
 import { AdminCan } from '@/elements/Can.tsx';
 import AdminContentContainer from '@/elements/containers/AdminContentContainer.tsx';
@@ -20,12 +19,13 @@ import Group from '@/elements/Group.tsx';
 import TextInput from '@/elements/input/TextInput.tsx';
 import ConfirmationModal from '@/elements/modals/ConfirmationModal.tsx';
 import Tooltip from '@/elements/Tooltip.tsx';
+import UrlMissingPortAlert from '@/elements/UrlMissingPortAlert.tsx';
 import { isNodeAIO, WINGS_DEFAULT_PORT } from '@/lib/node.ts';
 import { queryKeys } from '@/lib/queryKeys.ts';
 import { adminBackupConfigurationSchema } from '@/lib/schemas/admin/backupConfigurations.ts';
 import { adminLocationSchema } from '@/lib/schemas/admin/locations.ts';
 import { adminNodeSchema, adminNodeUpdateSchema } from '@/lib/schemas/admin/nodes.ts';
-import { getUrlConnectPort, urlIsMissingPort, withUrlPort } from '@/lib/url.ts';
+import { getUrlConnectPort, withUrlPort } from '@/lib/url.ts';
 import NodeDuplicateModal from '@/pages/admin/nodes/modals/NodeDuplicateModal.tsx';
 import { useResourceForm } from '@/plugins/useResourceForm.ts';
 import { useSearchableResource } from '@/plugins/useSearchableResource.ts';
@@ -131,8 +131,6 @@ export default function NodeCreateOrUpdate({ contextNode }: { contextNode?: z.in
       .finally(() => setLoading(false));
   };
 
-  const showUrlPortWarning = !isAIO && urlIsMissingPort(urlValue);
-
   const fields: FieldDef<NodeFormValues>[] = [
     { type: 'text', name: 'name', label: t('common.form.name', {}), required: true },
     {
@@ -168,25 +166,17 @@ export default function NodeCreateOrUpdate({ contextNode }: { contextNode?: z.in
             {...f.getInputProps('url')}
             disabled={isAIO}
           />
-          {showUrlPortWarning && (
-            <Alert color='yellow' icon={<FontAwesomeIcon icon={faExclamationTriangle} />}>
-              <div className='flex flex-col items-start gap-2'>
-                {t('pages.admin.nodes.tabs.general.page.alert.urlMissingPort', {
-                  port: String(getUrlConnectPort(urlValue) ?? 443),
-                  wingsPort: String(WINGS_DEFAULT_PORT),
-                }).md()}
-                <Button
-                  size='compact-xs'
-                  variant='light'
-                  color='yellow'
-                  onClick={() => f.setFieldValue('url', withUrlPort(urlValue, WINGS_DEFAULT_PORT))}
-                >
-                  {t('common.button.addDefaultPort', {
-                    port: String(WINGS_DEFAULT_PORT),
-                  })}
-                </Button>
-              </div>
-            </Alert>
+          {!isAIO && (
+            <UrlMissingPortAlert
+              url={urlValue}
+              defaultPort={WINGS_DEFAULT_PORT}
+              onAddPort={() => f.setFieldValue('url', withUrlPort(urlValue, WINGS_DEFAULT_PORT))}
+            >
+              {t('pages.admin.nodes.tabs.general.page.alert.urlMissingPort', {
+                port: String(getUrlConnectPort(urlValue) ?? 443),
+                wingsPort: String(WINGS_DEFAULT_PORT),
+              }).md()}
+            </UrlMissingPortAlert>
           )}
         </div>
       ),

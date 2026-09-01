@@ -24,6 +24,8 @@ export default function DatabaseAgentRow({
 }) {
   const { t } = useTranslations();
   const [openModal, setOpenModal] = useState<'edit' | 'delete' | null>(null);
+  const canUpdate = useAdminCan('database-agent-hosts.update');
+  const canDelete = useAdminCan('database-agent-hosts.delete');
   const host = databaseAgent.host ? `${databaseAgent.host}${databaseAgent.port ? `:${databaseAgent.port}` : ''}` : null;
 
   return (
@@ -50,7 +52,7 @@ export default function DatabaseAgentRow({
             label: t('common.button.edit', {}),
             onClick: () => setOpenModal('edit'),
             color: 'gray',
-            canAccess: useAdminCan('database-agent-hosts.update'),
+            canAccess: canUpdate,
           },
           {
             type: 'action',
@@ -58,7 +60,7 @@ export default function DatabaseAgentRow({
             label: t('common.button.delete', {}),
             onClick: () => setOpenModal('delete'),
             color: 'red',
-            canAccess: useAdminCan('database-agent-hosts.delete'),
+            canAccess: canDelete,
           },
         ]}
         registry={window.extensionContext.extensionRegistry.pages.admin.databaseAgentHosts.view.instances.contextMenu}

@@ -1,5 +1,3 @@
-import { faTriangleExclamation } from '@fortawesome/free-solid-svg-icons';
-import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { useQueryClient } from '@tanstack/react-query';
 import { useEffect, useState } from 'react';
 import { z } from 'zod';
@@ -9,17 +7,14 @@ import resetDatabaseAgentHostToken from '@/api/admin/database-agent-hosts/resetD
 import testDatabaseAgentHost from '@/api/admin/database-agent-hosts/testDatabaseAgentHost.ts';
 import updateDatabaseAgentHost from '@/api/admin/database-agent-hosts/updateDatabaseAgentHost.ts';
 import { httpErrorToHuman } from '@/api/axios.ts';
-import Alert from '@/elements/Alert.tsx';
 import Button from '@/elements/Button.tsx';
 import { AdminCan } from '@/elements/Can.tsx';
 import AdminContentContainer from '@/elements/containers/AdminContentContainer.tsx';
 import { type FieldDef, FormEngine, useFormEngine } from '@/elements/form-engine/index.ts';
 import Group from '@/elements/Group.tsx';
-import Switch from '@/elements/input/Switch.tsx';
 import TextInput from '@/elements/input/TextInput.tsx';
-import ConfirmationModal from '@/elements/modals/ConfirmationModal.tsx';
-import Stack from '@/elements/Stack.tsx';
-import Text from '@/elements/Text.tsx';
+import ForceDeleteModal from '@/elements/modals/ForceDeleteModal.tsx';
+import UrlMissingPortAlert from '@/elements/UrlMissingPortAlert.tsx';
 import { DATABASE_AGENT_DEFAULT_PORT } from '@/lib/databaseAgentHost.ts';
 import { databaseAgentTypeDefaultPortMapping, databaseAgentTypeLabelMapping } from '@/lib/enums.ts';
 import { queryKeys } from '@/lib/queryKeys.ts';
@@ -28,12 +23,13 @@ import {
   adminDatabaseAgentHostSchema,
   adminDatabaseAgentHostUpdateSchema,
 } from '@/lib/schemas/admin/databaseAgentHosts.ts';
-import { getUrlConnectPort, urlIsMissingPort, withUrlPort } from '@/lib/url.ts';
+import { getUrlConnectPort, withUrlPort } from '@/lib/url.ts';
 import { useResourceForm } from '@/plugins/useResourceForm.ts';
 import { useToast } from '@/providers/ToastProvider.tsx';
 import { useTranslations } from '@/providers/TranslationProvider.tsx';
 
 type DatabaseAgentHostFormValues = z.infer<typeof adminDatabaseAgentHostUpdateSchema>;
+type DatabaseAgentTypeKey = keyof typeof databaseAgentTypeLabelMapping;
 
 export default function DatabaseAgentHostCreateOrUpdate({
   contextDatabaseAgentHost,
@@ -60,12 +56,12 @@ export default function DatabaseAgentHostCreateOrUpdate({
       url: '',
       memory: 0,
       disk: 0,
-      types: {
-        postgres: { enabled: true, publicHost: null, publicPort: databaseAgentTypeDefaultPortMapping.postgres },
-        mariadb: { enabled: true, publicHost: null, publicPort: databaseAgentTypeDefaultPortMapping.mariadb },
-        mongodb: { enabled: true, publicHost: null, publicPort: databaseAgentTypeDefaultPortMapping.mongodb },
-        redis: { enabled: true, publicHost: null, publicPort: databaseAgentTypeDefaultPortMapping.redis },
-      },
+      types: Object.fromEntries(
+        (Object.keys(databaseAgentTypeLabelMapping) as DatabaseAgentTypeKey[]).map((type) => [
+          type,
+          { enabled: true, publicHost: null, publicPort: databaseAgentTypeDefaultPortMapping[type] },
+        ]),
+      ) as DatabaseAgentHostFormValues['types'],
     },
     validateInputOnBlur: true,
   });
@@ -106,39 +102,38 @@ export default function DatabaseAgentHostCreateOrUpdate({
     }
   }, [contextDatabaseAgentHost]);
 
-  const doResetToken = () => {
+  const runHostAction = (action: (uuid: string) => Promise<unknown>, success: string, onSuccess?: () => void) => {
     if (!contextDatabaseAgentHost) {
       return;
     }
 
     setLoading(true);
 
-    resetDatabaseAgentHostToken(contextDatabaseAgentHost.uuid)
+    action(contextDatabaseAgentHost.uuid)
       .then(() => {
-        addToast(t('pages.admin.databaseAgentHosts.tabs.general.page.toast.tokenReset', {}), 'success');
-        queryClient.invalidateQueries({
-          queryKey: queryKeys.admin.databaseAgentHosts.token(contextDatabaseAgentHost.uuid),
-        });
+        addToast(success, 'success');
+        onSuccess?.();
       })
       .catch((msg) => addToast(httpErrorToHuman(msg), 'error'))
       .finally(() => setLoading(false));
   };
 
-  const doTest = () => {
-    if (!contextDatabaseAgentHost) {
-      return;
-    }
+  const doResetToken = () =>
+    runHostAction(
+      resetDatabaseAgentHostToken,
+      t('pages.admin.databaseAgentHosts.tabs.general.page.toast.tokenReset', {}),
+      () =>
+        queryClient.invalidateQueries({
+          queryKey: queryKeys.admin.databaseAgentHosts.token(contextDatabaseAgentHost!.uuid),
+        }),
+    );
 
-    setLoading(true);
-
-    testDatabaseAgentHost(contextDatabaseAgentHost.uuid)
-      .then(() => addToast(t('pages.admin.databaseAgentHosts.tabs.general.page.toast.tested', {}), 'success'))
-      .catch((msg) => addToast(httpErrorToHuman(msg), 'error'))
-      .finally(() => setLoading(false));
-  };
+  const doTest = () =>
+    runHostAction(testDatabaseAgentHost, t('pages.admin.databaseAgentHosts.tabs.general.page.toast.tested', {}));
 
   const urlValue = form.getValues().url ?? '';
-  const showUrlPortWarning = urlIsMissingPort(urlValue);
+  const typeEnabled = (type: string) => (values: DatabaseAgentHostFormValues) =>
+    values.types?.[type as DatabaseAgentTypeKey]?.enabled !== false;
 
   const fields: FieldDef<DatabaseAgentHostFormValues>[] = [
     { type: 'text', name: 'name', label: t('common.form.name', {}), required: true },
@@ -154,24 +149,16 @@ export default function DatabaseAgentHostCreateOrUpdate({
             key={f.key('url')}
             {...f.getInputProps('url')}
           />
-          {showUrlPortWarning && (
-            <Alert color='yellow' icon={<FontAwesomeIcon icon={faTriangleExclamation} />}>
-              <div className='flex flex-col items-start gap-2'>
-                {t('pages.admin.databaseAgentHosts.tabs.general.page.alert.urlMissingPort', {
-                  port: String(getUrlConnectPort(urlValue) ?? 443),
-                  agentPort: String(DATABASE_AGENT_DEFAULT_PORT),
-                }).md()}
-                <Button
-                  size='compact-xs'
-                  variant='light'
-                  color='yellow'
-                  onClick={() => f.setFieldValue('url', withUrlPort(urlValue, DATABASE_AGENT_DEFAULT_PORT))}
-                >
-                  {t('common.button.addDefaultPort', { port: String(DATABASE_AGENT_DEFAULT_PORT) })}
-                </Button>
-              </div>
-            </Alert>
-          )}
+          <UrlMissingPortAlert
+            url={urlValue}
+            defaultPort={DATABASE_AGENT_DEFAULT_PORT}
+            onAddPort={() => f.setFieldValue('url', withUrlPort(urlValue, DATABASE_AGENT_DEFAULT_PORT))}
+          >
+            {t('pages.admin.databaseAgentHosts.tabs.general.page.alert.urlMissingPort', {
+              port: String(getUrlConnectPort(urlValue) ?? 443),
+              agentPort: String(DATABASE_AGENT_DEFAULT_PORT),
+            }).md()}
+          </UrlMissingPortAlert>
         </div>
       ),
     },
@@ -193,7 +180,7 @@ export default function DatabaseAgentHostCreateOrUpdate({
           type: 'text',
           name: `types.${type}.publicHost`,
           label: t('pages.admin.databaseAgentHosts.tabs.general.page.form.typePublicHost', {}),
-          when: (values) => values.types?.[type as keyof typeof values.types]?.enabled !== false,
+          when: typeEnabled(type),
         },
         {
           type: 'number',
@@ -206,7 +193,7 @@ export default function DatabaseAgentHostCreateOrUpdate({
               databaseAgentTypeDefaultPortMapping[type as keyof typeof databaseAgentTypeDefaultPortMapping],
             ),
           },
-          when: (values) => values.types?.[type as keyof typeof values.types]?.enabled !== false,
+          when: typeEnabled(type),
         },
       ],
     ),
@@ -222,38 +209,16 @@ export default function DatabaseAgentHostCreateOrUpdate({
       fullscreen={!!contextDatabaseAgentHost}
       titleOrder={2}
     >
-      <ConfirmationModal
+      <ForceDeleteModal
         opened={openModal === 'delete'}
-        onClose={() => {
-          setOpenModal(null);
-          setDeleteDoForce(false);
-        }}
+        onClose={() => setOpenModal(null)}
         title={t('pages.admin.databaseAgentHosts.tabs.general.page.modal.delete.title', {})}
-        confirm={t('common.button.delete', {})}
+        name={form.getValues().name ?? ''}
+        force={deleteDoForce}
+        onForceChange={setDeleteDoForce}
+        forceWarning={t('pages.admin.databaseAgentHosts.tabs.general.page.modal.delete.alert.forceWarning', {})}
         onConfirmed={doDelete}
-      >
-        <Stack>
-          <Text size='sm'>
-            {t('common.modal.delete.content', {
-              name: form.getValues().name ?? '',
-            }).md()}
-          </Text>
-
-          <Switch
-            label={t('common.form.force', {})}
-            name='force'
-            color='red'
-            checked={deleteDoForce}
-            onChange={(e) => setDeleteDoForce(e.target.checked)}
-          />
-
-          {deleteDoForce && (
-            <Alert color='red' icon={<FontAwesomeIcon icon={faTriangleExclamation} />}>
-              {t('pages.admin.databaseAgentHosts.tabs.general.page.modal.delete.alert.forceWarning', {})}
-            </Alert>
-          )}
-        </Stack>
-      </ConfirmationModal>
+      />
 
       <form onSubmit={form.onSubmit(() => doCreateOrUpdate(false, queryKeys.admin.databaseAgentHosts.all()))}>
         <FormEngine form={form} fields={fields} />

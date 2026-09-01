@@ -1,7 +1,7 @@
 import { faExclamationTriangle, faEye } from '@fortawesome/free-solid-svg-icons';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { dump, load } from 'js-yaml';
-import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
+import { useCallback, useEffect, useMemo, useState } from 'react';
 import { z } from 'zod';
 import getNodeConfig from '@/api/admin/nodes/getNodeConfig.ts';
 import getNodeToken from '@/api/admin/nodes/getNodeToken.ts';
@@ -100,7 +100,6 @@ export default function AdminNodeConfiguration({ node }: { node: z.infer<typeof 
   const [yaml, setYaml] = useState<string | null>(null);
   const [liveConfigError, setLiveConfigError] = useState<string | null>(null);
   const [saving, setSaving] = useState(false);
-  const doSaveRef = useRef<() => void>(() => null);
 
   useEffect(() => {
     getNodeConfig(node.uuid)
@@ -141,10 +140,6 @@ export default function AdminNodeConfiguration({ node }: { node: z.infer<typeof 
       .finally(() => setSaving(false));
   };
 
-  useEffect(() => {
-    doSaveRef.current = doSave;
-  });
-
   return (
     <AdminSubContentContainer
       title={t('pages.admin.nodes.tabs.configuration.page.title', {})}
@@ -184,7 +179,7 @@ export default function AdminNodeConfiguration({ node }: { node: z.infer<typeof 
           <NodeLiveConfigurationSection
             nodeUrl={node.url}
             connectPort={connectPort}
-            liveConfig={{ yaml, setYaml, liveConfigError, saving, doSave, doSaveRef }}
+            liveConfig={{ yaml, setYaml, liveConfigError, saving, doSave }}
           />
         </Stack>
       )}
