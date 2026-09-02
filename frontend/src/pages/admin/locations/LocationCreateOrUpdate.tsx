@@ -1,4 +1,4 @@
-import { useEffect, useState } from 'react';
+import { useState } from 'react';
 import { z } from 'zod';
 import getBackupConfigurations from '@/api/admin/backup-configurations/getBackupConfigurations.ts';
 import createLocation from '@/api/admin/locations/createLocation.ts';
@@ -14,6 +14,7 @@ import { queryKeys } from '@/lib/queryKeys.ts';
 import { adminBackupConfigurationSchema } from '@/lib/schemas/admin/backupConfigurations.ts';
 import { adminLocationSchema, adminLocationUpdateSchema } from '@/lib/schemas/admin/locations.ts';
 import LocationDuplicateModal from '@/pages/admin/locations/modals/LocationDuplicateModal.tsx';
+import { useHydrateForm } from '@/plugins/useHydrateForm.ts';
 import { useAdminCan } from '@/plugins/usePermissions.ts';
 import { useResourceForm } from '@/plugins/useResourceForm.ts';
 import { useSearchableResource } from '@/plugins/useSearchableResource.ts';
@@ -50,11 +51,7 @@ export default ({ contextLocation }: { contextLocation?: z.infer<typeof adminLoc
     resourceName: t('pages.admin.locations.resourceName', {}),
   });
 
-  useEffect(() => {
-    if (contextLocation) {
-      form.setValues(locationToFormValues(contextLocation));
-    }
-  }, [contextLocation]);
+  useHydrateForm(form, contextLocation, locationToFormValues);
 
   const backupConfigurations = useSearchableResource<z.infer<typeof adminBackupConfigurationSchema>>({
     queryKey: queryKeys.admin.backupConfigurations.all(),

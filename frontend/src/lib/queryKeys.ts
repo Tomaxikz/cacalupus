@@ -147,6 +147,7 @@ const admin = {
     all: () => ['admin', 'egg-repositories'] as const,
     detail: (uuid: string) => ['admin', 'egg-repositories', { uuid }] as const,
     eggs: (repoUuid: string) => ['admin', 'egg-repositories', repoUuid, 'eggs'] as const,
+    eggsUnscoped: () => ['admin', 'egg-repositories', 'eggs'] as const,
   },
 
   eggConfigurations: {

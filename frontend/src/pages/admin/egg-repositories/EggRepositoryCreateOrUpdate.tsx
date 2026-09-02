@@ -1,7 +1,7 @@
 import { faUnlockKeyhole } from '@fortawesome/free-solid-svg-icons';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { UseFormReturnType } from '@mantine/form';
-import { useEffect, useState } from 'react';
+import { useState } from 'react';
 import { z } from 'zod';
 import createEggRepository from '@/api/admin/egg-repositories/createEggRepository.ts';
 import deleteEggRepository from '@/api/admin/egg-repositories/deleteEggRepository.ts';
@@ -24,6 +24,7 @@ import {
   adminEggRepositoryUpdateSchema,
 } from '@/lib/schemas/admin/eggRepositories.ts';
 import { useHostAction } from '@/plugins/useHostAction.ts';
+import { useHydrateForm } from '@/plugins/useHydrateForm.ts';
 import { useResourceForm } from '@/plugins/useResourceForm.ts';
 import { useTranslations } from '@/providers/TranslationProvider.tsx';
 import {
@@ -69,11 +70,7 @@ export default function EggRepositoryCreateOrUpdate({
 
   const runRepoAction = useHostAction(contextEggRepository?.uuid, setLoading);
 
-  useEffect(() => {
-    if (contextEggRepository) {
-      form.setValues(eggRepositoryToFormValues(contextEggRepository));
-    }
-  }, [contextEggRepository]);
+  useHydrateForm(form, contextEggRepository, eggRepositoryToFormValues);
 
   const doSync = () =>
     runRepoAction(syncEggRepository, (found) =>

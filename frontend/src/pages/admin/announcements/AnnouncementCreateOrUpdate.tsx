@@ -1,4 +1,4 @@
-import { useEffect, useMemo, useState } from 'react';
+import { useMemo, useState } from 'react';
 import { z } from 'zod';
 import createAnnouncement from '@/api/admin/announcements/createAnnouncement.ts';
 import deleteAnnouncement from '@/api/admin/announcements/deleteAnnouncement.ts';
@@ -21,6 +21,7 @@ import {
 } from '@/lib/schemas/admin/announcements.ts';
 import { searchableMultiselectField } from '@/lib/searchableMultiselectField.ts';
 import { useGroupedEggOptions } from '@/plugins/useGroupedEggOptions.ts';
+import { useHydrateForm } from '@/plugins/useHydrateForm.ts';
 import { useAdminCan } from '@/plugins/usePermissions.ts';
 import { useResourceForm } from '@/plugins/useResourceForm.ts';
 import { useSearchableResource } from '@/plugins/useSearchableResource.ts';
@@ -66,11 +67,9 @@ export default function AnnouncementCreateOrUpdate({
     resourceName: t('pages.admin.announcements.resourceName', {}),
   });
 
-  useEffect(() => {
-    if (contextAnnouncement) {
-      form.setValues(announcementToFormValues(contextAnnouncement));
-    }
-  }, [contextAnnouncement?.uuid]);
+  useHydrateForm(form, contextAnnouncement, announcementToFormValues, {
+    key: (announcement) => announcement.uuid,
+  });
 
   const { eggOptions, loading: eggsLoading } = useGroupedEggOptions();
 

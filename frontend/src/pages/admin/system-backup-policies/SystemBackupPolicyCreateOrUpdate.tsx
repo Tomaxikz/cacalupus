@@ -2,7 +2,7 @@ import { faTriangleExclamation } from '@fortawesome/free-solid-svg-icons';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { Alert } from '@mantine/core';
 import { useQueryClient } from '@tanstack/react-query';
-import { useEffect, useState } from 'react';
+import { useState } from 'react';
 import { z } from 'zod';
 import getBackupConfigurations from '@/api/admin/backup-configurations/getBackupConfigurations.ts';
 import createSystemBackupPolicy from '@/api/admin/system-backup-policies/createSystemBackupPolicy.ts';
@@ -25,6 +25,7 @@ import {
   adminSystemBackupPolicySchema,
   adminSystemBackupPolicyUpdateSchema,
 } from '@/lib/schemas/admin/systemBackupPolicies.ts';
+import { useHydrateForm } from '@/plugins/useHydrateForm.ts';
 import { useAdminCan } from '@/plugins/usePermissions.ts';
 import { useResourceForm } from '@/plugins/useResourceForm.ts';
 import { useSearchableResource } from '@/plugins/useSearchableResource.ts';
@@ -94,11 +95,7 @@ export default function SystemBackupPolicyCreateOrUpdate({
     resourceName: t('pages.admin.systemBackupPolicies.resourceName', {}),
   });
 
-  useEffect(() => {
-    if (contextSystemBackupPolicy) {
-      form.setValues(systemBackupPolicyToFormValues(contextSystemBackupPolicy));
-    }
-  }, [contextSystemBackupPolicy]);
+  useHydrateForm(form, contextSystemBackupPolicy, systemBackupPolicyToFormValues);
 
   const backupConfigurations = useSearchableResource<z.infer<typeof adminBackupConfigurationSchema>>({
     queryKey: queryKeys.admin.backupConfigurations.all(),

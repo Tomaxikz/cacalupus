@@ -16,7 +16,7 @@ import { useKeyboardShortcuts } from '@/plugins/useKeyboardShortcuts.ts';
 import { useAdminCan } from '@/plugins/usePermissions.ts';
 import { useToast } from '@/providers/ToastProvider.tsx';
 import { useTranslations } from '@/providers/TranslationProvider.tsx';
-import EggsMoveModal from './modals/EggsMoveModal.tsx';
+import EggMoveModal from './modals/EggMoveModal.tsx';
 
 export default function EggActionBar({
   nest,
@@ -78,10 +78,10 @@ export default function EggActionBar({
 
   return (
     <>
-      <EggsMoveModal
+      <EggMoveModal
         nest={nest}
-        selectedEggs={selectedEggs}
-        invalidateEggs={invalidateEggs}
+        eggs={selectedEggs.values()}
+        onMoved={invalidateEggs}
         opened={openModal === 'move'}
         onClose={() => setOpenModal(null)}
       />

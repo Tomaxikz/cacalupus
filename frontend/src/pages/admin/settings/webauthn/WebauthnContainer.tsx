@@ -1,4 +1,4 @@
-import { useEffect, useState } from 'react';
+import { useState } from 'react';
 import { z } from 'zod';
 import updateWebauthnSettings from '@/api/admin/settings/updateWebauthnSettings.ts';
 import { httpErrorToHuman } from '@/api/axios.ts';
@@ -10,6 +10,7 @@ import Group from '@/elements/Group.tsx';
 import ConfirmationModal from '@/elements/modals/ConfirmationModal.tsx';
 import { isIP } from '@/lib/ip.ts';
 import { adminSettingsWebauthnSchema } from '@/lib/schemas/admin/settings.ts';
+import { useHydrateForm } from '@/plugins/useHydrateForm.ts';
 import { useToast } from '@/providers/ToastProvider.tsx';
 import { useTranslations } from '@/providers/TranslationProvider.tsx';
 import { useAdminStore } from '@/stores/admin.tsx';
@@ -41,9 +42,7 @@ export default function WebauthnContainer() {
     validateInputOnBlur: true,
   });
 
-  useEffect(() => {
-    form.setValues({ ...webauthn });
-  }, [webauthn]);
+  useHydrateForm(form, webauthn, (w) => ({ ...w }));
 
   const doUpdate = () => {
     setLoading(true);

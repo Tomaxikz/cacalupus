@@ -57,9 +57,7 @@ export default function AdminEggVariables({
       nameTranslations: {},
       description: null,
       descriptionTranslations: {},
-      order: Number.isFinite(Math.max(...eggVariables.map((s) => s.order)))
-        ? Math.max(...eggVariables.map((s) => s.order)) + 1
-        : 1,
+      order: eggVariables.reduce((max, v) => Math.max(max, v.order), 0) + 1,
       envVariable: '',
       defaultValue: null,
       userViewable: true,
@@ -73,10 +71,10 @@ export default function AdminEggVariables({
 
   const sortedEggVariables = useMemo(() => [...eggVariables].sort((a, b) => a.order - b.order), [eggVariables]);
 
-  const dndEggVariables: DndEggVariable[] = sortedEggVariables.map((variable) => ({
-    ...variable,
-    id: variable.uuid,
-  }));
+  const dndEggVariables: DndEggVariable[] = useMemo(
+    () => sortedEggVariables.map((variable) => ({ ...variable, id: variable.uuid })),
+    [sortedEggVariables],
+  );
 
   return (
     <AdminSubContentContainer

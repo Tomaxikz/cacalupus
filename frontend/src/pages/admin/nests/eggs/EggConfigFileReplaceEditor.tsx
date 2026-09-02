@@ -14,13 +14,12 @@ import { useTranslations } from '@/providers/TranslationProvider.tsx';
 
 export default function EggConfigFileReplaceEditor({
   form,
-  configFileIndex,
+  index,
 }: {
   form: UseFormReturnType<z.infer<typeof adminEggUpdateSchema>>;
-  configFileIndex: number;
+  index: number;
 }) {
   const { t } = useTranslations();
-  const index = configFileIndex;
 
   return (
     <div className='flex flex-col'>
@@ -77,18 +76,7 @@ export default function EggConfigFileReplaceEditor({
               variant='light'
               size='input-md'
               className='ml-4'
-              onClick={() =>
-                form.setValues({
-                  ...form.getValues(),
-                  configFiles: form.getValues().configFiles.map((configFile, i) => {
-                    if (i !== index) return configFile;
-                    return {
-                      ...configFile,
-                      replace: configFile.replace.filter((_, j) => j !== replaceIndex),
-                    };
-                  }),
-                })
-              }
+              onClick={() => form.removeListItem(`configFiles.${index}.replace`, replaceIndex)}
             >
               <FontAwesomeIcon icon={faMinus} />
             </ActionIcon>
@@ -99,24 +87,12 @@ export default function EggConfigFileReplaceEditor({
       <Button
         variant='light'
         onClick={() =>
-          form.setValues({
-            ...form.getValues(),
-            configFiles: form.getValues().configFiles.map((configFile, i) => {
-              if (i !== index) return configFile;
-              return {
-                ...configFile,
-                replace: [
-                  ...configFile.replace,
-                  {
-                    match: '',
-                    insertNew: false,
-                    updateExisting: true,
-                    ifValue: null,
-                    replaceWith: '',
-                  },
-                ],
-              };
-            }),
+          form.insertListItem(`configFiles.${index}.replace`, {
+            match: '',
+            insertNew: false,
+            updateExisting: true,
+            ifValue: null,
+            replaceWith: '',
           })
         }
         className='w-fit!'

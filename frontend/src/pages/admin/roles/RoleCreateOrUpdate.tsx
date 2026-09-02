@@ -18,6 +18,7 @@ import { queryKeys } from '@/lib/queryKeys.ts';
 import { adminRoleUpdateSchema } from '@/lib/schemas/admin/roles.ts';
 import { roleSchema } from '@/lib/schemas/user.ts';
 import RoleDuplicateModal from '@/pages/admin/roles/modals/RoleDuplicateModal.tsx';
+import { useHydrateForm } from '@/plugins/useHydrateForm.ts';
 import { useResourceForm } from '@/plugins/useResourceForm.ts';
 import { useTranslations } from '@/providers/TranslationProvider.tsx';
 import { useGlobalStore } from '@/stores/global.ts';
@@ -53,11 +54,7 @@ export default function RoleCreateOrUpdate({ contextRole }: { contextRole?: z.in
     resourceName: t('pages.admin.roles.resourceName', {}),
   });
 
-  useEffect(() => {
-    if (contextRole) {
-      form.setValues(roleToFormValues(contextRole));
-    }
-  }, [contextRole]);
+  useHydrateForm(form, contextRole, roleToFormValues);
 
   useEffect(() => {
     setLoading(true);

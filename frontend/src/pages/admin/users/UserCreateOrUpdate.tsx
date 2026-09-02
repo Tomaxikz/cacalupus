@@ -1,5 +1,5 @@
 import { useQueryClient } from '@tanstack/react-query';
-import { useEffect, useState } from 'react';
+import { useState } from 'react';
 import { z } from 'zod';
 import getRoles from '@/api/admin/roles/getRoles.ts';
 import createUser from '@/api/admin/users/createUser.ts';
@@ -19,6 +19,7 @@ import ConfirmationModal from '@/elements/modals/ConfirmationModal.tsx';
 import { queryKeys } from '@/lib/queryKeys.ts';
 import { adminFullUserSchema, adminUserUpdateSchema } from '@/lib/schemas/admin/users.ts';
 import { roleSchema } from '@/lib/schemas/user.ts';
+import { useHydrateForm } from '@/plugins/useHydrateForm.ts';
 import { useAdminCan } from '@/plugins/usePermissions.ts';
 import { useResourceForm } from '@/plugins/useResourceForm.ts';
 import { useSearchableResource } from '@/plugins/useSearchableResource.ts';
@@ -62,11 +63,7 @@ export default function UserCreateOrUpdate({ contextUser }: { contextUser?: z.in
     resourceName: t('pages.admin.users.resourceName', {}),
   });
 
-  useEffect(() => {
-    if (contextUser) {
-      form.setValues(userToFormValues(contextUser));
-    }
-  }, [contextUser]);
+  useHydrateForm(form, contextUser, userToFormValues);
 
   const roles = useSearchableResource<z.infer<typeof roleSchema>>({
     queryKey: queryKeys.admin.roles.all(),

@@ -62,7 +62,7 @@ export default function EggConfigFilesEditor({
                 })}
               />
 
-              <EggConfigFileReplaceEditor form={form} configFileIndex={index} />
+              <EggConfigFileReplaceEditor form={form} index={index} />
             </Stack>
 
             <ActionIcon
@@ -70,12 +70,7 @@ export default function EggConfigFilesEditor({
               variant='light'
               size='input-md'
               className='ml-4'
-              onClick={() =>
-                form.setValues({
-                  ...form.getValues(),
-                  configFiles: form.getValues().configFiles.filter((_, i) => i !== index),
-                })
-              }
+              onClick={() => form.removeListItem('configFiles', index)}
             >
               <FontAwesomeIcon icon={faMinus} />
             </ActionIcon>
@@ -86,17 +81,11 @@ export default function EggConfigFilesEditor({
       <Button
         variant='light'
         onClick={() =>
-          form.setValues({
-            ...form.getValues(),
-            configFiles: [
-              ...form.getValues().configFiles,
-              {
-                file: '',
-                parser: 'file',
-                createNew: true,
-                replace: [],
-              },
-            ],
+          form.insertListItem('configFiles', {
+            file: '',
+            parser: 'file',
+            createNew: true,
+            replace: [],
           })
         }
         className='w-fit!'

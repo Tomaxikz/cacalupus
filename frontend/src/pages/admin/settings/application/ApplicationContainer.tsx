@@ -1,4 +1,4 @@
-import { useEffect, useState } from 'react';
+import { useState } from 'react';
 import { z } from 'zod';
 import getAssets from '@/api/admin/assets/getAssets.ts';
 import updateApplicationSettings from '@/api/admin/settings/updateApplicationSettings.ts';
@@ -13,6 +13,7 @@ import ConfirmationModal from '@/elements/modals/ConfirmationModal.tsx';
 import { queryKeys } from '@/lib/queryKeys.ts';
 import { storageAssetSchema } from '@/lib/schemas/admin/assets.ts';
 import { adminSettingsApplicationSchema } from '@/lib/schemas/admin/settings.ts';
+import { useHydrateForm } from '@/plugins/useHydrateForm.ts';
 import { useAdminCan } from '@/plugins/usePermissions.ts';
 import { useSearchableResource } from '@/plugins/useSearchableResource.ts';
 import { useToast } from '@/providers/ToastProvider.tsx';
@@ -65,9 +66,7 @@ export default function ApplicationContainer() {
     canRequest: canReadAssets,
   });
 
-  useEffect(() => {
-    form.setValues({ ...app });
-  }, [app]);
+  useHydrateForm(form, app, (a) => ({ ...a }));
 
   const doUpdate = () => {
     setLoading(true);

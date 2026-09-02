@@ -1,5 +1,5 @@
 import { useQueryClient } from '@tanstack/react-query';
-import { useEffect, useState } from 'react';
+import { useState } from 'react';
 import { z } from 'zod';
 import createDatabaseAgentHost from '@/api/admin/database-agent-hosts/createDatabaseAgentHost.ts';
 import deleteDatabaseAgentHost from '@/api/admin/database-agent-hosts/deleteDatabaseAgentHost.ts';
@@ -24,6 +24,7 @@ import {
 } from '@/lib/schemas/admin/databaseAgentHosts.ts';
 import { getUrlConnectPort, withUrlPort } from '@/lib/url.ts';
 import { useHostAction } from '@/plugins/useHostAction.ts';
+import { useHydrateForm } from '@/plugins/useHydrateForm.ts';
 import { useResourceForm } from '@/plugins/useResourceForm.ts';
 import { useTranslations } from '@/providers/TranslationProvider.tsx';
 import { databaseAgentHostEmptyFormValues, databaseAgentHostToFormValues } from './databaseAgentHostFormValues.ts';
@@ -72,11 +73,7 @@ export default function DatabaseAgentHostCreateOrUpdate({
     resourceName: t('pages.admin.databaseAgentHosts.resourceName', {}),
   });
 
-  useEffect(() => {
-    if (contextDatabaseAgentHost) {
-      form.setValues(databaseAgentHostToFormValues(contextDatabaseAgentHost));
-    }
-  }, [contextDatabaseAgentHost]);
+  useHydrateForm(form, contextDatabaseAgentHost, databaseAgentHostToFormValues);
 
   const runHostAction = useHostAction(contextDatabaseAgentHost?.uuid, setLoading);
 

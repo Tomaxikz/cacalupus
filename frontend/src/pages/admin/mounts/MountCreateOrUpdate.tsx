@@ -1,6 +1,6 @@
 import { faExclamationTriangle } from '@fortawesome/free-solid-svg-icons';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
-import { useEffect, useState } from 'react';
+import { useState } from 'react';
 import { z } from 'zod';
 import createMount from '@/api/admin/mounts/createMount.ts';
 import deleteMount from '@/api/admin/mounts/deleteMount.ts';
@@ -15,6 +15,7 @@ import ConfirmationModal from '@/elements/modals/ConfirmationModal.tsx';
 import { queryKeys } from '@/lib/queryKeys.ts';
 import { adminMountSchema, adminMountUpdateSchema } from '@/lib/schemas/admin/mounts.ts';
 import MountDuplicateModal from '@/pages/admin/mounts/modals/MountDuplicateModal.tsx';
+import { useHydrateForm } from '@/plugins/useHydrateForm.ts';
 import { useResourceForm } from '@/plugins/useResourceForm.ts';
 import { useTranslations } from '@/providers/TranslationProvider.tsx';
 import { type MountFormValues, mountEmptyFormValues, mountToFormValues } from './mountFormValues.ts';
@@ -41,11 +42,7 @@ export default function MountCreateOrUpdate({ contextMount }: { contextMount?: z
     resourceName: t('pages.admin.mounts.resourceName', {}),
   });
 
-  useEffect(() => {
-    if (contextMount) {
-      form.setValues(mountToFormValues(contextMount));
-    }
-  }, [contextMount?.uuid]);
+  useHydrateForm(form, contextMount, mountToFormValues, { key: (mount) => mount.uuid });
 
   const fields: FieldDef<MountFormValues>[] = [
     { type: 'text', name: 'name', label: t('common.form.name', {}), required: true },

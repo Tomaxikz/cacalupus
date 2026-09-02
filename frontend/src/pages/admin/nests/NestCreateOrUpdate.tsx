@@ -1,4 +1,4 @@
-import { useEffect, useState } from 'react';
+import { useState } from 'react';
 import { z } from 'zod';
 import createNest from '@/api/admin/nests/createNest.ts';
 import deleteNest from '@/api/admin/nests/deleteNest.ts';
@@ -12,6 +12,7 @@ import Switch from '@/elements/input/Switch.tsx';
 import ConfirmationModal from '@/elements/modals/ConfirmationModal.tsx';
 import { queryKeys } from '@/lib/queryKeys.ts';
 import { adminNestSchema, adminNestUpdateSchema } from '@/lib/schemas/admin/nests.ts';
+import { useHydrateForm } from '@/plugins/useHydrateForm.ts';
 import { useResourceForm } from '@/plugins/useResourceForm.ts';
 import { useTranslations } from '@/providers/TranslationProvider.tsx';
 import { nestEmptyFormValues, nestToFormValues } from './nestFormValues.ts';
@@ -41,11 +42,7 @@ export default function NestCreateOrUpdate({ contextNest }: { contextNest?: z.in
     resourceName: t('pages.admin.nests.resourceName', {}),
   });
 
-  useEffect(() => {
-    if (contextNest) {
-      form.setValues(nestToFormValues(contextNest));
-    }
-  }, [contextNest]);
+  useHydrateForm(form, contextNest, nestToFormValues);
 
   const fields: FieldDef<NestFormValues>[] = [
     { type: 'text', name: 'name', label: t('common.form.name', {}), required: true },

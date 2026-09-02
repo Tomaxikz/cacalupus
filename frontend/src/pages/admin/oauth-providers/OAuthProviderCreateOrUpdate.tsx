@@ -1,6 +1,6 @@
 import { faExternalLink } from '@fortawesome/free-solid-svg-icons';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
-import { useEffect, useState } from 'react';
+import { useState } from 'react';
 import { z } from 'zod';
 import createOAuthProvider from '@/api/admin/oauth-providers/createOAuthProvider.ts';
 import deleteOAuthProvider from '@/api/admin/oauth-providers/deleteOAuthProvider.ts';
@@ -21,6 +21,7 @@ import Title from '@/elements/Title.tsx';
 import { downloadResourceFile, type ResourceExportFormat } from '@/lib/export.ts';
 import { queryKeys } from '@/lib/queryKeys.ts';
 import { adminOAuthProviderSchema, adminOAuthProviderUpdateSchema } from '@/lib/schemas/admin/oauthProviders.ts';
+import { useHydrateForm } from '@/plugins/useHydrateForm.ts';
 import { useResourceForm } from '@/plugins/useResourceForm.ts';
 import { useToast } from '@/providers/ToastProvider.tsx';
 import { useTranslations } from '@/providers/TranslationProvider.tsx';
@@ -64,11 +65,7 @@ export default function OAuthProviderCreateOrUpdate({
     resourceName: t('pages.admin.oAuthProviders.resourceName', {}),
   });
 
-  useEffect(() => {
-    if (contextOAuthProvider) {
-      form.setValues(oauthProviderToFormValues(contextOAuthProvider));
-    }
-  }, [contextOAuthProvider]);
+  useHydrateForm(form, contextOAuthProvider, oauthProviderToFormValues);
 
   const doExport = (format: ResourceExportFormat) => {
     if (!contextOAuthProvider) return;

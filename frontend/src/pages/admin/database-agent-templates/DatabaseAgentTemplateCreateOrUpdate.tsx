@@ -1,6 +1,6 @@
 import { faExternalLink } from '@fortawesome/free-solid-svg-icons';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
-import { useEffect, useMemo, useRef, useState } from 'react';
+import { useMemo, useState } from 'react';
 import { z } from 'zod';
 import createDatabaseAgentTemplate from '@/api/admin/database-agent-templates/createDatabaseAgentTemplate.ts';
 import deleteDatabaseAgentTemplate from '@/api/admin/database-agent-templates/deleteDatabaseAgentTemplate.ts';
@@ -25,6 +25,7 @@ import {
   adminDatabaseAgentTemplateSchema,
   adminDatabaseAgentTemplateUpdateSchema,
 } from '@/lib/schemas/admin/databaseAgentTemplates.ts';
+import { useHydrateForm } from '@/plugins/useHydrateForm.ts';
 import { useResourceForm } from '@/plugins/useResourceForm.ts';
 import { useToast } from '@/providers/ToastProvider.tsx';
 import { useTranslations } from '@/providers/TranslationProvider.tsx';
@@ -74,13 +75,9 @@ export default function DatabaseAgentTemplateCreateOrUpdate({
     resourceName: t('pages.admin.databaseAgentTemplates.resourceName', {}),
   });
 
-  const hydratedUuidRef = useRef<string | null>(null);
-  useEffect(() => {
-    if (contextDatabaseAgentTemplate && hydratedUuidRef.current !== contextDatabaseAgentTemplate.uuid) {
-      hydratedUuidRef.current = contextDatabaseAgentTemplate.uuid;
-      form.setValues(databaseAgentTemplateToFormValues(contextDatabaseAgentTemplate));
-    }
-  }, [contextDatabaseAgentTemplate]);
+  useHydrateForm(form, contextDatabaseAgentTemplate, databaseAgentTemplateToFormValues, {
+    key: (template) => template.uuid,
+  });
 
   const doExport = (format: ResourceExportFormat) => {
     if (!contextDatabaseAgentTemplate) return;

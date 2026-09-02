@@ -31,6 +31,7 @@ import { adminNestSchema } from '@/lib/schemas/admin/nests.ts';
 import { adminServerSchema, adminServerUpdateSchema } from '@/lib/schemas/admin/servers.ts';
 import { fullUserSchema } from '@/lib/schemas/user.ts';
 import { getTimezoneOptions } from '@/lib/timezones.ts';
+import { useHydrateForm } from '@/plugins/useHydrateForm.ts';
 import { useAdminCan } from '@/plugins/usePermissions.ts';
 import { useResourceForm } from '@/plugins/useResourceForm.ts';
 import { useSearchableResource } from '@/plugins/useSearchableResource.ts';
@@ -77,11 +78,7 @@ export default function ServerUpdate({ contextServer }: { contextServer: z.infer
     resourceName: t('pages.admin.servers.resourceName', {}),
   });
 
-  useEffect(() => {
-    if (contextServer) {
-      form.setValues(serverToFormValues(contextServer));
-    }
-  }, [contextServer]);
+  useHydrateForm(form, contextServer, serverToFormValues);
 
   const users = useSearchableResource<z.infer<typeof fullUserSchema>>({
     queryKey: queryKeys.admin.users.all(),

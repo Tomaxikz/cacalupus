@@ -24,6 +24,7 @@ import {
 import { eggConfigurationRouteItemSchema } from '@/lib/schemas/generic.ts';
 import EggConfigurationDuplicateModal from '@/pages/admin/egg-configurations/modals/EggConfigurationDuplicateModal.tsx';
 import { useGroupedEggOptions } from '@/plugins/useGroupedEggOptions.ts';
+import { useHydrateForm } from '@/plugins/useHydrateForm.ts';
 import { useResourceForm } from '@/plugins/useResourceForm.ts';
 import { useToast } from '@/providers/ToastProvider.tsx';
 import { useTranslations } from '@/providers/TranslationProvider.tsx';
@@ -82,11 +83,7 @@ export default function EggConfigurationCreateOrUpdate({
     resourceName: t('pages.admin.eggConfigurations.resourceName', {}),
   });
 
-  useEffect(() => {
-    if (contextEggConfiguration) {
-      form.setValues(eggConfigurationToFormValues(contextEggConfiguration));
-    }
-  }, [contextEggConfiguration]);
+  useHydrateForm(form, contextEggConfiguration, eggConfigurationToFormValues);
 
   useEffect(() => {
     loadServerRoutes()
