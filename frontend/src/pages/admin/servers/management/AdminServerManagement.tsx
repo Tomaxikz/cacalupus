@@ -1,13 +1,13 @@
 import { faPause, faPlay, faReply, faSatellite, faTrash } from '@fortawesome/free-solid-svg-icons';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { z } from 'zod';
-import Button from '@/elements/Button.tsx';
+import Button from '@/elements/buttons/Button.tsx';
 import { AdminCan } from '@/elements/Can.tsx';
 import AdminSubContentContainer from '@/elements/containers/AdminSubContentContainer.tsx';
+import TitleCard from '@/elements/data-display/TitleCard.tsx';
 import ExtensionSlot from '@/elements/ExtensionSlot.tsx';
-import Group from '@/elements/Group.tsx';
-import Stack from '@/elements/Stack.tsx';
-import TitleCard from '@/elements/TitleCard.tsx';
+import Group from '@/elements/layout/Group.tsx';
+import Stack from '@/elements/layout/Stack.tsx';
 import { adminServerSchema } from '@/lib/schemas/admin/servers.ts';
 import { useAdminCan } from '@/plugins/usePermissions.ts';
 import { useTranslations } from '@/providers/TranslationProvider.tsx';

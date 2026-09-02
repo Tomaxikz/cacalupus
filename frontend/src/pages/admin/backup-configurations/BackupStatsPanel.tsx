@@ -1,9 +1,9 @@
 import type { z } from 'zod';
 import type { backupStatsByPeriodSchema } from '@/api/admin/stats/getBackupStats.ts';
-import Card from '@/elements/Card.tsx';
-import Title from '@/elements/Title.tsx';
-import TitleCard from '@/elements/TitleCard.tsx';
-import { bytesToString } from '@/lib/size.ts';
+import Card from '@/elements/data-display/Card.tsx';
+import TitleCard from '@/elements/data-display/TitleCard.tsx';
+import Title from '@/elements/typography/Title.tsx';
+import { bytesToString } from '@/lib/format/size.ts';
 import { useTranslations } from '@/providers/TranslationProvider.tsx';
 
 const PERIODS = ['allTime', 'today', 'week', 'month'] as const;

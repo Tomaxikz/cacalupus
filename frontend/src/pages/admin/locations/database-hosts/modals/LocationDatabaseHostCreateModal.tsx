@@ -3,11 +3,11 @@ import { z } from 'zod';
 import getDatabaseHosts from '@/api/admin/database-hosts/getDatabaseHosts.ts';
 import createLocationDatabaseHost from '@/api/admin/locations/database-hosts/createLocationDatabaseHost.ts';
 import ResourceSelectModal from '@/elements/modals/ResourceSelectModal.tsx';
-import { groupDatabaseHostsByType } from '@/lib/database.ts';
+import { groupDatabaseHostsByType } from '@/lib/domain/database.ts';
 import { queryKeys } from '@/lib/queryKeys.ts';
 import { adminDatabaseHostSchema } from '@/lib/schemas/admin/databaseHosts.ts';
 import { adminLocationSchema } from '@/lib/schemas/admin/locations.ts';
-import { useSearchableResource } from '@/plugins/useSearchableResource.ts';
+import { useSearchableResource } from '@/plugins/resource/useSearchableResource.ts';
 import { useTranslations } from '@/providers/TranslationProvider.tsx';
 
 export default function LocationDatabaseHostCreateModal({

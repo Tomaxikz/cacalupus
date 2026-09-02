@@ -1,6 +1,6 @@
 import { ZodType, z } from 'zod';
 import { adminFullUserSchema } from '@/lib/schemas/admin/users.ts';
-import { nullableString } from '@/lib/transformers.ts';
+import { nullableString } from '@/lib/serialization/transformers.ts';
 
 export const adminOAuthProviderSchema = z.looseObject({
   uuid: z.string(),

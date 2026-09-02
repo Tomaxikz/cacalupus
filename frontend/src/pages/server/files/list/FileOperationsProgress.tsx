@@ -2,13 +2,13 @@ import { memo, useCallback, useMemo, useRef, useState } from 'react';
 import { useShallow } from 'zustand/react/shallow';
 import { httpErrorToHuman } from '@/api/axios.ts';
 import cancelOperation from '@/api/server/files/cancelOperation.ts';
-import Button from '@/elements/Button.tsx';
+import Button from '@/elements/buttons/Button.tsx';
+import UnstyledButton from '@/elements/buttons/UnstyledButton.tsx';
 import ExtensionSlot from '@/elements/ExtensionSlot.tsx';
+import RingProgress from '@/elements/feedback/RingProgress.tsx';
 import ConfirmationModal from '@/elements/modals/ConfirmationModal.tsx';
-import Popover from '@/elements/Popover.tsx';
-import RingProgress from '@/elements/RingProgress.tsx';
-import Text from '@/elements/Text.tsx';
-import UnstyledButton from '@/elements/UnstyledButton.tsx';
+import Popover from '@/elements/overlays/Popover.tsx';
+import Text from '@/elements/typography/Text.tsx';
 import {
   computeAggregatedProgress,
   hasRetryingUpload,

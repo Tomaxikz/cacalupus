@@ -1,6 +1,6 @@
 import classNames from 'classnames';
-import Anchor from '@/elements/Anchor.tsx';
 import ExtensionSlot from '@/elements/ExtensionSlot.tsx';
+import Anchor from '@/elements/typography/Anchor.tsx';
 
 export default function Copyright({ className }: { className?: string }) {
   return (

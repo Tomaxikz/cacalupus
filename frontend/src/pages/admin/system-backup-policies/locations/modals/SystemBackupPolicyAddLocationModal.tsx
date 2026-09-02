@@ -6,7 +6,7 @@ import ResourceSelectModal from '@/elements/modals/ResourceSelectModal.tsx';
 import { queryKeys } from '@/lib/queryKeys.ts';
 import { adminLocationSchema } from '@/lib/schemas/admin/locations.ts';
 import { adminSystemBackupPolicySchema } from '@/lib/schemas/admin/systemBackupPolicies.ts';
-import { useSearchableResource } from '@/plugins/useSearchableResource.ts';
+import { useSearchableResource } from '@/plugins/resource/useSearchableResource.ts';
 import { useTranslations } from '@/providers/TranslationProvider.tsx';
 
 export default function SystemBackupPolicyAddLocationModal({

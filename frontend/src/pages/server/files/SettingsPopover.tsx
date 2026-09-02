@@ -1,10 +1,10 @@
 import { faCog } from '@fortawesome/free-solid-svg-icons';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { ComponentType, ReactNode } from 'react';
-import Button from '@/elements/Button.tsx';
+import Button from '@/elements/buttons/Button.tsx';
 import ExtensionSlot from '@/elements/ExtensionSlot.tsx';
-import Popover from '@/elements/Popover.tsx';
-import Tooltip from '@/elements/Tooltip.tsx';
+import Popover from '@/elements/overlays/Popover.tsx';
+import Tooltip from '@/elements/overlays/Tooltip.tsx';
 
 export default function SettingsPopover({
   tooltip,

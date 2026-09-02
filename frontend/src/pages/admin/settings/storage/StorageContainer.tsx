@@ -4,11 +4,11 @@ import { useEffect, useState } from 'react';
 import { z } from 'zod';
 import updateStorageSettings from '@/api/admin/settings/updateStorageSettings.ts';
 import { httpErrorToHuman } from '@/api/axios.ts';
-import Button from '@/elements/Button.tsx';
+import Button from '@/elements/buttons/Button.tsx';
 import { AdminCan } from '@/elements/Can.tsx';
 import AdminSubContentContainer from '@/elements/containers/AdminSubContentContainer.tsx';
-import Group from '@/elements/Group.tsx';
 import Select from '@/elements/input/Select.tsx';
+import Group from '@/elements/layout/Group.tsx';
 import ConfirmationModal from '@/elements/modals/ConfirmationModal.tsx';
 import { mappingToSelectData, storageDriverTypeLabelMapping } from '@/lib/enums.ts';
 import {

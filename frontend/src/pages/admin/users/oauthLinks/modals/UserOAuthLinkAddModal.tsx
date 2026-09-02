@@ -8,7 +8,7 @@ import ResourceSelectModal from '@/elements/modals/ResourceSelectModal.tsx';
 import { queryKeys } from '@/lib/queryKeys.ts';
 import { adminOAuthProviderSchema } from '@/lib/schemas/admin/oauthProviders.ts';
 import { adminFullUserSchema } from '@/lib/schemas/admin/users.ts';
-import { useSearchableResource } from '@/plugins/useSearchableResource.ts';
+import { useSearchableResource } from '@/plugins/resource/useSearchableResource.ts';
 import { useTranslations } from '@/providers/TranslationProvider.tsx';
 
 export default function UserOAuthLinkAddModal({

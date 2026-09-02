@@ -6,13 +6,13 @@ import createEggVariable from '@/api/admin/nests/eggs/variables/createEggVariabl
 import deleteEggVariable from '@/api/admin/nests/eggs/variables/deleteEggVariable.ts';
 import updateEggVariable from '@/api/admin/nests/eggs/variables/updateEggVariable.ts';
 import { httpErrorToHuman } from '@/api/axios.ts';
-import ActionIcon from '@/elements/ActionIcon.tsx';
-import Button from '@/elements/Button.tsx';
+import ActionIcon from '@/elements/buttons/ActionIcon.tsx';
+import Button from '@/elements/buttons/Button.tsx';
 import { AdminCan } from '@/elements/Can.tsx';
-import Card from '@/elements/Card.tsx';
+import Card from '@/elements/data-display/Card.tsx';
 import { type FieldDef, FormEngine, useFormEngine } from '@/elements/form-engine/index.ts';
-import Group from '@/elements/Group.tsx';
 import TextInput from '@/elements/input/TextInput.tsx';
+import Group from '@/elements/layout/Group.tsx';
 import ConfirmationModal from '@/elements/modals/ConfirmationModal.tsx';
 import { adminEggSchema, adminEggVariableSchema, adminEggVariableUpdateSchema } from '@/lib/schemas/admin/eggs.ts';
 import { adminNestSchema } from '@/lib/schemas/admin/nests.ts';
@@ -21,7 +21,7 @@ import {
   eggVariableToFormValues,
 } from '@/pages/admin/nests/eggs/variables/eggVariableFormValues.ts';
 import EggVariableDuplicateModal from '@/pages/admin/nests/eggs/variables/modals/EggVariableDuplicateModal.tsx';
-import { useHydrateForm } from '@/plugins/useHydrateForm.ts';
+import { useHydrateForm } from '@/plugins/form/useHydrateForm.ts';
 import { useToast } from '@/providers/ToastProvider.tsx';
 import { useTranslations } from '@/providers/TranslationProvider.tsx';
 import { useGlobalStore } from '@/stores/global.ts';

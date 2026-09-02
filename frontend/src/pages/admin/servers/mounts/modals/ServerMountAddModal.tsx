@@ -5,7 +5,7 @@ import getAvailableServerMounts from '@/api/admin/servers/mounts/getAvailableSer
 import ResourceSelectModal from '@/elements/modals/ResourceSelectModal.tsx';
 import { queryKeys } from '@/lib/queryKeys.ts';
 import { adminServerMountSchema, adminServerSchema } from '@/lib/schemas/admin/servers.ts';
-import { useSearchableResource } from '@/plugins/useSearchableResource.ts';
+import { useSearchableResource } from '@/plugins/resource/useSearchableResource.ts';
 import { useTranslations } from '@/providers/TranslationProvider.tsx';
 
 export default function ServerMountAddModal({

@@ -5,7 +5,7 @@ import { adminDatabaseHostSchema } from '@/lib/schemas/admin/databaseHosts.ts';
 import { adminLocationSchema } from '@/lib/schemas/admin/locations.ts';
 import { adminMountSchema } from '@/lib/schemas/admin/mounts.ts';
 import { adminServerBackupSchema, adminServerSchema } from '@/lib/schemas/admin/servers.ts';
-import { nullableString } from '@/lib/transformers.ts';
+import { nullableString } from '@/lib/serialization/transformers.ts';
 import { hostnameSchema } from '../generic.ts';
 
 export const adminNodeSchema = z.looseObject({

@@ -1,4 +1,4 @@
-import Alert from '@/elements/Alert.tsx';
+import Alert from '@/elements/feedback/Alert.tsx';
 import { isOutdated } from '@/lib/version.ts';
 import { useTranslations } from '@/providers/TranslationProvider.tsx';
 import { useAdminStore } from '@/stores/admin.tsx';

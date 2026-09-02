@@ -2,13 +2,13 @@ import { faMinus, faPlus } from '@fortawesome/free-solid-svg-icons';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { UseFormReturnType } from '@mantine/form';
 import { z } from 'zod';
-import ActionIcon from '@/elements/ActionIcon.tsx';
-import Button from '@/elements/Button.tsx';
-import Card from '@/elements/Card.tsx';
-import Group from '@/elements/Group.tsx';
+import ActionIcon from '@/elements/buttons/ActionIcon.tsx';
+import Button from '@/elements/buttons/Button.tsx';
+import Card from '@/elements/data-display/Card.tsx';
 import JsonInput from '@/elements/input/JsonInput.tsx';
 import Switch from '@/elements/input/Switch.tsx';
 import TextInput from '@/elements/input/TextInput.tsx';
+import Group from '@/elements/layout/Group.tsx';
 import { adminEggUpdateSchema } from '@/lib/schemas/admin/eggs.ts';
 import { useTranslations } from '@/providers/TranslationProvider.tsx';
 

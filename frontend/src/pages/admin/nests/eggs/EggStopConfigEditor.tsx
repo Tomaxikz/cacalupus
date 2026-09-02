@@ -3,10 +3,10 @@ import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { UseFormReturnType } from '@mantine/form';
 import { useState } from 'react';
 import { z } from 'zod';
-import Group from '@/elements/Group.tsx';
+import TitleCard from '@/elements/data-display/TitleCard.tsx';
 import Select from '@/elements/input/Select.tsx';
 import TextInput from '@/elements/input/TextInput.tsx';
-import TitleCard from '@/elements/TitleCard.tsx';
+import Group from '@/elements/layout/Group.tsx';
 import { adminEggUpdateSchema } from '@/lib/schemas/admin/eggs.ts';
 import { useTranslations } from '@/providers/TranslationProvider.tsx';
 

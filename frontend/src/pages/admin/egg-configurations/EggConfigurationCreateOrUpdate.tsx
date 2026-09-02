@@ -7,15 +7,15 @@ import createEggConfiguration from '@/api/admin/egg-configurations/createEggConf
 import deleteEggConfiguration from '@/api/admin/egg-configurations/deleteEggConfiguration.ts';
 import updateEggConfiguration from '@/api/admin/egg-configurations/updateEggConfiguration.ts';
 import { httpErrorToHuman } from '@/api/axios.ts';
-import Alert from '@/elements/Alert.tsx';
-import Button from '@/elements/Button.tsx';
+import Button from '@/elements/buttons/Button.tsx';
 import { AdminCan } from '@/elements/Can.tsx';
 import AdminContentContainer from '@/elements/containers/AdminContentContainer.tsx';
+import Alert from '@/elements/feedback/Alert.tsx';
 import { type FieldDef, FormEngine, useFormEngine } from '@/elements/form-engine/index.ts';
-import Group from '@/elements/Group.tsx';
 import Switch from '@/elements/input/Switch.tsx';
+import Group from '@/elements/layout/Group.tsx';
 import ConfirmationModal from '@/elements/modals/ConfirmationModal.tsx';
-import RouteOrderEditor from '@/elements/RouteOrderEditor.tsx';
+import RouteOrderEditor from '@/elements/navigation/RouteOrderEditor.tsx';
 import { queryKeys } from '@/lib/queryKeys.ts';
 import {
   adminEggConfigurationSchema,
@@ -23,9 +23,9 @@ import {
 } from '@/lib/schemas/admin/eggConfigurations.ts';
 import { eggConfigurationRouteItemSchema } from '@/lib/schemas/generic.ts';
 import EggConfigurationDuplicateModal from '@/pages/admin/egg-configurations/modals/EggConfigurationDuplicateModal.tsx';
+import { useHydrateForm } from '@/plugins/form/useHydrateForm.ts';
+import { useResourceForm } from '@/plugins/resource/useResourceForm.ts';
 import { useGroupedEggOptions } from '@/plugins/useGroupedEggOptions.ts';
-import { useHydrateForm } from '@/plugins/useHydrateForm.ts';
-import { useResourceForm } from '@/plugins/useResourceForm.ts';
 import { useToast } from '@/providers/ToastProvider.tsx';
 import { useTranslations } from '@/providers/TranslationProvider.tsx';
 import { useGlobalStore } from '@/stores/global.ts';

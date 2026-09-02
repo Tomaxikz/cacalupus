@@ -2,13 +2,13 @@ import { ModalProps } from '@mantine/core';
 import { useEffect } from 'react';
 import { z } from 'zod';
 import importEggsFromUrl from '@/api/admin/nests/eggs/importEggsFromUrl.ts';
-import Button from '@/elements/Button.tsx';
+import Button from '@/elements/buttons/Button.tsx';
 import TagsInput from '@/elements/input/TagsInput.tsx';
+import Stack from '@/elements/layout/Stack.tsx';
 import FormModal from '@/elements/modals/FormModal.tsx';
 import { ModalFooter } from '@/elements/modals/Modal.tsx';
-import Stack from '@/elements/Stack.tsx';
 import { adminNestSchema } from '@/lib/schemas/admin/nests.ts';
-import { useModalForm } from '@/plugins/useModalForm.ts';
+import { useModalForm } from '@/plugins/form/useModalForm.ts';
 import { useToast } from '@/providers/ToastProvider.tsx';
 import { useTranslations } from '@/providers/TranslationProvider.tsx';
 

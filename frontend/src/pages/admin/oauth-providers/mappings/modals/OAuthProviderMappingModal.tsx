@@ -5,17 +5,17 @@ import createOAuthProviderMapping from '@/api/admin/oauth-providers/mappings/cre
 import updateOAuthProviderMapping from '@/api/admin/oauth-providers/mappings/updateOAuthProviderMapping.ts';
 import getRoles from '@/api/admin/roles/getRoles.ts';
 import getServers from '@/api/admin/servers/getServers.ts';
-import Button from '@/elements/Button.tsx';
-import Divider from '@/elements/Divider.tsx';
+import Button from '@/elements/buttons/Button.tsx';
 import IgnoredFilesInput from '@/elements/input/IgnoredFilesInput.tsx';
 import Select from '@/elements/input/Select.tsx';
 import ServerSelect from '@/elements/input/ServerSelect.tsx';
 import Switch from '@/elements/input/Switch.tsx';
+import Divider from '@/elements/layout/Divider.tsx';
+import Stack from '@/elements/layout/Stack.tsx';
 import FormModal from '@/elements/modals/FormModal.tsx';
 import { ModalFooter } from '@/elements/modals/Modal.tsx';
 import PermissionSelector from '@/elements/PermissionSelector.tsx';
-import Stack from '@/elements/Stack.tsx';
-import Text from '@/elements/Text.tsx';
+import Text from '@/elements/typography/Text.tsx';
 import { queryKeys } from '@/lib/queryKeys.ts';
 import {
   AdminOAuthProviderMappingMatcher,
@@ -24,9 +24,9 @@ import {
 } from '@/lib/schemas/admin/oauthProviders.ts';
 import { adminServerSchema } from '@/lib/schemas/admin/servers.ts';
 import { roleSchema } from '@/lib/schemas/user.ts';
-import { useModalForm } from '@/plugins/useModalForm.ts';
+import { useModalForm } from '@/plugins/form/useModalForm.ts';
+import { useSearchableResource } from '@/plugins/resource/useSearchableResource.ts';
 import { useAdminCan } from '@/plugins/usePermissions.ts';
-import { useSearchableResource } from '@/plugins/useSearchableResource.ts';
 import { useToast } from '@/providers/ToastProvider.tsx';
 import { useTranslations } from '@/providers/TranslationProvider.tsx';
 import { useGlobalStore } from '@/stores/global.ts';

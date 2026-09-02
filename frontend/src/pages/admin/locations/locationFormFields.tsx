@@ -4,7 +4,7 @@ import { type FieldDef } from '@/elements/form-engine/index.ts';
 import Select from '@/elements/input/Select.tsx';
 import { adminBackupConfigurationSchema } from '@/lib/schemas/admin/backupConfigurations.ts';
 import { adminLocationUpdateSchema } from '@/lib/schemas/admin/locations.ts';
-import { useSearchableResource } from '@/plugins/useSearchableResource.ts';
+import { useSearchableResource } from '@/plugins/resource/useSearchableResource.ts';
 import { useTranslations } from '@/providers/TranslationProvider.tsx';
 
 type LocationFormValues = z.infer<typeof adminLocationUpdateSchema>;

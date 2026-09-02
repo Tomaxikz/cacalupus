@@ -3,11 +3,11 @@ import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { z } from 'zod';
 import getBackupConfigurationStats from '@/api/admin/backup-configurations/getBackupConfigurationStats.ts';
 import AdminSubContentContainer from '@/elements/containers/AdminSubContentContainer.tsx';
+import TitleCard from '@/elements/data-display/TitleCard.tsx';
 import ResourceView from '@/elements/ResourceView.tsx';
-import TitleCard from '@/elements/TitleCard.tsx';
 import { queryKeys } from '@/lib/queryKeys.ts';
 import { adminBackupConfigurationSchema } from '@/lib/schemas/admin/backupConfigurations.ts';
-import { useResource } from '@/plugins/useResource.ts';
+import { useResource } from '@/plugins/resource/useResource.ts';
 import { useTranslations } from '@/providers/TranslationProvider.tsx';
 import BackupStatsPanel from '../BackupStatsPanel.tsx';
 

@@ -10,11 +10,11 @@ import {
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { createSearchParams, useNavigate } from 'react-router';
 import { useShallow } from 'zustand/react/shallow';
-import Button from '@/elements/Button.tsx';
+import Button from '@/elements/buttons/Button.tsx';
 import { ServerCan } from '@/elements/Can.tsx';
-import ContextMenu from '@/elements/ContextMenu.tsx';
 import ExtensionSlot from '@/elements/ExtensionSlot.tsx';
-import Group from '@/elements/Group.tsx';
+import Group from '@/elements/layout/Group.tsx';
+import ContextMenu from '@/elements/overlays/ContextMenu.tsx';
 import { useFileManager } from '@/providers/FileManagerProvider.tsx';
 import { useTranslations } from '@/providers/TranslationProvider.tsx';
 import { useServerStore } from '@/stores/server.ts';

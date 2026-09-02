@@ -7,13 +7,13 @@ import createDatabaseHost from '@/api/admin/database-hosts/createDatabaseHost.ts
 import deleteDatabaseHost from '@/api/admin/database-hosts/deleteDatabaseHost.ts';
 import testDatabaseHost from '@/api/admin/database-hosts/testDatabaseHost.ts';
 import updateDatabaseHost from '@/api/admin/database-hosts/updateDatabaseHost.ts';
-import Button from '@/elements/Button.tsx';
+import Button from '@/elements/buttons/Button.tsx';
 import { AdminCan } from '@/elements/Can.tsx';
 import CollapsibleSection from '@/elements/CollapsibleSection.tsx';
 import AdminContentContainer from '@/elements/containers/AdminContentContainer.tsx';
 import { type FieldDef, FormEngine, useFormEngine } from '@/elements/form-engine/index.ts';
-import Group from '@/elements/Group.tsx';
 import Select from '@/elements/input/Select.tsx';
+import Group from '@/elements/layout/Group.tsx';
 import ForceDeleteModal from '@/elements/modals/ForceDeleteModal.tsx';
 import { databaseCredentialTypeLabelMapping, databaseTypeLabelMapping, mappingToSelectData } from '@/lib/enums.ts';
 import { queryKeys } from '@/lib/queryKeys.ts';
@@ -24,8 +24,8 @@ import {
   adminDatabaseHostSchema,
   adminDatabaseHostUpdateSchema,
 } from '@/lib/schemas/admin/databaseHosts.ts';
+import { useResourceForm } from '@/plugins/resource/useResourceForm.ts';
 import { useHostAction } from '@/plugins/useHostAction.ts';
-import { useResourceForm } from '@/plugins/useResourceForm.ts';
 import { useTranslations } from '@/providers/TranslationProvider.tsx';
 import {
   type AdminDatabaseCredentialType,

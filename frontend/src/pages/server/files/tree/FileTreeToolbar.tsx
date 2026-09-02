@@ -13,12 +13,12 @@ import {
 } from '@fortawesome/free-solid-svg-icons';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { useEffect, useRef } from 'react';
-import ActionIcon from '@/elements/ActionIcon.tsx';
-import Collapse from '@/elements/Collapse.tsx';
-import ContextMenu from '@/elements/ContextMenu.tsx';
+import ActionIcon from '@/elements/buttons/ActionIcon.tsx';
 import ExtensionSlot from '@/elements/ExtensionSlot.tsx';
 import Checkbox from '@/elements/input/Checkbox.tsx';
 import TextInput from '@/elements/input/TextInput.tsx';
+import Collapse from '@/elements/layout/Collapse.tsx';
+import ContextMenu from '@/elements/overlays/ContextMenu.tsx';
 import { useTranslations } from '@/providers/TranslationProvider.tsx';
 
 interface FileTreeToolbarProps {

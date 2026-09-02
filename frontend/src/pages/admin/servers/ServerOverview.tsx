@@ -13,18 +13,18 @@ import {
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { SimpleGrid, Text } from '@mantine/core';
 import { z } from 'zod';
-import Badge from '@/elements/Badge.tsx';
-import Card from '@/elements/Card.tsx';
 import AdminSubContentContainer from '@/elements/containers/AdminSubContentContainer.tsx';
+import Badge from '@/elements/data-display/Badge.tsx';
+import Card from '@/elements/data-display/Card.tsx';
+import TableLink from '@/elements/data-display/TableLink.tsx';
+import TitleCard from '@/elements/data-display/TitleCard.tsx';
 import ExtensionSlot from '@/elements/ExtensionSlot.tsx';
-import Group from '@/elements/Group.tsx';
-import Stack from '@/elements/Stack.tsx';
-import TableLink from '@/elements/TableLink.tsx';
-import TitleCard from '@/elements/TitleCard.tsx';
+import Group from '@/elements/layout/Group.tsx';
+import Stack from '@/elements/layout/Stack.tsx';
+import { serverStatusInfo } from '@/lib/domain/server.ts';
+import { bytesToString, mbToBytes } from '@/lib/format/size.ts';
+import { formatDateTime } from '@/lib/format/time.ts';
 import { adminServerSchema } from '@/lib/schemas/admin/servers.ts';
-import { serverStatusInfo } from '@/lib/server.ts';
-import { bytesToString, mbToBytes } from '@/lib/size.ts';
-import { formatDateTime } from '@/lib/time.ts';
 import { useTranslations } from '@/providers/TranslationProvider.tsx';
 
 type Server = z.infer<typeof adminServerSchema>;

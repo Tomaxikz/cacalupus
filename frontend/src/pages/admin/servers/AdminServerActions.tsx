@@ -10,8 +10,8 @@ import ServerDeleteModal from '@/pages/admin/servers/management/modals/ServerDel
 import ServerSuspendModal from '@/pages/admin/servers/management/modals/ServerSuspendModal.tsx';
 import ServerTransferModal from '@/pages/admin/servers/management/modals/ServerTransferModal.tsx';
 import ServerUnsuspendModal from '@/pages/admin/servers/management/modals/ServerUnsuspendModal.tsx';
+import { useQuickActions } from '@/plugins/quick-actions/useQuickActions.ts';
 import { useAdminCan } from '@/plugins/usePermissions.ts';
-import { useQuickActions } from '@/plugins/useQuickActions.ts';
 import { useTranslations } from '@/providers/TranslationProvider.tsx';
 import { useAdminStore } from '@/stores/admin.tsx';
 

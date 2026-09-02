@@ -7,13 +7,13 @@ import createEggRepository from '@/api/admin/egg-repositories/createEggRepositor
 import deleteEggRepository from '@/api/admin/egg-repositories/deleteEggRepository.ts';
 import syncEggRepository from '@/api/admin/egg-repositories/syncEggRepository.ts';
 import updateEggRepository from '@/api/admin/egg-repositories/updateEggRepository.ts';
-import Button from '@/elements/Button.tsx';
+import Button from '@/elements/buttons/Button.tsx';
 import { AdminCan } from '@/elements/Can.tsx';
 import CollapsibleSection from '@/elements/CollapsibleSection.tsx';
 import AdminContentContainer from '@/elements/containers/AdminContentContainer.tsx';
 import { type FieldDef, FormEngine, useFormEngine } from '@/elements/form-engine/index.ts';
-import Group from '@/elements/Group.tsx';
 import Select from '@/elements/input/Select.tsx';
+import Group from '@/elements/layout/Group.tsx';
 import ConfirmationModal from '@/elements/modals/ConfirmationModal.tsx';
 import { eggRepositoryCredentialTypeLabelMapping, mappingToSelectData } from '@/lib/enums.ts';
 import { queryKeys } from '@/lib/queryKeys.ts';
@@ -23,9 +23,9 @@ import {
   adminEggRepositorySchema,
   adminEggRepositoryUpdateSchema,
 } from '@/lib/schemas/admin/eggRepositories.ts';
+import { useHydrateForm } from '@/plugins/form/useHydrateForm.ts';
+import { useResourceForm } from '@/plugins/resource/useResourceForm.ts';
 import { useHostAction } from '@/plugins/useHostAction.ts';
-import { useHydrateForm } from '@/plugins/useHydrateForm.ts';
-import { useResourceForm } from '@/plugins/useResourceForm.ts';
 import { useTranslations } from '@/providers/TranslationProvider.tsx';
 import {
   type AdminEggRepositoryCredentialType,

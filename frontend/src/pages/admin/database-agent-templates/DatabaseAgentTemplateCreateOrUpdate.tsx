@@ -6,27 +6,27 @@ import createDatabaseAgentTemplate from '@/api/admin/database-agent-templates/cr
 import deleteDatabaseAgentTemplate from '@/api/admin/database-agent-templates/deleteDatabaseAgentTemplate.ts';
 import duplicateDatabaseAgentTemplate from '@/api/admin/database-agent-templates/duplicateDatabaseAgentTemplate.ts';
 import updateDatabaseAgentTemplate from '@/api/admin/database-agent-templates/updateDatabaseAgentTemplate.ts';
-import Anchor from '@/elements/Anchor.tsx';
-import Badge from '@/elements/Badge.tsx';
-import Button from '@/elements/Button.tsx';
+import Button from '@/elements/buttons/Button.tsx';
 import { AdminCan } from '@/elements/Can.tsx';
 import AdminContentContainer from '@/elements/containers/AdminContentContainer.tsx';
+import Badge from '@/elements/data-display/Badge.tsx';
 import { AdvancedModeToggle, type FieldDef, FormEngine, useFormEngine } from '@/elements/form-engine/index.ts';
-import Group from '@/elements/Group.tsx';
 import MultiKeyValueInput from '@/elements/input/MultiKeyValueInput.tsx';
+import Group from '@/elements/layout/Group.tsx';
 import ConfirmationModal from '@/elements/modals/ConfirmationModal.tsx';
 import ResourceDuplicateModal from '@/elements/modals/ResourceDuplicateModal.tsx';
 import ResourceExportMenu from '@/elements/ResourceExportMenu.tsx';
+import Anchor from '@/elements/typography/Anchor.tsx';
+import { downloadResourceFile, type ResourceExportFormat } from '@/lib/download/export.ts';
 import { databaseAgentTypeLabelMapping } from '@/lib/enums.ts';
-import { downloadResourceFile, type ResourceExportFormat } from '@/lib/export.ts';
 import { queryKeys } from '@/lib/queryKeys.ts';
 import {
   adminDatabaseAgentTemplateCreateSchema,
   adminDatabaseAgentTemplateSchema,
   adminDatabaseAgentTemplateUpdateSchema,
 } from '@/lib/schemas/admin/databaseAgentTemplates.ts';
-import { useHydrateForm } from '@/plugins/useHydrateForm.ts';
-import { useResourceForm } from '@/plugins/useResourceForm.ts';
+import { useHydrateForm } from '@/plugins/form/useHydrateForm.ts';
+import { useResourceForm } from '@/plugins/resource/useResourceForm.ts';
 import { useToast } from '@/providers/ToastProvider.tsx';
 import { useTranslations } from '@/providers/TranslationProvider.tsx';
 import {

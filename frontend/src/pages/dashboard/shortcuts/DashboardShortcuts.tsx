@@ -2,17 +2,17 @@ import { faApple, faWindows } from '@fortawesome/free-brands-svg-icons';
 import { faCloud, faCopy, faDesktop, faKeyboard, faPaste, faRotateLeft } from '@fortawesome/free-solid-svg-icons';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { ReactNode, useState } from 'react';
-import Button from '@/elements/Button.tsx';
+import Button from '@/elements/buttons/Button.tsx';
 import AccountContentContainer from '@/elements/containers/AccountContentContainer.tsx';
+import TitleCard from '@/elements/data-display/TitleCard.tsx';
 import ExtensionSlot from '@/elements/ExtensionSlot.tsx';
-import Flex from '@/elements/Flex.tsx';
-import Stack from '@/elements/Stack.tsx';
-import Text from '@/elements/Text.tsx';
-import TitleCard from '@/elements/TitleCard.tsx';
+import Flex from '@/elements/layout/Flex.tsx';
+import Stack from '@/elements/layout/Stack.tsx';
+import Text from '@/elements/typography/Text.tsx';
 import UserSettingScopeMenu from '@/elements/UserSettingScopeMenu.tsx';
-import { handleRawCopyToClipboard } from '@/lib/copy.ts';
+import { handleRawCopyToClipboard } from '@/lib/clipboard/copy.ts';
+import { handleRawPasteFromClipboard } from '@/lib/clipboard/paste.ts';
 import { resolveString } from '@/lib/lazy.ts';
-import { handleRawPasteFromClipboard } from '@/lib/paste.ts';
 import { buildCoreShortcutCategories, getShortcutDefinitions } from '@/lib/quickActions/coreShortcuts.tsx';
 import {
   importShortcutOverrides,

@@ -1,8 +1,8 @@
 import { z } from 'zod';
 import { axiosInstance } from '@/api/axios.ts';
-import { serializeForApi } from '@/lib/api-transform.ts';
 import { serverSelectorSchema, transferArchiveFormat } from '@/lib/schemas/generic.ts';
 import { compressionLevel } from '@/lib/schemas/server/files.ts';
+import { serializeForApi } from '@/lib/serialization/api-transform.ts';
 
 const postTransfersSchema = z.object({
   servers: serverSelectorSchema,

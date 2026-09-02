@@ -2,18 +2,18 @@ import { faHardDrive, faMemory, faMicrochip, faServer, faUserLarge } from '@fort
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { z } from 'zod';
 import getNodeCapacity from '@/api/admin/nodes/getNodeCapacity.ts';
-import Badge from '@/elements/Badge.tsx';
-import Card from '@/elements/Card.tsx';
 import AdminSubContentContainer from '@/elements/containers/AdminSubContentContainer.tsx';
-import Group from '@/elements/Group.tsx';
-import SemiCircleProgress from '@/elements/SemiCircleProgress.tsx';
-import Spinner from '@/elements/Spinner.tsx';
-import Title from '@/elements/Title.tsx';
-import TitleCard from '@/elements/TitleCard.tsx';
+import Badge from '@/elements/data-display/Badge.tsx';
+import Card from '@/elements/data-display/Card.tsx';
+import TitleCard from '@/elements/data-display/TitleCard.tsx';
+import SemiCircleProgress from '@/elements/feedback/SemiCircleProgress.tsx';
+import Spinner from '@/elements/feedback/Spinner.tsx';
+import Group from '@/elements/layout/Group.tsx';
+import Title from '@/elements/typography/Title.tsx';
+import { bytesToString, mbToBytes } from '@/lib/format/size.ts';
 import { queryKeys } from '@/lib/queryKeys.ts';
 import { adminNodeSchema } from '@/lib/schemas/admin/nodes.ts';
-import { bytesToString, mbToBytes } from '@/lib/size.ts';
-import { useResource } from '@/plugins/useResource.ts';
+import { useResource } from '@/plugins/resource/useResource.ts';
 import { useTranslations } from '@/providers/TranslationProvider.tsx';
 
 function LimitedResource({

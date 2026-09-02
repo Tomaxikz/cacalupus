@@ -2,12 +2,12 @@ import { faCog, faUsers } from '@fortawesome/free-solid-svg-icons';
 import { useParams } from 'react-router';
 import getRole from '@/api/admin/roles/getRole.ts';
 import AdminContentContainer from '@/elements/containers/AdminContentContainer.tsx';
+import SubNavigation from '@/elements/navigation/SubNavigation.tsx';
 import ResourceView from '@/elements/ResourceView.tsx';
-import SubNavigation from '@/elements/SubNavigation.tsx';
 import { queryKeys } from '@/lib/queryKeys.ts';
 import RoleCreateOrUpdate from '@/pages/admin/roles/RoleCreateOrUpdate.tsx';
 import AdminRoleUsers from '@/pages/admin/roles/users/AdminRoleUsers.tsx';
-import { useResource } from '@/plugins/useResource.ts';
+import { useResource } from '@/plugins/resource/useResource.ts';
 import { useTranslations } from '@/providers/TranslationProvider.tsx';
 
 export default function RoleView() {

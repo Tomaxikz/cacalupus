@@ -3,7 +3,7 @@ import { useShallow } from 'zustand/react/shallow';
 import { ServerCan } from '@/elements/Can.tsx';
 import ExtensionSlot from '@/elements/ExtensionSlot.tsx';
 import Autocomplete from '@/elements/input/Autocomplete.tsx';
-import { commandSnippetFilter } from '@/lib/xterm.ts';
+import { commandSnippetFilter } from '@/lib/editor/xterm.ts';
 import { useTranslations } from '@/providers/TranslationProvider.tsx';
 import { useServerStore } from '@/stores/server.ts';
 

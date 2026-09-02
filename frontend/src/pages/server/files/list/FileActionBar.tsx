@@ -18,10 +18,10 @@ import copyFiles from '@/api/server/files/copyFiles.ts';
 import downloadFiles from '@/api/server/files/downloadFiles.ts';
 import renameFiles from '@/api/server/files/renameFiles.ts';
 import ActionBar from '@/elements/ActionBar.tsx';
-import Button from '@/elements/Button.tsx';
+import Button from '@/elements/buttons/Button.tsx';
 import { ServerCan } from '@/elements/Can.tsx';
 import ExtensionSlot from '@/elements/ExtensionSlot.tsx';
-import Tooltip from '@/elements/Tooltip.tsx';
+import Tooltip from '@/elements/overlays/Tooltip.tsx';
 import { useFileSelectionQuickActions } from '@/pages/server/files/hooks/useFileSelectionQuickActions.tsx';
 import { downloadFilesWithToast } from '@/pages/server/files/list/downloadFilesWithToast.ts';
 import { canMoveFilesToDirectory } from '@/pages/server/files/list/fileMove.ts';
@@ -29,7 +29,7 @@ import FileCopyConflictModal, {
   ConflictResolutions,
   FileConflict,
 } from '@/pages/server/files/modals/FileCopyConflictModal.tsx';
-import { useKeyboardShortcuts } from '@/plugins/useKeyboardShortcuts.ts';
+import { useKeyboardShortcuts } from '@/plugins/quick-actions/useKeyboardShortcuts.ts';
 import { useServerCan } from '@/plugins/usePermissions.ts';
 import { useFileManager, useFileManagerApi } from '@/providers/contexts/fileManagerContext.ts';
 import { useToast } from '@/providers/ToastProvider.tsx';

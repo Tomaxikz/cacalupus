@@ -4,11 +4,11 @@ import { useEffect, useState } from 'react';
 import { z } from 'zod';
 import updateEmailSettings from '@/api/admin/settings/updateEmailSettings.ts';
 import { httpErrorToHuman } from '@/api/axios.ts';
-import Button from '@/elements/Button.tsx';
+import Button from '@/elements/buttons/Button.tsx';
 import { AdminCan } from '@/elements/Can.tsx';
 import AdminSubContentContainer from '@/elements/containers/AdminSubContentContainer.tsx';
-import Group from '@/elements/Group.tsx';
 import Select from '@/elements/input/Select.tsx';
+import Group from '@/elements/layout/Group.tsx';
 import { mailModeTypeLabelMapping, mappingToSelectData } from '@/lib/enums.ts';
 import {
   adminSettingsEmailFilesystemSchema,

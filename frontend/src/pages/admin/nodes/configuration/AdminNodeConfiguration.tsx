@@ -8,12 +8,12 @@ import getNodeToken from '@/api/admin/nodes/getNodeToken.ts';
 import getNodeSystemOverview from '@/api/admin/nodes/system/getNodeSystemOverview.ts';
 import updateNodeConfig from '@/api/admin/nodes/updateNodeConfig.ts';
 import { axiosInstance, httpErrorToHuman } from '@/api/axios.ts';
-import Alert from '@/elements/Alert.tsx';
-import Button from '@/elements/Button.tsx';
+import Button from '@/elements/buttons/Button.tsx';
 import AdminSubContentContainer from '@/elements/containers/AdminSubContentContainer.tsx';
-import Divider from '@/elements/Divider.tsx';
-import Group from '@/elements/Group.tsx';
-import Stack from '@/elements/Stack.tsx';
+import Alert from '@/elements/feedback/Alert.tsx';
+import Divider from '@/elements/layout/Divider.tsx';
+import Group from '@/elements/layout/Group.tsx';
+import Stack from '@/elements/layout/Stack.tsx';
 import {
   getNodeConfiguration,
   getNodeConfigurationCommand,
@@ -21,11 +21,11 @@ import {
   getNodeDefaultApiPort,
   getNodeUrl,
   isNodeAIO,
-} from '@/lib/node.ts';
+} from '@/lib/domain/node.ts';
 import { queryKeys } from '@/lib/queryKeys.ts';
 import { adminNodeSchema } from '@/lib/schemas/admin/nodes.ts';
+import { useResource } from '@/plugins/resource/useResource.ts';
 import { useAdminCan } from '@/plugins/usePermissions.ts';
-import { useResource } from '@/plugins/useResource.ts';
 import { useToast } from '@/providers/ToastProvider.tsx';
 import { useTranslations } from '@/providers/TranslationProvider.tsx';
 import NodeInitialSetupSection from './NodeInitialSetupSection.tsx';

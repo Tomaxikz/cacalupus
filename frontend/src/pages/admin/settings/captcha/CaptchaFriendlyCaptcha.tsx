@@ -2,7 +2,7 @@ import { UseFormReturnType } from '@mantine/form';
 import { useEffect } from 'react';
 import { z } from 'zod';
 import { type FieldDef, FormEngine } from '@/elements/form-engine/index.ts';
-import Stack from '@/elements/Stack.tsx';
+import Stack from '@/elements/layout/Stack.tsx';
 import { adminSettingsCaptchaProviderFriendlyCaptchaSchema } from '@/lib/schemas/admin/settings.ts';
 import { useTranslations } from '@/providers/TranslationProvider.tsx';
 

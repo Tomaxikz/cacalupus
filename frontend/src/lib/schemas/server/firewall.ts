@@ -1,5 +1,5 @@
 import { z } from 'zod';
-import { isNetwork } from '@/lib/ip.ts';
+import { isNetwork } from '@/lib/network/ip.ts';
 import { networkProtocol } from '@/lib/schemas/generic.ts';
 
 export const serverFirewallRuleAction = z.enum(['allow', 'deny']);

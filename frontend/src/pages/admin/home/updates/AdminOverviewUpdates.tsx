@@ -15,17 +15,17 @@ import getNodeUpdates from '@/api/admin/system/updates/getNodeUpdates.ts';
 import getUpdateHistory from '@/api/admin/system/updates/getUpdateHistory.ts';
 import recheckUpdates from '@/api/admin/system/updates/recheckUpdates.ts';
 import { httpErrorToHuman } from '@/api/axios.ts';
-import Alert from '@/elements/Alert.tsx';
-import Button from '@/elements/Button.tsx';
+import Button from '@/elements/buttons/Button.tsx';
 import { AdminCan } from '@/elements/Can.tsx';
-import Code from '@/elements/Code.tsx';
+import Table, { TableData, TableRow } from '@/elements/data-display/Table.tsx';
+import TitleCard from '@/elements/data-display/TitleCard.tsx';
 import ExtensionSlot from '@/elements/ExtensionSlot.tsx';
+import Alert from '@/elements/feedback/Alert.tsx';
+import Spinner from '@/elements/feedback/Spinner.tsx';
 import Select from '@/elements/input/Select.tsx';
 import ResourceView from '@/elements/ResourceView.tsx';
-import Spinner from '@/elements/Spinner.tsx';
-import Table, { TableData, TableRow } from '@/elements/Table.tsx';
-import TitleCard from '@/elements/TitleCard.tsx';
 import FormattedTimestamp from '@/elements/time/FormattedTimestamp.tsx';
+import Code from '@/elements/typography/Code.tsx';
 import { queryKeys } from '@/lib/queryKeys.ts';
 import {
   adminExtensionUpdateCheckResultErrorSchema,
@@ -33,9 +33,9 @@ import {
 } from '@/lib/schemas/admin/system.ts';
 import { databaseAgentHostTableColumns, nodeTableColumns } from '@/lib/tableColumns.ts';
 import DatabaseAgentHostRow from '@/pages/admin/database-agent-hosts/DatabaseAgentHostRow.tsx';
+import { useResource } from '@/plugins/resource/useResource.ts';
+import { useSearchablePaginatedTable } from '@/plugins/resource/useSearchablePaginatedTable.ts';
 import { useAdminCan } from '@/plugins/usePermissions.ts';
-import { useResource } from '@/plugins/useResource.ts';
-import { useSearchablePaginatedTable } from '@/plugins/useSearchablePaginatedTable.ts';
 import { useToast } from '@/providers/ToastProvider.tsx';
 import { useTranslations } from '@/providers/TranslationProvider.tsx';
 import { useAdminStore } from '@/stores/admin.tsx';
