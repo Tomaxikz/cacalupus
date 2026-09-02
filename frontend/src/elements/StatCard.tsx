@@ -1,6 +1,7 @@
 import { faCog, IconDefinition } from '@fortawesome/free-solid-svg-icons';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
-import { Popover } from '@mantine/core';
+import { MantineColor, Popover } from '@mantine/core';
+import classNames from 'classnames';
 import { ReactNode } from 'react';
 import Button from '@/elements/Button.tsx';
 import Card from '@/elements/Card.tsx';
@@ -14,33 +15,39 @@ export default function StatCard({
   label,
   value,
   order,
+  className,
   copyOnClick,
   popover,
   limit,
   details,
   progress,
   total,
+  valueColor,
 }: {
-  icon: IconDefinition;
+  icon?: IconDefinition;
   label: string;
   value: string;
   order?: number;
+  className?: string;
   copyOnClick?: boolean;
   popover?: ReactNode;
   limit?: string | null;
   details?: string | null;
   progress?: number | null;
   total?: number | null;
+  valueColor?: MantineColor;
 }) {
   const color = usageColor(progress, total);
 
   return (
-    <Card style={{ order }} progress={progress} total={total} progressColor={color}>
+    <Card className={className} style={{ order }} progress={progress} total={total} progressColor={color}>
       <div className='flex flex-row items-center'>
-        <ThemeIcon size='xl' radius='md' color={color}>
-          <FontAwesomeIcon size='xl' icon={icon} />
-        </ThemeIcon>
-        <div className='flex flex-col ml-4 w-full min-w-0'>
+        {icon && (
+          <ThemeIcon size='xl' radius='md' color={color}>
+            <FontAwesomeIcon size='xl' icon={icon} />
+          </ThemeIcon>
+        )}
+        <div className={classNames('flex flex-col w-full min-w-0', icon && 'ml-4')}>
           <div className='w-full flex justify-between'>
             <span className='text-sm text-left text-(--mantine-color-dimmed) font-bold'>{label}</span>
             {popover && (
@@ -54,7 +61,10 @@ export default function StatCard({
               </Popover>
             )}
           </div>
-          <span className='text-lg font-bold max-w-full'>
+          <span
+            className='text-lg font-bold max-w-full'
+            style={valueColor ? { color: `var(--mantine-color-${valueColor}-text)` } : undefined}
+          >
             {copyOnClick ? (
               <ScrollingText>
                 <CopyOnClick content={value} className='text-left block'>

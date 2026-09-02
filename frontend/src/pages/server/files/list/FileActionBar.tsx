@@ -20,6 +20,7 @@ import renameFiles from '@/api/server/files/renameFiles.ts';
 import ActionBar from '@/elements/ActionBar.tsx';
 import Button from '@/elements/Button.tsx';
 import { ServerCan } from '@/elements/Can.tsx';
+import ExtensionSlot from '@/elements/ExtensionSlot.tsx';
 import Tooltip from '@/elements/Tooltip.tsx';
 import { useFileSelectionQuickActions } from '@/pages/server/files/hooks/useFileSelectionQuickActions.tsx';
 import { downloadFilesWithToast } from '@/pages/server/files/list/downloadFilesWithToast.ts';
@@ -264,11 +265,10 @@ function FileActionBar() {
       />
 
       <ActionBar opened={actingFiles.size > 0 || selectedFilesCount > 0}>
-        {window.extensionContext.extensionRegistry.pages.server.files.fileActionBar.prependedComponents.map(
-          (Component, i) => (
-            <Component key={`files-actionBar-prepended-${i}`} />
-          ),
-        )}
+        <ExtensionSlot
+          components={window.extensionContext.extensionRegistry.pages.server.files.fileActionBar.prependedComponents}
+          name='files-actionBar-prepended'
+        />
 
         {actingFiles.size > 0 ? (
           <>
@@ -378,11 +378,10 @@ function FileActionBar() {
           </>
         )}
 
-        {window.extensionContext.extensionRegistry.pages.server.files.fileActionBar.appendedComponents.map(
-          (Component, i) => (
-            <Component key={`files-actionBar-appended-${i}`} />
-          ),
-        )}
+        <ExtensionSlot
+          components={window.extensionContext.extensionRegistry.pages.server.files.fileActionBar.appendedComponents}
+          name='files-actionBar-appended'
+        />
       </ActionBar>
     </>
   );

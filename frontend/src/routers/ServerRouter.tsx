@@ -10,6 +10,7 @@ import AppIcon from '@/elements/AppIcon.tsx';
 import { ServerCan } from '@/elements/Can.tsx';
 import Container from '@/elements/Container.tsx';
 import ServerContentContainer from '@/elements/containers/ServerContentContainer.tsx';
+import ExtensionSlot from '@/elements/ExtensionSlot.tsx';
 import QuickActionsTrigger from '@/elements/quickActions/QuickActionsTrigger.tsx';
 import ServerQuickActions from '@/elements/quickActions/ServerQuickActions.tsx';
 import ScreenBlock from '@/elements/ScreenBlock.tsx';
@@ -273,9 +274,10 @@ export default function ServerRouter({ isNormal }: { isNormal: boolean }) {
               <WebsocketHandler />
               <WebsocketListener />
               <ServerStatusPoller />
-              {window.extensionContext.extensionRegistry.pages.server.prependedComponents.map((Component, i) => (
-                <Component key={`server-prepended-component-${i}`} />
-              ))}
+              <ExtensionSlot
+                components={window.extensionContext.extensionRegistry.pages.server.prependedComponents}
+                name='server-prepended-component'
+              />
 
               <WebsocketStatusBanner />
 
@@ -308,9 +310,10 @@ export default function ServerRouter({ isNormal }: { isNormal: boolean }) {
                 </Routes>
               </Suspense>
 
-              {window.extensionContext.extensionRegistry.pages.server.appendedComponents.map((Component, i) => (
-                <Component key={`server-appended-component-${i}`} />
-              ))}
+              <ExtensionSlot
+                components={window.extensionContext.extensionRegistry.pages.server.appendedComponents}
+                name='server-appended-component'
+              />
             </>
           ) : (
             <ServerContentContainer title={t('elements.screenBlock.notFound.title', {})} hideTitleComponent>

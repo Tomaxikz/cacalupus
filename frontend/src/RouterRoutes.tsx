@@ -10,6 +10,7 @@ import { lazy } from 'react';
 import OobeGuard from '@/routers/guards/OobeGuard.tsx';
 import { ContextMenuProvider } from './elements/ContextMenu.tsx';
 import ContentContainer from './elements/containers/ContentContainer.tsx';
+import ExtensionSlot from './elements/ExtensionSlot.tsx';
 import UploadsCard from './elements/files/UploadsCard.tsx';
 import QuickActionsPalette from './elements/quickActions/QuickActionsPalette.tsx';
 import ScreenBlock from './elements/ScreenBlock.tsx';
@@ -66,9 +67,10 @@ export default function RouterRoutes({ isNormal }: { isNormal: boolean }) {
         <AdminStoreContextProvider createStore={createAdminStore}>
           <ServerStoreContextProvider createStore={createServerStore}>
             <AuthProvider>
-              {window.extensionContext.extensionRegistry.pages.global.prependedComponents.map((Component, index) => (
-                <Component key={`pagesGlobal-prepended-${index}`} />
-              ))}
+              <ExtensionSlot
+                components={window.extensionContext.extensionRegistry.pages.global.prependedComponents}
+                name='pagesGlobal-prepended'
+              />
 
               <Suspense fallback={<Spinner.Centered />}>
                 <Routes>
@@ -112,9 +114,10 @@ export default function RouterRoutes({ isNormal }: { isNormal: boolean }) {
               {isNormal && <UploadsCard />}
               {isNormal && <QuickActionsPalette />}
 
-              {window.extensionContext.extensionRegistry.pages.global.appendedComponents.map((Component, index) => (
-                <Component key={`pagesGlobal-appended-${index}`} />
-              ))}
+              <ExtensionSlot
+                components={window.extensionContext.extensionRegistry.pages.global.appendedComponents}
+                name='pagesGlobal-appended'
+              />
               <RelativePageListener />
             </AuthProvider>
           </ServerStoreContextProvider>

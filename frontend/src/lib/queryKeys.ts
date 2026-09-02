@@ -167,13 +167,25 @@ const admin = {
     all: () => ['admin', 'assets'] as const,
   },
 
+  system: {
+    overview: () => ['admin', 'system', 'overview'] as const,
+    debug: () => ['admin', 'system', 'debug'] as const,
+  },
+
+  stats: {
+    general: () => ['admin', 'stats', 'general'] as const,
+    backups: () => ['admin', 'stats', 'backups'] as const,
+  },
+
   updates: {
     nodes: () => ['admin', 'updates', 'nodes'] as const,
     databaseAgentHosts: () => ['admin', 'updates', 'database-agent-hosts'] as const,
+    history: () => ['admin', 'updates', 'history'] as const,
   },
 
   health: {
     nodes: () => ['admin', 'health', 'nodes'] as const,
+    general: () => ['admin', 'health', 'general'] as const,
   },
 
   emailTemplates: {

@@ -17,6 +17,7 @@ import { useTranslations } from '@/providers/TranslationProvider.tsx';
 import { useServerStore } from '@/stores/server.ts';
 import Button from '../Button.tsx';
 import { AdminCan, ServerCan } from '../Can.tsx';
+import ExtensionSlot from '../ExtensionSlot.tsx';
 import Notification from '../Notification.tsx';
 import Progress from '../Progress.tsx';
 import Tooltip from '../Tooltip.tsx';
@@ -251,9 +252,7 @@ function ServerContentContainer(props: Props) {
       ) : null}
 
       <div className={`${fullscreen || id ? 'mb-4' : 'px-4 lg:px-6 mb-4 lg:mt-6 mt-2'}`}>
-        {registry?.prependedComponents.map((Component, index) => (
-          <Component key={`prepended-${index}`} {...modifiedProps} />
-        ))}
+        <ExtensionSlot components={registry?.prependedComponents ?? []} name='prepended' props={modifiedProps} />
 
         {hideTitleComponent ? null : setSearch ? (
           <Group justify='space-between' mb='md'>
@@ -298,15 +297,19 @@ function ServerContentContainer(props: Props) {
             ) : null}
           </div>
         )}
-        {registry?.prependedContentComponents.map((Component, index) => (
-          <Component key={`prepended-content-${index}`} {...modifiedProps} />
-        ))}
+        <ExtensionSlot
+          components={registry?.prependedContentComponents ?? []}
+          name='prepended-content'
+          props={modifiedProps}
+        />
 
         {children}
 
-        {registry?.appendedContentComponents.map((Component, index) => (
-          <Component key={`appended-content-${index}`} {...modifiedProps} />
-        ))}
+        <ExtensionSlot
+          components={registry?.appendedContentComponents ?? []}
+          name='appended-content'
+          props={modifiedProps}
+        />
       </div>
     </ContentContainer>
   );

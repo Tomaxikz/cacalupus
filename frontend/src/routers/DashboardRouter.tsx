@@ -4,6 +4,7 @@ import { NavLink, Route, Routes } from 'react-router';
 import AppIcon from '@/elements/AppIcon.tsx';
 import Container from '@/elements/Container.tsx';
 import AccountContentContainer from '@/elements/containers/AccountContentContainer.tsx';
+import ExtensionSlot from '@/elements/ExtensionSlot.tsx';
 import QuickActionsTrigger from '@/elements/quickActions/QuickActionsTrigger.tsx';
 import ScreenBlock from '@/elements/ScreenBlock.tsx';
 import ServerSwitcher from '@/elements/ServerSwitcher.tsx';
@@ -153,9 +154,10 @@ export default function DashboardRouter({ isNormal }: { isNormal: boolean }) {
             />
           ) : (
             <>
-              {window.extensionContext.extensionRegistry.pages.dashboard.prependedComponents.map((Component, i) => (
-                <Component key={`dashboard-prepended-component-${i}`} />
-              ))}
+              <ExtensionSlot
+                components={window.extensionContext.extensionRegistry.pages.dashboard.prependedComponents}
+                name='dashboard-prepended-component'
+              />
 
               <Suspense fallback={<Spinner.Centered />}>
                 <Routes>
@@ -190,9 +192,10 @@ export default function DashboardRouter({ isNormal }: { isNormal: boolean }) {
                 </Routes>
               </Suspense>
 
-              {window.extensionContext.extensionRegistry.pages.dashboard.appendedComponents.map((Component, i) => (
-                <Component key={`dashboard-appended-component-${i}`} />
-              ))}
+              <ExtensionSlot
+                components={window.extensionContext.extensionRegistry.pages.dashboard.appendedComponents}
+                name='dashboard-appended-component'
+              />
             </>
           )}
         </Container>

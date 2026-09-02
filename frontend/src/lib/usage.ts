@@ -13,3 +13,15 @@ export function usageColor(progress?: number | null, total?: number | null): Man
   if (percent >= 80) return 'yellow';
   return undefined;
 }
+
+export function percentString(
+  part: number | null | undefined,
+  total: number | null | undefined,
+  { digits = 2, whenEmpty = 0 }: { digits?: number; whenEmpty?: number } = {},
+): string {
+  if (typeof part !== 'number' || typeof total !== 'number' || total === 0) {
+    return whenEmpty.toFixed(digits);
+  }
+
+  return ((part / total) * 100).toFixed(digits);
+}

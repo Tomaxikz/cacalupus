@@ -16,6 +16,7 @@ import { z } from 'zod';
 import Badge from '@/elements/Badge.tsx';
 import Card from '@/elements/Card.tsx';
 import AdminSubContentContainer from '@/elements/containers/AdminSubContentContainer.tsx';
+import ExtensionSlot from '@/elements/ExtensionSlot.tsx';
 import Group from '@/elements/Group.tsx';
 import Stack from '@/elements/Stack.tsx';
 import TableLink from '@/elements/TableLink.tsx';
@@ -125,11 +126,13 @@ export default function ServerOverview({ server }: { server: Server }) {
               <InfoRow label={t('pages.admin.servers.tabs.overview.page.label.createdAt', {})}>
                 <Text size='sm'>{formatDateTime(server.owner.created)}</Text>
               </InfoRow>
-              {window.extensionContext.extensionRegistry.pages.admin.servers.view.overview.owner.appendedComponents.map(
-                (Component, index) => (
-                  <Component key={`owner-ext-${index}`} server={server} />
-                ),
-              )}
+              <ExtensionSlot
+                components={
+                  window.extensionContext.extensionRegistry.pages.admin.servers.view.overview.owner.appendedComponents
+                }
+                name='owner-ext'
+                props={{ server }}
+              />
             </Stack>
           </TitleCard>
 
@@ -168,11 +171,14 @@ export default function ServerOverview({ server }: { server: Server }) {
                   {server.node.disk === 0 ? unlimitedLabel : bytesToString(mbToBytes(server.node.disk))}
                 </Text>
               </InfoRow>
-              {window.extensionContext.extensionRegistry.pages.admin.servers.view.overview.nodeAndLocation.appendedComponents.map(
-                (Component, index) => (
-                  <Component key={`node-location-ext-${index}`} server={server} />
-                ),
-              )}
+              <ExtensionSlot
+                components={
+                  window.extensionContext.extensionRegistry.pages.admin.servers.view.overview.nodeAndLocation
+                    .appendedComponents
+                }
+                name='node-location-ext'
+                props={{ server }}
+              />
             </Stack>
           </TitleCard>
         </SimpleGrid>
@@ -238,11 +244,14 @@ export default function ServerOverview({ server }: { server: Server }) {
               </InfoRow>
             </Stack>
           </SimpleGrid>
-          {window.extensionContext.extensionRegistry.pages.admin.servers.view.overview.serverDetails.appendedComponents.map(
-            (Component, index) => (
-              <Component key={`server-details-ext-${index}`} server={server} />
-            ),
-          )}
+          <ExtensionSlot
+            components={
+              window.extensionContext.extensionRegistry.pages.admin.servers.view.overview.serverDetails
+                .appendedComponents
+            }
+            name='server-details-ext'
+            props={{ server }}
+          />
         </TitleCard>
 
         <TitleCard
@@ -306,11 +315,14 @@ export default function ServerOverview({ server }: { server: Server }) {
                 )
               }
             />
-            {window.extensionContext.extensionRegistry.pages.admin.servers.view.overview.resourceLimits.appendedComponents.map(
-              (Component, index) => (
-                <Component key={`resource-limits-ext-${index}`} server={server} />
-              ),
-            )}
+            <ExtensionSlot
+              components={
+                window.extensionContext.extensionRegistry.pages.admin.servers.view.overview.resourceLimits
+                  .appendedComponents
+              }
+              name='resource-limits-ext'
+              props={{ server }}
+            />
           </SimpleGrid>
         </TitleCard>
 
@@ -339,18 +351,23 @@ export default function ServerOverview({ server }: { server: Server }) {
               icon={<FontAwesomeIcon icon={faClock} />}
               value={server.featureLimits.schedules}
             />
-            {window.extensionContext.extensionRegistry.pages.admin.servers.view.overview.featureLimits.appendedComponents.map(
-              (Component, index) => (
-                <Component key={`feature-limit-ext-${index}`} server={server} />
-              ),
-            )}
+            <ExtensionSlot
+              components={
+                window.extensionContext.extensionRegistry.pages.admin.servers.view.overview.featureLimits
+                  .appendedComponents
+              }
+              name='feature-limit-ext'
+              props={{ server }}
+            />
           </SimpleGrid>
         </TitleCard>
-        {window.extensionContext.extensionRegistry.pages.admin.servers.view.overview.appendedCards.appendedComponents.map(
-          (Component, index) => (
-            <Component key={`overview-card-ext-${index}`} server={server} />
-          ),
-        )}
+        <ExtensionSlot
+          components={
+            window.extensionContext.extensionRegistry.pages.admin.servers.view.overview.appendedCards.appendedComponents
+          }
+          name='overview-card-ext'
+          props={{ server }}
+        />
       </Stack>
     </AdminSubContentContainer>
   );

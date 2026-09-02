@@ -14,6 +14,7 @@ import classNames from 'classnames';
 import { RefObject } from 'react';
 import { z } from 'zod';
 import ActionIcon from '@/elements/ActionIcon.tsx';
+import ExtensionSlot from '@/elements/ExtensionSlot.tsx';
 import TextInput from '@/elements/input/TextInput.tsx';
 import Popover from '@/elements/Popover.tsx';
 import Tooltip from '@/elements/Tooltip.tsx';
@@ -54,11 +55,13 @@ export default function TerminalHeader({
   return (
     <div className='flex flex-row justify-between items-center mb-2 text-xs'>
       <div className='flex flex-row items-center'>
-        {window.extensionContext.extensionRegistry.pages.server.console.terminalHeaderLeftComponents.prependedComponents.map(
-          (Component, i) => (
-            <Component key={`console-terminalHeaderLeft-prepended-${i}`} />
-          ),
-        )}
+        <ExtensionSlot
+          components={
+            window.extensionContext.extensionRegistry.pages.server.console.terminalHeaderLeftComponents
+              .prependedComponents
+          }
+          name='console-terminalHeaderLeft-prepended'
+        />
         <span
           className={classNames(
             'rounded-full size-3 animate-pulse mr-2',
@@ -70,18 +73,22 @@ export default function TerminalHeader({
               ping: websocketPing,
             })
           : t('pages.server.console.socketDisconnected', {})}
-        {window.extensionContext.extensionRegistry.pages.server.console.terminalHeaderLeftComponents.appendedComponents.map(
-          (Component, i) => (
-            <Component key={`console-terminalHeaderLeft-appended-${i}`} />
-          ),
-        )}
+        <ExtensionSlot
+          components={
+            window.extensionContext.extensionRegistry.pages.server.console.terminalHeaderLeftComponents
+              .appendedComponents
+          }
+          name='console-terminalHeaderLeft-appended'
+        />
       </div>
       <div className='flex flex-row items-center gap-2'>
-        {window.extensionContext.extensionRegistry.pages.server.console.terminalHeaderRightComponents.prependedComponents.map(
-          (Component, i) => (
-            <Component key={`console-terminalHeaderRight-prepended-${i}`} />
-          ),
-        )}
+        <ExtensionSlot
+          components={
+            window.extensionContext.extensionRegistry.pages.server.console.terminalHeaderRightComponents
+              .prependedComponents
+          }
+          name='console-terminalHeaderRight-prepended'
+        />
         <Popover
           trapFocus
           opened={openModal === 'search'}
@@ -188,11 +195,13 @@ export default function TerminalHeader({
             </ActionIcon>
           </Tooltip>
         </div>
-        {window.extensionContext.extensionRegistry.pages.server.console.terminalHeaderRightComponents.appendedComponents.map(
-          (Component, i) => (
-            <Component key={`console-terminalHeaderRight-appended-${i}`} />
-          ),
-        )}
+        <ExtensionSlot
+          components={
+            window.extensionContext.extensionRegistry.pages.server.console.terminalHeaderRightComponents
+              .appendedComponents
+          }
+          name='console-terminalHeaderRight-appended'
+        />
       </div>
     </div>
   );

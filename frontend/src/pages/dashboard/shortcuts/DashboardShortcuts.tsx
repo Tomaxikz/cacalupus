@@ -4,6 +4,7 @@ import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { ReactNode, useState } from 'react';
 import Button from '@/elements/Button.tsx';
 import AccountContentContainer from '@/elements/containers/AccountContentContainer.tsx';
+import ExtensionSlot from '@/elements/ExtensionSlot.tsx';
 import Flex from '@/elements/Flex.tsx';
 import Stack from '@/elements/Stack.tsx';
 import Text from '@/elements/Text.tsx';
@@ -157,11 +158,13 @@ export default function DashboardShortcuts() {
       registry={window.extensionContext.extensionRegistry.pages.dashboard.keyboardShortcuts.container}
     >
       <div className='md:columns-2 gap-4 space-y-4'>
-        {window.extensionContext.extensionRegistry.pages.dashboard.keyboardShortcuts.shortcutSections.prependedComponents.map(
-          (Component, i) => (
-            <Component key={`shortcuts-shortcutSection-prepended-${i}`} />
-          ),
-        )}
+        <ExtensionSlot
+          components={
+            window.extensionContext.extensionRegistry.pages.dashboard.keyboardShortcuts.shortcutSections
+              .prependedComponents
+          }
+          name='shortcuts-shortcutSection-prepended'
+        />
 
         {grouped.map(([category, defs]) => (
           <div key={category} className='break-inside-avoid'>
@@ -184,11 +187,13 @@ export default function DashboardShortcuts() {
           </div>
         ))}
 
-        {window.extensionContext.extensionRegistry.pages.dashboard.keyboardShortcuts.shortcutSections.appendedComponents.map(
-          (Component, i) => (
-            <Component key={`shortcuts-shortcutSection-appended-${i}`} />
-          ),
-        )}
+        <ExtensionSlot
+          components={
+            window.extensionContext.extensionRegistry.pages.dashboard.keyboardShortcuts.shortcutSections
+              .appendedComponents
+          }
+          name='shortcuts-shortcutSection-appended'
+        />
       </div>
     </AccountContentContainer>
   );
