@@ -1,4 +1,5 @@
 use crate::{
+    crypt::BcryptString,
     models::{InsertQueryBuilder, UpdateQueryBuilder},
     prelude::*,
     storage::StorageUrlRetriever,
@@ -211,10 +212,12 @@ impl User {
         name_last: Option<&str>,
         password: &str,
     ) -> Result<uuid::Uuid, crate::database::DatabaseError> {
+        let password = BcryptString::hash(password).await?;
+
         let row = sqlx::query(
             r#"
             INSERT INTO users (username, email, name_first, name_last, password, admin)
-            VALUES ($1, $2, $3, $4, crypt($5, gen_salt('bf', 12)), (SELECT COUNT(*) = 0 FROM users))
+            VALUES ($1, $2, $3, $4, $5, (SELECT COUNT(*) = 0 FROM users))
             RETURNING users.uuid
             "#,
         )
@@ -270,31 +273,70 @@ impl User {
                 ),
                 5,
                 || async {
+                    let digest = crate::crypt::token_digest(key);
+
                     let row = sqlx::query(sqlx::AssertSqlSafe(format!(
                         r#"
-                        WITH user_sessions AS MATERIALIZED (
-                            SELECT * FROM user_sessions WHERE key_id = $1
-                        )
                         SELECT {}, {}
                         FROM users
                         LEFT JOIN roles ON roles.uuid = users.role_uuid
                         JOIN user_sessions ON user_sessions.user_uuid = users.uuid
-                        WHERE user_sessions.key = crypt($2, user_sessions.key)
+                        WHERE user_sessions.key_id = $1 AND user_sessions.key = $2
                         "#,
                         Self::columns_sql(None),
                         super::user_session::UserSession::columns_sql(Some("session_"))
                     )))
                     .bind(key_id)
-                    .bind(key)
+                    .bind(&digest)
                     .fetch_optional(database.read())
                     .await?;
 
-                    row.try_map(|row| {
-                        Ok::<_, anyhow::Error>((
-                            Self::map(None, &row)?,
-                            super::user_session::UserSession::map(Some("session_"), &row)?,
-                        ))
-                    })
+                    let row = match row {
+                        Some(row) => row,
+                        None => {
+                            let Some(row) = sqlx::query(sqlx::AssertSqlSafe(format!(
+                                r#"
+                                WITH user_sessions AS MATERIALIZED (
+                                    SELECT * FROM user_sessions WHERE key_id = $1
+                                )
+                                SELECT {}, {}, user_sessions.key AS session_key_hash
+                                FROM users
+                                LEFT JOIN roles ON roles.uuid = users.role_uuid
+                                JOIN user_sessions ON user_sessions.user_uuid = users.uuid
+                                WHERE user_sessions.key = crypt($2, user_sessions.key)
+                                "#,
+                                Self::columns_sql(None),
+                                super::user_session::UserSession::columns_sql(Some("session_"))
+                            )))
+                            .bind(key_id)
+                            .bind(key)
+                            .fetch_optional(database.read())
+                            .await?
+                            else {
+                                return Ok(None);
+                            };
+
+                            sqlx::query(
+                                r#"
+                                UPDATE user_sessions
+                                SET key = $2
+                                WHERE user_sessions.uuid = $1 AND user_sessions.key = $3
+                                "#,
+                            )
+                            .bind(row.try_get::<uuid::Uuid, _>("session_uuid")?)
+                            .bind(&digest)
+                            .bind(row.try_get::<String, _>("session_key_hash")?)
+                            .execute(database.write())
+                            .await?;
+
+                            row
+                        }
+                    };
+
+                    Ok::<_, anyhow::Error>(Some((
+                        Self::map(None, &row)?,
+                        super::user_session::UserSession::map(Some("session_"), &row)?,
+                    )))
                 },
             )
             .await
@@ -316,18 +358,43 @@ impl User {
                 ),
                 5,
                 || async {
+                    let digest = crate::crypt::token_digest(key);
+
+                    let row = sqlx::query(sqlx::AssertSqlSafe(format!(
+                        r#"
+                        SELECT {}, {}
+                        FROM users
+                        LEFT JOIN roles ON roles.uuid = users.role_uuid
+                        JOIN user_api_keys ON user_api_keys.user_uuid = users.uuid
+                        WHERE user_api_keys.key = $1
+                        AND (user_api_keys.expires IS NULL OR user_api_keys.expires > NOW())
+                        "#,
+                        Self::columns_sql(None),
+                        super::user_api_key::UserApiKey::columns_sql(Some("api_key_"))
+                    )))
+                    .bind(&digest)
+                    .fetch_optional(database.read())
+                    .await?;
+
+                    if let Some(row) = row {
+                        return Ok(Some((
+                            Self::map(None, &row)?,
+                            super::user_api_key::UserApiKey::map(Some("api_key_"), &row)?,
+                        )));
+                    }
+
                     let Some(key_start) = key.get(0..16) else {
                         return Ok(None);
                     };
 
-                    let row = sqlx::query(sqlx::AssertSqlSafe(format!(
+                    let Some(row) = sqlx::query(sqlx::AssertSqlSafe(format!(
                         r#"
                         WITH user_api_keys AS MATERIALIZED (
-                            SELECT * FROM user_api_keys 
-                            WHERE user_api_keys.key_start = $1 
+                            SELECT * FROM user_api_keys
+                            WHERE user_api_keys.key_start = $1
                             AND (user_api_keys.expires IS NULL OR user_api_keys.expires > NOW())
                         )
-                        SELECT {}, {}
+                        SELECT {}, {}, user_api_keys.key AS api_key_hash
                         FROM users
                         LEFT JOIN roles ON roles.uuid = users.role_uuid
                         JOIN user_api_keys ON user_api_keys.user_uuid = users.uuid
@@ -339,14 +406,28 @@ impl User {
                     .bind(key_start)
                     .bind(key)
                     .fetch_optional(database.read())
+                    .await?
+                    else {
+                        return Ok(None);
+                    };
+
+                    sqlx::query(
+                        r#"
+                        UPDATE user_api_keys
+                        SET key = $2
+                        WHERE user_api_keys.uuid = $1 AND user_api_keys.key = $3
+                        "#,
+                    )
+                    .bind(row.try_get::<uuid::Uuid, _>("api_key_uuid")?)
+                    .bind(&digest)
+                    .bind(row.try_get::<String, _>("api_key_hash")?)
+                    .execute(database.write())
                     .await?;
 
-                    row.try_map(|row| {
-                        Ok::<_, anyhow::Error>((
-                            Self::map(None, &row)?,
-                            super::user_api_key::UserApiKey::map(Some("api_key_"), &row)?,
-                        ))
-                    })
+                    Ok::<_, anyhow::Error>(Some((
+                        Self::map(None, &row)?,
+                        super::user_api_key::UserApiKey::map(Some("api_key_"), &row)?,
+                    )))
                 },
             )
             .await
@@ -409,19 +490,18 @@ impl User {
     ) -> Result<Option<Self>, crate::database::DatabaseError> {
         let row = sqlx::query(sqlx::AssertSqlSafe(format!(
             r#"
-            SELECT {}
+            SELECT {}, users.password AS password_hash
             FROM users
             LEFT JOIN roles ON roles.uuid = users.role_uuid
-            WHERE lower(users.email) = lower($1) AND users.password IS NOT NULL AND users.password = crypt($2, users.password)
+            WHERE lower(users.email) = lower($1)
             "#,
             Self::columns_sql(None)
         )))
         .bind(email)
-        .bind(password)
         .fetch_optional(database.read())
         .await?;
 
-        row.try_map(|row| Self::map(None, &row))
+        Self::verify_password_row(database, row, password).await
     }
 
     pub async fn by_username(
@@ -451,19 +531,75 @@ impl User {
     ) -> Result<Option<Self>, crate::database::DatabaseError> {
         let row = sqlx::query(sqlx::AssertSqlSafe(format!(
             r#"
-            SELECT {}
+            SELECT {}, users.password AS password_hash
             FROM users
             LEFT JOIN roles ON roles.uuid = users.role_uuid
-            WHERE lower(users.username) = lower($1) AND users.password IS NOT NULL AND users.password = crypt($2, users.password)
+            WHERE lower(users.username) = lower($1)
             "#,
             Self::columns_sql(None)
         )))
         .bind(username)
-        .bind(password)
         .fetch_optional(database.read())
         .await?;
 
-        row.try_map(|row| Self::map(None, &row))
+        Self::verify_password_row(database, row, password).await
+    }
+
+    async fn verify_password_row(
+        database: &crate::database::Database,
+        row: Option<PgRow>,
+        password: &str,
+    ) -> Result<Option<Self>, crate::database::DatabaseError> {
+        let Some(row) = row else {
+            BcryptString::verify_dummy(password).await?;
+
+            return Ok(None);
+        };
+
+        let Some(hash) = row.try_get::<Option<BcryptString>, _>("password_hash")? else {
+            BcryptString::verify_dummy(password).await?;
+
+            return Ok(None);
+        };
+
+        if !hash.verify(password).await? {
+            return Ok(None);
+        }
+
+        let user = Self::map(None, &row)?;
+        user.rehash_password(database, password, &hash).await?;
+
+        Ok(Some(user))
+    }
+
+    /// Rewrites a matching hash that was produced at a different cost or format (imports, older
+    /// versions) so every active account converges on the current parameters.
+    async fn rehash_password(
+        &self,
+        database: &crate::database::Database,
+        password: &str,
+        current_hash: &BcryptString,
+    ) -> Result<(), crate::database::DatabaseError> {
+        if !current_hash.needs_rehash() {
+            return Ok(());
+        }
+
+        let new_hash = BcryptString::hash(password).await?;
+
+        sqlx::query(
+            r#"
+            UPDATE users
+            SET password = $2
+            WHERE users.uuid = $1 AND users.password = $3
+            "#,
+        )
+        .bind(self.uuid)
+        .bind(new_hash)
+        .bind(current_hash)
+        .execute(database.write())
+        .await?;
+
+        Ok(())
     }
 
     pub async fn by_username_public_key(
@@ -594,17 +730,33 @@ impl User {
 
         let row = sqlx::query(
             r#"
-            SELECT 1
+            SELECT users.password
             FROM users
-            WHERE users.uuid = $1 AND users.password = crypt($2, users.password)
+            WHERE users.uuid = $1
             "#,
         )
         .bind(self.uuid)
-        .bind(password)
         .fetch_optional(database.read())
         .await?;
 
-        Ok(row.is_some())
+        let hash = match row {
+            Some(row) => row.try_get::<Option<BcryptString>, _>("password")?,
+            None => None,
+        };
+
+        let Some(hash) = hash else {
+            BcryptString::verify_dummy(password).await?;
+
+            return Ok(false);
+        };
+
+        if !hash.verify(password).await? {
+            return Ok(false);
+        }
+
+        self.rehash_password(database, password, &hash).await?;
+
+        Ok(true)
     }
 
     /// Update the User password, `None` will disallow password login and not require one when changing
@@ -614,10 +766,12 @@ impl User {
         password: Option<&str>,
     ) -> Result<(), crate::database::DatabaseError> {
         if let Some(password) = password {
+            let password = BcryptString::hash(password).await?;
+
             sqlx::query(
                 r#"
 		            UPDATE users
-		            SET password = crypt($2, gen_salt('bf', 12))
+		            SET password = $2
 		            WHERE users.uuid = $1
 		            "#,
             )
@@ -653,10 +807,12 @@ impl User {
         password: Option<&str>,
     ) -> Result<(), crate::database::DatabaseError> {
         if let Some(password) = password {
+            let password = BcryptString::hash(password).await?;
+
             sqlx::query(
                 r#"
 		            UPDATE users
-		            SET password = crypt($2, gen_salt('bf', 12))
+		            SET password = $2
 		            WHERE users.uuid = $1
 		            "#,
             )
@@ -985,7 +1141,7 @@ impl CreatableModel for User {
             .set("name_last", options.name_last.as_deref());
 
         if let Some(password) = &options.password {
-            query_builder.set_expr("password", "crypt($1, gen_salt('bf', 12))", vec![password]);
+            query_builder.set("password", BcryptString::hash(password).await?);
         }
 
         query_builder

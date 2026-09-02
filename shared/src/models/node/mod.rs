@@ -1,4 +1,5 @@
 use crate::{
+    crypt::EncryptedString,
     models::{
         CreatableModel, CreateListenerList, InsertQueryBuilder, UpdatableModel, UpdateHandlerList,
         UpdateQueryBuilder,
@@ -83,7 +84,7 @@ pub struct Node {
     pub disk: i64,
 
     pub token_id: compact_str::CompactString,
-    pub token: Vec<u8>,
+    pub token: EncryptedString,
 
     pub created: chrono::NaiveDateTime,
 
@@ -235,7 +236,7 @@ impl Node {
                     Ok::<_, anyhow::Error>(
                         if let Some(node) = row.try_map(|row| Self::map(None, &row))? {
                             if constant_time_eq::constant_time_eq(
-                                database.decrypt(node.token.clone()).await?.as_bytes(),
+                                node.token.decrypt(database).await?.as_bytes(),
                                 token.as_bytes(),
                             ) {
                                 Some(node)
@@ -653,6 +654,8 @@ impl Node {
         state: &crate::State,
     ) -> Result<(String, String), anyhow::Error> {
         let (token_id, token) = Self::generate_token();
+        let (token, encrypted_token) =
+            EncryptedString::from_plaintext_with_input(token, &state.database).await?;
 
         sqlx::query(
             r#"
@@ -663,7 +666,7 @@ impl Node {
         )
         .bind(self.uuid)
         .bind(&token_id)
-        .bind(state.database.encrypt(token.clone()).await?)
+        .bind(encrypted_token)
         .execute(state.database.write())
         .await?;
 
@@ -726,7 +729,7 @@ impl Node {
     ) -> Result<wings_api::client::WingsClient, anyhow::Error> {
         Ok(wings_api::client::WingsClient::new(
             self.url.to_string(),
-            database.decrypt(self.token.to_vec()).await?.into(),
+            self.token.decrypt(database).await?.into(),
         ))
     }
 
@@ -850,7 +853,7 @@ impl Node {
         jwt: &crate::jwt::Jwt,
         payload: &T,
     ) -> Result<String, anyhow::Error> {
-        Ok(jwt.create_custom(database.blocking_decrypt(&self.token)?.as_bytes(), payload)?)
+        Ok(jwt.create_custom(self.token.blocking_decrypt(database)?.as_bytes(), payload)?)
     }
 }
 
@@ -1049,7 +1052,10 @@ impl CreatableModel for Node {
             .set("memory", options.memory)
             .set("disk", options.disk)
             .set("token_id", token_id.clone())
-            .set("token", state.database.encrypt(token.clone()).await?);
+            .set(
+                "token",
+                EncryptedString::from_plaintext(token, &state.database).await?,
+            );
 
         let row = query_builder
             .returning("uuid")
@@ -1344,7 +1350,10 @@ impl DuplicableModel for Node {
             .set("memory", self.memory)
             .set("disk", self.disk)
             .set("token_id", token_id)
-            .set("token", state.database.encrypt(token).await?);
+            .set(
+                "token",
+                EncryptedString::from_plaintext(token, &state.database).await?,
+            );
 
         let row = query_builder
             .returning("uuid")

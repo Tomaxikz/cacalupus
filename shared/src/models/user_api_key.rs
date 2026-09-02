@@ -259,12 +259,12 @@ impl UserApiKey {
         sqlx::query(
             r#"
             UPDATE user_api_keys
-            SET key_start = $1, key = crypt($2, gen_salt('bf', 12))
+            SET key_start = $1, key = $2
             WHERE user_api_keys.uuid = $3
             "#,
         )
         .bind(&new_key[0..16])
-        .bind(&new_key)
+        .bind(crate::crypt::token_digest(&new_key))
         .bind(self.uuid)
         .execute(database.write())
         .await?;
@@ -383,7 +383,7 @@ impl CreatableModel for UserApiKey {
             .set("user_uuid", options.user_uuid)
             .set("name", &options.name)
             .set("key_start", &key[0..16])
-            .set_expr("key", "crypt($1, gen_salt('bf', 12))", vec![&key])
+            .set("key", crate::crypt::token_digest(&key))
             .set("allowed_ips", &options.allowed_ips)
             .set("enabled", options.enabled)
             .set("user_permissions", &options.user_permissions)

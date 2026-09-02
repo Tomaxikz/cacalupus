@@ -317,7 +317,7 @@ impl CreatableModel for UserSession {
         query_builder
             .set("user_uuid", options.user_uuid)
             .set("key_id", key_id.clone())
-            .set_expr("key", "crypt($1, gen_salt('bf', 12))", vec![&hash])
+            .set("key", crate::crypt::token_digest(&hash))
             .set("ip", options.ip)
             .set("user_agent", &options.user_agent);
 
