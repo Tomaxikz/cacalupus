@@ -6,7 +6,6 @@ use crate::{
 };
 use garde::Validate;
 use serde::{Deserialize, Serialize};
-use sha2::Digest;
 use sqlx::{Row, postgres::PgRow};
 use std::{
     collections::BTreeMap,
@@ -201,6 +200,14 @@ impl BaseModel for User {
             extension_data: Self::map_extensions(prefix, row)?,
         })
     }
+
+    fn cache_invalidation_keys(&self) -> Vec<compact_str::CompactString> {
+        vec![compact_str::format_compact!(
+            "{}::{}",
+            Self::NAME,
+            self.uuid
+        )]
+    }
 }
 
 impl User {
@@ -254,183 +261,44 @@ impl User {
 
     /// Returns the user and session associated with the given session string, if valid.
     ///
-    /// Cached for 5 seconds.
+    /// Both rows are cached until they are written to.
     pub async fn by_session_cached(
         database: &crate::database::Database,
         session: &str,
     ) -> Result<Option<(Self, super::user_session::UserSession)>, anyhow::Error> {
-        let (key_id, key) = match session.split_once(':') {
-            Some((key_id, key)) => (key_id, key),
-            None => return Ok(None),
+        let Some(session) =
+            super::user_session::UserSession::resolve_cached(database, session).await?
+        else {
+            return Ok(None);
         };
 
-        database
-            .cache
-            .cached(
-                &format!(
-                    "user::session::{}",
-                    hex::encode(sha2::Sha256::digest(session.as_bytes()))
-                ),
-                5,
-                || async {
-                    let digest = crate::crypt::token_digest(key);
-
-                    let row = sqlx::query(sqlx::AssertSqlSafe(format!(
-                        r#"
-                        SELECT {}, {}
-                        FROM users
-                        LEFT JOIN roles ON roles.uuid = users.role_uuid
-                        JOIN user_sessions ON user_sessions.user_uuid = users.uuid
-                        WHERE user_sessions.key_id = $1 AND user_sessions.key = $2
-                        "#,
-                        Self::columns_sql(None),
-                        super::user_session::UserSession::columns_sql(Some("session_"))
-                    )))
-                    .bind(key_id)
-                    .bind(&digest)
-                    .fetch_optional(database.read())
-                    .await?;
-
-                    let row = match row {
-                        Some(row) => row,
-                        None => {
-                            let Some(row) = sqlx::query(sqlx::AssertSqlSafe(format!(
-                                r#"
-                                WITH user_sessions AS MATERIALIZED (
-                                    SELECT * FROM user_sessions WHERE key_id = $1
-                                )
-                                SELECT {}, {}, user_sessions.key AS session_key_hash
-                                FROM users
-                                LEFT JOIN roles ON roles.uuid = users.role_uuid
-                                JOIN user_sessions ON user_sessions.user_uuid = users.uuid
-                                WHERE user_sessions.key = crypt($2, user_sessions.key)
-                                "#,
-                                Self::columns_sql(None),
-                                super::user_session::UserSession::columns_sql(Some("session_"))
-                            )))
-                            .bind(key_id)
-                            .bind(key)
-                            .fetch_optional(database.read())
-                            .await?
-                            else {
-                                return Ok(None);
-                            };
-
-                            sqlx::query(
-                                r#"
-                                UPDATE user_sessions
-                                SET key = $2
-                                WHERE user_sessions.uuid = $1 AND user_sessions.key = $3
-                                "#,
-                            )
-                            .bind(row.try_get::<uuid::Uuid, _>("session_uuid")?)
-                            .bind(&digest)
-                            .bind(row.try_get::<String, _>("session_key_hash")?)
-                            .execute(database.write())
-                            .await?;
-
-                            row
-                        }
-                    };
-
-                    Ok::<_, anyhow::Error>(Some((
-                        Self::map(None, &row)?,
-                        super::user_session::UserSession::map(Some("session_"), &row)?,
-                    )))
-                },
-            )
-            .await
+        Ok(Self::by_uuid_optional_cached(database, session.user_uuid)
+            .await?
+            .map(|user| (user, session)))
     }
 
     /// Returns the user and API key associated with the given API key string, if valid.
     ///
-    /// Cached for 5 seconds.
+    /// Both rows are cached until they are written to.
     pub async fn by_api_key_cached(
         database: &crate::database::Database,
         key: &str,
     ) -> Result<Option<(Self, super::user_api_key::UserApiKey)>, anyhow::Error> {
-        database
-            .cache
-            .cached(
-                &format!(
-                    "user::api_key::{}",
-                    hex::encode(sha2::Sha256::digest(key.as_bytes()))
-                ),
-                5,
-                || async {
-                    let digest = crate::crypt::token_digest(key);
+        let Some(api_key) = super::user_api_key::UserApiKey::resolve_cached(database, key).await?
+        else {
+            return Ok(None);
+        };
 
-                    let row = sqlx::query(sqlx::AssertSqlSafe(format!(
-                        r#"
-                        SELECT {}, {}
-                        FROM users
-                        LEFT JOIN roles ON roles.uuid = users.role_uuid
-                        JOIN user_api_keys ON user_api_keys.user_uuid = users.uuid
-                        WHERE user_api_keys.key = $1
-                        AND (user_api_keys.expires IS NULL OR user_api_keys.expires > NOW())
-                        "#,
-                        Self::columns_sql(None),
-                        super::user_api_key::UserApiKey::columns_sql(Some("api_key_"))
-                    )))
-                    .bind(&digest)
-                    .fetch_optional(database.read())
-                    .await?;
+        if api_key
+            .expires
+            .is_some_and(|expires| expires <= chrono::Utc::now().naive_utc())
+        {
+            return Ok(None);
+        }
 
-                    if let Some(row) = row {
-                        return Ok(Some((
-                            Self::map(None, &row)?,
-                            super::user_api_key::UserApiKey::map(Some("api_key_"), &row)?,
-                        )));
-                    }
-
-                    let Some(key_start) = key.get(0..16) else {
-                        return Ok(None);
-                    };
-
-                    let Some(row) = sqlx::query(sqlx::AssertSqlSafe(format!(
-                        r#"
-                        WITH user_api_keys AS MATERIALIZED (
-                            SELECT * FROM user_api_keys
-                            WHERE user_api_keys.key_start = $1
-                            AND (user_api_keys.expires IS NULL OR user_api_keys.expires > NOW())
-                        )
-                        SELECT {}, {}, user_api_keys.key AS api_key_hash
-                        FROM users
-                        LEFT JOIN roles ON roles.uuid = users.role_uuid
-                        JOIN user_api_keys ON user_api_keys.user_uuid = users.uuid
-                        WHERE user_api_keys.key = crypt($2, user_api_keys.key)
-                        "#,
-                        Self::columns_sql(None),
-                        super::user_api_key::UserApiKey::columns_sql(Some("api_key_"))
-                    )))
-                    .bind(key_start)
-                    .bind(key)
-                    .fetch_optional(database.read())
-                    .await?
-                    else {
-                        return Ok(None);
-                    };
-
-                    sqlx::query(
-                        r#"
-                        UPDATE user_api_keys
-                        SET key = $2
-                        WHERE user_api_keys.uuid = $1 AND user_api_keys.key = $3
-                        "#,
-                    )
-                    .bind(row.try_get::<uuid::Uuid, _>("api_key_uuid")?)
-                    .bind(&digest)
-                    .bind(row.try_get::<String, _>("api_key_hash")?)
-                    .execute(database.write())
-                    .await?;
-
-                    Ok::<_, anyhow::Error>(Some((
-                        Self::map(None, &row)?,
-                        super::user_api_key::UserApiKey::map(Some("api_key_"), &row)?,
-                    )))
-                },
-            )
-            .await
+        Ok(Self::by_uuid_optional_cached(database, api_key.user_uuid)
+            .await?
+            .map(|user| (user, api_key)))
     }
 
     pub async fn by_credential_id(
@@ -796,6 +664,8 @@ impl User {
 
             self.has_password = false;
         }
+
+        Self::invalidate_cached(database, self.uuid).await;
 
         Ok(())
     }
@@ -1418,6 +1288,8 @@ impl DeletableModel for User {
         self.delete_with_transaction(state, options, &mut transaction)
             .await?;
         transaction.commit().await?;
+
+        Self::invalidate_cached(&state.database, self.uuid).await;
 
         state.storage.remove(self.avatar.as_deref()).await?;
 
