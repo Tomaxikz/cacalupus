@@ -212,7 +212,7 @@ export default function ServerTunnel() {
       },
       ...[...merged.values()].toSorted((a, b) => a.peer.serverName.localeCompare(b.peer.serverName)).map(peerNode),
     ];
-  }, [data, canCreate, canUpdate, canDelete, server.name, t]);
+  }, [data, canCreate, canUpdate, canDelete, server, t]);
 
   const canvasItems = useMemo<ContextMenuItem[]>(
     () => [

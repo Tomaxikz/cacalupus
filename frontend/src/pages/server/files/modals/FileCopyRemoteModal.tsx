@@ -141,9 +141,9 @@ export default function FileCopyRemoteModal({ files, ...props }: Props) {
       ]);
     } catch (err) {
       addToast(httpErrorToHuman(err), 'error');
-    } finally {
-      setAddingGroup(false);
     }
+
+    setAddingGroup(false);
   };
 
   return (

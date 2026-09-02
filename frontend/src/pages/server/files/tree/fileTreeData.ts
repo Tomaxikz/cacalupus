@@ -97,6 +97,28 @@ export const EMPTY_DIRECTORY_STATE: DirectoryState = {
   error: null,
 };
 
+export const resolveDirectoryCapabilities = (
+  directories: Record<string, DirectoryState>,
+  path: string,
+): TreeDirectoryCapabilities => {
+  let current = path;
+  let directory = directories[current];
+
+  while (!directory && current !== ROOT_DIRECTORY) {
+    const parent = dirname(current);
+    if (parent === current) break;
+    current = parent;
+    directory = directories[current];
+  }
+
+  directory = directory ?? directories[ROOT_DIRECTORY];
+  return {
+    primary: directory?.primary ?? false,
+    writable: directory?.writable ?? false,
+    fast: directory?.fast ?? true,
+  };
+};
+
 /** Archives with a browsable index expand in place, the way the list view browses into them. */
 export const isExpandableEntry = (entry: DirectoryEntry, fast: boolean) =>
   entry.directory || isViewableArchive(entry, fast);

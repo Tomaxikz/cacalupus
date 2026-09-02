@@ -46,7 +46,6 @@ export function useExtensionManagement() {
   const [pendingLicense, setPendingLicense] = useState<PendingLicense | null>(null);
   const [openModal, setOpenModal] = useState<'logs' | null>(null);
   const [cancellingBuild, setCancellingBuild] = useState<number | null>(null);
-  const fileInputRef = useRef<HTMLInputElement | null>(null);
   const watchedBuildRef = useRef<number | null>(null);
 
   const supervisor = extensionStatus?.supervisor ?? null;
@@ -226,7 +225,6 @@ export function useExtensionManagement() {
     setPendingLicense,
     openModal,
     setOpenModal,
-    fileInputRef,
     handleRebuild,
     handleCancelBuild,
     handleRemove,

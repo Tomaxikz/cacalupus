@@ -26,6 +26,7 @@ import {
   identifyTreeItem,
   isExternalFileDrag,
   ROOT_DIRECTORY,
+  resolveDirectoryCapabilities,
   searchRow,
   TREE_ROW_HEIGHT,
   TreeDirectoryCapabilities,
@@ -353,7 +354,8 @@ function FileTree({ onOpenFile, activePath, initialDirectory, collapsed, onToggl
       }
 
       return searchResults.map(
-        (entry): FileTreeRowData => searchRow(ROOT_DIRECTORY, entry, getDirectoryCapabilities(ROOT_DIRECTORY).fast),
+        (entry): FileTreeRowData =>
+          searchRow(ROOT_DIRECTORY, entry, resolveDirectoryCapabilities(directories, ROOT_DIRECTORY).fast),
       );
     }
 
@@ -364,7 +366,7 @@ function FileTree({ onOpenFile, activePath, initialDirectory, collapsed, onToggl
 
       return modalSearchEntries.data.map(
         (entry): FileTreeRowData =>
-          searchRow(modalSearchInfo.root, entry, getDirectoryCapabilities(modalSearchInfo.root).fast),
+          searchRow(modalSearchInfo.root, entry, resolveDirectoryCapabilities(directories, modalSearchInfo.root).fast),
       );
     }
 
@@ -410,24 +412,10 @@ function FileTree({ onOpenFile, activePath, initialDirectory, collapsed, onToggl
   const someVisibleItemsSelected = visiblePaths.some((path) => selectedPaths.has(path));
   const isDirectoryWritable = (path: string, parent: string, virtual: boolean) =>
     directories[path]?.writable ?? (!virtual && (directories[parent]?.writable ?? false));
-  const getDirectoryCapabilities = useCallback((path: string): TreeDirectoryCapabilities => {
-    let current = path;
-    let directory = directoriesRef.current[current];
-
-    while (!directory && current !== ROOT_DIRECTORY) {
-      const parent = dirname(current);
-      if (parent === current) break;
-      current = parent;
-      directory = directoriesRef.current[current];
-    }
-
-    directory ??= directoriesRef.current[ROOT_DIRECTORY];
-    return {
-      primary: directory?.primary ?? false,
-      writable: directory?.writable ?? false,
-      fast: directory?.fast ?? true,
-    };
-  }, []);
+  const getDirectoryCapabilities = useCallback(
+    (path: string): TreeDirectoryCapabilities => resolveDirectoryCapabilities(directoriesRef.current, path),
+    [],
+  );
 
   const setSelectedItems = useCallback(
     (items: TreeSelectionItem[]) => {
@@ -436,19 +424,17 @@ function FileTree({ onOpenFile, activePath, initialDirectory, collapsed, onToggl
       setSelectedPaths(paths);
 
       syncingStoreSelectionRef.current = true;
-      try {
-        const fileManager = store.getState();
-        const sourceDirectory = items[0]?.parent;
-        if (!sourceDirectory || !items.every((item) => item.parent === sourceDirectory)) {
-          fileManager.doSelectFiles([]);
-          return;
-        }
 
+      const fileManager = store.getState();
+      const sourceDirectory = items[0]?.parent;
+      if (!sourceDirectory || !items.every((item) => item.parent === sourceDirectory)) {
+        fileManager.doSelectFiles([]);
+      } else {
         fileManager.setBrowsingContext({ directory: sourceDirectory, ...getDirectoryCapabilities(sourceDirectory) });
         fileManager.doSelectFiles(items.map((item) => item.entry));
-      } finally {
-        syncingStoreSelectionRef.current = false;
       }
+
+      syncingStoreSelectionRef.current = false;
     },
     [getDirectoryCapabilities, store],
   );
@@ -506,15 +492,13 @@ function FileTree({ onOpenFile, activePath, initialDirectory, collapsed, onToggl
   const prepareCreateTarget = () => {
     const fileManager = store.getState();
     syncingStoreSelectionRef.current = true;
-    try {
-      fileManager.setBrowsingContext({
-        directory: createTarget,
-        ...getDirectoryCapabilities(createTarget),
-        writable: createTargetWritable,
-      });
-    } finally {
-      syncingStoreSelectionRef.current = false;
-    }
+    fileManager.setBrowsingContext({
+      directory: createTarget,
+      ...getDirectoryCapabilities(createTarget),
+      writable: createTargetWritable,
+    });
+    syncingStoreSelectionRef.current = false;
+
     return fileManager;
   };
 
@@ -610,14 +594,11 @@ function FileTree({ onOpenFile, activePath, initialDirectory, collapsed, onToggl
       const parentCapabilities = getDirectoryCapabilities(item.parent);
 
       syncingStoreSelectionRef.current = true;
-      try {
-        store.getState().doSelectFiles([]);
-        if (item.expandable) {
-          store.getState().setBrowsingContext({ directory: item.path, ...getDirectoryCapabilities(item.path) });
-        }
-      } finally {
-        syncingStoreSelectionRef.current = false;
+      store.getState().doSelectFiles([]);
+      if (item.expandable) {
+        store.getState().setBrowsingContext({ directory: item.path, ...getDirectoryCapabilities(item.path) });
       }
+      syncingStoreSelectionRef.current = false;
 
       if (item.expandable) {
         toggleDirectory(item.path);

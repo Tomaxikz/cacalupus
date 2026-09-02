@@ -1,5 +1,6 @@
 import { faFileText, faUpload } from '@fortawesome/free-solid-svg-icons';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
+import { useRef } from 'react';
 import Button from '@/elements/Button.tsx';
 import { AdminCan } from '@/elements/Can.tsx';
 import ConditionalTooltip from '@/elements/ConditionalTooltip.tsx';
@@ -18,6 +19,7 @@ import { useExtensionManagement } from './useExtensionManagement.ts';
 export default function AdminExtensions() {
   const { t } = useTranslations();
   const ext = useExtensionManagement();
+  const fileInputRef = useRef<HTMLInputElement | null>(null);
 
   return (
     <AdminContentContainer
@@ -36,20 +38,14 @@ export default function AdminExtensions() {
               <Button
                 color='blue'
                 leftSection={<FontAwesomeIcon icon={faUpload} />}
-                onClick={() => ext.fileInputRef.current?.click()}
+                onClick={() => fileInputRef.current?.click()}
                 disabled={ext.isBuilding}
               >
                 {t('pages.admin.extensions.button.install', {})}
               </Button>
             </ConditionalTooltip>
 
-            <input
-              type='file'
-              accept='.zip'
-              ref={ext.fileInputRef}
-              className='hidden'
-              onChange={ext.handleFileUpload}
-            />
+            <input type='file' accept='.zip' ref={fileInputRef} className='hidden' onChange={ext.handleFileUpload} />
           </Group>
         </AdminCan>
       }

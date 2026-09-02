@@ -1,5 +1,5 @@
 import { load } from 'js-yaml';
-import { ChangeEvent, useCallback, useRef } from 'react';
+import { ChangeEvent, useCallback, useEffect, useRef } from 'react';
 import { z } from 'zod';
 import { httpErrorToHuman } from '@/api/axios.ts';
 import { parseFromApi } from '@/lib/api-transform.ts';
@@ -22,7 +22,10 @@ export function useResourceImport<S extends z.ZodTypeAny>(options: UseResourceIm
 
   // Keep the latest options without rebuilding the drag-and-drop listeners every render.
   const optionsRef = useRef(options);
-  optionsRef.current = options;
+
+  useEffect(() => {
+    optionsRef.current = options;
+  });
 
   const importFile = useCallback(
     async (file: File) => {
