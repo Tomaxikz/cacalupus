@@ -1,7 +1,7 @@
 import { faGlobe } from '@fortawesome/free-solid-svg-icons';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { useQueryClient } from '@tanstack/react-query';
-import { useEffect, useState } from 'react';
+import { useState } from 'react';
 import { z } from 'zod';
 import getBackupConfigurations from '@/api/admin/backup-configurations/getBackupConfigurations.ts';
 import getLocations from '@/api/admin/locations/getLocations.ts';
@@ -27,6 +27,7 @@ import { adminBackupConfigurationSchema } from '@/lib/schemas/admin/backupConfig
 import { adminLocationSchema } from '@/lib/schemas/admin/locations.ts';
 import { adminNodeSchema, adminNodeUpdateSchema } from '@/lib/schemas/admin/nodes.ts';
 import NodeDuplicateModal from '@/pages/admin/nodes/modals/NodeDuplicateModal.tsx';
+import { useHydrateForm } from '@/plugins/form/useHydrateForm.ts';
 import { useResourceForm } from '@/plugins/resource/useResourceForm.ts';
 import { useSearchableResource } from '@/plugins/resource/useSearchableResource.ts';
 import { useToast } from '@/providers/ToastProvider.tsx';
@@ -72,12 +73,7 @@ export default function NodeCreateOrUpdate({ contextNode }: { contextNode?: z.in
     resourceName: t('pages.admin.nodes.resourceName', {}),
   });
 
-  useEffect(() => {
-    if (contextNode) {
-      form.setValues(nodeToFormValues(contextNode));
-      setUrlValue(contextNode.url);
-    }
-  }, [contextNode]);
+  useHydrateForm(form, contextNode, nodeToFormValues, { key: (node) => node.uuid });
 
   const locations = useSearchableResource<z.infer<typeof adminLocationSchema>>({
     queryKey: queryKeys.admin.locations.all(),

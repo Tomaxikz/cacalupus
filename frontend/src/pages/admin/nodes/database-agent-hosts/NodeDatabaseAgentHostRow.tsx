@@ -1,7 +1,6 @@
 import { faTrash } from '@fortawesome/free-solid-svg-icons';
 import { useQueryClient } from '@tanstack/react-query';
 import { useState } from 'react';
-import { z } from 'zod';
 import deleteNodeDatabaseAgentHost from '@/api/admin/nodes/database-agent-hosts/deleteNodeDatabaseAgentHost.ts';
 import { httpErrorToHuman } from '@/api/axios.ts';
 import { TableData, TableRow } from '@/elements/data-display/Table.tsx';
@@ -11,7 +10,7 @@ import ContextMenu, { ContextMenuToggle } from '@/elements/overlays/ContextMenu.
 import FormattedTimestamp from '@/elements/time/FormattedTimestamp.tsx';
 import Code from '@/elements/typography/Code.tsx';
 import { queryKeys } from '@/lib/queryKeys.ts';
-import { adminNodeDatabaseAgentHostSchema, adminNodeSchema } from '@/lib/schemas/admin/nodes.ts';
+import { AdminNode, AdminNodeDatabaseAgentHost } from '@/lib/schemas/admin/nodes.ts';
 import { useToast } from '@/providers/ToastProvider.tsx';
 import { useTranslations } from '@/providers/TranslationProvider.tsx';
 
@@ -19,8 +18,8 @@ export default function NodeDatabaseAgentHostRow({
   node,
   databaseAgentHost,
 }: {
-  node: z.infer<typeof adminNodeSchema>;
-  databaseAgentHost: z.infer<typeof adminNodeDatabaseAgentHostSchema>;
+  node: AdminNode;
+  databaseAgentHost: AdminNodeDatabaseAgentHost;
 }) {
   const { t } = useTranslations();
   const { addToast } = useToast();

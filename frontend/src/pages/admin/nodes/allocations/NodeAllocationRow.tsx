@@ -18,7 +18,7 @@ interface NodeAllocationRowProps {
 }
 
 const NodeAllocationRow = memo(
-  forwardRef<HTMLTableRowElement, NodeAllocationRowProps>(function FileRow(
+  forwardRef<HTMLTableRowElement, NodeAllocationRowProps>(function NodeAllocationRow(
     {
       allocation,
       selectedNodeAllocations,

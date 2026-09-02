@@ -116,10 +116,6 @@ export default function AdminNodeAllocations({ node }: { node: z.infer<typeof ad
   }, []);
 
   useEffect(() => {
-    handleClearSelection();
-  }, []);
-
-  useEffect(() => {
     setSelectedAllMatching(false);
   }, [filter]);
 

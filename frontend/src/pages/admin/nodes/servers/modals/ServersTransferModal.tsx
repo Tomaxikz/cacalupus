@@ -3,7 +3,7 @@ import { useState } from 'react';
 import { useNavigate } from 'react-router';
 import { z } from 'zod';
 import getNodes from '@/api/admin/nodes/getNodes.ts';
-import postTransfers from '@/api/admin/nodes/servers/postTransfers.ts';
+import postTransfers, { transferAllocationMode } from '@/api/admin/nodes/servers/postTransfers.ts';
 import { httpErrorToHuman } from '@/api/axios.ts';
 import Button from '@/elements/buttons/Button.tsx';
 import NumberInput from '@/elements/input/NumberInput.tsx';
@@ -40,14 +40,7 @@ export default function ServersTransferModal({
 
   const [openModal, setOpenModal] = useState<'confirm' | null>(null);
   const [selectedNodeUuid, setSelectedNodeUuid] = useState<string | null>(null);
-  const [allocationMode, setAllocationMode] = useState<
-    | 'none'
-    | 'random_primary'
-    | 'random_all'
-    | 'preserve_ports'
-    | 'egg_config_deployment'
-    | 'egg_config_self_assign_range'
-  >('preserve_ports');
+  const [allocationMode, setAllocationMode] = useState<z.infer<typeof transferAllocationMode>>('preserve_ports');
   const [transferBackups, setTransferBackups] = useState(false);
   const [deleteSourceBackups, setDeleteSourceBackups] = useState(false);
   const [archiveFormat, setArchiveFormat] = useState<z.infer<typeof transferArchiveFormat>>('tar_zstd');
@@ -134,17 +127,7 @@ export default function ServersTransferModal({
             withAsterisk
             label={t('pages.admin.nodes.tabs.servers.page.modal.transfer.form.allocationMode', {})}
             value={allocationMode}
-            onChange={(value) =>
-              setAllocationMode(
-                value as
-                  | 'none'
-                  | 'random_primary'
-                  | 'random_all'
-                  | 'preserve_ports'
-                  | 'egg_config_deployment'
-                  | 'egg_config_self_assign_range',
-              )
-            }
+            onChange={(value) => setAllocationMode(value as z.infer<typeof transferAllocationMode>)}
             data={[
               {
                 value: 'none',

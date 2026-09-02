@@ -25,16 +25,14 @@ import { bytesToString, mbToBytes } from '@/lib/format/size.ts';
 import { formatDateTime } from '@/lib/format/time.ts';
 import { queryKeys } from '@/lib/queryKeys.ts';
 import { adminNodeSchema } from '@/lib/schemas/admin/nodes.ts';
-import { parseVersion } from '@/lib/version.ts';
+import { useNodeUpdateAvailable } from '@/plugins/nodes/useNodeVersion.ts';
 import { useResource } from '@/plugins/resource/useResource.ts';
 import { useTranslations } from '@/providers/TranslationProvider.tsx';
-import { useAdminStore } from '@/stores/admin.tsx';
 
 type Node = z.infer<typeof adminNodeSchema>;
 
 export default function NodeOverview({ node }: { node: Node }) {
   const { t } = useTranslations();
-  const { updateInformation } = useAdminStore();
 
   const { data: capacity } = useResource({
     queryKey: queryKeys.admin.nodes.capacity(node.uuid),
@@ -48,10 +46,7 @@ export default function NodeOverview({ node }: { node: Node }) {
     silent: true,
   });
 
-  const hasUpdate =
-    overview && updateInformation
-      ? parseVersion(updateInformation.latestWingsVersion).isNewerThan(overview.version)
-      : false;
+  const hasUpdate = useNodeUpdateAvailable(overview?.version);
 
   return (
     <AdminSubContentContainer title={t('pages.admin.nodes.tabs.overview.page.title', {})} titleOrder={2}>

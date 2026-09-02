@@ -17,7 +17,9 @@ import Switch from '@/elements/input/Switch.tsx';
 import { downloadBlob } from '@/lib/download/download.ts';
 import { stripAnsi } from '@/lib/format/ansi.ts';
 import { bytesToString } from '@/lib/format/size.ts';
+import { queryKeys } from '@/lib/queryKeys.ts';
 import { adminNodeSchema } from '@/lib/schemas/admin/nodes.ts';
+import { useResource } from '@/plugins/resource/useResource.ts';
 import { useWebsocket } from '@/plugins/websocket/useWebsocket.ts';
 import { useToast } from '@/providers/ToastProvider.tsx';
 import { useTranslations } from '@/providers/TranslationProvider.tsx';
@@ -26,7 +28,6 @@ export default function AdminNodeLogs({ node }: { node: z.infer<typeof adminNode
   const { t } = useTranslations();
   const { addToast } = useToast();
 
-  const [logs, setLogs] = useState<NodeLogFile[]>([]);
   const [lines, setLines] = useState(1000);
   const [selectedLog, setSelectedLog] = useState<NodeLogFile | null>(null);
   const [content, setContent] = useState<string | null>(null);
@@ -42,15 +43,11 @@ export default function AdminNodeLogs({ node }: { node: z.infer<typeof adminNode
     linesRef.current = lines;
   });
 
-  useEffect(() => {
-    getNodeLogs(node.uuid)
-      .then((data) => {
-        setLogs(data.reverse());
-      })
-      .catch((msg) => {
-        addToast(httpErrorToHuman(msg), 'error');
-      });
-  }, [node.uuid]);
+  const { data: logFiles } = useResource({
+    queryKey: queryKeys.admin.nodes.logs(node.uuid),
+    queryFn: useCallback(() => getNodeLogs(node.uuid), [node.uuid]),
+  });
+  const logs = useMemo(() => (logFiles ? [...logFiles].reverse() : []), [logFiles]);
 
   useEffect(() => {
     setContent(null);

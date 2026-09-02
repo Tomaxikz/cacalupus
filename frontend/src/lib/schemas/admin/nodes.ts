@@ -126,3 +126,13 @@ export const adminNodeTransferProgressSchema = z.object({
 });
 
 export const adminNodeTransfersSchema = z.record(z.string(), adminNodeTransferProgressSchema);
+
+export type AdminNode = z.infer<typeof adminNodeSchema>;
+export type AdminNodeToken = z.infer<typeof adminNodeTokenSchema>;
+export type AdminNodeAllocation = z.infer<typeof adminNodeAllocationSchema>;
+export type AdminNodeAllocationFilter = z.infer<typeof adminNodeAllocationFilterSchema>;
+export type AdminNodeAllocationSelector = z.infer<typeof adminNodeAllocationSelectorSchema>;
+export type AdminNodeMount = z.infer<typeof adminNodeMountSchema>;
+export type AdminNodeDatabaseHost = z.infer<typeof adminNodeDatabaseHostSchema>;
+export type AdminNodeDatabaseAgentHost = z.infer<typeof adminNodeDatabaseAgentHostSchema>;
+export type AdminNodeServerBackup = z.infer<typeof adminNodeServerBackupSchema>;
