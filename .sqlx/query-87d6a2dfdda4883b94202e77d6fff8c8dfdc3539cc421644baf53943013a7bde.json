@@ -26,8 +26,7 @@
                       "ZFS",
                       "RESTIC",
                       "PROXMOX_BACKUP_SERVER",
-                      "KOPIA",
-                      "VYKAR"
+                      "KOPIA"
                     ]
                   }
                 }
