@@ -1,7 +1,7 @@
 import { z } from 'zod';
 import { adminMountSchema, adminMountUpdateSchema } from '@/lib/schemas/admin/mounts.ts';
 
-type MountFormValues = z.infer<typeof adminMountUpdateSchema>;
+export type MountFormValues = z.infer<typeof adminMountUpdateSchema>;
 
 export const mountEmptyFormValues: MountFormValues = {
   name: '',
@@ -12,7 +12,7 @@ export const mountEmptyFormValues: MountFormValues = {
   userMountable: false,
 };
 
-export const mountToFormValues = (mount: z.infer<typeof adminMountSchema>): Partial<MountFormValues> => ({
+export const mountToFormValues = (mount: z.infer<typeof adminMountSchema>): MountFormValues => ({
   name: mount.name,
   description: mount.description,
   source: mount.source,

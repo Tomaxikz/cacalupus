@@ -17,9 +17,7 @@ import { adminMountSchema, adminMountUpdateSchema } from '@/lib/schemas/admin/mo
 import MountDuplicateModal from '@/pages/admin/mounts/modals/MountDuplicateModal.tsx';
 import { useResourceForm } from '@/plugins/useResourceForm.ts';
 import { useTranslations } from '@/providers/TranslationProvider.tsx';
-import { mountEmptyFormValues, mountToFormValues } from './mountFormValues.ts';
-
-type MountFormValues = z.infer<typeof adminMountUpdateSchema>;
+import { type MountFormValues, mountEmptyFormValues, mountToFormValues } from './mountFormValues.ts';
 
 export default function MountCreateOrUpdate({ contextMount }: { contextMount?: z.infer<typeof adminMountSchema> }) {
   const { t } = useTranslations();
@@ -47,7 +45,7 @@ export default function MountCreateOrUpdate({ contextMount }: { contextMount?: z
     if (contextMount) {
       form.setValues(mountToFormValues(contextMount));
     }
-  }, [contextMount]);
+  }, [contextMount?.uuid]);
 
   const fields: FieldDef<MountFormValues>[] = [
     { type: 'text', name: 'name', label: t('common.form.name', {}), required: true },

@@ -5,10 +5,10 @@ import AdminContentContainer from '@/elements/containers/AdminContentContainer.t
 import ResourceView from '@/elements/ResourceView.tsx';
 import SubNavigation from '@/elements/SubNavigation.tsx';
 import { queryKeys } from '@/lib/queryKeys.ts';
-import MountCreateOrUpdate from '@/pages/admin/mounts/MountCreateOrUpdate.tsx';
 import { useResource } from '@/plugins/useResource.ts';
 import { useTranslations } from '@/providers/TranslationProvider.tsx';
 import AdminMountEggs from './eggs/AdminMountEggs.tsx';
+import MountCreateOrUpdate from './MountCreateOrUpdate.tsx';
 import AdminMountNodes from './nodes/AdminMountNodes.tsx';
 import AdminMountServers from './servers/AdminMountServers.tsx';
 

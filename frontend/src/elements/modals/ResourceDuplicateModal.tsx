@@ -15,6 +15,7 @@ interface ResourceDuplicateModalProps<T extends { uuid: string }> extends ModalP
   sourceName: string;
   duplicate: (name: string) => Promise<T>;
   redirectTo: (duplicated: T) => string;
+  disabled?: boolean;
   children?: ReactNode;
 }
 
@@ -23,6 +24,7 @@ export default function ResourceDuplicateModal<T extends { uuid: string }>({
   sourceName,
   duplicate,
   redirectTo,
+  disabled = false,
   children,
   ...props
 }: ResourceDuplicateModalProps<T>) {
@@ -67,7 +69,7 @@ export default function ResourceDuplicateModal<T extends { uuid: string }>({
         {children}
 
         <ModalFooter>
-          <Button type='submit' loading={loading} disabled={name.length < 1}>
+          <Button type='submit' loading={loading} disabled={name.length < 1 || disabled}>
             {t('common.button.duplicate', {})}
           </Button>
           <Button variant='default' onClick={props.onClose}>
