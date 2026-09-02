@@ -37,6 +37,7 @@ import { useTranslations } from '@/providers/TranslationProvider.tsx';
 import { useWindows } from '@/providers/WindowProvider.tsx';
 import RouterRoutes from '@/RouterRoutes.tsx';
 import { useGlobalStore } from '@/stores/global.ts';
+import { useQuickActionsStore } from '@/stores/quickActions.ts';
 
 type SidebarProps = {
   children: ReactNode;
@@ -48,10 +49,15 @@ function Sidebar({ children, header, footer }: SidebarProps) {
   const { pathname } = useLocation();
 
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
+  const quickActionsOpen = useQuickActionsStore((state) => state.open);
 
   useEffect(() => {
     setIsMobileMenuOpen(false);
   }, [pathname]);
+
+  useEffect(() => {
+    if (quickActionsOpen) setIsMobileMenuOpen(false);
+  }, [quickActionsOpen]);
 
   return (
     <>
