@@ -26,9 +26,15 @@ export const serverFilesCopyToDirectorySchema = z.object({
   name: z.string().min(1).max(255),
 });
 
-export const serverFilesCopyRemoteSchema = z.object({
+export const serverFilesCopyRemoteManySchema = z.object({
   destination: z.string().max(255),
-  destinationServer: z.uuid(),
+  destinationServers: z.array(z.uuid()).min(1).max(25),
+});
+
+export const serverFilesCopyRemoteManyResultSchema = z.object({
+  server: z.uuid(),
+  identifier: z.uuid().nullable(),
+  error: z.string().nullable(),
 });
 
 export const serverFilesExtractSchema = z.object({

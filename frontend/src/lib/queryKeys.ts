@@ -287,6 +287,10 @@ const user = {
   },
   servers: {
     all: () => ['user', 'servers'] as const,
+    detail: (uuid: string) => ['user', 'servers', { uuid }] as const,
+  },
+  serverGroups: {
+    all: () => ['user', 'server-groups'] as const,
   },
   sessions: {
     all: () => ['user', 'sessions'] as const,

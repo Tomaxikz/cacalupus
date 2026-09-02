@@ -4878,7 +4878,9 @@
             "copying": "Copying {path} to {destination}",
             "copyingMany": "Copying {files}",
             "receivingRemote": "Receiving {files} from remote server",
+            "receivingRemoteFrom": "Receiving {files} from {server}",
             "sendingRemote": "Sending {files} to remote server",
+            "sendingRemoteTo": "Sending {files} to {server}",
             "exportingBackup": "Exporting backup to {destination}",
             "cancelAllOperations": "Cancel All Operations"
           },
@@ -4913,6 +4915,8 @@
             "archiveCreationStarted": "Archive creation has begun.",
             "decompressionStarted": "Archive extraction has started.",
             "fileCopyingStarted": "File copying has started.",
+            "fileCopyingStartedMany": "File copying to {servers} has started.",
+            "fileCopyingStartedPartial": "File copying to {successfulServers} has started. {failedServers} failed:",
             "fileInfoRetrieved": "File information retrieved successfully.",
             "filePullingStarted": "File pulling has started.",
             "fileRenamed": "File has been renamed.",
@@ -5026,7 +5030,11 @@
             },
             "copyRemote": {
               "title": "Remote Copy Files",
-              "createdAs": "These files will be created on the remote server under "
+              "servers": "Destination Servers",
+              "addFromGroup": "Add servers from a group",
+              "browsingOn": "Browsing {server}, the chosen path is used on every destination server.",
+              "noCreatePermission": "You do not have permission to create files on {servers}.",
+              "createdAs": "These files will be created on {servers} under "
             },
             "fileFingerprints": {
               "title": "File Fingerprint",

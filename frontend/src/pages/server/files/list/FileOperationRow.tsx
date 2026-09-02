@@ -1,10 +1,13 @@
 import { faXmark } from '@fortawesome/free-solid-svg-icons';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
+import { skipToken, useQuery } from '@tanstack/react-query';
 import { z } from 'zod';
+import getServer from '@/api/server/getServer.ts';
 import ActionIcon from '@/elements/ActionIcon.tsx';
 import FailedOperationProgress from '@/elements/FailedOperationProgress.tsx';
 import Progress from '@/elements/Progress.tsx';
 import Tooltip from '@/elements/Tooltip.tsx';
+import { queryKeys } from '@/lib/queryKeys.ts';
 import { serverFileOperationSchema } from '@/lib/schemas/server/files.ts';
 import { bytesProgressString } from '@/lib/size.ts';
 import { useServerCan } from '@/plugins/usePermissions.ts';
@@ -28,6 +31,19 @@ export default function FileOperationRow({
   const { t, tItem } = useTranslations();
   const serverUuid = useServerStore((state) => state.server.uuid);
   const canUpdate = useServerCan('files.update');
+
+  const remoteServerUuid =
+    operation.type === 'copy_remote'
+      ? operation.destinationServer === serverUuid
+        ? operation.server
+        : operation.destinationServer
+      : null;
+  const { data: remoteServer } = useQuery({
+    queryKey: queryKeys.user.servers.detail(remoteServerUuid ?? ''),
+    queryFn: remoteServerUuid ? () => getServer(remoteServerUuid) : skipToken,
+    staleTime: Infinity,
+    retry: false,
+  });
 
   const progress = (operation.bytesProcessed / operation.bytesTotal) * 100;
 
@@ -55,12 +71,22 @@ export default function FileOperationRow({
                       })
                     : operation.type === 'copy_remote'
                       ? operation.destinationServer === serverUuid
-                        ? t('pages.server.files.operations.receivingRemote', {
-                            files: tItem('file', operation.files.length),
-                          })
-                        : t('pages.server.files.operations.sendingRemote', {
-                            files: tItem('file', operation.files.length),
-                          })
+                        ? remoteServer
+                          ? t('pages.server.files.operations.receivingRemoteFrom', {
+                              files: tItem('file', operation.files.length),
+                              server: remoteServer.name,
+                            })
+                          : t('pages.server.files.operations.receivingRemote', {
+                              files: tItem('file', operation.files.length),
+                            })
+                        : remoteServer
+                          ? t('pages.server.files.operations.sendingRemoteTo', {
+                              files: tItem('file', operation.files.length),
+                              server: remoteServer.name,
+                            })
+                          : t('pages.server.files.operations.sendingRemote', {
+                              files: tItem('file', operation.files.length),
+                            })
                       : operation.type === 'export_backup'
                         ? t('pages.server.files.operations.exportingBackup', {
                             destination: operation.destinationPath,

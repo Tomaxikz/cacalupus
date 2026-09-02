@@ -4845,7 +4845,9 @@
             "copying": "Kopiere {path} nach {destination}",
             "copyingMany": "Kopiere {files}",
             "receivingRemote": "Empfange {files} vom Remote-Server",
+            "receivingRemoteFrom": "Empfange {files} von {server}",
             "sendingRemote": "Sende {files} an Remote-Server",
+            "sendingRemoteTo": "Sende {files} an {server}",
             "exportingBackup": "Exportiere Backup nach {destination}",
             "cancelAllOperations": "Alle Vorgänge abbrechen"
           },
@@ -4880,6 +4882,8 @@
             "archiveCreationStarted": "Archiverstellung hat begonnen.",
             "decompressionStarted": "Das Entpacken des Archivs hat begonnen.",
             "fileCopyingStarted": "Dateikopiervorgang hat begonnen.",
+            "fileCopyingStartedMany": "Dateikopiervorgang auf {servers} hat begonnen.",
+            "fileCopyingStartedPartial": "Dateikopiervorgang auf {successfulServers} hat begonnen. {failedServers} fehlgeschlagen:",
             "fileInfoRetrieved": "Dateiinformationen erfolgreich abgerufen.",
             "filePullingStarted": "Datei-Pull hat begonnen.",
             "fileRenamed": "Datei wurde umbenannt.",
@@ -4991,7 +4995,11 @@
             },
             "copyRemote": {
               "title": "Remote kopieren",
-              "createdAs": "Diese Dateien werden auf dem Remote-Server erstellt unter "
+              "servers": "Zielserver",
+              "addFromGroup": "Server aus einer Gruppe hinzufügen",
+              "browsingOn": "Durchsuche {server}, der gewählte Pfad wird auf jedem Zielserver verwendet.",
+              "noCreatePermission": "Du hast keine Berechtigung, Dateien auf {servers} zu erstellen.",
+              "createdAs": "Diese Dateien werden auf {servers} erstellt unter "
             },
             "fileFingerprints": {
               "title": "Datei-Fingerabdruck",

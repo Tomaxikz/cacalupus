@@ -575,6 +575,42 @@ impl Server {
             .await
     }
 
+    pub async fn by_user_uuids(
+        database: &crate::database::Database,
+        user: &super::user::User,
+        uuids: &[uuid::Uuid],
+    ) -> Result<Vec<Self>, crate::database::DatabaseError> {
+        let rows = sqlx::query(sqlx::AssertSqlSafe(format!(
+            r#"
+            SELECT {}, server_subusers.permissions, server_subusers.ignored_files
+            FROM servers
+            LEFT JOIN server_allocations ON server_allocations.uuid = servers.allocation_uuid
+            LEFT JOIN node_allocations ON node_allocations.uuid = server_allocations.allocation_uuid
+            JOIN users ON users.uuid = servers.owner_uuid
+            LEFT JOIN roles ON roles.uuid = users.role_uuid
+            JOIN nest_eggs ON nest_eggs.uuid = servers.egg_uuid
+            LEFT JOIN server_subusers ON server_subusers.server_uuid = servers.uuid AND server_subusers.user_uuid = $1
+            JOIN nests ON nests.uuid = nest_eggs.nest_uuid
+            WHERE servers.uuid = ANY($3) AND (servers.owner_uuid = $1 OR server_subusers.user_uuid = $1 OR $2)
+            ORDER BY array_position($3, servers.uuid)
+            "#,
+            Self::columns_sql(None)
+        )))
+        .bind(user.uuid)
+        .bind(
+            user.role.as_ref().map_or(user.admin, |r| {
+                r.admin_permissions.iter().any(|p| p == "servers.read")
+            }),
+        )
+        .bind(uuids)
+        .fetch_all(database.read())
+        .await?;
+
+        rows.into_iter()
+            .map(|row| Self::map(None, &row))
+            .try_collect_vec()
+    }
+
     pub async fn by_owner_uuid_with_pagination(
         database: &crate::database::Database,
         owner_uuid: uuid::Uuid,
