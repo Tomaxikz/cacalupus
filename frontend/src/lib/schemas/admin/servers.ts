@@ -11,7 +11,7 @@ import { adminFullUserSchema } from '@/lib/schemas/admin/users.ts';
 import { databaseAgentType, databaseType } from '@/lib/schemas/generic.ts';
 import { serverAllocationSchema } from '@/lib/schemas/server/allocations.ts';
 import { serverAutostartBehavior, serverStatus } from '@/lib/schemas/server/server.ts';
-import { nullableNumber, nullableString } from '@/lib/transformers.ts';
+import { nullableNumber, nullableString } from '@/lib/serialization/transformers.ts';
 
 export const adminServerLimitsSchema = z.object({
   cpu: z.number().min(0),

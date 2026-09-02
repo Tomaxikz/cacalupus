@@ -1,30 +1,31 @@
 import { useQueryClient } from '@tanstack/react-query';
-import { useEffect, useState } from 'react';
+import { useState } from 'react';
 import { z } from 'zod';
 import createDatabaseAgentHost from '@/api/admin/database-agent-hosts/createDatabaseAgentHost.ts';
 import deleteDatabaseAgentHost from '@/api/admin/database-agent-hosts/deleteDatabaseAgentHost.ts';
 import resetDatabaseAgentHostToken from '@/api/admin/database-agent-hosts/resetDatabaseAgentHostToken.ts';
 import testDatabaseAgentHost from '@/api/admin/database-agent-hosts/testDatabaseAgentHost.ts';
 import updateDatabaseAgentHost from '@/api/admin/database-agent-hosts/updateDatabaseAgentHost.ts';
-import Button from '@/elements/Button.tsx';
+import Button from '@/elements/buttons/Button.tsx';
 import { AdminCan } from '@/elements/Can.tsx';
 import AdminContentContainer from '@/elements/containers/AdminContentContainer.tsx';
 import { type FieldDef, FormEngine, useFormEngine } from '@/elements/form-engine/index.ts';
-import Group from '@/elements/Group.tsx';
 import TextInput from '@/elements/input/TextInput.tsx';
+import Group from '@/elements/layout/Group.tsx';
 import ForceDeleteModal from '@/elements/modals/ForceDeleteModal.tsx';
 import UrlMissingPortAlert from '@/elements/UrlMissingPortAlert.tsx';
-import { DATABASE_AGENT_DEFAULT_PORT } from '@/lib/databaseAgentHost.ts';
+import { DATABASE_AGENT_DEFAULT_PORT } from '@/lib/domain/databaseAgentHost.ts';
 import { databaseAgentTypeDefaultPortMapping, databaseAgentTypeLabelMapping } from '@/lib/enums.ts';
+import { getUrlConnectPort, withUrlPort } from '@/lib/network/url.ts';
 import { queryKeys } from '@/lib/queryKeys.ts';
 import {
   adminDatabaseAgentHostCreateSchema,
   adminDatabaseAgentHostSchema,
   adminDatabaseAgentHostUpdateSchema,
 } from '@/lib/schemas/admin/databaseAgentHosts.ts';
-import { getUrlConnectPort, withUrlPort } from '@/lib/url.ts';
+import { useHydrateForm } from '@/plugins/form/useHydrateForm.ts';
+import { useResourceForm } from '@/plugins/resource/useResourceForm.ts';
 import { useHostAction } from '@/plugins/useHostAction.ts';
-import { useResourceForm } from '@/plugins/useResourceForm.ts';
 import { useTranslations } from '@/providers/TranslationProvider.tsx';
 import { databaseAgentHostEmptyFormValues, databaseAgentHostToFormValues } from './databaseAgentHostFormValues.ts';
 
@@ -72,11 +73,7 @@ export default function DatabaseAgentHostCreateOrUpdate({
     resourceName: t('pages.admin.databaseAgentHosts.resourceName', {}),
   });
 
-  useEffect(() => {
-    if (contextDatabaseAgentHost) {
-      form.setValues(databaseAgentHostToFormValues(contextDatabaseAgentHost));
-    }
-  }, [contextDatabaseAgentHost]);
+  useHydrateForm(form, contextDatabaseAgentHost, databaseAgentHostToFormValues);
 
   const runHostAction = useHostAction(contextDatabaseAgentHost?.uuid, setLoading);
 

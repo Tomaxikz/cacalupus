@@ -6,12 +6,12 @@ import { z } from 'zod';
 import createBackupConfiguration from '@/api/admin/backup-configurations/createBackupConfiguration.ts';
 import deleteBackupConfiguration from '@/api/admin/backup-configurations/deleteBackupConfiguration.ts';
 import updateBackupConfiguration from '@/api/admin/backup-configurations/updateBackupConfiguration.ts';
-import Alert from '@/elements/Alert.tsx';
-import Button from '@/elements/Button.tsx';
+import Button from '@/elements/buttons/Button.tsx';
 import { AdminCan } from '@/elements/Can.tsx';
 import AdminContentContainer from '@/elements/containers/AdminContentContainer.tsx';
+import Alert from '@/elements/feedback/Alert.tsx';
 import { type FieldDef, FormEngine, useFormEngine } from '@/elements/form-engine/index.ts';
-import Group from '@/elements/Group.tsx';
+import Group from '@/elements/layout/Group.tsx';
 import ConfirmationModal from '@/elements/modals/ConfirmationModal.tsx';
 import { backupDiskLabelMapping } from '@/lib/enums.ts';
 import { queryKeys } from '@/lib/queryKeys.ts';
@@ -27,7 +27,7 @@ import BackupPBS from '@/pages/admin/backup-configurations/forms/BackupPBS.tsx';
 import BackupRestic from '@/pages/admin/backup-configurations/forms/BackupRestic.tsx';
 import BackupS3 from '@/pages/admin/backup-configurations/forms/BackupS3.tsx';
 import BackupConfigurationDuplicateModal from '@/pages/admin/backup-configurations/modals/BackupConfigurationDuplicateModal.tsx';
-import { useResourceForm } from '@/plugins/useResourceForm.ts';
+import { useResourceForm } from '@/plugins/resource/useResourceForm.ts';
 import { useTranslations } from '@/providers/TranslationProvider.tsx';
 import {
   backupConfigurationEmptyFormValues,

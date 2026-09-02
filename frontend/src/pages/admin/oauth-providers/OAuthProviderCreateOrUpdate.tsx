@@ -1,27 +1,28 @@
 import { faExternalLink } from '@fortawesome/free-solid-svg-icons';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
-import { useEffect, useState } from 'react';
+import { useState } from 'react';
 import { z } from 'zod';
 import createOAuthProvider from '@/api/admin/oauth-providers/createOAuthProvider.ts';
 import deleteOAuthProvider from '@/api/admin/oauth-providers/deleteOAuthProvider.ts';
 import duplicateOAuthProvider from '@/api/admin/oauth-providers/duplicateOAuthProvider.ts';
 import updateOAuthProvider from '@/api/admin/oauth-providers/updateOAuthProvider.ts';
-import Anchor from '@/elements/Anchor.tsx';
-import Button from '@/elements/Button.tsx';
+import Button from '@/elements/buttons/Button.tsx';
 import { AdminCan } from '@/elements/Can.tsx';
-import Card from '@/elements/Card.tsx';
-import Code from '@/elements/Code.tsx';
 import AdminContentContainer from '@/elements/containers/AdminContentContainer.tsx';
+import Card from '@/elements/data-display/Card.tsx';
 import { type FieldDef, FormEngine, useFormEngine } from '@/elements/form-engine/index.ts';
-import Group from '@/elements/Group.tsx';
+import Group from '@/elements/layout/Group.tsx';
 import ConfirmationModal from '@/elements/modals/ConfirmationModal.tsx';
 import ResourceDuplicateModal from '@/elements/modals/ResourceDuplicateModal.tsx';
 import ResourceExportMenu from '@/elements/ResourceExportMenu.tsx';
-import Title from '@/elements/Title.tsx';
-import { downloadResourceFile, type ResourceExportFormat } from '@/lib/export.ts';
+import Anchor from '@/elements/typography/Anchor.tsx';
+import Code from '@/elements/typography/Code.tsx';
+import Title from '@/elements/typography/Title.tsx';
+import { downloadResourceFile, type ResourceExportFormat } from '@/lib/download/export.ts';
 import { queryKeys } from '@/lib/queryKeys.ts';
 import { adminOAuthProviderSchema, adminOAuthProviderUpdateSchema } from '@/lib/schemas/admin/oauthProviders.ts';
-import { useResourceForm } from '@/plugins/useResourceForm.ts';
+import { useHydrateForm } from '@/plugins/form/useHydrateForm.ts';
+import { useResourceForm } from '@/plugins/resource/useResourceForm.ts';
 import { useToast } from '@/providers/ToastProvider.tsx';
 import { useTranslations } from '@/providers/TranslationProvider.tsx';
 import { useGlobalStore } from '@/stores/global.ts';
@@ -64,11 +65,7 @@ export default function OAuthProviderCreateOrUpdate({
     resourceName: t('pages.admin.oAuthProviders.resourceName', {}),
   });
 
-  useEffect(() => {
-    if (contextOAuthProvider) {
-      form.setValues(oauthProviderToFormValues(contextOAuthProvider));
-    }
-  }, [contextOAuthProvider]);
+  useHydrateForm(form, contextOAuthProvider, oauthProviderToFormValues);
 
   const doExport = (format: ResourceExportFormat) => {
     if (!contextOAuthProvider) return;

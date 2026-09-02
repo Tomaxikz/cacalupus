@@ -4,13 +4,13 @@ import { useEffect } from 'react';
 import { z } from 'zod';
 import createScheduleStep from '@/api/server/schedules/steps/createScheduleStep.ts';
 import updateScheduleStep from '@/api/server/schedules/steps/updateScheduleStep.ts';
-import Button from '@/elements/Button.tsx';
-import Divider from '@/elements/Divider.tsx';
+import Button from '@/elements/buttons/Button.tsx';
 import Select from '@/elements/input/Select.tsx';
+import Divider from '@/elements/layout/Divider.tsx';
+import Stack from '@/elements/layout/Stack.tsx';
 import FormModal from '@/elements/modals/FormModal.tsx';
 import { ModalFooter } from '@/elements/modals/Modal.tsx';
-import Stack from '@/elements/Stack.tsx';
-import Text from '@/elements/Text.tsx';
+import Text from '@/elements/typography/Text.tsx';
 import {
   ScheduleStepGroup,
   scheduleStepDefaultMapping,
@@ -25,7 +25,7 @@ import {
   serverScheduleStepSchema,
   serverScheduleStepUpdateSchema,
 } from '@/lib/schemas/server/schedules.ts';
-import { useModalForm } from '@/plugins/useModalForm.ts';
+import { useModalForm } from '@/plugins/form/useModalForm.ts';
 import { useToast } from '@/providers/ToastProvider.tsx';
 import { useTranslations } from '@/providers/TranslationProvider.tsx';
 import { useServerStore } from '@/stores/server.ts';

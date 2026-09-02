@@ -1,18 +1,19 @@
 import { useForm } from '@mantine/form';
 import { zod4Resolver } from 'mantine-form-zod-resolver';
-import { useEffect, useState } from 'react';
+import { useState } from 'react';
 import { z } from 'zod';
 import updateRatelimitSettings from '@/api/admin/settings/updateRatelimitSettings.ts';
 import { httpErrorToHuman } from '@/api/axios.ts';
-import Button from '@/elements/Button.tsx';
+import Button from '@/elements/buttons/Button.tsx';
 import { AdminCan } from '@/elements/Can.tsx';
-import Card from '@/elements/Card.tsx';
-import Code from '@/elements/Code.tsx';
 import AdminSubContentContainer from '@/elements/containers/AdminSubContentContainer.tsx';
-import Group from '@/elements/Group.tsx';
+import Card from '@/elements/data-display/Card.tsx';
 import NumberInput from '@/elements/input/NumberInput.tsx';
-import Stack from '@/elements/Stack.tsx';
+import Group from '@/elements/layout/Group.tsx';
+import Stack from '@/elements/layout/Stack.tsx';
+import Code from '@/elements/typography/Code.tsx';
 import { adminSettingsRatelimitsSchema } from '@/lib/schemas/admin/settings.ts';
+import { useHydrateForm } from '@/plugins/form/useHydrateForm.ts';
 import { useToast } from '@/providers/ToastProvider.tsx';
 import { useTranslations } from '@/providers/TranslationProvider.tsx';
 import { useAdminStore } from '@/stores/admin.tsx';
@@ -60,11 +61,7 @@ export default function RatelimitsContainer() {
     validate: zod4Resolver(adminSettingsRatelimitsSchema),
   });
 
-  useEffect(() => {
-    form.setValues({
-      ...ratelimits,
-    });
-  }, [ratelimits]);
+  useHydrateForm(form, ratelimits, (r) => ({ ...r }));
 
   const doUpdate = () => {
     setLoading(true);

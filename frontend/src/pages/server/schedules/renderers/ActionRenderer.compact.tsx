@@ -1,7 +1,7 @@
 import { z } from 'zod';
-import Code from '@/elements/Code.tsx';
+import Code from '@/elements/typography/Code.tsx';
+import { formatMilliseconds } from '@/lib/format/time.ts';
 import { serverScheduleStepActionSchema } from '@/lib/schemas/server/schedules.ts';
-import { formatMilliseconds } from '@/lib/time.ts';
 import { useTranslations } from '@/providers/TranslationProvider.tsx';
 import ScheduleDynamicParameterRenderer from '../renderers/ScheduleDynamicParameterRenderer.tsx';
 

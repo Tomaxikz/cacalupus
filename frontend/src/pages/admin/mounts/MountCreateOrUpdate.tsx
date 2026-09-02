@@ -1,25 +1,24 @@
 import { faExclamationTriangle } from '@fortawesome/free-solid-svg-icons';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
-import { useEffect, useState } from 'react';
+import { useState } from 'react';
 import { z } from 'zod';
 import createMount from '@/api/admin/mounts/createMount.ts';
 import deleteMount from '@/api/admin/mounts/deleteMount.ts';
 import updateMount from '@/api/admin/mounts/updateMount.ts';
-import Alert from '@/elements/Alert.tsx';
-import Button from '@/elements/Button.tsx';
+import Button from '@/elements/buttons/Button.tsx';
 import { AdminCan } from '@/elements/Can.tsx';
 import AdminContentContainer from '@/elements/containers/AdminContentContainer.tsx';
+import Alert from '@/elements/feedback/Alert.tsx';
 import { type FieldDef, FormEngine, useFormEngine } from '@/elements/form-engine/index.ts';
-import Group from '@/elements/Group.tsx';
+import Group from '@/elements/layout/Group.tsx';
 import ConfirmationModal from '@/elements/modals/ConfirmationModal.tsx';
 import { queryKeys } from '@/lib/queryKeys.ts';
 import { adminMountSchema, adminMountUpdateSchema } from '@/lib/schemas/admin/mounts.ts';
 import MountDuplicateModal from '@/pages/admin/mounts/modals/MountDuplicateModal.tsx';
-import { useResourceForm } from '@/plugins/useResourceForm.ts';
+import { useHydrateForm } from '@/plugins/form/useHydrateForm.ts';
+import { useResourceForm } from '@/plugins/resource/useResourceForm.ts';
 import { useTranslations } from '@/providers/TranslationProvider.tsx';
-import { mountEmptyFormValues, mountToFormValues } from './mountFormValues.ts';
-
-type MountFormValues = z.infer<typeof adminMountUpdateSchema>;
+import { type MountFormValues, mountEmptyFormValues, mountToFormValues } from './mountFormValues.ts';
 
 export default function MountCreateOrUpdate({ contextMount }: { contextMount?: z.infer<typeof adminMountSchema> }) {
   const { t } = useTranslations();
@@ -43,11 +42,7 @@ export default function MountCreateOrUpdate({ contextMount }: { contextMount?: z
     resourceName: t('pages.admin.mounts.resourceName', {}),
   });
 
-  useEffect(() => {
-    if (contextMount) {
-      form.setValues(mountToFormValues(contextMount));
-    }
-  }, [contextMount]);
+  useHydrateForm(form, contextMount, mountToFormValues, { key: (mount) => mount.uuid });
 
   const fields: FieldDef<MountFormValues>[] = [
     { type: 'text', name: 'name', label: t('common.form.name', {}), required: true },

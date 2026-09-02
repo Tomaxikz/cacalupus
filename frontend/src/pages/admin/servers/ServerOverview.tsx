@@ -13,17 +13,18 @@ import {
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { SimpleGrid, Text } from '@mantine/core';
 import { z } from 'zod';
-import Badge from '@/elements/Badge.tsx';
-import Card from '@/elements/Card.tsx';
 import AdminSubContentContainer from '@/elements/containers/AdminSubContentContainer.tsx';
-import Group from '@/elements/Group.tsx';
-import Stack from '@/elements/Stack.tsx';
-import TableLink from '@/elements/TableLink.tsx';
-import TitleCard from '@/elements/TitleCard.tsx';
+import Badge from '@/elements/data-display/Badge.tsx';
+import Card from '@/elements/data-display/Card.tsx';
+import TableLink from '@/elements/data-display/TableLink.tsx';
+import TitleCard from '@/elements/data-display/TitleCard.tsx';
+import ExtensionSlot from '@/elements/ExtensionSlot.tsx';
+import Group from '@/elements/layout/Group.tsx';
+import Stack from '@/elements/layout/Stack.tsx';
+import { serverStatusInfo } from '@/lib/domain/server.ts';
+import { bytesToString, mbToBytes } from '@/lib/format/size.ts';
+import { formatDateTime } from '@/lib/format/time.ts';
 import { adminServerSchema } from '@/lib/schemas/admin/servers.ts';
-import { serverStatusInfo } from '@/lib/server.ts';
-import { bytesToString, mbToBytes } from '@/lib/size.ts';
-import { formatDateTime } from '@/lib/time.ts';
 import { useTranslations } from '@/providers/TranslationProvider.tsx';
 
 type Server = z.infer<typeof adminServerSchema>;
@@ -125,11 +126,13 @@ export default function ServerOverview({ server }: { server: Server }) {
               <InfoRow label={t('pages.admin.servers.tabs.overview.page.label.createdAt', {})}>
                 <Text size='sm'>{formatDateTime(server.owner.created)}</Text>
               </InfoRow>
-              {window.extensionContext.extensionRegistry.pages.admin.servers.view.overview.owner.appendedComponents.map(
-                (Component, index) => (
-                  <Component key={`owner-ext-${index}`} server={server} />
-                ),
-              )}
+              <ExtensionSlot
+                components={
+                  window.extensionContext.extensionRegistry.pages.admin.servers.view.overview.owner.appendedComponents
+                }
+                name='owner-ext'
+                props={{ server }}
+              />
             </Stack>
           </TitleCard>
 
@@ -168,11 +171,14 @@ export default function ServerOverview({ server }: { server: Server }) {
                   {server.node.disk === 0 ? unlimitedLabel : bytesToString(mbToBytes(server.node.disk))}
                 </Text>
               </InfoRow>
-              {window.extensionContext.extensionRegistry.pages.admin.servers.view.overview.nodeAndLocation.appendedComponents.map(
-                (Component, index) => (
-                  <Component key={`node-location-ext-${index}`} server={server} />
-                ),
-              )}
+              <ExtensionSlot
+                components={
+                  window.extensionContext.extensionRegistry.pages.admin.servers.view.overview.nodeAndLocation
+                    .appendedComponents
+                }
+                name='node-location-ext'
+                props={{ server }}
+              />
             </Stack>
           </TitleCard>
         </SimpleGrid>
@@ -238,11 +244,14 @@ export default function ServerOverview({ server }: { server: Server }) {
               </InfoRow>
             </Stack>
           </SimpleGrid>
-          {window.extensionContext.extensionRegistry.pages.admin.servers.view.overview.serverDetails.appendedComponents.map(
-            (Component, index) => (
-              <Component key={`server-details-ext-${index}`} server={server} />
-            ),
-          )}
+          <ExtensionSlot
+            components={
+              window.extensionContext.extensionRegistry.pages.admin.servers.view.overview.serverDetails
+                .appendedComponents
+            }
+            name='server-details-ext'
+            props={{ server }}
+          />
         </TitleCard>
 
         <TitleCard
@@ -306,11 +315,14 @@ export default function ServerOverview({ server }: { server: Server }) {
                 )
               }
             />
-            {window.extensionContext.extensionRegistry.pages.admin.servers.view.overview.resourceLimits.appendedComponents.map(
-              (Component, index) => (
-                <Component key={`resource-limits-ext-${index}`} server={server} />
-              ),
-            )}
+            <ExtensionSlot
+              components={
+                window.extensionContext.extensionRegistry.pages.admin.servers.view.overview.resourceLimits
+                  .appendedComponents
+              }
+              name='resource-limits-ext'
+              props={{ server }}
+            />
           </SimpleGrid>
         </TitleCard>
 
@@ -339,18 +351,23 @@ export default function ServerOverview({ server }: { server: Server }) {
               icon={<FontAwesomeIcon icon={faClock} />}
               value={server.featureLimits.schedules}
             />
-            {window.extensionContext.extensionRegistry.pages.admin.servers.view.overview.featureLimits.appendedComponents.map(
-              (Component, index) => (
-                <Component key={`feature-limit-ext-${index}`} server={server} />
-              ),
-            )}
+            <ExtensionSlot
+              components={
+                window.extensionContext.extensionRegistry.pages.admin.servers.view.overview.featureLimits
+                  .appendedComponents
+              }
+              name='feature-limit-ext'
+              props={{ server }}
+            />
           </SimpleGrid>
         </TitleCard>
-        {window.extensionContext.extensionRegistry.pages.admin.servers.view.overview.appendedCards.appendedComponents.map(
-          (Component, index) => (
-            <Component key={`overview-card-ext-${index}`} server={server} />
-          ),
-        )}
+        <ExtensionSlot
+          components={
+            window.extensionContext.extensionRegistry.pages.admin.servers.view.overview.appendedCards.appendedComponents
+          }
+          name='overview-card-ext'
+          props={{ server }}
+        />
       </Stack>
     </AdminSubContentContainer>
   );

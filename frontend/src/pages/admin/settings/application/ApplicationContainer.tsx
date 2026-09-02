@@ -1,20 +1,21 @@
-import { useEffect, useState } from 'react';
+import { useState } from 'react';
 import { z } from 'zod';
 import getAssets from '@/api/admin/assets/getAssets.ts';
 import updateApplicationSettings from '@/api/admin/settings/updateApplicationSettings.ts';
 import getTelemetry from '@/api/admin/system/getTelemetry.ts';
 import { httpErrorToHuman } from '@/api/axios.ts';
-import Button from '@/elements/Button.tsx';
+import Button from '@/elements/buttons/Button.tsx';
 import { AdminCan } from '@/elements/Can.tsx';
 import AdminSubContentContainer from '@/elements/containers/AdminSubContentContainer.tsx';
 import { AdvancedModeToggle, type FieldDef, FormEngine, useFormEngine } from '@/elements/form-engine/index.ts';
-import Group from '@/elements/Group.tsx';
+import Group from '@/elements/layout/Group.tsx';
 import ConfirmationModal from '@/elements/modals/ConfirmationModal.tsx';
 import { queryKeys } from '@/lib/queryKeys.ts';
 import { storageAssetSchema } from '@/lib/schemas/admin/assets.ts';
 import { adminSettingsApplicationSchema } from '@/lib/schemas/admin/settings.ts';
+import { useHydrateForm } from '@/plugins/form/useHydrateForm.ts';
+import { useSearchableResource } from '@/plugins/resource/useSearchableResource.ts';
 import { useAdminCan } from '@/plugins/usePermissions.ts';
-import { useSearchableResource } from '@/plugins/useSearchableResource.ts';
 import { useToast } from '@/providers/ToastProvider.tsx';
 import { useTranslations } from '@/providers/TranslationProvider.tsx';
 import { useAdminStore } from '@/stores/admin.tsx';
@@ -65,9 +66,7 @@ export default function ApplicationContainer() {
     canRequest: canReadAssets,
   });
 
-  useEffect(() => {
-    form.setValues({ ...app });
-  }, [app]);
+  useHydrateForm(form, app, (a) => ({ ...a }));
 
   const doUpdate = () => {
     setLoading(true);

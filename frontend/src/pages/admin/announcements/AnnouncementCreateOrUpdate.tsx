@@ -1,4 +1,4 @@
-import { useEffect, useMemo, useState } from 'react';
+import { useMemo, useState } from 'react';
 import { z } from 'zod';
 import createAnnouncement from '@/api/admin/announcements/createAnnouncement.ts';
 import deleteAnnouncement from '@/api/admin/announcements/deleteAnnouncement.ts';
@@ -6,11 +6,11 @@ import updateAnnouncement from '@/api/admin/announcements/updateAnnouncement.ts'
 import getBackupConfigurations from '@/api/admin/backup-configurations/getBackupConfigurations.ts';
 import getLocations from '@/api/admin/locations/getLocations.ts';
 import getNodes from '@/api/admin/nodes/getNodes.ts';
-import Button from '@/elements/Button.tsx';
+import Button from '@/elements/buttons/Button.tsx';
 import { AdminCan } from '@/elements/Can.tsx';
 import AdminContentContainer from '@/elements/containers/AdminContentContainer.tsx';
 import { type FieldDef, FormEngine, useFormEngine } from '@/elements/form-engine/index.ts';
-import Group from '@/elements/Group.tsx';
+import Group from '@/elements/layout/Group.tsx';
 import ConfirmationModal from '@/elements/modals/ConfirmationModal.tsx';
 import { announcementTypeLabelMapping, mappingToSelectData } from '@/lib/enums.ts';
 import { queryKeys } from '@/lib/queryKeys.ts';
@@ -20,10 +20,11 @@ import {
   adminAnnouncementUpdateSchema,
 } from '@/lib/schemas/admin/announcements.ts';
 import { searchableMultiselectField } from '@/lib/searchableMultiselectField.ts';
+import { useHydrateForm } from '@/plugins/form/useHydrateForm.ts';
+import { useResourceForm } from '@/plugins/resource/useResourceForm.ts';
+import { useSearchableResource } from '@/plugins/resource/useSearchableResource.ts';
 import { useGroupedEggOptions } from '@/plugins/useGroupedEggOptions.ts';
 import { useAdminCan } from '@/plugins/usePermissions.ts';
-import { useResourceForm } from '@/plugins/useResourceForm.ts';
-import { useSearchableResource } from '@/plugins/useSearchableResource.ts';
 import { useTranslations } from '@/providers/TranslationProvider.tsx';
 import { useGlobalStore } from '@/stores/global.ts';
 import { announcementEmptyFormValues, announcementToFormValues } from './announcementFormValues.ts';
@@ -66,11 +67,9 @@ export default function AnnouncementCreateOrUpdate({
     resourceName: t('pages.admin.announcements.resourceName', {}),
   });
 
-  useEffect(() => {
-    if (contextAnnouncement) {
-      form.setValues(announcementToFormValues(contextAnnouncement));
-    }
-  }, [contextAnnouncement?.uuid]);
+  useHydrateForm(form, contextAnnouncement, announcementToFormValues, {
+    key: (announcement) => announcement.uuid,
+  });
 
   const { eggOptions, loading: eggsLoading } = useGroupedEggOptions();
 

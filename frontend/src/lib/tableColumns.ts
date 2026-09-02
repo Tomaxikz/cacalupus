@@ -243,6 +243,18 @@ export const nodeTableColumns = (): string[] => {
   ];
 };
 
+export const desyncNodeTableColumns = (): string[] => {
+  const { t } = getTranslations();
+  return [
+    '',
+    t('common.table.columns.id', {}),
+    t('pages.admin.home.tabs.health.page.table.desync', {}),
+    t('common.table.columns.name', {}),
+    t('common.table.columns.location', {}),
+    t('common.table.columns.created', {}),
+  ];
+};
+
 export const nodeMountTableColumns = (): string[] => {
   const { t } = getTranslations();
   return [

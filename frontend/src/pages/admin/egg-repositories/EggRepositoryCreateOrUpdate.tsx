@@ -1,19 +1,19 @@
 import { faUnlockKeyhole } from '@fortawesome/free-solid-svg-icons';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { UseFormReturnType } from '@mantine/form';
-import { useEffect, useState } from 'react';
+import { useState } from 'react';
 import { z } from 'zod';
 import createEggRepository from '@/api/admin/egg-repositories/createEggRepository.ts';
 import deleteEggRepository from '@/api/admin/egg-repositories/deleteEggRepository.ts';
 import syncEggRepository from '@/api/admin/egg-repositories/syncEggRepository.ts';
 import updateEggRepository from '@/api/admin/egg-repositories/updateEggRepository.ts';
-import Button from '@/elements/Button.tsx';
+import Button from '@/elements/buttons/Button.tsx';
 import { AdminCan } from '@/elements/Can.tsx';
 import CollapsibleSection from '@/elements/CollapsibleSection.tsx';
 import AdminContentContainer from '@/elements/containers/AdminContentContainer.tsx';
 import { type FieldDef, FormEngine, useFormEngine } from '@/elements/form-engine/index.ts';
-import Group from '@/elements/Group.tsx';
 import Select from '@/elements/input/Select.tsx';
+import Group from '@/elements/layout/Group.tsx';
 import ConfirmationModal from '@/elements/modals/ConfirmationModal.tsx';
 import { eggRepositoryCredentialTypeLabelMapping, mappingToSelectData } from '@/lib/enums.ts';
 import { queryKeys } from '@/lib/queryKeys.ts';
@@ -23,8 +23,9 @@ import {
   adminEggRepositorySchema,
   adminEggRepositoryUpdateSchema,
 } from '@/lib/schemas/admin/eggRepositories.ts';
+import { useHydrateForm } from '@/plugins/form/useHydrateForm.ts';
+import { useResourceForm } from '@/plugins/resource/useResourceForm.ts';
 import { useHostAction } from '@/plugins/useHostAction.ts';
-import { useResourceForm } from '@/plugins/useResourceForm.ts';
 import { useTranslations } from '@/providers/TranslationProvider.tsx';
 import {
   type AdminEggRepositoryCredentialType,
@@ -69,11 +70,7 @@ export default function EggRepositoryCreateOrUpdate({
 
   const runRepoAction = useHostAction(contextEggRepository?.uuid, setLoading);
 
-  useEffect(() => {
-    if (contextEggRepository) {
-      form.setValues(eggRepositoryToFormValues(contextEggRepository));
-    }
-  }, [contextEggRepository]);
+  useHydrateForm(form, contextEggRepository, eggRepositoryToFormValues);
 
   const doSync = () =>
     runRepoAction(syncEggRepository, (found) =>

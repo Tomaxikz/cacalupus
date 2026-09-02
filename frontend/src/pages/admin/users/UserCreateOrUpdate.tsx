@@ -1,5 +1,5 @@
 import { useQueryClient } from '@tanstack/react-query';
-import { useEffect, useState } from 'react';
+import { useState } from 'react';
 import { z } from 'zod';
 import getRoles from '@/api/admin/roles/getRoles.ts';
 import createUser from '@/api/admin/users/createUser.ts';
@@ -9,19 +9,20 @@ import sendPasswordResetEmail from '@/api/admin/users/email/sendPasswordResetEma
 import verifyUserEmail from '@/api/admin/users/email/verifyUserEmail.ts';
 import updateUser from '@/api/admin/users/updateUser.ts';
 import { httpErrorToHuman } from '@/api/axios.ts';
-import Button from '@/elements/Button.tsx';
+import Button from '@/elements/buttons/Button.tsx';
 import { AdminCan, CantSaveTooltip } from '@/elements/Can.tsx';
-import ConditionalTooltip from '@/elements/ConditionalTooltip.tsx';
 import AdminContentContainer from '@/elements/containers/AdminContentContainer.tsx';
 import { type FieldDef, FormEngine, useFormEngine } from '@/elements/form-engine/index.ts';
-import Group from '@/elements/Group.tsx';
+import Group from '@/elements/layout/Group.tsx';
 import ConfirmationModal from '@/elements/modals/ConfirmationModal.tsx';
+import ConditionalTooltip from '@/elements/overlays/ConditionalTooltip.tsx';
 import { queryKeys } from '@/lib/queryKeys.ts';
 import { adminFullUserSchema, adminUserUpdateSchema } from '@/lib/schemas/admin/users.ts';
 import { roleSchema } from '@/lib/schemas/user.ts';
+import { useHydrateForm } from '@/plugins/form/useHydrateForm.ts';
+import { useResourceForm } from '@/plugins/resource/useResourceForm.ts';
+import { useSearchableResource } from '@/plugins/resource/useSearchableResource.ts';
 import { useAdminCan } from '@/plugins/usePermissions.ts';
-import { useResourceForm } from '@/plugins/useResourceForm.ts';
-import { useSearchableResource } from '@/plugins/useSearchableResource.ts';
 import { useAuth } from '@/providers/AuthProvider.tsx';
 import { useToast } from '@/providers/ToastProvider.tsx';
 import { useTranslations } from '@/providers/TranslationProvider.tsx';
@@ -62,11 +63,7 @@ export default function UserCreateOrUpdate({ contextUser }: { contextUser?: z.in
     resourceName: t('pages.admin.users.resourceName', {}),
   });
 
-  useEffect(() => {
-    if (contextUser) {
-      form.setValues(userToFormValues(contextUser));
-    }
-  }, [contextUser]);
+  useHydrateForm(form, contextUser, userToFormValues);
 
   const roles = useSearchableResource<z.infer<typeof roleSchema>>({
     queryKey: queryKeys.admin.roles.all(),

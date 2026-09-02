@@ -1,14 +1,15 @@
-import { useEffect, useState } from 'react';
+import { useState } from 'react';
 import { z } from 'zod';
 import updateServerSettings from '@/api/admin/settings/updateServerSettings.ts';
 import { httpErrorToHuman } from '@/api/axios.ts';
-import Button from '@/elements/Button.tsx';
+import Button from '@/elements/buttons/Button.tsx';
 import { AdminCan } from '@/elements/Can.tsx';
 import AdminSubContentContainer from '@/elements/containers/AdminSubContentContainer.tsx';
 import { type FieldDef, FormEngine, useFormEngine } from '@/elements/form-engine/index.ts';
-import Group from '@/elements/Group.tsx';
 import SizeInput from '@/elements/input/SizeInput.tsx';
+import Group from '@/elements/layout/Group.tsx';
 import { adminSettingsServerSchema } from '@/lib/schemas/admin/settings.ts';
+import { useHydrateForm } from '@/plugins/form/useHydrateForm.ts';
 import { useToast } from '@/providers/ToastProvider.tsx';
 import { useTranslations } from '@/providers/TranslationProvider.tsx';
 import { useAdminStore } from '@/stores/admin.tsx';
@@ -49,9 +50,7 @@ export default function ServerContainer() {
     validateInputOnBlur: true,
   });
 
-  useEffect(() => {
-    form.setValues({ ...server });
-  }, [server]);
+  useHydrateForm(form, server, (s) => ({ ...s }));
 
   const doUpdate = () => {
     setLoading(true);

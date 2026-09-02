@@ -23,6 +23,9 @@ const admin = {
     token: (uuid: string) => ['admin', 'nodes', uuid, 'token'] as const,
     capacity: (nodeUuid: string) => ['admin', 'nodes', nodeUuid, 'capacity'] as const,
     systemOverview: (nodeUuid: string) => ['admin', 'nodes', nodeUuid, 'system', 'overview'] as const,
+    systemDirect: (nodeUuid: string) => ['admin', 'nodes', nodeUuid, 'system', 'direct'] as const,
+    config: (nodeUuid: string) => ['admin', 'nodes', nodeUuid, 'config'] as const,
+    logs: (nodeUuid: string) => ['admin', 'nodes', nodeUuid, 'system', 'logs'] as const,
     allocations: (nodeUuid: string) => ['admin', 'nodes', nodeUuid, 'allocations'] as const,
     availableAllocations: (nodeUuid: string) => ['admin', 'nodes', nodeUuid, 'allocations', 'available'] as const,
     allocationIps: (nodeUuid: string) => ['admin', 'nodes', nodeUuid, 'allocations', 'ips'] as const,
@@ -147,6 +150,7 @@ const admin = {
     all: () => ['admin', 'egg-repositories'] as const,
     detail: (uuid: string) => ['admin', 'egg-repositories', { uuid }] as const,
     eggs: (repoUuid: string) => ['admin', 'egg-repositories', repoUuid, 'eggs'] as const,
+    eggsUnscoped: () => ['admin', 'egg-repositories', 'eggs'] as const,
   },
 
   eggConfigurations: {
@@ -167,13 +171,25 @@ const admin = {
     all: () => ['admin', 'assets'] as const,
   },
 
+  system: {
+    overview: () => ['admin', 'system', 'overview'] as const,
+    debug: () => ['admin', 'system', 'debug'] as const,
+  },
+
+  stats: {
+    general: () => ['admin', 'stats', 'general'] as const,
+    backups: () => ['admin', 'stats', 'backups'] as const,
+  },
+
   updates: {
     nodes: () => ['admin', 'updates', 'nodes'] as const,
     databaseAgentHosts: () => ['admin', 'updates', 'database-agent-hosts'] as const,
+    history: () => ['admin', 'updates', 'history'] as const,
   },
 
   health: {
     nodes: () => ['admin', 'health', 'nodes'] as const,
+    general: () => ['admin', 'health', 'general'] as const,
   },
 
   emailTemplates: {

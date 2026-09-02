@@ -1,13 +1,13 @@
 import { faMinus, faPlus } from '@fortawesome/free-solid-svg-icons';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
-import ActionIcon from '@/elements/ActionIcon.tsx';
-import Button from '@/elements/Button.tsx';
-import Group from '@/elements/Group.tsx';
+import ActionIcon from '@/elements/buttons/ActionIcon.tsx';
+import Button from '@/elements/buttons/Button.tsx';
 import Select from '@/elements/input/Select.tsx';
 import TagsInput from '@/elements/input/TagsInput.tsx';
 import TextInput from '@/elements/input/TextInput.tsx';
-import Stack from '@/elements/Stack.tsx';
-import Text from '@/elements/Text.tsx';
+import Group from '@/elements/layout/Group.tsx';
+import Stack from '@/elements/layout/Stack.tsx';
+import Text from '@/elements/typography/Text.tsx';
 import { mappingToSelectData, oauthProviderMappingMatcherLabelMapping } from '@/lib/enums.ts';
 import { AdminOAuthProviderMappingMatcher } from '@/lib/schemas/admin/oauthProviders.ts';
 import { useTranslations } from '@/providers/TranslationProvider.tsx';

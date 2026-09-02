@@ -3,11 +3,11 @@ import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { UseFormReturnType } from '@mantine/form';
 import { useEffect } from 'react';
 import { z } from 'zod';
-import Alert from '@/elements/Alert.tsx';
-import Code from '@/elements/Code.tsx';
+import Alert from '@/elements/feedback/Alert.tsx';
 import { type FieldDef, FormEngine } from '@/elements/form-engine/index.ts';
 import Switch from '@/elements/input/Switch.tsx';
-import Stack from '@/elements/Stack.tsx';
+import Stack from '@/elements/layout/Stack.tsx';
+import Code from '@/elements/typography/Code.tsx';
 import { adminSettingsStorageS3Schema } from '@/lib/schemas/admin/settings.ts';
 import { useTranslations } from '@/providers/TranslationProvider.tsx';
 

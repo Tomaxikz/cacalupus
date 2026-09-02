@@ -3,12 +3,12 @@ import { z } from 'zod';
 import getServerVariables from '@/api/admin/servers/variables/getServerVariables.ts';
 import updateServerVariables from '@/api/admin/servers/variables/updateServerVariables.ts';
 import { httpErrorToHuman } from '@/api/axios.ts';
-import Button from '@/elements/Button.tsx';
+import Button from '@/elements/buttons/Button.tsx';
 import AdminSubContentContainer from '@/elements/containers/AdminSubContentContainer.tsx';
 import VariableContainer from '@/elements/VariableContainer.tsx';
 import { adminServerSchema } from '@/lib/schemas/admin/servers.ts';
 import { serverVariableSchema } from '@/lib/schemas/server/startup.ts';
-import { useKeyboardShortcut } from '@/plugins/useKeyboardShortcuts.ts';
+import { useKeyboardShortcut } from '@/plugins/quick-actions/useKeyboardShortcuts.ts';
 import { useToast } from '@/providers/ToastProvider.tsx';
 import { useTranslations } from '@/providers/TranslationProvider.tsx';
 

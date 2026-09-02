@@ -1,7 +1,7 @@
 import { faGlobe } from '@fortawesome/free-solid-svg-icons';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { useQueryClient } from '@tanstack/react-query';
-import { useEffect, useState } from 'react';
+import { useState } from 'react';
 import { z } from 'zod';
 import getBackupConfigurations from '@/api/admin/backup-configurations/getBackupConfigurations.ts';
 import getLocations from '@/api/admin/locations/getLocations.ts';
@@ -10,25 +10,26 @@ import deleteNode from '@/api/admin/nodes/deleteNode.ts';
 import resetNodeToken from '@/api/admin/nodes/resetNodeToken.ts';
 import updateNode from '@/api/admin/nodes/updateNode.ts';
 import { httpErrorToHuman } from '@/api/axios.ts';
-import ActionIcon from '@/elements/ActionIcon.tsx';
-import Button from '@/elements/Button.tsx';
+import ActionIcon from '@/elements/buttons/ActionIcon.tsx';
+import Button from '@/elements/buttons/Button.tsx';
 import { AdminCan } from '@/elements/Can.tsx';
 import AdminContentContainer from '@/elements/containers/AdminContentContainer.tsx';
 import { type FieldDef, FormEngine, useFormEngine } from '@/elements/form-engine/index.ts';
-import Group from '@/elements/Group.tsx';
 import TextInput from '@/elements/input/TextInput.tsx';
+import Group from '@/elements/layout/Group.tsx';
 import ConfirmationModal from '@/elements/modals/ConfirmationModal.tsx';
-import Tooltip from '@/elements/Tooltip.tsx';
+import Tooltip from '@/elements/overlays/Tooltip.tsx';
 import UrlMissingPortAlert from '@/elements/UrlMissingPortAlert.tsx';
-import { isNodeAIO, WINGS_DEFAULT_PORT } from '@/lib/node.ts';
+import { isNodeAIO, WINGS_DEFAULT_PORT } from '@/lib/domain/node.ts';
+import { getUrlConnectPort, withUrlPort } from '@/lib/network/url.ts';
 import { queryKeys } from '@/lib/queryKeys.ts';
 import { adminBackupConfigurationSchema } from '@/lib/schemas/admin/backupConfigurations.ts';
 import { adminLocationSchema } from '@/lib/schemas/admin/locations.ts';
 import { adminNodeSchema, adminNodeUpdateSchema } from '@/lib/schemas/admin/nodes.ts';
-import { getUrlConnectPort, withUrlPort } from '@/lib/url.ts';
 import NodeDuplicateModal from '@/pages/admin/nodes/modals/NodeDuplicateModal.tsx';
-import { useResourceForm } from '@/plugins/useResourceForm.ts';
-import { useSearchableResource } from '@/plugins/useSearchableResource.ts';
+import { useHydrateForm } from '@/plugins/form/useHydrateForm.ts';
+import { useResourceForm } from '@/plugins/resource/useResourceForm.ts';
+import { useSearchableResource } from '@/plugins/resource/useSearchableResource.ts';
 import { useToast } from '@/providers/ToastProvider.tsx';
 import { useTranslations } from '@/providers/TranslationProvider.tsx';
 import { nodeEmptyFormValues, nodeToFormValues } from './nodeFormValues.ts';
@@ -72,12 +73,7 @@ export default function NodeCreateOrUpdate({ contextNode }: { contextNode?: z.in
     resourceName: t('pages.admin.nodes.resourceName', {}),
   });
 
-  useEffect(() => {
-    if (contextNode) {
-      form.setValues(nodeToFormValues(contextNode));
-      setUrlValue(contextNode.url);
-    }
-  }, [contextNode]);
+  useHydrateForm(form, contextNode, nodeToFormValues, { key: (node) => node.uuid });
 
   const locations = useSearchableResource<z.infer<typeof adminLocationSchema>>({
     queryKey: queryKeys.admin.locations.all(),
