@@ -11,7 +11,7 @@ import TextInput from '@/elements/input/TextInput.tsx';
 import FormModal from '@/elements/modals/FormModal.tsx';
 import { ModalFooter } from '@/elements/modals/Modal.tsx';
 import Stack from '@/elements/Stack.tsx';
-import { databaseTypeLabelMapping } from '@/lib/enums.ts';
+import { groupDatabaseHostsByType } from '@/lib/database.ts';
 import { queryKeys } from '@/lib/queryKeys.ts';
 import { databaseHostSchema } from '@/lib/schemas/generic.ts';
 import { serverDatabaseCreateSchema } from '@/lib/schemas/server/databases.ts';
@@ -69,19 +69,13 @@ export default function DatabaseCreateModal({ ...props }: ModalProps) {
           searchable
           nothingFoundMessage={t('pages.server.databases.modal.createDatabase.form.noHostsFound', {})}
           data={Object.values(
-            databaseHosts.reduce((acc, { uuid, name, type, maintenanceEnabled }) => {
-              if (!acc[type]) {
-                acc[type] = { group: databaseTypeLabelMapping[type], items: [] };
-              }
-              acc[type].items.push({
-                value: uuid,
-                label: maintenanceEnabled
-                  ? `${name} (${t('pages.server.databases.modal.createDatabase.form.hostInMaintenance', {})})`
-                  : name,
-                disabled: maintenanceEnabled,
-              });
-              return acc;
-            }, {} as GroupedDatabaseHosts),
+            groupDatabaseHostsByType(databaseHosts, ({ uuid, name, maintenanceEnabled }) => ({
+              value: uuid,
+              label: maintenanceEnabled
+                ? `${name} (${t('pages.server.databases.modal.createDatabase.form.hostInMaintenance', {})})`
+                : name,
+              disabled: maintenanceEnabled,
+            })),
           )}
           {...form.getInputProps('databaseHostUuid')}
         />

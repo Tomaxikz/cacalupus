@@ -9,7 +9,7 @@ import Button from '@/elements/Button.tsx';
 import Select from '@/elements/input/Select.tsx';
 import { Modal, ModalFooter } from '@/elements/modals/Modal.tsx';
 import Stack from '@/elements/Stack.tsx';
-import { databaseTypeLabelMapping } from '@/lib/enums.ts';
+import { groupDatabaseHostsByType } from '@/lib/database.ts';
 import { queryKeys } from '@/lib/queryKeys.ts';
 import { adminDatabaseHostSchema } from '@/lib/schemas/admin/databaseHosts.ts';
 import { adminNodeSchema } from '@/lib/schemas/admin/nodes.ts';
@@ -61,18 +61,7 @@ export default function NodeDatabaseHostCreateModal({
           label={t('common.form.databaseHost', {})}
           value={databaseHost?.uuid}
           onChange={(value) => setDatabaseHost(databaseHosts.items.find((dh) => dh.uuid === value) ?? null)}
-          data={Object.values(
-            databaseHosts.items.reduce((acc, { uuid, name, type }) => {
-              if (!acc[type]) {
-                acc[type] = { group: databaseTypeLabelMapping[type], items: [] };
-              }
-              acc[type].items.push({
-                value: uuid,
-                label: name,
-              });
-              return acc;
-            }, {} as GroupedDatabaseHosts),
-          )}
+          data={Object.values(groupDatabaseHostsByType(databaseHosts.items))}
           searchable
           searchValue={databaseHosts.search}
           onSearchChange={databaseHosts.setSearch}
