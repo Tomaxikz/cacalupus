@@ -54,25 +54,28 @@ mod post {
             commands: vec![data.command],
         };
 
-        server
-            .node
-            .fetch_cached(&state.database)
-            .await?
-            .api_client(&state.database)
-            .await?
-            .post_servers_server_commands(server.uuid, &request_body)
-            .await?;
+        tokio::spawn(async move {
+            server
+                .node
+                .fetch_cached(&state.database)
+                .await?
+                .api_client(&state.database)
+                .await?
+                .post_servers_server_commands(server.uuid, &request_body)
+                .await?;
 
-        activity_logger
-            .log(
-                "server:console.command",
-                serde_json::json!({
-                    "command": request_body.commands[0],
-                }),
-            )
-            .await;
+            activity_logger
+                .log(
+                    "server:console.command",
+                    serde_json::json!({
+                        "command": request_body.commands[0],
+                    }),
+                )
+                .await;
 
-        ApiResponse::new_serialized(Response {}).ok()
+            ApiResponse::new_serialized(Response {}).ok()
+        })
+        .await?
     }
 }
 

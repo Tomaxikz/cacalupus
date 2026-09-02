@@ -70,51 +70,54 @@ mod post {
             body.into_data_stream().map_err(std::io::Error::other),
         );
 
-        match database_instance
-            .database_agent_host
-            .api_client(&state.database)
-            .await?
-            .post_instances_instance_import(
-                database_instance.uuid,
-                db_agent_api::client::AsyncRequestReader::new(body_reader),
-                &db_agent_api::instances_instance_import::post::Query {
-                    wipe: Some(params.wipe),
-                    ..Default::default()
-                },
-            )
-            .await
-        {
-            Ok(_) => {}
-            Err(db_agent_api::client::ApiHttpError::Http(StatusCode::NOT_FOUND, err)) => {
-                return ApiResponse::new_serialized(ApiError::new_database_agent_value(err))
-                    .with_status(StatusCode::NOT_FOUND)
-                    .ok();
+        tokio::spawn(async move {
+            match database_instance
+                .database_agent_host
+                .api_client(&state.database)
+                .await?
+                .post_instances_instance_import(
+                    database_instance.uuid,
+                    db_agent_api::client::AsyncRequestReader::new(body_reader),
+                    &db_agent_api::instances_instance_import::post::Query {
+                        wipe: Some(params.wipe),
+                        ..Default::default()
+                    },
+                )
+                .await
+            {
+                Ok(_) => {}
+                Err(db_agent_api::client::ApiHttpError::Http(StatusCode::NOT_FOUND, err)) => {
+                    return ApiResponse::new_serialized(ApiError::new_database_agent_value(err))
+                        .with_status(StatusCode::NOT_FOUND)
+                        .ok();
+                }
+                Err(db_agent_api::client::ApiHttpError::Http(StatusCode::BAD_REQUEST, err)) => {
+                    return ApiResponse::new_serialized(ApiError::new_database_agent_value(err))
+                        .with_status(StatusCode::BAD_REQUEST)
+                        .ok();
+                }
+                Err(db_agent_api::client::ApiHttpError::Http(StatusCode::CONFLICT, err)) => {
+                    return ApiResponse::new_serialized(ApiError::new_database_agent_value(err))
+                        .with_status(StatusCode::CONFLICT)
+                        .ok();
+                }
+                Err(err) => return Err(err.into()),
             }
-            Err(db_agent_api::client::ApiHttpError::Http(StatusCode::BAD_REQUEST, err)) => {
-                return ApiResponse::new_serialized(ApiError::new_database_agent_value(err))
-                    .with_status(StatusCode::BAD_REQUEST)
-                    .ok();
-            }
-            Err(db_agent_api::client::ApiHttpError::Http(StatusCode::CONFLICT, err)) => {
-                return ApiResponse::new_serialized(ApiError::new_database_agent_value(err))
-                    .with_status(StatusCode::CONFLICT)
-                    .ok();
-            }
-            Err(err) => return Err(err.into()),
-        }
 
-        activity_logger
-            .log(
-                "server:database-instance.import",
-                serde_json::json!({
-                    "uuid": database_instance.uuid,
-                    "name": database_instance.name,
-                    "wipe": params.wipe,
-                }),
-            )
-            .await;
+            activity_logger
+                .log(
+                    "server:database-instance.import",
+                    serde_json::json!({
+                        "uuid": database_instance.uuid,
+                        "name": database_instance.name,
+                        "wipe": params.wipe,
+                    }),
+                )
+                .await;
 
-        ApiResponse::new_serialized(Response {}).ok()
+            ApiResponse::new_serialized(Response {}).ok()
+        })
+        .await?
     }
 }
 

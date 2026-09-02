@@ -81,63 +81,66 @@ mod post {
             .api_client(&state.database)
             .await?;
 
-        match client
-            .post_instances_instance_databases_database_explorer_tables_columns_rename(
-                database_instance.uuid,
-                database,
-                &db_agent_api::instances_instance_databases_database_explorer_tables_columns_rename::post::RequestBody {
-                    schema: data.schema,
-                    table: data.table.clone(),
-                    column: data.column.clone(),
-                    name: data.name.clone(),
-                },
-            )
-            .await
-        {
-            Ok(_) => {}
-            Err(db_agent_api::client::ApiHttpError::Http(StatusCode::BAD_REQUEST, err)) => {
-                return ApiResponse::new_serialized(ApiError::new_database_agent_value(err))
-                    .with_status(StatusCode::BAD_REQUEST)
-                    .ok();
-            }
-            Err(db_agent_api::client::ApiHttpError::Http(StatusCode::NOT_FOUND, err)) => {
-                return ApiResponse::new_serialized(ApiError::new_database_agent_value(err))
-                    .with_status(StatusCode::NOT_FOUND)
-                    .ok();
-            }
-            Err(db_agent_api::client::ApiHttpError::Http(StatusCode::REQUEST_TIMEOUT, err)) => {
-                return ApiResponse::new_serialized(ApiError::new_database_agent_value(err))
-                    .with_status(StatusCode::REQUEST_TIMEOUT)
-                    .ok();
-            }
-            Err(db_agent_api::client::ApiHttpError::Http(StatusCode::CONFLICT, err)) => {
-                return ApiResponse::new_serialized(ApiError::new_database_agent_value(err))
-                    .with_status(StatusCode::CONFLICT)
-                    .ok();
-            }
-            Err(db_agent_api::client::ApiHttpError::Http(StatusCode::EXPECTATION_FAILED, err)) => {
-                return ApiResponse::new_serialized(ApiError::new_database_agent_value(err))
-                    .with_status(StatusCode::EXPECTATION_FAILED)
-                    .ok();
-            }
-            Err(err) => return Err(err.into()),
-        };
+        tokio::spawn(async move {
+            match client
+                .post_instances_instance_databases_database_explorer_tables_columns_rename(
+                    database_instance.uuid,
+                    database,
+                    &db_agent_api::instances_instance_databases_database_explorer_tables_columns_rename::post::RequestBody {
+                        schema: data.schema,
+                        table: data.table.clone(),
+                        column: data.column.clone(),
+                        name: data.name.clone(),
+                    },
+                )
+                .await
+            {
+                Ok(_) => {}
+                Err(db_agent_api::client::ApiHttpError::Http(StatusCode::BAD_REQUEST, err)) => {
+                    return ApiResponse::new_serialized(ApiError::new_database_agent_value(err))
+                        .with_status(StatusCode::BAD_REQUEST)
+                        .ok();
+                }
+                Err(db_agent_api::client::ApiHttpError::Http(StatusCode::NOT_FOUND, err)) => {
+                    return ApiResponse::new_serialized(ApiError::new_database_agent_value(err))
+                        .with_status(StatusCode::NOT_FOUND)
+                        .ok();
+                }
+                Err(db_agent_api::client::ApiHttpError::Http(StatusCode::REQUEST_TIMEOUT, err)) => {
+                    return ApiResponse::new_serialized(ApiError::new_database_agent_value(err))
+                        .with_status(StatusCode::REQUEST_TIMEOUT)
+                        .ok();
+                }
+                Err(db_agent_api::client::ApiHttpError::Http(StatusCode::CONFLICT, err)) => {
+                    return ApiResponse::new_serialized(ApiError::new_database_agent_value(err))
+                        .with_status(StatusCode::CONFLICT)
+                        .ok();
+                }
+                Err(db_agent_api::client::ApiHttpError::Http(StatusCode::EXPECTATION_FAILED, err)) => {
+                    return ApiResponse::new_serialized(ApiError::new_database_agent_value(err))
+                        .with_status(StatusCode::EXPECTATION_FAILED)
+                        .ok();
+                }
+                Err(err) => return Err(err.into()),
+            };
 
-        activity_logger
-            .log(
-                "server:database-instance.database.column-rename",
-                serde_json::json!({
-                    "uuid": database_instance.uuid,
-                    "name": database_instance.name,
-                    "database_uuid": database,
-                    "table": data.table,
-                    "column": data.column,
-                    "to": data.name,
-                }),
-            )
-            .await;
+            activity_logger
+                .log(
+                    "server:database-instance.database.column-rename",
+                    serde_json::json!({
+                        "uuid": database_instance.uuid,
+                        "name": database_instance.name,
+                        "database_uuid": database,
+                        "table": data.table,
+                        "column": data.column,
+                        "to": data.name,
+                    }),
+                )
+                .await;
 
-        ApiResponse::new_serialized(Response {}).ok()
+            ApiResponse::new_serialized(Response {}).ok()
+        })
+        .await?
     }
 }
 

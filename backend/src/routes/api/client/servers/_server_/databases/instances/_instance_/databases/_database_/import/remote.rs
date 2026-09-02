@@ -88,60 +88,66 @@ mod post {
             Err(err) => return Err(err.into()),
         };
 
-        let import = match client
-            .post_instances_instance_import_remote(
-                database_instance.uuid,
-                &db_agent_api::instances_instance_import_remote::post::RequestBody {
-                    url: data.url,
-                    source_db: data.source_db.clone(),
-                    db: Some(db),
-                    wipe: data.wipe,
-                },
-            )
-            .await
-        {
-            Ok(import) => import,
-            Err(db_agent_api::client::ApiHttpError::Http(StatusCode::NOT_FOUND, err)) => {
-                return ApiResponse::new_serialized(ApiError::new_database_agent_value(err))
-                    .with_status(StatusCode::NOT_FOUND)
-                    .ok();
-            }
-            Err(db_agent_api::client::ApiHttpError::Http(StatusCode::BAD_REQUEST, err)) => {
-                return ApiResponse::new_serialized(ApiError::new_database_agent_value(err))
-                    .with_status(StatusCode::BAD_REQUEST)
-                    .ok();
-            }
-            Err(db_agent_api::client::ApiHttpError::Http(StatusCode::CONFLICT, err)) => {
-                return ApiResponse::new_serialized(ApiError::new_database_agent_value(err))
-                    .with_status(StatusCode::CONFLICT)
-                    .ok();
-            }
-            Err(db_agent_api::client::ApiHttpError::Http(StatusCode::EXPECTATION_FAILED, err)) => {
-                return ApiResponse::new_serialized(ApiError::new_database_agent_value(err))
-                    .with_status(StatusCode::EXPECTATION_FAILED)
-                    .ok();
-            }
-            Err(err) => return Err(err.into()),
-        };
+        tokio::spawn(async move {
+            let import = match client
+                .post_instances_instance_import_remote(
+                    database_instance.uuid,
+                    &db_agent_api::instances_instance_import_remote::post::RequestBody {
+                        url: data.url,
+                        source_db: data.source_db.clone(),
+                        db: Some(db),
+                        wipe: data.wipe,
+                    },
+                )
+                .await
+            {
+                Ok(import) => import,
+                Err(db_agent_api::client::ApiHttpError::Http(StatusCode::NOT_FOUND, err)) => {
+                    return ApiResponse::new_serialized(ApiError::new_database_agent_value(err))
+                        .with_status(StatusCode::NOT_FOUND)
+                        .ok();
+                }
+                Err(db_agent_api::client::ApiHttpError::Http(StatusCode::BAD_REQUEST, err)) => {
+                    return ApiResponse::new_serialized(ApiError::new_database_agent_value(err))
+                        .with_status(StatusCode::BAD_REQUEST)
+                        .ok();
+                }
+                Err(db_agent_api::client::ApiHttpError::Http(StatusCode::CONFLICT, err)) => {
+                    return ApiResponse::new_serialized(ApiError::new_database_agent_value(err))
+                        .with_status(StatusCode::CONFLICT)
+                        .ok();
+                }
+                Err(db_agent_api::client::ApiHttpError::Http(
+                    StatusCode::EXPECTATION_FAILED,
+                    err,
+                )) => {
+                    return ApiResponse::new_serialized(ApiError::new_database_agent_value(err))
+                        .with_status(StatusCode::EXPECTATION_FAILED)
+                        .ok();
+                }
+                Err(err) => return Err(err.into()),
+            };
 
-        activity_logger
-            .log(
-                "server:database-instance.database.import-remote",
-                serde_json::json!({
-                    "uuid": database_instance.uuid,
-                    "name": database_instance.name,
-                    "database_uuid": database,
-                    "operation_uuid": import.operation,
-                    "source_db": data.source_db,
-                    "wipe": data.wipe,
-                }),
-            )
-            .await;
+            activity_logger
+                .log(
+                    "server:database-instance.database.import-remote",
+                    serde_json::json!({
+                        "uuid": database_instance.uuid,
+                        "name": database_instance.name,
+                        "database_uuid": database,
+                        "operation_uuid": import.operation,
+                        "source_db": data.source_db,
+                        "wipe": data.wipe,
+                    }),
+                )
+                .await;
 
-        ApiResponse::new_serialized(Response {
-            operation: import.operation,
+            ApiResponse::new_serialized(Response {
+                operation: import.operation,
+            })
+            .ok()
         })
-        .ok()
+        .await?
     }
 }
 

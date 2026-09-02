@@ -64,40 +64,43 @@ mod post {
         let server_uuid = server.uuid;
         let node = server.node.fetch_cached(&state.database).await?;
 
-        match server.0.sync(&state.database).await {
-            Ok(_) => {}
-            Err(err) => {
-                tracing::error!(server = %server_uuid, "failed to post server sync: {:?}", err);
+        tokio::spawn(async move {
+            match server.0.sync(&state.database).await {
+                Ok(_) => {}
+                Err(err) => {
+                    tracing::error!(server = %server_uuid, "failed to post server sync: {:?}", err);
 
-                return ApiResponse::error("failed to send sync signal to server")
-                    .with_status(StatusCode::INTERNAL_SERVER_ERROR)
-                    .ok();
+                    return ApiResponse::error("failed to send sync signal to server")
+                        .with_status(StatusCode::INTERNAL_SERVER_ERROR)
+                        .ok();
+                }
             }
-        }
 
-        node.api_client(&state.database)
-            .await?
-            .post_servers_server_schedules_schedule_trigger(
-                server_uuid,
-                schedule.uuid,
-                &wings_api::servers_server_schedules_schedule_trigger::post::RequestBody {
-                    skip_condition: data.skip_condition,
-                },
-            )
-            .await?;
+            node.api_client(&state.database)
+                .await?
+                .post_servers_server_schedules_schedule_trigger(
+                    server_uuid,
+                    schedule.uuid,
+                    &wings_api::servers_server_schedules_schedule_trigger::post::RequestBody {
+                        skip_condition: data.skip_condition,
+                    },
+                )
+                .await?;
 
-        activity_logger
-            .log(
-                "server:schedule.trigger",
-                serde_json::json!({
-                    "uuid": schedule.uuid,
-                    "name": schedule.name,
-                    "skip_condition": data.skip_condition,
-                }),
-            )
-            .await;
+            activity_logger
+                .log(
+                    "server:schedule.trigger",
+                    serde_json::json!({
+                        "uuid": schedule.uuid,
+                        "name": schedule.name,
+                        "skip_condition": data.skip_condition,
+                    }),
+                )
+                .await;
 
-        ApiResponse::new_serialized(Response {}).ok()
+            ApiResponse::new_serialized(Response {}).ok()
+        })
+        .await?
     }
 }
 

@@ -123,27 +123,30 @@ mod post {
             Err(err) => return Err(err.into()),
         }
 
-        database_instance
-            .set_template_version(&state.database, version)
-            .await?;
+        tokio::spawn(async move {
+            database_instance
+                .set_template_version(&state.database, version)
+                .await?;
 
-        activity_logger
-            .log(
-                "server:database-instance.apply-update",
-                serde_json::json!({
-                    "uuid": database_instance.uuid,
-                    "name": database_instance.name,
-                    "template_uuid": template.uuid,
-                    "from_version": from_version,
-                    "to_version": version,
-                }),
-            )
-            .await;
+            activity_logger
+                .log(
+                    "server:database-instance.apply-update",
+                    serde_json::json!({
+                        "uuid": database_instance.uuid,
+                        "name": database_instance.name,
+                        "template_uuid": template.uuid,
+                        "from_version": from_version,
+                        "to_version": version,
+                    }),
+                )
+                .await;
 
-        ApiResponse::new_serialized(Response {
-            instance: database_instance.0.into_api_object(&state, ()).await?,
+            ApiResponse::new_serialized(Response {
+                instance: database_instance.0.into_api_object(&state, ()).await?,
+            })
+            .ok()
         })
-        .ok()
+        .await?
     }
 }
 

@@ -46,31 +46,34 @@ mod post {
             wings_api::ServerPowerAction::Restart => "control.restart",
         })?;
 
-        server
-            .node
-            .fetch_cached(&state.database)
-            .await?
-            .api_client(&state.database)
-            .await?
-            .post_servers_server_power(
-                server.uuid,
-                &wings_api::servers_server_power::post::RequestBody {
-                    action: data.action,
-                    wait_seconds: None,
-                },
-            )
-            .await?;
+        tokio::spawn(async move {
+            server
+                .node
+                .fetch_cached(&state.database)
+                .await?
+                .api_client(&state.database)
+                .await?
+                .post_servers_server_power(
+                    server.uuid,
+                    &wings_api::servers_server_power::post::RequestBody {
+                        action: data.action,
+                        wait_seconds: None,
+                    },
+                )
+                .await?;
 
-        activity_logger
-            .log(
-                "server:power.action",
-                serde_json::json!({
-                    "action": data.action
-                }),
-            )
-            .await;
+            activity_logger
+                .log(
+                    "server:power.action",
+                    serde_json::json!({
+                        "action": data.action
+                    }),
+                )
+                .await;
 
-        ApiResponse::new_serialized(Response {}).ok()
+            ApiResponse::new_serialized(Response {}).ok()
+        })
+        .await?
     }
 }
 

@@ -43,34 +43,37 @@ mod delete {
     ) -> ApiResponseResult {
         permissions.has_server_permission("files.update")?;
 
-        match server
-            .node
-            .fetch_cached(&state.database)
-            .await?
-            .api_client(&state.database)
-            .await?
-            .delete_servers_server_files_operations_operation(server.uuid, operation)
-            .await
-        {
-            Ok(_) => {}
-            Err(wings_api::client::ApiHttpError::Http(StatusCode::NOT_FOUND, err)) => {
-                return ApiResponse::new_serialized(ApiError::new_wings_value(err))
-                    .with_status(StatusCode::NOT_FOUND)
-                    .ok();
-            }
-            Err(err) => return Err(err.into()),
-        };
+        tokio::spawn(async move {
+            match server
+                .node
+                .fetch_cached(&state.database)
+                .await?
+                .api_client(&state.database)
+                .await?
+                .delete_servers_server_files_operations_operation(server.uuid, operation)
+                .await
+            {
+                Ok(_) => {}
+                Err(wings_api::client::ApiHttpError::Http(StatusCode::NOT_FOUND, err)) => {
+                    return ApiResponse::new_serialized(ApiError::new_wings_value(err))
+                        .with_status(StatusCode::NOT_FOUND)
+                        .ok();
+                }
+                Err(err) => return Err(err.into()),
+            };
 
-        activity_logger
-            .log(
-                "server:file.operation.cancel",
-                serde_json::json!({
-                    "identifier": operation,
-                }),
-            )
-            .await;
+            activity_logger
+                .log(
+                    "server:file.operation.cancel",
+                    serde_json::json!({
+                        "identifier": operation,
+                    }),
+                )
+                .await;
 
-        ApiResponse::new_serialized(Response {}).ok()
+            ApiResponse::new_serialized(Response {}).ok()
+        })
+        .await?
     }
 }
 

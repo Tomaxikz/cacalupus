@@ -108,31 +108,34 @@ mod put {
         let identifier_random = rand::distr::Alphanumeric.sample_string(&mut rand::rng(), 8);
         let avatar_path = format!("avatars/{}/{}.webp", user.uuid, identifier_random);
 
-        tokio::try_join!(
-            state
-                .storage
-                .store(&avatar_path, data.as_slice(), "image/webp"),
-            state.storage.remove(user.avatar.as_deref()),
-        )?;
+        tokio::spawn(async move {
+            tokio::try_join!(
+                state
+                    .storage
+                    .store(&avatar_path, data.as_slice(), "image/webp"),
+                state.storage.remove(user.avatar.as_deref()),
+            )?;
 
-        sqlx::query!(
-            "UPDATE users
-            SET avatar = $2
-            WHERE users.uuid = $1",
-            user.uuid,
-            avatar_path
-        )
-        .execute(state.database.write())
-        .await?;
+            sqlx::query!(
+                "UPDATE users
+                SET avatar = $2
+                WHERE users.uuid = $1",
+                user.uuid,
+                avatar_path
+            )
+            .execute(state.database.write())
+            .await?;
 
-        activity_logger
-            .log("account:update-avatar", serde_json::json!({}))
-            .await;
+            activity_logger
+                .log("account:update-avatar", serde_json::json!({}))
+                .await;
 
-        ApiResponse::new_serialized(Response {
-            avatar: state.storage.retrieve_urls().await?.get_url(&avatar_path),
+            ApiResponse::new_serialized(Response {
+                avatar: state.storage.retrieve_urls().await?.get_url(&avatar_path),
+            })
+            .ok()
         })
-        .ok()
+        .await?
     }
 }
 
@@ -164,31 +167,34 @@ mod delete {
     ) -> ApiResponseResult {
         permissions.has_user_permission("account.avatar")?;
 
-        let avatar = match &user.avatar {
-            Some(avatar) => avatar,
-            None => {
-                return ApiResponse::error("no avatar to delete")
-                    .with_status(StatusCode::BAD_REQUEST)
-                    .ok();
-            }
-        };
+        tokio::spawn(async move {
+            let avatar = match &user.avatar {
+                Some(avatar) => avatar,
+                None => {
+                    return ApiResponse::error("no avatar to delete")
+                        .with_status(StatusCode::BAD_REQUEST)
+                        .ok();
+                }
+            };
 
-        state.storage.remove(Some(avatar)).await?;
+            state.storage.remove(Some(avatar)).await?;
 
-        sqlx::query!(
-            "UPDATE users
-            SET avatar = NULL
-            WHERE users.uuid = $1",
-            user.uuid
-        )
-        .execute(state.database.write())
-        .await?;
+            sqlx::query!(
+                "UPDATE users
+                SET avatar = NULL
+                WHERE users.uuid = $1",
+                user.uuid
+            )
+            .execute(state.database.write())
+            .await?;
 
-        activity_logger
-            .log("account:delete-avatar", serde_json::json!({}))
-            .await;
+            activity_logger
+                .log("account:delete-avatar", serde_json::json!({}))
+                .await;
 
-        ApiResponse::new_serialized(Response {}).ok()
+            ApiResponse::new_serialized(Response {}).ok()
+        })
+        .await?
     }
 }
 

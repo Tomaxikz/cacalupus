@@ -94,41 +94,44 @@ mod post {
         let backup_name = backup.name.clone();
         let path = data.path.clone();
 
-        let response = match backup
-            .0
-            .export(
-                &state,
-                &server,
-                data.path,
-                data.archive_format,
-                data.foreground,
-            )
-            .await?
-        {
-            wings_api::backups_backup_export::post::Response::Ok(entry) => {
-                ApiResponse::new_serialized(Response { entry }).ok()
-            }
-            wings_api::backups_backup_export::post::Response::Accepted(data) => {
-                ApiResponse::new_serialized(ResponseAccepted {
-                    identifier: data.identifier,
-                })
-                .with_status(StatusCode::ACCEPTED)
-                .ok()
-            }
-        };
+        tokio::spawn(async move {
+            let response = match backup
+                .0
+                .export(
+                    &state,
+                    &server,
+                    data.path,
+                    data.archive_format,
+                    data.foreground,
+                )
+                .await?
+            {
+                wings_api::backups_backup_export::post::Response::Ok(entry) => {
+                    ApiResponse::new_serialized(Response { entry }).ok()
+                }
+                wings_api::backups_backup_export::post::Response::Accepted(data) => {
+                    ApiResponse::new_serialized(ResponseAccepted {
+                        identifier: data.identifier,
+                    })
+                    .with_status(StatusCode::ACCEPTED)
+                    .ok()
+                }
+            };
 
-        activity_logger
-            .log(
-                "server:backup.export",
-                serde_json::json!({
-                    "uuid": backup_uuid,
-                    "name": backup_name,
-                    "path": path,
-                }),
-            )
-            .await;
+            activity_logger
+                .log(
+                    "server:backup.export",
+                    serde_json::json!({
+                        "uuid": backup_uuid,
+                        "name": backup_name,
+                        "path": path,
+                    }),
+                )
+                .await;
 
-        response
+            response
+        })
+        .await?
     }
 }
 

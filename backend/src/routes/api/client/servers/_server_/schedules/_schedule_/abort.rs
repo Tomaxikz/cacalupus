@@ -53,26 +53,29 @@ mod post {
             )
             .await?;
 
-        server
-            .node
-            .fetch_cached(&state.database)
-            .await?
-            .api_client(&state.database)
-            .await?
-            .post_servers_server_schedules_schedule_abort(server.uuid, schedule.uuid)
-            .await?;
+        tokio::spawn(async move {
+            server
+                .node
+                .fetch_cached(&state.database)
+                .await?
+                .api_client(&state.database)
+                .await?
+                .post_servers_server_schedules_schedule_abort(server.uuid, schedule.uuid)
+                .await?;
 
-        activity_logger
-            .log(
-                "server:schedule.abort",
-                serde_json::json!({
-                    "uuid": schedule.uuid,
-                    "name": schedule.name,
-                }),
-            )
-            .await;
+            activity_logger
+                .log(
+                    "server:schedule.abort",
+                    serde_json::json!({
+                        "uuid": schedule.uuid,
+                        "name": schedule.name,
+                    }),
+                )
+                .await;
 
-        ApiResponse::new_serialized(Response {}).ok()
+            ApiResponse::new_serialized(Response {}).ok()
+        })
+        .await?
     }
 }
 

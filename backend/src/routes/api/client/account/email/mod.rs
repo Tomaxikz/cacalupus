@@ -71,34 +71,38 @@ mod put {
                 .ok();
         }
 
-        if user.email != data.email {
-            let settings = state.settings.get().await?;
-            let require_verification = user.require_email_verification(&settings);
-            drop(settings);
+        tokio::spawn(async move {
+            if user.email != data.email {
+                let settings = state.settings.get().await?;
+                let require_verification = user.require_email_verification(&settings);
+                drop(settings);
 
-            if require_verification {
-                if User::by_email(&state.database, &data.email)
-                    .await?
-                    .is_some()
-                {
-                    return ApiResponse::error("email already in use")
-                        .with_status(StatusCode::CONFLICT)
-                        .ok();
-                }
+                if require_verification {
+                    if User::by_email(&state.database, &data.email)
+                        .await?
+                        .is_some()
+                    {
+                        return ApiResponse::error("email already in use")
+                            .with_status(StatusCode::CONFLICT)
+                            .ok();
+                    }
 
-                if !state
-                    .mail
-                    .template_deliverable(&state, "email_verification")
-                    .await?
-                {
-                    return ApiResponse::error("email verification is not available")
-                        .with_status(StatusCode::BAD_REQUEST)
-                        .ok();
-                }
+                    if !state
+                        .mail
+                        .template_deliverable(&state, "email_verification")
+                        .await?
+                    {
+                        return ApiResponse::error("email verification is not available")
+                            .with_status(StatusCode::BAD_REQUEST)
+                            .ok();
+                    }
 
-                let token =
-                    match UserEmailVerification::create(&state.database, user.uuid, &data.email)
-                        .await
+                    let token = match UserEmailVerification::create(
+                        &state.database,
+                        user.uuid,
+                        &data.email,
+                    )
+                    .await
                     {
                         Ok(token) => token,
                         Err(err) => {
@@ -116,74 +120,76 @@ mod put {
                         }
                     };
 
-                if let Err(err) =
-                    UserEmailVerification::send(&state, &user, &data.email, &token).await
-                {
-                    tracing::error!(
-                        user = %user.uuid,
-                        "failed to send email verification: {:#?}",
-                        err
-                    );
+                    if let Err(err) =
+                        UserEmailVerification::send(&state, &user, &data.email, &token).await
+                    {
+                        tracing::error!(
+                            user = %user.uuid,
+                            "failed to send email verification: {:#?}",
+                            err
+                        );
 
-                    return ApiResponse::error("failed to send the verification email")
-                        .with_status(StatusCode::INTERNAL_SERVER_ERROR)
-                        .ok();
+                        return ApiResponse::error("failed to send the verification email")
+                            .with_status(StatusCode::INTERNAL_SERVER_ERROR)
+                            .ok();
+                    }
+
+                    activity_logger
+                        .log(
+                            "account:email-change-requested",
+                            serde_json::json!({
+                                "new": data.email,
+                            }),
+                        )
+                        .await;
+
+                    return ApiResponse::new_serialized(Response { pending: true }).ok();
                 }
+
+                let old_email = user.email.clone();
+
+                match user
+                    .update(
+                        &state,
+                        shared::models::user::UpdateUserOptions {
+                            email: Some(data.email.clone()),
+                            ..Default::default()
+                        },
+                    )
+                    .await
+                {
+                    Ok(_) => {}
+                    Err(err) if err.is_unique_violation() => {
+                        return ApiResponse::error("email already in use")
+                            .with_status(StatusCode::CONFLICT)
+                            .ok();
+                    }
+                    Err(err) => {
+                        tracing::error!("failed to update user email: {:?}", err);
+
+                        return ApiResponse::error("failed to update user email")
+                            .with_status(StatusCode::INTERNAL_SERVER_ERROR)
+                            .ok();
+                    }
+                }
+
+                UserEmailVerification::delete_by_user_uuid(&state.database, user.uuid).await?;
+                UserPasswordReset::delete_by_user_uuid(&state.database, user.uuid).await?;
 
                 activity_logger
                     .log(
-                        "account:email-change-requested",
+                        "account:email-changed",
                         serde_json::json!({
-                            "new": data.email,
+                            "old": old_email,
+                            "new": user.email,
                         }),
                     )
                     .await;
-
-                return ApiResponse::new_serialized(Response { pending: true }).ok();
             }
 
-            let old_email = user.email.clone();
-
-            match user
-                .update(
-                    &state,
-                    shared::models::user::UpdateUserOptions {
-                        email: Some(data.email.clone()),
-                        ..Default::default()
-                    },
-                )
-                .await
-            {
-                Ok(_) => {}
-                Err(err) if err.is_unique_violation() => {
-                    return ApiResponse::error("email already in use")
-                        .with_status(StatusCode::CONFLICT)
-                        .ok();
-                }
-                Err(err) => {
-                    tracing::error!("failed to update user email: {:?}", err);
-
-                    return ApiResponse::error("failed to update user email")
-                        .with_status(StatusCode::INTERNAL_SERVER_ERROR)
-                        .ok();
-                }
-            }
-
-            UserEmailVerification::delete_by_user_uuid(&state.database, user.uuid).await?;
-            UserPasswordReset::delete_by_user_uuid(&state.database, user.uuid).await?;
-
-            activity_logger
-                .log(
-                    "account:email-changed",
-                    serde_json::json!({
-                        "old": old_email,
-                        "new": user.email,
-                    }),
-                )
-                .await;
-        }
-
-        ApiResponse::new_serialized(Response { pending: false }).ok()
+            ApiResponse::new_serialized(Response { pending: false }).ok()
+        })
+        .await?
     }
 }
 

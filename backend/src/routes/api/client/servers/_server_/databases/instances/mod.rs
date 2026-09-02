@@ -178,149 +178,154 @@ mod post {
             },
         };
 
-        let deployment_lock = state
-            .cache
-            .lock("database_agent_hosts::deployment", Some(30), Some(5))
+        tokio::spawn(async move {
+            let deployment_lock = state
+                .cache
+                .lock("database_agent_hosts::deployment", Some(30), Some(5))
+                .await?;
+
+            let used = shared::models::server_database::ServerDatabase::count_by_server_uuid(
+                &state.database,
+                server.uuid,
+            )
+            .await?
+                + ServerDatabaseInstance::count_by_server_uuid(&state.database, server.uuid)
+                    .await?;
+            if used >= server.database_limit as i64 {
+                return ApiResponse::error("maximum number of databases reached")
+                    .with_status(StatusCode::EXPECTATION_FAILED)
+                    .ok();
+            }
+
+            let node = server.node.fetch_cached(&state.database).await?;
+            let hosts = DatabaseAgentHost::by_node_most_eligible(
+                &state.database,
+                &node,
+                template.r#type,
+                template.memory,
+                template.disk,
+            )
             .await?;
 
-        let used = shared::models::server_database::ServerDatabase::count_by_server_uuid(
-            &state.database,
-            server.uuid,
-        )
-        .await?
-            + ServerDatabaseInstance::count_by_server_uuid(&state.database, server.uuid).await?;
-        if used >= server.database_limit as i64 {
-            return ApiResponse::error("maximum number of databases reached")
-                .with_status(StatusCode::EXPECTATION_FAILED)
-                .ok();
-        }
+            let mut created = None;
+            for host in hosts {
+                let client = match host.api_client(&state.database).await {
+                    Ok(client) => client,
+                    Err(err) => {
+                        tracing::warn!(
+                            host = %host.uuid,
+                            "failed to construct database agent client: {:?}",
+                            err
+                        );
+                        continue;
+                    }
+                };
 
-        let node = server.node.fetch_cached(&state.database).await?;
-        let hosts = DatabaseAgentHost::by_node_most_eligible(
-            &state.database,
-            &node,
-            template.r#type,
-            template.memory,
-            template.disk,
-        )
-        .await?;
+                match client
+                    .post_instances(&db_agent_api::instances::post::RequestBody {
+                        database_type: template.r#type,
+                        suspended: false,
+                        memory: template.memory,
+                        swap: template.swap,
+                        disk: template.disk,
+                        io_weight: template.io_weight.map(i64::from),
+                        cpu: template.cpu as i64,
+                        image: image.clone(),
+                        image_uid: template.image_uid as u32,
+                        image_gid: template.image_gid as u32,
+                        volumes: template.volumes.clone(),
+                        socket_path: template.socket_path.clone(),
+                        timezone: server.timezone.clone(),
+                        env: template.env.clone(),
+                        cmd: template.cmd.clone(),
+                    })
+                    .await
+                {
+                    Ok(response) => {
+                        created = Some((host, client, response.instance));
+                        break;
+                    }
+                    Err(err) => {
+                        tracing::warn!(
+                            host = %host.uuid,
+                            "failed to create database on database agent host: {:?}",
+                            err
+                        );
+                    }
+                }
+            }
 
-        let mut created = None;
-        for host in hosts {
-            let client = match host.api_client(&state.database).await {
-                Ok(client) => client,
+            let Some((database_agent_host, client, agent_instance)) = created else {
+                return ApiResponse::error("no eligible database agent host found")
+                    .with_status(StatusCode::EXPECTATION_FAILED)
+                    .ok();
+            };
+
+            let options = CreateServerDatabaseInstanceOptions {
+                uuid: agent_instance.uuid,
+                server: &server,
+                database_agent_host: &database_agent_host,
+                database_agent_template: &template,
+                name: data.name,
+                image: (template.docker_images.values().next() != Some(&image))
+                    .then(|| image.clone()),
+            };
+
+            let mut transaction = state.database.write().begin().await?;
+
+            let database_instance = match ServerDatabaseInstance::create_with_transaction(
+                &state,
+                options,
+                &mut transaction,
+            )
+            .await
+            {
+                Ok(database_instance) => {
+                    transaction.commit().await?;
+                    database_instance
+                }
                 Err(err) => {
-                    tracing::warn!(
-                        host = %host.uuid,
-                        "failed to construct database agent client: {:?}",
-                        err
-                    );
-                    continue;
+                    transaction.rollback().await.ok();
+
+                    if let Err(err) = client.delete_instances_instance(agent_instance.uuid).await {
+                        tracing::error!(
+                            host = %database_agent_host.uuid,
+                            instance = %agent_instance.uuid,
+                            "failed to clean up agent database after panel insert failure: {:?}",
+                            err
+                        );
+                    }
+
+                    if err.is_unique_violation() {
+                        return ApiResponse::error("database instance with name already exists")
+                            .with_status(StatusCode::CONFLICT)
+                            .ok();
+                    }
+
+                    return ApiResponse::from(err).ok();
                 }
             };
 
-            match client
-                .post_instances(&db_agent_api::instances::post::RequestBody {
-                    database_type: template.r#type,
-                    suspended: false,
-                    memory: template.memory,
-                    swap: template.swap,
-                    disk: template.disk,
-                    io_weight: template.io_weight.map(i64::from),
-                    cpu: template.cpu as i64,
-                    image: image.clone(),
-                    image_uid: template.image_uid as u32,
-                    image_gid: template.image_gid as u32,
-                    volumes: template.volumes.clone(),
-                    socket_path: template.socket_path.clone(),
-                    timezone: server.timezone.clone(),
-                    env: template.env.clone(),
-                    cmd: template.cmd.clone(),
-                })
-                .await
-            {
-                Ok(response) => {
-                    created = Some((host, client, response.instance));
-                    break;
-                }
-                Err(err) => {
-                    tracing::warn!(
-                        host = %host.uuid,
-                        "failed to create database on database agent host: {:?}",
-                        err
-                    );
-                }
-            }
-        }
+            drop(deployment_lock);
 
-        let Some((database_agent_host, client, agent_instance)) = created else {
-            return ApiResponse::error("no eligible database agent host found")
-                .with_status(StatusCode::EXPECTATION_FAILED)
-                .ok();
-        };
+            activity_logger
+                .log(
+                    "server:database-instance.create",
+                    serde_json::json!({
+                        "uuid": database_instance.uuid,
+                        "template_uuid": template.uuid,
+                        "name": database_instance.name,
+                        "type": database_instance.r#type,
+                    }),
+                )
+                .await;
 
-        let options = CreateServerDatabaseInstanceOptions {
-            uuid: agent_instance.uuid,
-            server: &server,
-            database_agent_host: &database_agent_host,
-            database_agent_template: &template,
-            name: data.name,
-            image: (template.docker_images.values().next() != Some(&image)).then(|| image.clone()),
-        };
-
-        let mut transaction = state.database.write().begin().await?;
-
-        let database_instance = match ServerDatabaseInstance::create_with_transaction(
-            &state,
-            options,
-            &mut transaction,
-        )
-        .await
-        {
-            Ok(database_instance) => {
-                transaction.commit().await?;
-                database_instance
-            }
-            Err(err) => {
-                transaction.rollback().await.ok();
-
-                if let Err(err) = client.delete_instances_instance(agent_instance.uuid).await {
-                    tracing::error!(
-                        host = %database_agent_host.uuid,
-                        instance = %agent_instance.uuid,
-                        "failed to clean up agent database after panel insert failure: {:?}",
-                        err
-                    );
-                }
-
-                if err.is_unique_violation() {
-                    return ApiResponse::error("database instance with name already exists")
-                        .with_status(StatusCode::CONFLICT)
-                        .ok();
-                }
-
-                return ApiResponse::from(err).ok();
-            }
-        };
-
-        drop(deployment_lock);
-
-        activity_logger
-            .log(
-                "server:database-instance.create",
-                serde_json::json!({
-                    "uuid": database_instance.uuid,
-                    "template_uuid": template.uuid,
-                    "name": database_instance.name,
-                    "type": database_instance.r#type,
-                }),
-            )
-            .await;
-
-        ApiResponse::new_serialized(Response {
-            instance: database_instance.into_api_object(&state, ()).await?,
+            ApiResponse::new_serialized(Response {
+                instance: database_instance.into_api_object(&state, ()).await?,
+            })
+            .ok()
         })
-        .ok()
+        .await?
     }
 }
 

@@ -68,45 +68,48 @@ mod put {
             ..Default::default()
         };
 
-        let data = match server
-            .0
-            .node
-            .fetch_cached(&state.database)
-            .await?
-            .api_client(&state.database)
-            .await?
-            .ignoring(server.0.subuser_ignored_files.unwrap_or_default())
-            .put_servers_server_files_rename_with(server.0.uuid, &request_body, &extra)
-            .await
-        {
-            Ok(data) => data,
-            Err(wings_api::client::ApiHttpError::Http(StatusCode::NOT_FOUND, err)) => {
-                return ApiResponse::new_serialized(ApiError::new_wings_value(err))
-                    .with_status(StatusCode::NOT_FOUND)
-                    .ok();
-            }
-            Err(wings_api::client::ApiHttpError::Http(StatusCode::EXPECTATION_FAILED, err)) => {
-                return ApiResponse::new_serialized(ApiError::new_wings_value(err))
-                    .with_status(StatusCode::EXPECTATION_FAILED)
-                    .ok();
-            }
-            Err(err) => return Err(err.into()),
-        };
+        tokio::spawn(async move {
+            let data = match server
+                .0
+                .node
+                .fetch_cached(&state.database)
+                .await?
+                .api_client(&state.database)
+                .await?
+                .ignoring(server.0.subuser_ignored_files.unwrap_or_default())
+                .put_servers_server_files_rename_with(server.0.uuid, &request_body, &extra)
+                .await
+            {
+                Ok(data) => data,
+                Err(wings_api::client::ApiHttpError::Http(StatusCode::NOT_FOUND, err)) => {
+                    return ApiResponse::new_serialized(ApiError::new_wings_value(err))
+                        .with_status(StatusCode::NOT_FOUND)
+                        .ok();
+                }
+                Err(wings_api::client::ApiHttpError::Http(StatusCode::EXPECTATION_FAILED, err)) => {
+                    return ApiResponse::new_serialized(ApiError::new_wings_value(err))
+                        .with_status(StatusCode::EXPECTATION_FAILED)
+                        .ok();
+                }
+                Err(err) => return Err(err.into()),
+            };
 
-        activity_logger
-            .log(
-                "server:file.rename",
-                serde_json::json!({
-                    "directory": request_body.root,
-                    "files": request_body.files,
-                }),
-            )
-            .await;
+            activity_logger
+                .log(
+                    "server:file.rename",
+                    serde_json::json!({
+                        "directory": request_body.root,
+                        "files": request_body.files,
+                    }),
+                )
+                .await;
 
-        ApiResponse::new_serialized(Response {
-            renamed: data.renamed,
+            ApiResponse::new_serialized(Response {
+                renamed: data.renamed,
+            })
+            .ok()
         })
-        .ok()
+        .await?
     }
 }
 

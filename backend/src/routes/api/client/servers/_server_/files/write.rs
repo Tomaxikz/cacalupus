@@ -68,49 +68,52 @@ mod post {
             .map_err(std::io::Error::other),
         );
 
-        let revision_id = match server
-            .node
-            .fetch_cached(&state.database)
-            .await?
-            .api_client(&state.database)
-            .await?
-            .post_servers_server_files_write(
-                server.uuid,
-                wings_api::client::AsyncRequestReader::new(body_reader),
-                &wings_api::servers_server_files_write::post::Query {
-                    file: Some(params.file.clone()),
-                    user: Some(user.uuid),
-                    ignored: server.0.subuser_ignored_files,
-                    ..Default::default()
-                },
-            )
-            .await
-        {
-            Ok(data) => data.revision_id,
-            Err(wings_api::client::ApiHttpError::Http(StatusCode::NOT_FOUND, err)) => {
-                return ApiResponse::new_serialized(ApiError::new_wings_value(err))
-                    .with_status(StatusCode::NOT_FOUND)
-                    .ok();
-            }
-            Err(wings_api::client::ApiHttpError::Http(StatusCode::EXPECTATION_FAILED, err)) => {
-                return ApiResponse::new_serialized(ApiError::new_wings_value(err))
-                    .with_status(StatusCode::EXPECTATION_FAILED)
-                    .ok();
-            }
-            Err(err) => return Err(err.into()),
-        };
+        tokio::spawn(async move {
+            let revision_id = match server
+                .node
+                .fetch_cached(&state.database)
+                .await?
+                .api_client(&state.database)
+                .await?
+                .post_servers_server_files_write(
+                    server.uuid,
+                    wings_api::client::AsyncRequestReader::new(body_reader),
+                    &wings_api::servers_server_files_write::post::Query {
+                        file: Some(params.file.clone()),
+                        user: Some(user.uuid),
+                        ignored: server.0.subuser_ignored_files,
+                        ..Default::default()
+                    },
+                )
+                .await
+            {
+                Ok(data) => data.revision_id,
+                Err(wings_api::client::ApiHttpError::Http(StatusCode::NOT_FOUND, err)) => {
+                    return ApiResponse::new_serialized(ApiError::new_wings_value(err))
+                        .with_status(StatusCode::NOT_FOUND)
+                        .ok();
+                }
+                Err(wings_api::client::ApiHttpError::Http(StatusCode::EXPECTATION_FAILED, err)) => {
+                    return ApiResponse::new_serialized(ApiError::new_wings_value(err))
+                        .with_status(StatusCode::EXPECTATION_FAILED)
+                        .ok();
+                }
+                Err(err) => return Err(err.into()),
+            };
 
-        activity_logger
-            .log(
-                "server:file.write",
-                serde_json::json!({
-                    "file": params.file,
-                    "revision_id": revision_id,
-                }),
-            )
-            .await;
+            activity_logger
+                .log(
+                    "server:file.write",
+                    serde_json::json!({
+                        "file": params.file,
+                        "revision_id": revision_id,
+                    }),
+                )
+                .await;
 
-        ApiResponse::new_serialized(Response {}).ok()
+            ApiResponse::new_serialized(Response {}).ok()
+        })
+        .await?
     }
 }
 

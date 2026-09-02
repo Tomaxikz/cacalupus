@@ -91,63 +91,66 @@ mod post {
                 .ok();
         }
 
-        let results = match server
-            .node
-            .fetch_cached(&state.database)
-            .await?
-            .api_client(&state.database)
-            .await?
-            .ignoring(server.0.subuser_ignored_files.unwrap_or_default())
-            .post_servers_server_files_sqlite_query(
-                server.0.uuid,
-                &wings_api::servers_server_files_sqlite_query::post::RequestBody {
-                    file: data.file.clone(),
-                    query: data.query.clone().into(),
-                    read_only: data.read_only,
-                    rows: data.rows,
-                },
-            )
-            .await
-        {
-            Ok(response) => response.results,
-            Err(wings_api::client::ApiHttpError::Http(StatusCode::BAD_REQUEST, err)) => {
-                return ApiResponse::new_serialized(ApiError::new_wings_value(err))
-                    .with_status(StatusCode::BAD_REQUEST)
-                    .ok();
-            }
-            Err(wings_api::client::ApiHttpError::Http(StatusCode::NOT_FOUND, err)) => {
-                return ApiResponse::new_serialized(ApiError::new_wings_value(err))
-                    .with_status(StatusCode::NOT_FOUND)
-                    .ok();
-            }
-            Err(wings_api::client::ApiHttpError::Http(StatusCode::REQUEST_TIMEOUT, err)) => {
-                return ApiResponse::new_serialized(ApiError::new_wings_value(err))
-                    .with_status(StatusCode::REQUEST_TIMEOUT)
-                    .ok();
-            }
-            Err(wings_api::client::ApiHttpError::Http(StatusCode::EXPECTATION_FAILED, err)) => {
-                return ApiResponse::new_serialized(ApiError::new_wings_value(err))
-                    .with_status(StatusCode::EXPECTATION_FAILED)
-                    .ok();
-            }
-            Err(err) => return Err(err.into()),
-        };
+        tokio::spawn(async move {
+            let results = match server
+                .node
+                .fetch_cached(&state.database)
+                .await?
+                .api_client(&state.database)
+                .await?
+                .ignoring(server.0.subuser_ignored_files.unwrap_or_default())
+                .post_servers_server_files_sqlite_query(
+                    server.0.uuid,
+                    &wings_api::servers_server_files_sqlite_query::post::RequestBody {
+                        file: data.file.clone(),
+                        query: data.query.clone().into(),
+                        read_only: data.read_only,
+                        rows: data.rows,
+                    },
+                )
+                .await
+            {
+                Ok(response) => response.results,
+                Err(wings_api::client::ApiHttpError::Http(StatusCode::BAD_REQUEST, err)) => {
+                    return ApiResponse::new_serialized(ApiError::new_wings_value(err))
+                        .with_status(StatusCode::BAD_REQUEST)
+                        .ok();
+                }
+                Err(wings_api::client::ApiHttpError::Http(StatusCode::NOT_FOUND, err)) => {
+                    return ApiResponse::new_serialized(ApiError::new_wings_value(err))
+                        .with_status(StatusCode::NOT_FOUND)
+                        .ok();
+                }
+                Err(wings_api::client::ApiHttpError::Http(StatusCode::REQUEST_TIMEOUT, err)) => {
+                    return ApiResponse::new_serialized(ApiError::new_wings_value(err))
+                        .with_status(StatusCode::REQUEST_TIMEOUT)
+                        .ok();
+                }
+                Err(wings_api::client::ApiHttpError::Http(StatusCode::EXPECTATION_FAILED, err)) => {
+                    return ApiResponse::new_serialized(ApiError::new_wings_value(err))
+                        .with_status(StatusCode::EXPECTATION_FAILED)
+                        .ok();
+                }
+                Err(err) => return Err(err.into()),
+            };
 
-        activity_logger
-            .log(
-                "server:file.sqlite-query",
-                serde_json::json!({
-                    "file": data.file,
-                    "read_only": data.read_only,
-                    "query": data.query.chars().take(QUERY_ACTIVITY_LENGTH).collect::<String>(),
-                }),
-            )
-            .await;
+            activity_logger
+                .log(
+                    "server:file.sqlite-query",
+                    serde_json::json!({
+                        "file": data.file,
+                        "read_only": data.read_only,
+                        "query": data.query.chars().take(QUERY_ACTIVITY_LENGTH).collect::<String>(),
+                    }),
+                )
+                .await;
 
-        ApiResponse::new_serialized(Response {
-            results: results.into_iter().map(Into::into).collect(),
+            ApiResponse::new_serialized(Response {
+                results: results.into_iter().map(Into::into).collect(),
+            })
+            .ok()
         })
-        .ok()
+        .await?
     }
 }
 

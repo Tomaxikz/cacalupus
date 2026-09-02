@@ -93,52 +93,55 @@ mod post {
             body.into_data_stream().map_err(std::io::Error::other),
         );
 
-        match client
-            .post_instances_instance_import(
-                database_instance.uuid,
-                db_agent_api::client::AsyncRequestReader::new(body_reader),
-                &db_agent_api::instances_instance_import::post::Query {
-                    source_db: params.source_db.clone(),
-                    db: Some(db),
-                    wipe: Some(params.wipe),
-                    ..Default::default()
-                },
-            )
-            .await
-        {
-            Ok(_) => {}
-            Err(db_agent_api::client::ApiHttpError::Http(StatusCode::NOT_FOUND, err)) => {
-                return ApiResponse::new_serialized(ApiError::new_database_agent_value(err))
-                    .with_status(StatusCode::NOT_FOUND)
-                    .ok();
+        tokio::spawn(async move {
+            match client
+                .post_instances_instance_import(
+                    database_instance.uuid,
+                    db_agent_api::client::AsyncRequestReader::new(body_reader),
+                    &db_agent_api::instances_instance_import::post::Query {
+                        source_db: params.source_db.clone(),
+                        db: Some(db),
+                        wipe: Some(params.wipe),
+                        ..Default::default()
+                    },
+                )
+                .await
+            {
+                Ok(_) => {}
+                Err(db_agent_api::client::ApiHttpError::Http(StatusCode::NOT_FOUND, err)) => {
+                    return ApiResponse::new_serialized(ApiError::new_database_agent_value(err))
+                        .with_status(StatusCode::NOT_FOUND)
+                        .ok();
+                }
+                Err(db_agent_api::client::ApiHttpError::Http(StatusCode::BAD_REQUEST, err)) => {
+                    return ApiResponse::new_serialized(ApiError::new_database_agent_value(err))
+                        .with_status(StatusCode::BAD_REQUEST)
+                        .ok();
+                }
+                Err(db_agent_api::client::ApiHttpError::Http(StatusCode::CONFLICT, err)) => {
+                    return ApiResponse::new_serialized(ApiError::new_database_agent_value(err))
+                        .with_status(StatusCode::CONFLICT)
+                        .ok();
+                }
+                Err(err) => return Err(err.into()),
             }
-            Err(db_agent_api::client::ApiHttpError::Http(StatusCode::BAD_REQUEST, err)) => {
-                return ApiResponse::new_serialized(ApiError::new_database_agent_value(err))
-                    .with_status(StatusCode::BAD_REQUEST)
-                    .ok();
-            }
-            Err(db_agent_api::client::ApiHttpError::Http(StatusCode::CONFLICT, err)) => {
-                return ApiResponse::new_serialized(ApiError::new_database_agent_value(err))
-                    .with_status(StatusCode::CONFLICT)
-                    .ok();
-            }
-            Err(err) => return Err(err.into()),
-        }
 
-        activity_logger
-            .log(
-                "server:database-instance.database.import",
-                serde_json::json!({
-                    "uuid": database_instance.uuid,
-                    "name": database_instance.name,
-                    "database_uuid": database,
-                    "source_db": params.source_db,
-                    "wipe": params.wipe,
-                }),
-            )
-            .await;
+            activity_logger
+                .log(
+                    "server:database-instance.database.import",
+                    serde_json::json!({
+                        "uuid": database_instance.uuid,
+                        "name": database_instance.name,
+                        "database_uuid": database,
+                        "source_db": params.source_db,
+                        "wipe": params.wipe,
+                    }),
+                )
+                .await;
 
-        ApiResponse::new_serialized(Response {}).ok()
+            ApiResponse::new_serialized(Response {}).ok()
+        })
+        .await?
     }
 }
 

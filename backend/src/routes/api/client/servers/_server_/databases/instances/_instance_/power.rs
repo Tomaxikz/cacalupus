@@ -56,39 +56,45 @@ mod post {
             .ok();
         }
 
-        match database_instance
-            .database_agent_host
-            .api_client(&state.database)
-            .await?
-            .post_instances_instance_power(
-                database_instance.uuid,
-                &db_agent_api::instances_instance_power::post::RequestBody {
-                    action: data.action,
-                },
-            )
-            .await
-        {
-            Ok(_) => {}
-            Err(db_agent_api::client::ApiHttpError::Http(StatusCode::EXPECTATION_FAILED, err)) => {
-                return ApiResponse::new_serialized(ApiError::new_database_agent_value(err))
-                    .with_status(StatusCode::EXPECTATION_FAILED)
-                    .ok();
+        tokio::spawn(async move {
+            match database_instance
+                .database_agent_host
+                .api_client(&state.database)
+                .await?
+                .post_instances_instance_power(
+                    database_instance.uuid,
+                    &db_agent_api::instances_instance_power::post::RequestBody {
+                        action: data.action,
+                    },
+                )
+                .await
+            {
+                Ok(_) => {}
+                Err(db_agent_api::client::ApiHttpError::Http(
+                    StatusCode::EXPECTATION_FAILED,
+                    err,
+                )) => {
+                    return ApiResponse::new_serialized(ApiError::new_database_agent_value(err))
+                        .with_status(StatusCode::EXPECTATION_FAILED)
+                        .ok();
+                }
+                Err(err) => return Err(err.into()),
             }
-            Err(err) => return Err(err.into()),
-        }
 
-        activity_logger
-            .log(
-                "server:database-instance.power",
-                serde_json::json!({
-                    "uuid": database_instance.uuid,
-                    "name": database_instance.name,
-                    "action": data.action,
-                }),
-            )
-            .await;
+            activity_logger
+                .log(
+                    "server:database-instance.power",
+                    serde_json::json!({
+                        "uuid": database_instance.uuid,
+                        "name": database_instance.name,
+                        "action": data.action,
+                    }),
+                )
+                .await;
 
-        ApiResponse::new_serialized(Response {}).ok()
+            ApiResponse::new_serialized(Response {}).ok()
+        })
+        .await?
     }
 }
 

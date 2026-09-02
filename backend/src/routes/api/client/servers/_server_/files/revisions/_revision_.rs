@@ -9,7 +9,10 @@ mod get {
     use serde::Deserialize;
     use shared::{
         ApiError, GetState,
-        models::{server::GetServer, user::GetPermissionManager},
+        models::{
+            server::{GetServer, GetServerActivityLogger},
+            user::GetPermissionManager,
+        },
         response::{ApiResponse, ApiResponseResult},
     };
     use utoipa::ToSchema;
@@ -45,6 +48,7 @@ mod get {
         state: GetState,
         permissions: GetPermissionManager,
         mut server: GetServer,
+        activity_logger: GetServerActivityLogger,
         Path((_server, revision)): Path<(String, i64)>,
         Query(params): Query<Params>,
     ) -> ApiResponseResult {
@@ -66,7 +70,7 @@ mod get {
                 server.uuid,
                 revision,
                 &wings_api::servers_server_files_revisions_revision::get::Query {
-                    file: Some(params.file),
+                    file: Some(params.file.clone()),
                     ignored: server.0.subuser_ignored_files,
                     ..Default::default()
                 },
@@ -81,6 +85,16 @@ mod get {
             }
             Err(err) => return Err(err.into()),
         };
+
+        activity_logger
+            .log(
+                "server:file.read-content",
+                serde_json::json!({
+                    "file": params.file,
+                    "revision_id": revision,
+                }),
+            )
+            .await;
 
         ApiResponse::new_stream(contents)
             .with_header("Content-Type", "application/octet-stream")

@@ -45,34 +45,37 @@ mod delete {
     ) -> ApiResponseResult {
         permissions.has_server_permission("database-instances.import")?;
 
-        match database_instance
-            .database_agent_host
-            .api_client(&state.database)
-            .await?
-            .delete_instances_instance_operations_operation(database_instance.uuid, operation)
-            .await
-        {
-            Ok(_) => {}
-            Err(db_agent_api::client::ApiHttpError::Http(StatusCode::NOT_FOUND, err)) => {
-                return ApiResponse::new_serialized(ApiError::new_database_agent_value(err))
-                    .with_status(StatusCode::NOT_FOUND)
-                    .ok();
+        tokio::spawn(async move {
+            match database_instance
+                .database_agent_host
+                .api_client(&state.database)
+                .await?
+                .delete_instances_instance_operations_operation(database_instance.uuid, operation)
+                .await
+            {
+                Ok(_) => {}
+                Err(db_agent_api::client::ApiHttpError::Http(StatusCode::NOT_FOUND, err)) => {
+                    return ApiResponse::new_serialized(ApiError::new_database_agent_value(err))
+                        .with_status(StatusCode::NOT_FOUND)
+                        .ok();
+                }
+                Err(err) => return Err(err.into()),
             }
-            Err(err) => return Err(err.into()),
-        }
 
-        activity_logger
-            .log(
-                "server:database-instance.operation.cancel",
-                serde_json::json!({
-                    "uuid": database_instance.uuid,
-                    "name": database_instance.name,
-                    "operation_uuid": operation,
-                }),
-            )
-            .await;
+            activity_logger
+                .log(
+                    "server:database-instance.operation.cancel",
+                    serde_json::json!({
+                        "uuid": database_instance.uuid,
+                        "name": database_instance.name,
+                        "operation_uuid": operation,
+                    }),
+                )
+                .await;
 
-        ApiResponse::new_serialized(Response {}).ok()
+            ApiResponse::new_serialized(Response {}).ok()
+        })
+        .await?
     }
 }
 

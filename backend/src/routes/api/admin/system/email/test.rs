@@ -50,43 +50,46 @@ mod post {
                 .ok();
         }
 
-        match tokio::time::timeout(
-            std::time::Duration::from_secs(15),
-            state.mail.send_template_foreground(
-                &state,
-                "connection_test",
-                data.email.clone(),
-                minijinja::context! {},
-            ),
-        )
-        .await
-        {
-            Ok(Ok(_)) => {}
-            Ok(Err(err)) => {
-                let (err, status) = shared::response::extract_readable_error(&err)
-                    .unwrap_or_else(|| (err.to_string(), StatusCode::INTERNAL_SERVER_ERROR));
-
-                return ApiResponse::error(format!("failed to send test email: {err}"))
-                    .with_status(status)
-                    .ok();
-            }
-            Err(_) => {
-                return ApiResponse::error("sending test email timed out after 15 seconds")
-                    .with_status(StatusCode::INTERNAL_SERVER_ERROR)
-                    .ok();
-            }
-        }
-
-        activity_logger
-            .log(
-                "email:connection-test",
-                serde_json::json!({
-                    "email": data.email,
-                }),
+        tokio::spawn(async move {
+            match tokio::time::timeout(
+                std::time::Duration::from_secs(15),
+                state.mail.send_template_foreground(
+                    &state,
+                    "connection_test",
+                    data.email.clone(),
+                    minijinja::context! {},
+                ),
             )
-            .await;
+            .await
+            {
+                Ok(Ok(_)) => {}
+                Ok(Err(err)) => {
+                    let (err, status) = shared::response::extract_readable_error(&err)
+                        .unwrap_or_else(|| (err.to_string(), StatusCode::INTERNAL_SERVER_ERROR));
 
-        ApiResponse::new_serialized(Response {}).ok()
+                    return ApiResponse::error(format!("failed to send test email: {err}"))
+                        .with_status(status)
+                        .ok();
+                }
+                Err(_) => {
+                    return ApiResponse::error("sending test email timed out after 15 seconds")
+                        .with_status(StatusCode::INTERNAL_SERVER_ERROR)
+                        .ok();
+                }
+            }
+
+            activity_logger
+                .log(
+                    "email:connection-test",
+                    serde_json::json!({
+                        "email": data.email,
+                    }),
+                )
+                .await;
+
+            ApiResponse::new_serialized(Response {}).ok()
+        })
+        .await?
     }
 }
 

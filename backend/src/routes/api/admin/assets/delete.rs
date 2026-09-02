@@ -33,38 +33,41 @@ mod post {
     ) -> ApiResponseResult {
         permissions.has_admin_permission("assets.delete")?;
 
-        let mut futures = Vec::new();
+        tokio::spawn(async move {
+            let mut futures = Vec::new();
 
-        for name in &data.names {
-            let clean_name = name.trim_matches('/');
-            if clean_name.is_empty() || clean_name.contains("..") {
-                continue;
+            for name in &data.names {
+                let clean_name = name.trim_matches('/');
+                if clean_name.is_empty() || clean_name.contains("..") {
+                    continue;
+                }
+
+                futures.push(state.storage.remove(Some(format!("assets/{clean_name}"))));
             }
 
-            futures.push(state.storage.remove(Some(format!("assets/{clean_name}"))));
-        }
+            let mut results_stream = futures_util::stream::iter(futures).buffer_unordered(5);
+            let mut deleted = 0;
 
-        let mut results_stream = futures_util::stream::iter(futures).buffer_unordered(5);
-        let mut deleted = 0;
-
-        while let Some(result) = results_stream.next().await {
-            if let Err(err) = result {
-                tracing::warn!("failed to delete asset: {:?}", err);
-            } else {
-                deleted += 1;
+            while let Some(result) = results_stream.next().await {
+                if let Err(err) = result {
+                    tracing::warn!("failed to delete asset: {:?}", err);
+                } else {
+                    deleted += 1;
+                }
             }
-        }
 
-        activity_logger
-            .log(
-                "assets:delete",
-                serde_json::json!({
-                    "names": data.names,
-                }),
-            )
-            .await;
+            activity_logger
+                .log(
+                    "assets:delete",
+                    serde_json::json!({
+                        "names": data.names,
+                    }),
+                )
+                .await;
 
-        ApiResponse::new_serialized(Response { deleted }).ok()
+            ApiResponse::new_serialized(Response { deleted }).ok()
+        })
+        .await?
     }
 }
 

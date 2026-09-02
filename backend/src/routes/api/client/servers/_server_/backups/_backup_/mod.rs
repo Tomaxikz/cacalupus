@@ -173,28 +173,31 @@ mod delete {
                 .ok();
         }
 
-        if let Err(err) = backup.delete(&state, Default::default()).await {
-            tracing::error!(server = %server.uuid, backup = %backup.uuid, "failed to delete backup: {:?}", err);
+        tokio::spawn(async move {
+            if let Err(err) = backup.delete(&state, Default::default()).await {
+                tracing::error!(server = %server.uuid, backup = %backup.uuid, "failed to delete backup: {:?}", err);
 
-            return ApiResponse::error("failed to delete backup")
-                .with_status(StatusCode::INTERNAL_SERVER_ERROR)
-                .ok();
-        }
+                return ApiResponse::error("failed to delete backup")
+                    .with_status(StatusCode::INTERNAL_SERVER_ERROR)
+                    .ok();
+            }
 
-        activity_logger
-            .log(
-                "server:backup.delete",
-                serde_json::json!({
-                    "source": "user",
-                    "uuid": backup.uuid,
-                    "name": backup.name,
-                }),
-            )
-            .await;
+            activity_logger
+                .log(
+                    "server:backup.delete",
+                    serde_json::json!({
+                        "source": "user",
+                        "uuid": backup.uuid,
+                        "name": backup.name,
+                    }),
+                )
+                .await;
 
-        ApiResponse::new_serialized(Response {})
-            .with_status(StatusCode::ACCEPTED)
-            .ok()
+            ApiResponse::new_serialized(Response {})
+                .with_status(StatusCode::ACCEPTED)
+                .ok()
+        })
+        .await?
     }
 }
 

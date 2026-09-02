@@ -51,25 +51,28 @@ mod delete {
     ) -> ApiResponseResult {
         permissions.has_server_permission("database-instances.databases")?;
 
-        database_instance
-            .database_agent_host
-            .api_client(&state.database)
-            .await?
-            .delete_instances_instance_databases_database(database_instance.uuid, database)
-            .await?;
+        tokio::spawn(async move {
+            database_instance
+                .database_agent_host
+                .api_client(&state.database)
+                .await?
+                .delete_instances_instance_databases_database(database_instance.uuid, database)
+                .await?;
 
-        activity_logger
-            .log(
-                "server:database-instance.database.delete",
-                serde_json::json!({
-                    "uuid": database_instance.uuid,
-                    "name": database_instance.name,
-                    "database_uuid": database,
-                }),
-            )
-            .await;
+            activity_logger
+                .log(
+                    "server:database-instance.database.delete",
+                    serde_json::json!({
+                        "uuid": database_instance.uuid,
+                        "name": database_instance.name,
+                        "database_uuid": database,
+                    }),
+                )
+                .await;
 
-        ApiResponse::new_serialized(Response {}).ok()
+            ApiResponse::new_serialized(Response {}).ok()
+        })
+        .await?
     }
 }
 

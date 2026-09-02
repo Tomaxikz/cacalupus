@@ -81,43 +81,46 @@ mod post {
             target: data.target,
         };
 
-        match server
-            .0
-            .node
-            .fetch_cached(&state.database)
-            .await?
-            .api_client(&state.database)
-            .await?
-            .ignoring(server.0.subuser_ignored_files.unwrap_or_default())
-            .post_servers_server_files_create_symlink(server.0.uuid, &request_body)
-            .await
-        {
-            Ok(_) => {}
-            Err(wings_api::client::ApiHttpError::Http(StatusCode::NOT_FOUND, err)) => {
-                return ApiResponse::new_serialized(ApiError::new_wings_value(err))
-                    .with_status(StatusCode::NOT_FOUND)
-                    .ok();
-            }
-            Err(wings_api::client::ApiHttpError::Http(StatusCode::EXPECTATION_FAILED, err)) => {
-                return ApiResponse::new_serialized(ApiError::new_wings_value(err))
-                    .with_status(StatusCode::EXPECTATION_FAILED)
-                    .ok();
-            }
-            Err(err) => return Err(err.into()),
-        };
+        tokio::spawn(async move {
+            match server
+                .0
+                .node
+                .fetch_cached(&state.database)
+                .await?
+                .api_client(&state.database)
+                .await?
+                .ignoring(server.0.subuser_ignored_files.unwrap_or_default())
+                .post_servers_server_files_create_symlink(server.0.uuid, &request_body)
+                .await
+            {
+                Ok(_) => {}
+                Err(wings_api::client::ApiHttpError::Http(StatusCode::NOT_FOUND, err)) => {
+                    return ApiResponse::new_serialized(ApiError::new_wings_value(err))
+                        .with_status(StatusCode::NOT_FOUND)
+                        .ok();
+                }
+                Err(wings_api::client::ApiHttpError::Http(StatusCode::EXPECTATION_FAILED, err)) => {
+                    return ApiResponse::new_serialized(ApiError::new_wings_value(err))
+                        .with_status(StatusCode::EXPECTATION_FAILED)
+                        .ok();
+                }
+                Err(err) => return Err(err.into()),
+            };
 
-        activity_logger
-            .log(
-                "server:file.create-symlink",
-                serde_json::json!({
-                    "directory": request_body.root,
-                    "link": request_body.link,
-                    "target": request_body.target,
-                }),
-            )
-            .await;
+            activity_logger
+                .log(
+                    "server:file.create-symlink",
+                    serde_json::json!({
+                        "directory": request_body.root,
+                        "link": request_body.link,
+                        "target": request_body.target,
+                    }),
+                )
+                .await;
 
-        ApiResponse::new_serialized(Response {}).ok()
+            ApiResponse::new_serialized(Response {}).ok()
+        })
+        .await?
     }
 }
 

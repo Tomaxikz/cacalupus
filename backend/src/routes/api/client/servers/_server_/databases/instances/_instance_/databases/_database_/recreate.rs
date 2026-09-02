@@ -45,25 +45,31 @@ mod post {
     ) -> ApiResponseResult {
         permissions.has_server_permission("database-instances.recreate")?;
 
-        database_instance
-            .database_agent_host
-            .api_client(&state.database)
-            .await?
-            .post_instances_instance_databases_database_recreate(database_instance.uuid, database)
-            .await?;
+        tokio::spawn(async move {
+            database_instance
+                .database_agent_host
+                .api_client(&state.database)
+                .await?
+                .post_instances_instance_databases_database_recreate(
+                    database_instance.uuid,
+                    database,
+                )
+                .await?;
 
-        activity_logger
-            .log(
-                "server:database-instance.database.recreate",
-                serde_json::json!({
-                    "uuid": database_instance.uuid,
-                    "name": database_instance.name,
-                    "database_uuid": database,
-                }),
-            )
-            .await;
+            activity_logger
+                .log(
+                    "server:database-instance.database.recreate",
+                    serde_json::json!({
+                        "uuid": database_instance.uuid,
+                        "name": database_instance.name,
+                        "database_uuid": database,
+                    }),
+                )
+                .await;
 
-        ApiResponse::new_serialized(Response {}).ok()
+            ApiResponse::new_serialized(Response {}).ok()
+        })
+        .await?
     }
 }
 

@@ -181,32 +181,35 @@ mod delete {
             .ok();
         }
 
-        if let Err(err) = database.delete(&state, Default::default()).await {
-            if err
-                .downcast_ref::<shared::response::DisplayError>()
-                .is_some()
-            {
-                return ApiResponse::from(err).ok();
+        tokio::spawn(async move {
+            if let Err(err) = database.delete(&state, Default::default()).await {
+                if err
+                    .downcast_ref::<shared::response::DisplayError>()
+                    .is_some()
+                {
+                    return ApiResponse::from(err).ok();
+                }
+
+                tracing::error!(server = %server.uuid, "failed to delete database: {:?}", err);
+
+                return ApiResponse::error("failed to delete database")
+                    .with_status(StatusCode::INTERNAL_SERVER_ERROR)
+                    .ok();
             }
 
-            tracing::error!(server = %server.uuid, "failed to delete database: {:?}", err);
+            activity_logger
+                .log(
+                    "server:database.delete",
+                    serde_json::json!({
+                        "uuid": database.uuid,
+                        "name": database.name,
+                    }),
+                )
+                .await;
 
-            return ApiResponse::error("failed to delete database")
-                .with_status(StatusCode::INTERNAL_SERVER_ERROR)
-                .ok();
-        }
-
-        activity_logger
-            .log(
-                "server:database.delete",
-                serde_json::json!({
-                    "uuid": database.uuid,
-                    "name": database.name,
-                }),
-            )
-            .await;
-
-        ApiResponse::new_serialized(Response {}).ok()
+            ApiResponse::new_serialized(Response {}).ok()
+        })
+        .await?
     }
 }
 

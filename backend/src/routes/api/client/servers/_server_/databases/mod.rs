@@ -171,68 +171,72 @@ mod post {
                 }
             };
 
-        let databases_lock = state
-            .cache
-            .lock(
-                format!("servers::{}::databases", server.uuid),
-                Some(30),
-                Some(5),
-            )
-            .await?;
+        tokio::spawn(async move {
+            let databases_lock = state
+                .cache
+                .lock(
+                    format!("servers::{}::databases", server.uuid),
+                    Some(30),
+                    Some(5),
+                )
+                .await?;
 
-        let databases = ServerDatabase::count_by_server_uuid(&state.database, server.uuid).await?;
-        if databases >= server.database_limit as i64 {
-            return ApiResponse::error("maximum number of databases reached")
-                .with_status(StatusCode::EXPECTATION_FAILED)
-                .ok();
-        }
-
-        if database_host.maintenance_enabled {
-            return ApiResponse::error(
-                "cannot create database while database host is in maintenance mode",
-            )
-            .with_status(StatusCode::EXPECTATION_FAILED)
-            .ok();
-        }
-
-        let options = shared::models::server_database::CreateServerDatabaseOptions {
-            server: &server,
-            database_host: &database_host,
-            name: data.name,
-        };
-        let database = match ServerDatabase::create(&state, options).await {
-            Ok(database) => database,
-            Err(err) if err.is_unique_violation() => {
-                return ApiResponse::error("database with name already exists")
-                    .with_status(StatusCode::CONFLICT)
+            let databases =
+                ServerDatabase::count_by_server_uuid(&state.database, server.uuid).await?;
+            if databases >= server.database_limit as i64 {
+                return ApiResponse::error("maximum number of databases reached")
+                    .with_status(StatusCode::EXPECTATION_FAILED)
                     .ok();
             }
-            Err(err) => return ApiResponse::from(err).ok(),
-        };
 
-        drop(databases_lock);
-
-        activity_logger
-            .log(
-                "server:database.create",
-                serde_json::json!({
-                    "uuid": database.uuid,
-                    "name": database.name,
-                }),
-            )
-            .await;
-
-        ApiResponse::new_serialized(Response {
-            database: database
-                .into_api_object(
-                    &state,
-                    permissions
-                        .has_server_permission("databases.read-password")
-                        .is_ok(),
+            if database_host.maintenance_enabled {
+                return ApiResponse::error(
+                    "cannot create database while database host is in maintenance mode",
                 )
-                .await?,
+                .with_status(StatusCode::EXPECTATION_FAILED)
+                .ok();
+            }
+
+            let options = shared::models::server_database::CreateServerDatabaseOptions {
+                server: &server,
+                database_host: &database_host,
+                name: data.name,
+            };
+            let database = match ServerDatabase::create(&state, options).await {
+                Ok(database) => database,
+                Err(err) if err.is_unique_violation() => {
+                    return ApiResponse::error("database with name already exists")
+                        .with_status(StatusCode::CONFLICT)
+                        .ok();
+                }
+                Err(err) => return ApiResponse::from(err).ok(),
+            };
+
+            drop(databases_lock);
+
+            activity_logger
+                .log(
+                    "server:database.create",
+                    serde_json::json!({
+                        "uuid": database.uuid,
+                        "name": database.name,
+                    }),
+                )
+                .await;
+
+            ApiResponse::new_serialized(Response {
+                database: database
+                    .into_api_object(
+                        &state,
+                        permissions
+                            .has_server_permission("databases.read-password")
+                            .is_ok(),
+                    )
+                    .await?,
+            })
+            .ok()
         })
-        .ok()
+        .await?
     }
 }
 

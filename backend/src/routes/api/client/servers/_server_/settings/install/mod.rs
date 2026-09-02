@@ -45,22 +45,25 @@ mod post {
     ) -> ApiResponseResult {
         permissions.has_server_permission("settings.install")?;
 
-        server
-            .install(&state, data.truncate_directory, None)
-            .await?;
+        tokio::spawn(async move {
+            server
+                .install(&state, data.truncate_directory, None)
+                .await?;
 
-        activity_logger
-            .log(
-                "server:settings.install",
-                serde_json::json!({
-                    "truncate_directory": data.truncate_directory
-                }),
-            )
-            .await;
+            activity_logger
+                .log(
+                    "server:settings.install",
+                    serde_json::json!({
+                        "truncate_directory": data.truncate_directory
+                    }),
+                )
+                .await;
 
-        ApiResponse::new_serialized(Response {})
-            .with_status(StatusCode::ACCEPTED)
-            .ok()
+            ApiResponse::new_serialized(Response {})
+                .with_status(StatusCode::ACCEPTED)
+                .ok()
+        })
+        .await?
     }
 }
 

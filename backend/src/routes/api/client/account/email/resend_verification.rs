@@ -87,43 +87,48 @@ mod post {
                 .ok();
         }
 
-        let token = match UserEmailVerification::create(&state.database, user.uuid, &email).await {
-            Ok(token) => token,
-            Err(err) => {
-                tracing::warn!(
+        tokio::spawn(async move {
+            let token = match UserEmailVerification::create(&state.database, user.uuid, &email)
+                .await
+            {
+                Ok(token) => token,
+                Err(err) => {
+                    tracing::warn!(
+                        user = %user.uuid,
+                        "failed to create email verification: {:#?}",
+                        err
+                    );
+
+                    return ApiResponse::error("a verification email was already sent recently")
+                        .with_status(StatusCode::TOO_MANY_REQUESTS)
+                        .ok();
+                }
+            };
+
+            if let Err(err) = UserEmailVerification::send(&state, &user, &email, &token).await {
+                tracing::error!(
                     user = %user.uuid,
-                    "failed to create email verification: {:#?}",
+                    "failed to send email verification: {:#?}",
                     err
                 );
 
-                return ApiResponse::error("a verification email was already sent recently")
-                    .with_status(StatusCode::TOO_MANY_REQUESTS)
+                return ApiResponse::error("failed to send the verification email")
+                    .with_status(StatusCode::INTERNAL_SERVER_ERROR)
                     .ok();
             }
-        };
 
-        if let Err(err) = UserEmailVerification::send(&state, &user, &email, &token).await {
-            tracing::error!(
-                user = %user.uuid,
-                "failed to send email verification: {:#?}",
-                err
-            );
+            activity_logger
+                .log(
+                    "account:email-verification.resend",
+                    serde_json::json!({
+                        "email": email,
+                    }),
+                )
+                .await;
 
-            return ApiResponse::error("failed to send the verification email")
-                .with_status(StatusCode::INTERNAL_SERVER_ERROR)
-                .ok();
-        }
-
-        activity_logger
-            .log(
-                "account:email-verification.resend",
-                serde_json::json!({
-                    "email": email,
-                }),
-            )
-            .await;
-
-        ApiResponse::new_serialized(Response { email }).ok()
+            ApiResponse::new_serialized(Response { email }).ok()
+        })
+        .await?
     }
 }
 

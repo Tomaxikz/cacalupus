@@ -77,42 +77,45 @@ mod put {
             .map(ServerDatabaseInstanceUserDatabaseGrant::into_api)
             .collect();
 
-        let response = database_instance
-            .database_agent_host
-            .api_client(&state.database)
-            .await?
-            .put_instances_instance_users_user_databases(
-                database_instance.uuid,
-                user,
-                &db_agent_api::instances_instance_users_user_databases::put::RequestBody {
-                    databases,
-                },
-            )
-            .await?;
+        tokio::spawn(async move {
+            let response = database_instance
+                .database_agent_host
+                .api_client(&state.database)
+                .await?
+                .put_instances_instance_users_user_databases(
+                    database_instance.uuid,
+                    user,
+                    &db_agent_api::instances_instance_users_user_databases::put::RequestBody {
+                        databases,
+                    },
+                )
+                .await?;
 
-        activity_logger
-            .log(
-                "server:database-instance.user.permissions-update",
-                serde_json::json!({
-                    "uuid": database_instance.uuid,
-                    "name": database_instance.name,
-                    "user_uuid": user,
-                    "databases": response.databases.iter().map(|database| serde_json::json!({
-                        "database_uuid": database.database_uuid,
-                        "permission": database.permission,
-                    })).collect::<Vec<_>>(),
-                }),
-            )
-            .await;
+            activity_logger
+                .log(
+                    "server:database-instance.user.permissions-update",
+                    serde_json::json!({
+                        "uuid": database_instance.uuid,
+                        "name": database_instance.name,
+                        "user_uuid": user,
+                        "databases": response.databases.iter().map(|database| serde_json::json!({
+                            "database_uuid": database.database_uuid,
+                            "permission": database.permission,
+                        })).collect::<Vec<_>>(),
+                    }),
+                )
+                .await;
 
-        ApiResponse::new_serialized(Response {
-            databases: response
-                .databases
-                .into_iter()
-                .map(ApiServerDatabaseInstanceUserDatabase::from)
-                .collect(),
+            ApiResponse::new_serialized(Response {
+                databases: response
+                    .databases
+                    .into_iter()
+                    .map(ApiServerDatabaseInstanceUserDatabase::from)
+                    .collect(),
+            })
+            .ok()
         })
-        .ok()
+        .await?
     }
 }
 

@@ -73,31 +73,34 @@ mod post {
             .ok();
         }
 
-        if let Err(err) = database
-            .drop_column(
-                &state.database,
-                data.schema.as_deref(),
-                &data.table,
-                &data.column,
-            )
-            .await
-        {
-            return ApiResponse::from(err).ok();
-        }
+        tokio::spawn(async move {
+            if let Err(err) = database
+                .drop_column(
+                    &state.database,
+                    data.schema.as_deref(),
+                    &data.table,
+                    &data.column,
+                )
+                .await
+            {
+                return ApiResponse::from(err).ok();
+            }
 
-        activity_logger
-            .log(
-                "server:database.column-delete",
-                serde_json::json!({
-                    "uuid": database.uuid,
-                    "name": database.name,
-                    "table": data.table,
-                    "column": data.column,
-                }),
-            )
-            .await;
+            activity_logger
+                .log(
+                    "server:database.column-delete",
+                    serde_json::json!({
+                        "uuid": database.uuid,
+                        "name": database.name,
+                        "table": data.table,
+                        "column": data.column,
+                    }),
+                )
+                .await;
 
-        ApiResponse::new_serialized(Response {}).ok()
+            ApiResponse::new_serialized(Response {}).ok()
+        })
+        .await?
     }
 }
 

@@ -60,38 +60,41 @@ mod post {
             .ok();
         }
 
-        let password = match database.rotate_password(&state.database).await {
-            Ok(password) => password,
-            Err(err) => {
-                tracing::error!(server = %server.uuid, "failed to rotate database password: {:?}", err);
+        tokio::spawn(async move {
+            let password = match database.rotate_password(&state.database).await {
+                Ok(password) => password,
+                Err(err) => {
+                    tracing::error!(server = %server.uuid, "failed to rotate database password: {:?}", err);
 
-                return ApiResponse::error("failed to rotate database password")
-                    .with_status(StatusCode::INTERNAL_SERVER_ERROR)
-                    .ok();
-            }
-        };
+                    return ApiResponse::error("failed to rotate database password")
+                        .with_status(StatusCode::INTERNAL_SERVER_ERROR)
+                        .ok();
+                }
+            };
 
-        activity_logger
-            .log(
-                "server:database.rotate-password",
-                serde_json::json!({
-                    "uuid": database.uuid,
-                    "name": database.name,
-                }),
-            )
-            .await;
+            activity_logger
+                .log(
+                    "server:database.rotate-password",
+                    serde_json::json!({
+                        "uuid": database.uuid,
+                        "name": database.name,
+                    }),
+                )
+                .await;
 
-        ApiResponse::new_serialized(Response {
-            password: if permissions
-                .has_server_permission("databases.read-password")
-                .is_ok()
-            {
-                Some(password)
-            } else {
-                None
-            },
+            ApiResponse::new_serialized(Response {
+                password: if permissions
+                    .has_server_permission("databases.read-password")
+                    .is_ok()
+                {
+                    Some(password)
+                } else {
+                    None
+                },
+            })
+            .ok()
         })
-        .ok()
+        .await?
     }
 }
 

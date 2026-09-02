@@ -72,59 +72,62 @@ mod post {
                 .ok();
         }
 
-        let mut transaction = state.database.write().begin().await?;
+        tokio::spawn(async move {
+            let mut transaction = state.database.write().begin().await?;
 
-        if !server
-            .try_set_status(&mut *transaction, None, Some(ServerStatus::RestoringBackup))
-            .await?
-        {
-            transaction.rollback().await?;
+            if !server
+                .try_set_status(&mut *transaction, None, Some(ServerStatus::RestoringBackup))
+                .await?
+            {
+                transaction.rollback().await?;
 
-            return ApiResponse::error("server is not in a valid state to restore backup.")
-                .with_status(StatusCode::EXPECTATION_FAILED)
-                .ok();
-        }
+                return ApiResponse::error("server is not in a valid state to restore backup.")
+                    .with_status(StatusCode::EXPECTATION_FAILED)
+                    .ok();
+            }
 
-        let backup_uuid = backup.uuid;
-        let backup_name = backup.name.clone();
+            let backup_uuid = backup.uuid;
+            let backup_name = backup.name.clone();
 
-        let uuid = server.uuid;
-        if let Err(err) = backup
-            .0
-            .restore(
-                &state,
-                &mut transaction,
-                server.0,
-                ServerBackupRestoreOptions {
-                    truncate_directory: data.truncate_directory,
-                    restore_startup: data.restore_startup,
-                },
-            )
-            .await
-        {
-            transaction.rollback().await?;
-            tracing::error!(server = %uuid, backup = %backup_uuid, "failed to restore backup: {:?}", err);
+            let uuid = server.uuid;
+            if let Err(err) = backup
+                .0
+                .restore(
+                    &state,
+                    &mut transaction,
+                    server.0,
+                    ServerBackupRestoreOptions {
+                        truncate_directory: data.truncate_directory,
+                        restore_startup: data.restore_startup,
+                    },
+                )
+                .await
+            {
+                transaction.rollback().await?;
+                tracing::error!(server = %uuid, backup = %backup_uuid, "failed to restore backup: {:?}", err);
 
-            return ApiResponse::error("failed to restore backup")
-                .with_status(StatusCode::INTERNAL_SERVER_ERROR)
-                .ok();
-        }
+                return ApiResponse::error("failed to restore backup")
+                    .with_status(StatusCode::INTERNAL_SERVER_ERROR)
+                    .ok();
+            }
 
-        transaction.commit().await?;
+            transaction.commit().await?;
 
-        activity_logger
-            .log(
-                "server:backup.restore",
-                serde_json::json!({
-                    "uuid": backup_uuid,
-                    "name": backup_name,
-                    "truncate_directory": data.truncate_directory,
-                    "restore_startup": data.restore_startup,
-                }),
-            )
-            .await;
+            activity_logger
+                .log(
+                    "server:backup.restore",
+                    serde_json::json!({
+                        "uuid": backup_uuid,
+                        "name": backup_name,
+                        "truncate_directory": data.truncate_directory,
+                        "restore_startup": data.restore_startup,
+                    }),
+                )
+                .await;
 
-        ApiResponse::new_serialized(Response {}).ok()
+            ApiResponse::new_serialized(Response {}).ok()
+        })
+        .await?
     }
 }
 

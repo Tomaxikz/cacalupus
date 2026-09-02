@@ -59,31 +59,34 @@ mod post {
                 .ok();
         }
 
-        match server
-            .node
-            .fetch_cached(&state.database)
-            .await?
-            .api_client(&state.database)
-            .await?
-            .post_servers_server_install_abort(server.uuid)
-            .await
-        {
-            Ok(_) => {}
-            Err(wings_api::client::ApiHttpError::Http(StatusCode::CONFLICT, _)) => {
-                server.set_status(state.database.write(), None).await?;
+        tokio::spawn(async move {
+            match server
+                .node
+                .fetch_cached(&state.database)
+                .await?
+                .api_client(&state.database)
+                .await?
+                .post_servers_server_install_abort(server.uuid)
+                .await
+            {
+                Ok(_) => {}
+                Err(wings_api::client::ApiHttpError::Http(StatusCode::CONFLICT, _)) => {
+                    server.set_status(state.database.write(), None).await?;
 
-                return ApiResponse::new_serialized(Response {}).ok();
-            }
-            Err(err) => return Err(err.into()),
-        };
+                    return ApiResponse::new_serialized(Response {}).ok();
+                }
+                Err(err) => return Err(err.into()),
+            };
 
-        activity_logger
-            .log("server:settings.abort-install", serde_json::json!({}))
-            .await;
+            activity_logger
+                .log("server:settings.abort-install", serde_json::json!({}))
+                .await;
 
-        ApiResponse::new_serialized(Response {})
-            .with_status(StatusCode::ACCEPTED)
-            .ok()
+            ApiResponse::new_serialized(Response {})
+                .with_status(StatusCode::ACCEPTED)
+                .ok()
+        })
+        .await?
     }
 }
 

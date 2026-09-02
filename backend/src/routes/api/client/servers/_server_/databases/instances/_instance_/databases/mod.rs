@@ -121,61 +121,66 @@ mod post {
 
         permissions.has_server_permission("database-instances.databases")?;
 
-        let api_client = database_instance
-            .database_agent_host
-            .api_client(&state.database)
-            .await?;
+        tokio::spawn(async move {
+            let api_client = database_instance
+                .database_agent_host
+                .api_client(&state.database)
+                .await?;
 
-        let databases_lock = state
-            .cache
-            .lock(
-                format!("database-instances::{}::databases", database_instance.uuid),
-                Some(30),
-                Some(5),
-            )
-            .await?;
+            let databases_lock = state
+                .cache
+                .lock(
+                    format!("database-instances::{}::databases", database_instance.uuid),
+                    Some(30),
+                    Some(5),
+                )
+                .await?;
 
-        let databases = api_client
-            .get_instances_instance_databases(database_instance.uuid)
-            .await?
-            .databases;
-        if databases.len() as u64
-            >= state
-                .settings
-                .get()
+            let databases = api_client
+                .get_instances_instance_databases(database_instance.uuid)
                 .await?
-                .server
-                .max_database_instance_database_count
-        {
-            return ApiResponse::error("maximum number of databases reached")
-                .with_status(StatusCode::EXPECTATION_FAILED)
-                .ok();
-        }
+                .databases;
+            if databases.len() as u64
+                >= state
+                    .settings
+                    .get()
+                    .await?
+                    .server
+                    .max_database_instance_database_count
+            {
+                return ApiResponse::error("maximum number of databases reached")
+                    .with_status(StatusCode::EXPECTATION_FAILED)
+                    .ok();
+            }
 
-        let response = api_client
-            .post_instances_instance_databases(
-                database_instance.uuid,
-                &db_agent_api::instances_instance_databases::post::RequestBody { name: data.name },
-            )
-            .await?;
+            let response = api_client
+                .post_instances_instance_databases(
+                    database_instance.uuid,
+                    &db_agent_api::instances_instance_databases::post::RequestBody {
+                        name: data.name,
+                    },
+                )
+                .await?;
 
-        drop(databases_lock);
+            drop(databases_lock);
 
-        activity_logger
-            .log(
-                "server:database-instance.database.create",
-                serde_json::json!({
-                    "uuid": database_instance.uuid,
-                    "name": database_instance.name,
-                    "database": response.database.name,
-                }),
-            )
-            .await;
+            activity_logger
+                .log(
+                    "server:database-instance.database.create",
+                    serde_json::json!({
+                        "uuid": database_instance.uuid,
+                        "name": database_instance.name,
+                        "database": response.database.name,
+                    }),
+                )
+                .await;
 
-        ApiResponse::new_serialized(Response {
-            database: response.database.into(),
+            ApiResponse::new_serialized(Response {
+                database: response.database.into(),
+            })
+            .ok()
         })
-        .ok()
+        .await?
     }
 }
 

@@ -91,27 +91,30 @@ mod post {
             .ok();
         }
 
-        let results = match database
-            .run_query(&state.database, &data.query, data.rows, data.read_only)
-            .await
-        {
-            Ok(results) => results,
-            Err(err) => return ApiResponse::from(err).ok(),
-        };
+        tokio::spawn(async move {
+            let results = match database
+                .run_query(&state.database, &data.query, data.rows, data.read_only)
+                .await
+            {
+                Ok(results) => results,
+                Err(err) => return ApiResponse::from(err).ok(),
+            };
 
-        activity_logger
-            .log(
-                "server:database.query",
-                serde_json::json!({
-                    "uuid": database.uuid,
-                    "name": database.name,
-                    "read_only": data.read_only,
-                    "query": data.query.chars().take(QUERY_ACTIVITY_LENGTH).collect::<String>(),
-                }),
-            )
-            .await;
+            activity_logger
+                .log(
+                    "server:database.query",
+                    serde_json::json!({
+                        "uuid": database.uuid,
+                        "name": database.name,
+                        "read_only": data.read_only,
+                        "query": data.query.chars().take(QUERY_ACTIVITY_LENGTH).collect::<String>(),
+                    }),
+                )
+                .await;
 
-        ApiResponse::new_serialized(Response { results }).ok()
+            ApiResponse::new_serialized(Response { results }).ok()
+        })
+        .await?
     }
 }
 

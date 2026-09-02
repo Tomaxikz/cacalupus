@@ -58,25 +58,28 @@ mod post {
             .ok();
         }
 
-        if let Err(err) = database.recreate(&state.database).await {
-            tracing::error!(server = %server.uuid, "failed to recreate database: {:?}", err);
+        tokio::spawn(async move {
+            if let Err(err) = database.recreate(&state.database).await {
+                tracing::error!(server = %server.uuid, "failed to recreate database: {:?}", err);
 
-            return ApiResponse::error("failed to recreate database")
-                .with_status(StatusCode::INTERNAL_SERVER_ERROR)
-                .ok();
-        }
+                return ApiResponse::error("failed to recreate database")
+                    .with_status(StatusCode::INTERNAL_SERVER_ERROR)
+                    .ok();
+            }
 
-        activity_logger
-            .log(
-                "server:database.recreate",
-                serde_json::json!({
-                    "uuid": database.uuid,
-                    "name": database.name,
-                }),
-            )
-            .await;
+            activity_logger
+                .log(
+                    "server:database.recreate",
+                    serde_json::json!({
+                        "uuid": database.uuid,
+                        "name": database.name,
+                    }),
+                )
+                .await;
 
-        ApiResponse::new_serialized(Response {}).ok()
+            ApiResponse::new_serialized(Response {}).ok()
+        })
+        .await?
     }
 }
 

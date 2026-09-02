@@ -127,76 +127,80 @@ mod put {
     ) -> ApiResponseResult {
         permissions.has_admin_permission("assets.upload")?;
 
-        let directory = query.directory.trim_matches('/');
-        if directory.contains("..") {
-            return ApiResponse::error("invalid directory path")
-                .with_status(StatusCode::BAD_REQUEST)
-                .ok();
-        }
-
-        let mut assets = Vec::new();
-        let url_retriever = state.storage.retrieve_urls().await?;
-
-        while let Some(field) = multipart.next_field().await? {
-            let raw_name = match field.file_name() {
-                Some(name) => name,
-                None => {
-                    return ApiResponse::error("file name not found")
-                        .with_status(StatusCode::EXPECTATION_FAILED)
-                        .ok();
-                }
-            };
-
-            let filename = std::path::Path::new(raw_name)
-                .file_name()
-                .and_then(|n| n.to_str())
-                .unwrap_or(raw_name)
-                .to_compact_string();
-
-            if filename.is_empty() || filename.contains("..") {
-                return ApiResponse::error("invalid file name")
+        tokio::spawn(async move {
+            let directory = query.directory.trim_matches('/');
+            if directory.contains("..") {
+                return ApiResponse::error("invalid directory path")
                     .with_status(StatusCode::BAD_REQUEST)
                     .ok();
             }
-            let content_type = shared::storage::content_type(&filename);
 
-            let reader = tokio_util::io::StreamReader::new(field.into_stream().map_err(|err| {
-                std::io::Error::other(format!("failed to read multipart field: {err}"))
-            }));
+            let mut assets = Vec::new();
+            let url_retriever = state.storage.retrieve_urls().await?;
 
-            let asset_name = if directory.is_empty() {
-                filename.clone()
-            } else {
-                format!("{directory}/{filename}").to_compact_string()
-            };
+            while let Some(field) = multipart.next_field().await? {
+                let raw_name = match field.file_name() {
+                    Some(name) => name,
+                    None => {
+                        return ApiResponse::error("file name not found")
+                            .with_status(StatusCode::EXPECTATION_FAILED)
+                            .ok();
+                    }
+                };
 
-            let asset_path = format!("assets/{asset_name}");
+                let filename = std::path::Path::new(raw_name)
+                    .file_name()
+                    .and_then(|n| n.to_str())
+                    .unwrap_or(raw_name)
+                    .to_compact_string();
 
-            let size = state
-                .storage
-                .store(&asset_path, reader, content_type)
-                .await?;
+                if filename.is_empty() || filename.contains("..") {
+                    return ApiResponse::error("invalid file name")
+                        .with_status(StatusCode::BAD_REQUEST)
+                        .ok();
+                }
+                let content_type = shared::storage::content_type(&filename);
 
-            activity_logger
-                .log(
-                    "asset:upload",
-                    serde_json::json!({
-                        "name": asset_name,
-                        "size": size,
-                    }),
-                )
-                .await;
+                let reader =
+                    tokio_util::io::StreamReader::new(field.into_stream().map_err(|err| {
+                        std::io::Error::other(format!("failed to read multipart field: {err}"))
+                    }));
 
-            assets.push(shared::storage::StorageAsset {
-                url: url_retriever.get_url(&asset_path),
-                name: asset_name,
-                size,
-                is_directory: false,
-                created: chrono::Utc::now(),
-            });
-        }
+                let asset_name = if directory.is_empty() {
+                    filename.clone()
+                } else {
+                    format!("{directory}/{filename}").to_compact_string()
+                };
 
-        ApiResponse::new_serialized(Response { assets }).ok()
+                let asset_path = format!("assets/{asset_name}");
+
+                let size = state
+                    .storage
+                    .store(&asset_path, reader, content_type)
+                    .await?;
+
+                activity_logger
+                    .log(
+                        "asset:upload",
+                        serde_json::json!({
+                            "name": asset_name,
+                            "size": size,
+                        }),
+                    )
+                    .await;
+
+                assets.push(shared::storage::StorageAsset {
+                    url: url_retriever.get_url(&asset_path),
+                    name: asset_name,
+                    size,
+                    is_directory: false,
+                    created: chrono::Utc::now(),
+                });
+            }
+
+            ApiResponse::new_serialized(Response { assets }).ok()
+        })
+        .await?
     }
 }
 

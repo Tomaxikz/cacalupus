@@ -47,28 +47,31 @@ mod post {
     ) -> ApiResponseResult {
         permissions.has_server_permission("database-instances.users")?;
 
-        let response = database_instance
-            .database_agent_host
-            .api_client(&state.database)
-            .await?
-            .post_instances_instance_users_user_rotate_password(database_instance.uuid, user)
-            .await?;
+        tokio::spawn(async move {
+            let response = database_instance
+                .database_agent_host
+                .api_client(&state.database)
+                .await?
+                .post_instances_instance_users_user_rotate_password(database_instance.uuid, user)
+                .await?;
 
-        activity_logger
-            .log(
-                "server:database-instance.user.rotate-password",
-                serde_json::json!({
-                    "uuid": database_instance.uuid,
-                    "name": database_instance.name,
-                    "user_uuid": user,
-                }),
-            )
-            .await;
+            activity_logger
+                .log(
+                    "server:database-instance.user.rotate-password",
+                    serde_json::json!({
+                        "uuid": database_instance.uuid,
+                        "name": database_instance.name,
+                        "user_uuid": user,
+                    }),
+                )
+                .await;
 
-        ApiResponse::new_serialized(Response {
-            password: response.password,
+            ApiResponse::new_serialized(Response {
+                password: response.password,
+            })
+            .ok()
         })
-        .ok()
+        .await?
     }
 }
 

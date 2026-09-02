@@ -95,64 +95,67 @@ mod post {
             .api_client(&state.database)
             .await?;
 
-        let results = match client
-            .post_instances_instance_databases_database_explorer_query(
-                database_instance.uuid,
-                database,
-                &db_agent_api::instances_instance_databases_database_explorer_query::post::RequestBody {
-                    query: data.query.clone().into(),
-                    rows: data.rows,
-                    read_only: data.read_only,
-                },
-            )
-            .await
-        {
-            Ok(response) => response.results,
-            Err(db_agent_api::client::ApiHttpError::Http(StatusCode::BAD_REQUEST, err)) => {
-                return ApiResponse::new_serialized(ApiError::new_database_agent_value(err))
-                    .with_status(StatusCode::BAD_REQUEST)
-                    .ok();
-            }
-            Err(db_agent_api::client::ApiHttpError::Http(StatusCode::NOT_FOUND, err)) => {
-                return ApiResponse::new_serialized(ApiError::new_database_agent_value(err))
-                    .with_status(StatusCode::NOT_FOUND)
-                    .ok();
-            }
-            Err(db_agent_api::client::ApiHttpError::Http(StatusCode::REQUEST_TIMEOUT, err)) => {
-                return ApiResponse::new_serialized(ApiError::new_database_agent_value(err))
-                    .with_status(StatusCode::REQUEST_TIMEOUT)
-                    .ok();
-            }
-            Err(db_agent_api::client::ApiHttpError::Http(StatusCode::CONFLICT, err)) => {
-                return ApiResponse::new_serialized(ApiError::new_database_agent_value(err))
-                    .with_status(StatusCode::CONFLICT)
-                    .ok();
-            }
-            Err(db_agent_api::client::ApiHttpError::Http(StatusCode::EXPECTATION_FAILED, err)) => {
-                return ApiResponse::new_serialized(ApiError::new_database_agent_value(err))
-                    .with_status(StatusCode::EXPECTATION_FAILED)
-                    .ok();
-            }
-            Err(err) => return Err(err.into()),
-        };
+        tokio::spawn(async move {
+            let results = match client
+                .post_instances_instance_databases_database_explorer_query(
+                    database_instance.uuid,
+                    database,
+                    &db_agent_api::instances_instance_databases_database_explorer_query::post::RequestBody {
+                        query: data.query.clone().into(),
+                        rows: data.rows,
+                        read_only: data.read_only,
+                    },
+                )
+                .await
+            {
+                Ok(response) => response.results,
+                Err(db_agent_api::client::ApiHttpError::Http(StatusCode::BAD_REQUEST, err)) => {
+                    return ApiResponse::new_serialized(ApiError::new_database_agent_value(err))
+                        .with_status(StatusCode::BAD_REQUEST)
+                        .ok();
+                }
+                Err(db_agent_api::client::ApiHttpError::Http(StatusCode::NOT_FOUND, err)) => {
+                    return ApiResponse::new_serialized(ApiError::new_database_agent_value(err))
+                        .with_status(StatusCode::NOT_FOUND)
+                        .ok();
+                }
+                Err(db_agent_api::client::ApiHttpError::Http(StatusCode::REQUEST_TIMEOUT, err)) => {
+                    return ApiResponse::new_serialized(ApiError::new_database_agent_value(err))
+                        .with_status(StatusCode::REQUEST_TIMEOUT)
+                        .ok();
+                }
+                Err(db_agent_api::client::ApiHttpError::Http(StatusCode::CONFLICT, err)) => {
+                    return ApiResponse::new_serialized(ApiError::new_database_agent_value(err))
+                        .with_status(StatusCode::CONFLICT)
+                        .ok();
+                }
+                Err(db_agent_api::client::ApiHttpError::Http(StatusCode::EXPECTATION_FAILED, err)) => {
+                    return ApiResponse::new_serialized(ApiError::new_database_agent_value(err))
+                        .with_status(StatusCode::EXPECTATION_FAILED)
+                        .ok();
+                }
+                Err(err) => return Err(err.into()),
+            };
 
-        activity_logger
-            .log(
-                "server:database-instance.database.query",
-                serde_json::json!({
-                    "uuid": database_instance.uuid,
-                    "name": database_instance.name,
-                    "database_uuid": database,
-                    "read_only": data.read_only,
-                    "query": data.query.chars().take(QUERY_ACTIVITY_LENGTH).collect::<String>(),
-                }),
-            )
-            .await;
+            activity_logger
+                .log(
+                    "server:database-instance.database.query",
+                    serde_json::json!({
+                        "uuid": database_instance.uuid,
+                        "name": database_instance.name,
+                        "database_uuid": database,
+                        "read_only": data.read_only,
+                        "query": data.query.chars().take(QUERY_ACTIVITY_LENGTH).collect::<String>(),
+                    }),
+                )
+                .await;
 
-        ApiResponse::new_serialized(Response {
-            results: results.into_iter().map(Into::into).collect(),
+            ApiResponse::new_serialized(Response {
+                results: results.into_iter().map(Into::into).collect(),
+            })
+            .ok()
         })
-        .ok()
+        .await?
     }
 }
 

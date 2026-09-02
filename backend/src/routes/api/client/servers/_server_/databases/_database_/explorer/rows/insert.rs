@@ -78,32 +78,35 @@ mod post {
             .ok();
         }
 
-        let affected = match database
-            .mutate_rows(
-                &state.database,
-                data.schema.as_deref(),
-                &data.table,
-                RowOperation::Insert(&data.rows),
-            )
-            .await
-        {
-            Ok(affected) => affected,
-            Err(err) => return ApiResponse::from(err).ok(),
-        };
+        tokio::spawn(async move {
+            let affected = match database
+                .mutate_rows(
+                    &state.database,
+                    data.schema.as_deref(),
+                    &data.table,
+                    RowOperation::Insert(&data.rows),
+                )
+                .await
+            {
+                Ok(affected) => affected,
+                Err(err) => return ApiResponse::from(err).ok(),
+            };
 
-        activity_logger
-            .log(
-                "server:database.rows-insert",
-                serde_json::json!({
-                    "uuid": database.uuid,
-                    "name": database.name,
-                    "table": data.table,
-                    "rows": data.rows.len(),
-                }),
-            )
-            .await;
+            activity_logger
+                .log(
+                    "server:database.rows-insert",
+                    serde_json::json!({
+                        "uuid": database.uuid,
+                        "name": database.name,
+                        "table": data.table,
+                        "rows": data.rows.len(),
+                    }),
+                )
+                .await;
 
-        ApiResponse::new_serialized(Response { affected }).ok()
+            ApiResponse::new_serialized(Response { affected }).ok()
+        })
+        .await?
     }
 }
 

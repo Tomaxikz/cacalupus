@@ -49,43 +49,46 @@ mod get {
             .api_client(&state.database)
             .await?;
 
-        let export = match client
-            .get_instances_instance_export(
-                database_instance.uuid,
-                &db_agent_api::instances_instance_export::get::Query::default(),
-            )
-            .await
-        {
-            Ok(export) => export,
-            Err(db_agent_api::client::ApiHttpError::Http(StatusCode::NOT_FOUND, err)) => {
-                return ApiResponse::new_serialized(ApiError::new_database_agent_value(err))
-                    .with_status(StatusCode::NOT_FOUND)
-                    .ok();
-            }
-            Err(err) => return Err(err.into()),
-        };
+        tokio::spawn(async move {
+            let export = match client
+                .get_instances_instance_export(
+                    database_instance.uuid,
+                    &db_agent_api::instances_instance_export::get::Query::default(),
+                )
+                .await
+            {
+                Ok(export) => export,
+                Err(db_agent_api::client::ApiHttpError::Http(StatusCode::NOT_FOUND, err)) => {
+                    return ApiResponse::new_serialized(ApiError::new_database_agent_value(err))
+                        .with_status(StatusCode::NOT_FOUND)
+                        .ok();
+                }
+                Err(err) => return Err(err.into()),
+            };
 
-        activity_logger
-            .log(
-                "server:database-instance.export",
-                serde_json::json!({
-                    "uuid": database_instance.uuid,
-                    "name": database_instance.name,
-                }),
-            )
-            .await;
+            activity_logger
+                .log(
+                    "server:database-instance.export",
+                    serde_json::json!({
+                        "uuid": database_instance.uuid,
+                        "name": database_instance.name,
+                    }),
+                )
+                .await;
 
-        ApiResponse::new_stream(export)
-            .with_header("Content-Type", "application/octet-stream")
-            .with_header(
-                "Content-Disposition",
-                format!(
-                    "attachment; filename=\"{}.{}\"",
-                    database_instance.name,
-                    database_instance.r#type.dump_extension()
-                ),
-            )
-            .ok()
+            ApiResponse::new_stream(export)
+                .with_header("Content-Type", "application/octet-stream")
+                .with_header(
+                    "Content-Disposition",
+                    format!(
+                        "attachment; filename=\"{}.{}\"",
+                        database_instance.name,
+                        database_instance.r#type.dump_extension()
+                    ),
+                )
+                .ok()
+        })
+        .await?
     }
 }
 

@@ -67,39 +67,42 @@ mod put {
     ) -> ApiResponseResult {
         permissions.has_server_permission("database-instances.users")?;
 
-        let response = database_instance
-            .database_agent_host
-            .api_client(&state.database)
-            .await?
-            .put_instances_instance_users_user_databases_database(
-                database_instance.uuid,
-                user,
-                database,
-                &db_agent_api::instances_instance_users_user_databases_database::put::RequestBody {
-                    permission: data.permission,
-                },
-            )
-            .await?;
+        tokio::spawn(async move {
+            let response = database_instance
+                .database_agent_host
+                .api_client(&state.database)
+                .await?
+                .put_instances_instance_users_user_databases_database(
+                    database_instance.uuid,
+                    user,
+                    database,
+                    &db_agent_api::instances_instance_users_user_databases_database::put::RequestBody {
+                        permission: data.permission,
+                    },
+                )
+                .await?;
 
-        activity_logger
-            .log(
-                "server:database-instance.user.permission-update",
-                serde_json::json!({
-                    "uuid": database_instance.uuid,
-                    "name": database_instance.name,
-                    "user_uuid": user,
-                    "database_uuid": database,
-                    "permission": data.permission,
-                }),
-            )
-            .await;
+            activity_logger
+                .log(
+                    "server:database-instance.user.permission-update",
+                    serde_json::json!({
+                        "uuid": database_instance.uuid,
+                        "name": database_instance.name,
+                        "user_uuid": user,
+                        "database_uuid": database,
+                        "permission": data.permission,
+                    }),
+                )
+                .await;
 
-        ApiResponse::new_serialized(Response {
-            database: response
-                .database
-                .map(ApiServerDatabaseInstanceUserDatabase::from),
+            ApiResponse::new_serialized(Response {
+                database: response
+                    .database
+                    .map(ApiServerDatabaseInstanceUserDatabase::from),
+            })
+            .ok()
         })
-        .ok()
+        .await?
     }
 }
 

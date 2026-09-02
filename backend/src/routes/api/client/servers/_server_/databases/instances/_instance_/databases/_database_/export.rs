@@ -58,38 +58,41 @@ mod get {
             Err(err) => return Err(err.into()),
         };
 
-        let export = client
-            .get_instances_instance_export(
-                database_instance.uuid,
-                &db_agent_api::instances_instance_export::get::Query {
-                    db: Some(db.clone()),
-                    ..Default::default()
-                },
-            )
-            .await?;
+        tokio::spawn(async move {
+            let export = client
+                .get_instances_instance_export(
+                    database_instance.uuid,
+                    &db_agent_api::instances_instance_export::get::Query {
+                        db: Some(db.clone()),
+                        ..Default::default()
+                    },
+                )
+                .await?;
 
-        activity_logger
-            .log(
-                "server:database-instance.database.export",
-                serde_json::json!({
-                    "uuid": database_instance.uuid,
-                    "name": database_instance.name,
-                    "database_uuid": database,
-                }),
-            )
-            .await;
+            activity_logger
+                .log(
+                    "server:database-instance.database.export",
+                    serde_json::json!({
+                        "uuid": database_instance.uuid,
+                        "name": database_instance.name,
+                        "database_uuid": database,
+                    }),
+                )
+                .await;
 
-        ApiResponse::new_stream(export)
-            .with_header("Content-Type", "application/octet-stream")
-            .with_header(
-                "Content-Disposition",
-                format!(
-                    "attachment; filename=\"{}.{}\"",
-                    db,
-                    database_instance.r#type.dump_extension()
-                ),
-            )
-            .ok()
+            ApiResponse::new_stream(export)
+                .with_header("Content-Type", "application/octet-stream")
+                .with_header(
+                    "Content-Disposition",
+                    format!(
+                        "attachment; filename=\"{}.{}\"",
+                        db,
+                        database_instance.r#type.dump_extension()
+                    ),
+                )
+                .ok()
+        })
+        .await?
     }
 }
 

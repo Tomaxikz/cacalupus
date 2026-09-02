@@ -77,33 +77,36 @@ mod post {
             .ok();
         }
 
-        if let Err(err) = database
-            .rename_column(
-                &state.database,
-                data.schema.as_deref(),
-                &data.table,
-                &data.column,
-                &data.name,
-            )
-            .await
-        {
-            return ApiResponse::from(err).ok();
-        }
+        tokio::spawn(async move {
+            if let Err(err) = database
+                .rename_column(
+                    &state.database,
+                    data.schema.as_deref(),
+                    &data.table,
+                    &data.column,
+                    &data.name,
+                )
+                .await
+            {
+                return ApiResponse::from(err).ok();
+            }
 
-        activity_logger
-            .log(
-                "server:database.column-rename",
-                serde_json::json!({
-                    "uuid": database.uuid,
-                    "name": database.name,
-                    "table": data.table,
-                    "column": data.column,
-                    "to": data.name,
-                }),
-            )
-            .await;
+            activity_logger
+                .log(
+                    "server:database.column-rename",
+                    serde_json::json!({
+                        "uuid": database.uuid,
+                        "name": database.name,
+                        "table": data.table,
+                        "column": data.column,
+                        "to": data.name,
+                    }),
+                )
+                .await;
 
-        ApiResponse::new_serialized(Response {}).ok()
+            ApiResponse::new_serialized(Response {}).ok()
+        })
+        .await?
     }
 }
 
