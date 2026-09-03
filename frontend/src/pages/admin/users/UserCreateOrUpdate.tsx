@@ -198,7 +198,11 @@ export default function UserCreateOrUpdate({ contextUser }: { contextUser?: z.in
                 {t('common.button.save', {})}
               </Button>
               {!contextUser && (
-                <Button onClick={() => doCreateOrUpdate(true)} disabled={!form.isValid()} loading={loading}>
+                <Button
+                  onClick={() => doCreateOrUpdate(true, queryKeys.admin.users.all())}
+                  disabled={!form.isValid()}
+                  loading={loading}
+                >
                   {t('common.button.saveAndStay', {})}
                 </Button>
               )}

@@ -5,7 +5,7 @@ import getUserByExternalId from '@/api/admin/users/getUserByExternalId.ts';
 import ResourceLookupModal from '@/elements/modals/ResourceLookupModal.tsx';
 import { useTranslations } from '@/providers/TranslationProvider.tsx';
 
-export default function ExternalIdLookupModal({ ...props }: ModalProps) {
+export default function ExternalIdLookupModal(props: ModalProps) {
   const { t } = useTranslations();
   const tr = 'pages.admin.users.externalIdLookup';
 
