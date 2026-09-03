@@ -13,11 +13,10 @@ import { AdminCan } from '@/elements/Can.tsx';
 import AdminContentContainer from '@/elements/containers/AdminContentContainer.tsx';
 import Alert from '@/elements/feedback/Alert.tsx';
 import Spinner from '@/elements/feedback/Spinner.tsx';
-import { type FieldDef, FormEngine, useFormEngine } from '@/elements/form-engine/index.ts';
+import { FormEngine, useFormEngine } from '@/elements/form-engine/index.ts';
 import Group from '@/elements/layout/Group.tsx';
 import ConfirmationModal from '@/elements/modals/ConfirmationModal.tsx';
 import ResourceDuplicateModal from '@/elements/modals/ResourceDuplicateModal.tsx';
-import PermissionSelector from '@/elements/PermissionSelector.tsx';
 import { queryKeys } from '@/lib/queryKeys.ts';
 import { adminRoleUpdateSchema } from '@/lib/schemas/admin/roles.ts';
 import { roleSchema } from '@/lib/schemas/user.ts';
@@ -26,10 +25,9 @@ import { useResourceForm } from '@/plugins/resource/useResourceForm.ts';
 import { useToast } from '@/providers/ToastProvider.tsx';
 import { useTranslations } from '@/providers/TranslationProvider.tsx';
 import { useGlobalStore } from '@/stores/global.ts';
-import { roleEmptyFormValues, roleToFormValues } from './roleFormValues.ts';
+import { roleEmptyFormValues, roleToFormValues, useRoleFormFields } from './roleFormValues.tsx';
 
 type RoleFormValues = z.infer<typeof adminRoleUpdateSchema>;
-type PermissionMapType = 'serverPermissions' | 'adminPermissions';
 
 export default function RoleCreateOrUpdate({ contextRole }: { contextRole?: z.infer<typeof roleSchema> }) {
   const { t } = useTranslations();
@@ -67,33 +65,7 @@ export default function RoleCreateOrUpdate({ contextRole }: { contextRole?: z.in
       .finally(() => setPermissionsLoading(false));
   }, []);
 
-  const permissionField = (name: PermissionMapType, label: string): FieldDef<RoleFormValues> => ({
-    type: 'custom',
-    name,
-    colSpan: 'full',
-    render: (f) => (
-      <PermissionSelector
-        label={label}
-        permissionsMapType={name}
-        permissions={availablePermissions[name]}
-        selectedPermissions={f.getValues()[name]}
-        setSelectedPermissions={(selected) => f.setFieldValue(name, selected)}
-      />
-    ),
-  });
-
-  const fields: FieldDef<RoleFormValues>[] = [
-    { type: 'text', name: 'name', label: t('common.form.name', {}), required: true },
-    { type: 'textarea', name: 'description', label: t('common.form.description', {}), rows: 3 },
-    {
-      type: 'switch',
-      name: 'requireTwoFactor',
-      label: t('pages.admin.roles.tabs.general.page.form.requireTwoFactor', {}),
-      description: t('pages.admin.roles.tabs.general.page.form.requireTwoFactorDescription', {}),
-    },
-    permissionField('serverPermissions', t('pages.admin.roles.tabs.general.page.form.serverPermissions', {})),
-    permissionField('adminPermissions', t('pages.admin.roles.tabs.general.page.form.adminPermissions', {})),
-  ];
+  const fields = useRoleFormFields(availablePermissions);
 
   return (
     <AdminContentContainer

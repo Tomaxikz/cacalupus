@@ -1,4 +1,6 @@
 import { z } from 'zod';
+import { type FieldDef } from '@/elements/form-engine/index.ts';
+import { backupDiskLabelMapping } from '@/lib/enums.ts';
 import {
   adminBackupConfigurationKopiaSchema,
   adminBackupConfigurationPbsSchema,
@@ -7,6 +9,7 @@ import {
   adminBackupConfigurationSchema,
   adminBackupConfigurationUpdateSchema,
 } from '@/lib/schemas/admin/backupConfigurations.ts';
+import { useTranslations } from '@/providers/TranslationProvider.tsx';
 
 type BackupConfigFormValues = Partial<z.infer<typeof adminBackupConfigurationUpdateSchema>>;
 
@@ -63,3 +66,31 @@ export const backupConfigurationToFormValues = (
   shared: backupConfiguration.shared,
   backupDisk: backupConfiguration.backupDisk,
 });
+
+export function useBackupConfigurationFormFields(): FieldDef<BackupConfigFormValues>[] {
+  const { t } = useTranslations();
+
+  return [
+    { type: 'text', name: 'name', label: t('common.form.name', {}), required: true },
+    {
+      type: 'select',
+      name: 'backupDisk',
+      label: t('pages.admin.backupConfigurations.tabs.general.page.form.backupDisk', {}),
+      required: true,
+      options: Object.entries(backupDiskLabelMapping).map(([value, label]) => ({ value, label })),
+    },
+    { type: 'textarea', name: 'description', label: t('common.form.description', {}), rows: 3, colSpan: 'full' },
+    {
+      type: 'switch',
+      name: 'maintenanceEnabled',
+      label: t('common.form.maintenanceEnabled', {}),
+      description: t('pages.admin.backupConfigurations.tabs.general.page.form.maintenanceEnabledDescription', {}),
+    },
+    {
+      type: 'switch',
+      name: 'shared',
+      label: t('pages.admin.backupConfigurations.tabs.general.page.form.shared', {}),
+      description: t('pages.admin.backupConfigurations.tabs.general.page.form.sharedDescription', {}),
+    },
+  ];
+}

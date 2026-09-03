@@ -3,11 +3,25 @@ import { z } from 'zod';
 import { type FieldDef } from '@/elements/form-engine/index.ts';
 import Select from '@/elements/input/Select.tsx';
 import { adminBackupConfigurationSchema } from '@/lib/schemas/admin/backupConfigurations.ts';
-import { adminLocationUpdateSchema } from '@/lib/schemas/admin/locations.ts';
+import { adminLocationSchema, adminLocationUpdateSchema } from '@/lib/schemas/admin/locations.ts';
 import { useSearchableResource } from '@/plugins/resource/useSearchableResource.ts';
 import { useTranslations } from '@/providers/TranslationProvider.tsx';
 
 type LocationFormValues = z.infer<typeof adminLocationUpdateSchema>;
+
+export const locationEmptyFormValues: LocationFormValues = {
+  name: '',
+  description: null,
+  flag: null,
+  backupConfigurationUuid: null,
+};
+
+export const locationToFormValues = (location: z.infer<typeof adminLocationSchema>): Partial<LocationFormValues> => ({
+  name: location.name,
+  description: location.description,
+  flag: location.flag,
+  backupConfigurationUuid: location.backupConfiguration?.uuid ?? null,
+});
 
 export function useLocationFormFields(
   backupConfigurations: ReturnType<typeof useSearchableResource<z.infer<typeof adminBackupConfigurationSchema>>>,
