@@ -15,6 +15,7 @@ export const roleEmptyFormValues: RoleFormValues = {
 export const roleToFormValues = (role: z.infer<typeof roleSchema>): Partial<RoleFormValues> => ({
   name: role.name,
   description: role.description,
+  requireTwoFactor: role.requireTwoFactor,
   adminPermissions: role.adminPermissions,
   serverPermissions: role.serverPermissions,
 });
