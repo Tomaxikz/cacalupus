@@ -31,12 +31,11 @@ import { useAdminCan } from '@/plugins/usePermissions.ts';
 import { useToast } from '@/providers/ToastProvider.tsx';
 import { useTranslations } from '@/providers/TranslationProvider.tsx';
 import {
+  type SystemBackupPolicyFormValues,
   systemBackupPolicyEmptyFormValues,
   systemBackupPolicyToFormValues,
   useSystemBackupPolicyFormFields,
 } from './systemBackupPolicyFormValues.tsx';
-
-type SystemBackupPolicyFormValues = z.infer<typeof adminSystemBackupPolicyUpdateSchema>;
 
 export default function SystemBackupPolicyCreateOrUpdate({
   contextSystemBackupPolicy,

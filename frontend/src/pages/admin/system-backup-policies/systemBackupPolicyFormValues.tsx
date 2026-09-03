@@ -9,7 +9,7 @@ import {
 import { useSearchableResource } from '@/plugins/resource/useSearchableResource.ts';
 import { useTranslations } from '@/providers/TranslationProvider.tsx';
 
-type SystemBackupPolicyFormValues = z.infer<typeof adminSystemBackupPolicyUpdateSchema>;
+export type SystemBackupPolicyFormValues = z.infer<typeof adminSystemBackupPolicyUpdateSchema>;
 
 export const systemBackupPolicyEmptyFormValues: SystemBackupPolicyFormValues = {
   name: '',

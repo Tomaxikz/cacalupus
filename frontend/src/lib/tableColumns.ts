@@ -43,6 +43,27 @@ export const systemBackupPolicyTableColumns = (): string[] => {
   ];
 };
 
+export const systemBackupPolicyLocationTableColumns = (): string[] => {
+  const { t } = getTranslations();
+  return [
+    t('common.table.columns.id', {}),
+    t('common.table.columns.name', {}),
+    t('common.table.columns.added', {}),
+    '',
+  ];
+};
+
+export const systemBackupPolicyServerTableColumns = (): string[] => {
+  const { t } = getTranslations();
+  return [
+    t('common.table.columns.id', {}),
+    t('common.table.columns.name', {}),
+    t('common.table.columns.node', {}),
+    t('common.table.columns.added', {}),
+    '',
+  ];
+};
+
 export const databaseHostTableColumns = (): string[] => {
   const { t } = getTranslations();
   return [
