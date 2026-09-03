@@ -491,6 +491,7 @@ export const scheduleStepLabelMapping: Record<z.infer<typeof serverScheduleStepA
   rename_files: () => getTranslations().t('pages.server.schedules.steps.renameFiles.title', {}),
   compress_files: () => getTranslations().t('pages.server.schedules.steps.compressFiles.title', {}),
   decompress_file: () => getTranslations().t('pages.server.schedules.steps.decompressFile.title', {}),
+  pull_file: () => getTranslations().t('pages.server.schedules.steps.pullFile.title', {}),
   update_startup_variable: () => getTranslations().t('pages.server.schedules.steps.updateStartupVariable.title', {}),
   update_startup_command: () => getTranslations().t('pages.server.schedules.steps.updateStartupCommand.title', {}),
   update_startup_docker_image: () =>
@@ -536,6 +537,7 @@ export const scheduleStepGroupMapping: Record<
   rename_files: 'files',
   compress_files: 'files',
   decompress_file: 'files',
+  pull_file: 'files',
   update_startup_variable: 'startup',
   update_startup_command: 'startup',
   update_startup_docker_image: 'startup',
@@ -570,6 +572,7 @@ export const scheduleStepDescriptionMapping: Record<
   rename_files: () => getTranslations().t('pages.server.schedules.steps.renameFiles.description', {}),
   compress_files: () => getTranslations().t('pages.server.schedules.steps.compressFiles.description', {}),
   decompress_file: () => getTranslations().t('pages.server.schedules.steps.decompressFile.description', {}),
+  pull_file: () => getTranslations().t('pages.server.schedules.steps.pullFile.description', {}),
   update_startup_variable: () =>
     getTranslations().t('pages.server.schedules.steps.updateStartupVariable.description', {}),
   update_startup_command: () =>
@@ -718,6 +721,15 @@ export const scheduleStepDefaultMapping: Record<
     root: '/',
     file: '',
   },
+  pull_file: {
+    type: 'pull_file',
+    ignoreFailure: false,
+    foreground: false,
+    root: '/',
+    url: '',
+    fileName: null,
+    useHeader: true,
+  },
   update_startup_variable: {
     type: 'update_startup_variable',
     ignoreFailure: false,
@@ -773,6 +785,7 @@ export const scheduleStepIconMapping: Record<z.infer<typeof serverScheduleStepAc
   rename_files: faEdit,
   compress_files: faCompress,
   decompress_file: faExpand,
+  pull_file: faDownload,
   update_startup_variable: faGear,
   update_startup_command: faCode,
   update_startup_docker_image: faDocker,

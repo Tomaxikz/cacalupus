@@ -6149,6 +6149,23 @@
                 }
               }
             },
+            "pullFile": {
+              "title": "Datei herunterladen",
+              "description": "Lädt eine Datei von einer URL in einen Ordner herunter.",
+              "form": {
+                "useHeader": "Dateinamen aus Antwort verwenden",
+                "useHeaderDescription": "Benennt die Datei nach dem Content-Disposition-Header, wenn kein Dateiname gesetzt ist."
+              },
+              "renderer": {
+                "compact": "Lade {url} nach {root}",
+                "detail": {
+                  "url": "URL: {url}",
+                  "root": "Root: {root}",
+                  "fileName": "Dateiname: {fileName}",
+                  "useHeader": "Dateinamen aus Antwort verwenden: {value}"
+                }
+              }
+            },
             "updateStartupVariable": {
               "title": "Startvariable aktualisieren",
               "description": "Ändert den Wert einer Startvariable.",

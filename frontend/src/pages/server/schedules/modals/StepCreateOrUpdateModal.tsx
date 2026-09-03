@@ -43,6 +43,7 @@ import StepHttpRequest from '../steps/StepHttpRequest.tsx';
 import StepIf from '../steps/StepIf.tsx';
 import StepMatchRegex from '../steps/StepMatchRegex.tsx';
 import StepMoveBackup from '../steps/StepMoveBackup.tsx';
+import StepPullFile from '../steps/StepPullFile.tsx';
 import StepRenameFiles from '../steps/StepRenameFiles.tsx';
 import StepRestoreBackup from '../steps/StepRestoreBackup.tsx';
 import StepSendCommand from '../steps/StepSendCommand.tsx';
@@ -210,6 +211,8 @@ export default function StepCreateOrUpdateModal({
           <StepCompressFiles form={form} />
         ) : form.values.action.type === 'decompress_file' ? (
           <StepDecompressFile form={form} />
+        ) : form.values.action.type === 'pull_file' ? (
+          <StepPullFile form={form} />
         ) : form.values.action.type === 'update_startup_variable' ? (
           <StepUpdateStartupVariable form={form} />
         ) : form.values.action.type === 'update_startup_command' ? (

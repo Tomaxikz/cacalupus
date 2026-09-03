@@ -6234,6 +6234,23 @@ const baseTranslations = defineTranslations({
                 },
               },
             },
+            pullFile: {
+              title: 'Pull File',
+              description: 'Download a file from a URL into a folder.',
+              form: {
+                useHeader: 'Use Response File Name',
+                useHeaderDescription: 'Name the file after the Content-Disposition header when no file name is set.',
+              },
+              renderer: {
+                compact: 'Pull {url} into {root}',
+                detail: {
+                  url: 'URL: {url}',
+                  root: 'Root: {root}',
+                  fileName: 'File Name: {fileName}',
+                  useHeader: 'Use Response File Name: {value}',
+                },
+              },
+            },
             updateStartupVariable: {
               title: 'Update Startup Variable',
               description: 'Change the value of a startup variable.',

@@ -335,6 +335,36 @@ export function renderDetailed(action: Action, { t, tReact, tItem }: Translation
           <IgnoreFailureText ignoreFailure={action.ignoreFailure} />
         </Stack>
       );
+    case 'pull_file':
+      return (
+        <Stack gap='xs'>
+          <Text size='sm'>
+            {tReact('pages.server.schedules.steps.pullFile.renderer.detail.url', {
+              url: <ScheduleDynamicParameterRenderer value={action.url} />,
+            })}
+          </Text>
+          <Text size='sm'>
+            {tReact('pages.server.schedules.steps.pullFile.renderer.detail.root', {
+              root: <ScheduleDynamicParameterRenderer value={action.root} />,
+            })}
+          </Text>
+          {action.fileName ? (
+            <Text size='sm'>
+              {tReact('pages.server.schedules.steps.pullFile.renderer.detail.fileName', {
+                fileName: <ScheduleDynamicParameterRenderer value={action.fileName} />,
+              })}
+            </Text>
+          ) : (
+            <Text size='xs' c='dimmed'>
+              {t('pages.server.schedules.steps.pullFile.renderer.detail.useHeader', {
+                value: yesNo(action.useHeader),
+              })}
+            </Text>
+          )}
+          <ForegroundText foreground={action.foreground} />
+          <IgnoreFailureText ignoreFailure={action.ignoreFailure} />
+        </Stack>
+      );
     case 'update_startup_variable':
       return (
         <Stack gap='xs'>

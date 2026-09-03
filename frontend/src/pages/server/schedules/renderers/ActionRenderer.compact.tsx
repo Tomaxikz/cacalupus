@@ -171,6 +171,15 @@ export function renderCompact(action: Action, { t, tReact, tItem }: Translations
           })}
         </span>
       );
+    case 'pull_file':
+      return (
+        <span>
+          {tReact('pages.server.schedules.steps.pullFile.renderer.compact', {
+            url: <ScheduleDynamicParameterRenderer value={action.url} />,
+            root: <ScheduleDynamicParameterRenderer value={action.root} />,
+          })}
+        </span>
+      );
     case 'update_startup_variable':
       return (
         <span>
