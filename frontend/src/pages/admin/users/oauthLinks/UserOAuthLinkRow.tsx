@@ -90,7 +90,7 @@ export default function UserOAuthLinkRow({
             </TableData>
 
             <TableData>
-              {!userOAuthLink.lastUsed ? t('common.na', {}) : <FormattedTimestamp timestamp={userOAuthLink.lastUsed} />}
+              <FormattedTimestamp timestamp={userOAuthLink.lastUsed} showNA />
             </TableData>
 
             <TableData>

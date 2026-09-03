@@ -20,7 +20,11 @@ import Code from '@/elements/typography/Code.tsx';
 import Title from '@/elements/typography/Title.tsx';
 import { downloadResourceFile, type ResourceExportFormat } from '@/lib/download/export.ts';
 import { queryKeys } from '@/lib/queryKeys.ts';
-import { adminOAuthProviderSchema, adminOAuthProviderUpdateSchema } from '@/lib/schemas/admin/oauthProviders.ts';
+import {
+  adminOAuthProviderSchema,
+  adminOAuthProviderUpdateSchema,
+  oauthProviderSecretFields,
+} from '@/lib/schemas/admin/oauthProviders.ts';
 import { useHydrateForm } from '@/plugins/form/useHydrateForm.ts';
 import { useResourceForm } from '@/plugins/resource/useResourceForm.ts';
 import { useToast } from '@/providers/ToastProvider.tsx';
@@ -75,7 +79,7 @@ export default function OAuthProviderCreateOrUpdate({
       contextOAuthProvider,
       `oauth-provider-${contextOAuthProvider.uuid}`,
       format,
-      ['client_id', 'client_secret'],
+      oauthProviderSecretFields,
     );
 
     addToast(t('pages.admin.oAuthProviders.tabs.general.page.toast.exported', {}), 'success');

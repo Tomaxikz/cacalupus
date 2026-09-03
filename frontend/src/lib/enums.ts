@@ -345,6 +345,12 @@ export const oauthProviderMappingMatcherLabelMapping: Record<AdminOAuthProviderM
     getTranslations().t('pages.admin.oAuthProviders.tabs.mappings.page.enum.matcherType.fieldEndsWith', {}),
 };
 
+export function oauthProviderMappingMatcherSummary(matcher: AdminOAuthProviderMappingMatcher): string {
+  const label = oauthProviderMappingMatcherLabelMapping[matcher.type]();
+
+  return matcher.type === 'and' || matcher.type === 'or' ? `${label} (${matcher.matchers.length})` : label;
+}
+
 export const scheduleConditionLabelMapping: Record<
   z.infer<typeof serverScheduleConditionSchema>['type'],
   () => string
