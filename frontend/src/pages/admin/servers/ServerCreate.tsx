@@ -38,14 +38,14 @@ import { adminBackupConfigurationSchema } from '@/lib/schemas/admin/backupConfig
 import { adminEggSchema, adminEggVariableSchema } from '@/lib/schemas/admin/eggs.ts';
 import { adminNestSchema } from '@/lib/schemas/admin/nests.ts';
 import { adminNodeAllocationSchema, adminNodeSchema } from '@/lib/schemas/admin/nodes.ts';
-import { adminServerCreateSchema, adminServerSchema } from '@/lib/schemas/admin/servers.ts';
+import { AdminServer, adminServerCreateSchema } from '@/lib/schemas/admin/servers.ts';
 import { fullUserSchema } from '@/lib/schemas/user.ts';
 import { useResourceForm } from '@/plugins/resource/useResourceForm.ts';
 import { useSearchableResource } from '@/plugins/resource/useSearchableResource.ts';
 import { useAdminCan } from '@/plugins/usePermissions.ts';
 import { useToast } from '@/providers/ToastProvider.tsx';
 import { useTranslations } from '@/providers/TranslationProvider.tsx';
-import { serverCreateEmptyFormValues, useServerCreateFields } from './serverFormValues.tsx';
+import { serverCreateEmptyFormValues, useEggDefaults, useServerFormFields } from './serverFormValues.tsx';
 
 type ServerCreateFormValues = z.infer<typeof adminServerCreateSchema>;
 
@@ -71,7 +71,7 @@ export default function ServerCreate() {
     validateInputOnBlur: true,
   });
 
-  const { loading, doCreateOrUpdate } = useResourceForm<ServerCreateFormValues, z.infer<typeof adminServerSchema>>({
+  const { loading, doCreateOrUpdate } = useResourceForm<ServerCreateFormValues, AdminServer>({
     form,
     createFn: () => createServer(form.getValues()),
     doUpdate: false,
@@ -150,15 +150,7 @@ export default function ServerCreate() {
 
   const eggImages = eggs.items.find((egg) => egg.uuid === selectedEggUuid)?.dockerImages || {};
 
-  useEffect(() => {
-    const egg = eggs.items.find((egg) => egg.uuid === selectedEggUuid);
-    if (!egg) {
-      return;
-    }
-
-    form.setFieldValue('image', Object.values(egg.dockerImages)[0] ?? '');
-    form.setFieldValue('startup', egg.startupCommands['Default'] || Object.values(egg.startupCommands)[0] || '');
-  }, [selectedEggUuid]);
+  useEggDefaults(form, eggs, selectedEggUuid);
 
   useEffect(() => {
     if (!selectedNestUuid || !selectedEggUuid) {
@@ -177,7 +169,8 @@ export default function ServerCreate() {
   }, [selectedNestUuid, selectedEggUuid]);
 
   const { basicInfoFields, serverAssignmentFields, resourceLimitsFields, serverConfigFields, featureLimitsFields } =
-    useServerCreateFields({
+    useServerFormFields<ServerCreateFormValues>({
+      mode: 'create',
       form,
       nodes,
       users,

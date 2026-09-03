@@ -338,6 +338,19 @@ export const serverTableColumns = (): string[] => {
   ];
 };
 
+export const serverBackupTableColumns = (): string[] => {
+  const { t } = getTranslations();
+  return [
+    t('common.table.columns.name', {}),
+    t('common.table.columns.node', {}),
+    t('common.table.columns.checksum', {}),
+    t('common.table.columns.size', {}),
+    t('common.table.columns.files', {}),
+    t('common.table.columns.created', {}),
+    '',
+  ];
+};
+
 export const serverMountTableColumns = (): string[] => {
   const { t } = getTranslations();
   return [

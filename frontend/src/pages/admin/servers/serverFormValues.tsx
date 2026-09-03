@@ -1,5 +1,5 @@
 import { UseFormReturnType } from '@mantine/form';
-import { useMemo } from 'react';
+import { useEffect, useMemo } from 'react';
 import { z } from 'zod';
 import type { FieldDef } from '@/elements/form-engine/index.ts';
 import Select from '@/elements/input/Select.tsx';
@@ -9,23 +9,27 @@ import { adminBackupConfigurationSchema } from '@/lib/schemas/admin/backupConfig
 import { adminEggSchema } from '@/lib/schemas/admin/eggs.ts';
 import { adminNestSchema } from '@/lib/schemas/admin/nests.ts';
 import { adminNodeSchema } from '@/lib/schemas/admin/nodes.ts';
-import { adminServerCreateSchema, adminServerSchema, adminServerUpdateSchema } from '@/lib/schemas/admin/servers.ts';
+import { AdminServer, AdminServerCreate, AdminServerUpdate } from '@/lib/schemas/admin/servers.ts';
 import { fullUserSchema } from '@/lib/schemas/user.ts';
 import { useSearchableResource } from '@/plugins/resource/useSearchableResource.ts';
 import { useTranslations } from '@/providers/TranslationProvider.tsx';
 
 type TFunc = ReturnType<typeof useTranslations>['t'];
-type ServerCreateFormValues = z.infer<typeof adminServerCreateSchema>;
-type ServerUpdateFormValues = z.infer<typeof adminServerUpdateSchema>;
+type ServerCreateFormValues = AdminServerCreate;
+type ServerUpdateFormValues = AdminServerUpdate;
+type SearchableResource<T> = ReturnType<typeof useSearchableResource<T>>;
+
+export type ServerFormMode = 'create' | 'update';
 
 const timezones = getTimezoneOptions();
 
-export const serverCreateEmptyFormValues: ServerCreateFormValues = {
+const baseServerFormValues = {
+  ownerUuid: '',
+  eggUuid: '',
+  backupConfigurationUuid: null,
   externalId: null,
   name: '',
   description: null,
-  startOnCompletion: true,
-  skipInstaller: false,
   limits: {
     cpu: 100,
     memory: 1024,
@@ -46,45 +50,23 @@ export const serverCreateEmptyFormValues: ServerCreateFormValues = {
     backups: 5,
     schedules: 5,
   },
+} satisfies Partial<ServerCreateFormValues> & Partial<ServerUpdateFormValues>;
+
+export const serverCreateEmptyFormValues: ServerCreateFormValues = {
+  ...baseServerFormValues,
+  startOnCompletion: true,
+  skipInstaller: false,
   nodeUuid: '',
-  ownerUuid: '',
-  eggUuid: '',
-  backupConfigurationUuid: null,
   allocationUuid: null,
   allocationUuids: [],
   variables: [],
 };
 
 export const serverUpdateEmptyFormValues: ServerUpdateFormValues = {
-  ownerUuid: '',
-  eggUuid: '',
-  backupConfigurationUuid: null,
-  externalId: null,
-  name: '',
-  description: null,
-  limits: {
-    cpu: 100,
-    memory: 1024,
-    memoryOverhead: 0,
-    swap: 0,
-    disk: 10240,
-    ioWeight: null,
-  },
-  pinnedCpus: [],
-  startup: '',
-  image: '',
-  timezone: Intl.DateTimeFormat().resolvedOptions().timeZone,
-  hugepagesPassthroughEnabled: false,
-  kvmPassthroughEnabled: false,
-  featureLimits: {
-    allocations: 5,
-    databases: 5,
-    backups: 5,
-    schedules: 5,
-  },
+  ...baseServerFormValues,
 };
 
-export const serverToFormValues = (server: z.infer<typeof adminServerSchema>): Partial<ServerUpdateFormValues> => ({
+export const serverToFormValues = (server: AdminServer): Partial<ServerUpdateFormValues> => ({
   ownerUuid: server.owner.uuid,
   eggUuid: server.egg.uuid,
   backupConfigurationUuid: server.backupConfiguration?.uuid ?? null,
@@ -100,6 +82,36 @@ export const serverToFormValues = (server: z.infer<typeof adminServerSchema>): P
   kvmPassthroughEnabled: server.kvmPassthroughEnabled,
   featureLimits: server.featureLimits,
 });
+
+interface ServerEggAssignmentFormValues extends Record<string, unknown> {
+  eggUuid: string;
+  startup: string;
+}
+
+export function useEggDefaults<T extends ServerEggAssignmentFormValues>(
+  form: UseFormReturnType<T>,
+  eggs: SearchableResource<z.infer<typeof adminEggSchema>>,
+  selectedEggUuid: string,
+  { skip = false }: { skip?: boolean } = {},
+) {
+  useEffect(() => {
+    if (!selectedEggUuid || skip) {
+      return;
+    }
+
+    const egg = eggs.items.find((e) => e.uuid === selectedEggUuid);
+    if (!egg) {
+      return;
+    }
+
+    form.setFieldValue('image', (Object.values(egg.dockerImages)[0] ?? '') as never);
+    form.setFieldValue(
+      'startup',
+      (egg.startupCommands['Default'] || Object.values(egg.startupCommands)[0] || '') as never,
+    );
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [selectedEggUuid, skip]);
+}
 
 function buildBasicInfoFields<T extends Record<string, unknown>>(t: TFunc): FieldDef<T>[] {
   return [
@@ -236,11 +248,6 @@ function buildResourceLimitsFields<T extends Record<string, unknown>>(
   ];
 }
 
-interface ServerEggAssignmentFormValues extends Record<string, unknown> {
-  eggUuid: string;
-  startup: string;
-}
-
 function buildNestSelectField<T extends ServerEggAssignmentFormValues>(
   t: TFunc,
   {
@@ -253,7 +260,7 @@ function buildNestSelectField<T extends ServerEggAssignmentFormValues>(
     form: UseFormReturnType<T>;
     selectedNestUuid: string | null;
     setSelectedNestUuid: (uuid: string | null) => void;
-    nests: ReturnType<typeof useSearchableResource<z.infer<typeof adminNestSchema>>>;
+    nests: SearchableResource<z.infer<typeof adminNestSchema>>;
     canReadNests: boolean;
   },
 ): FieldDef<T> {
@@ -287,7 +294,7 @@ function buildStartupField<T extends ServerEggAssignmentFormValues>(
     eggs,
   }: {
     form: UseFormReturnType<T>;
-    eggs: ReturnType<typeof useSearchableResource<z.infer<typeof adminEggSchema>>>;
+    eggs: SearchableResource<z.infer<typeof adminEggSchema>>;
   },
 ): FieldDef<T> {
   return {
@@ -332,154 +339,198 @@ function buildStartupField<T extends ServerEggAssignmentFormValues>(
   };
 }
 
-interface ServerCreateFieldsOptions {
-  form: UseFormReturnType<ServerCreateFormValues>;
-  nodes: ReturnType<typeof useSearchableResource<z.infer<typeof adminNodeSchema>>>;
-  users: ReturnType<typeof useSearchableResource<z.infer<typeof fullUserSchema>>>;
-  nests: ReturnType<typeof useSearchableResource<z.infer<typeof adminNestSchema>>>;
-  eggs: ReturnType<typeof useSearchableResource<z.infer<typeof adminEggSchema>>>;
-  backupConfigurations: ReturnType<typeof useSearchableResource<z.infer<typeof adminBackupConfigurationSchema>>>;
-  canReadNodes: boolean;
+function buildPredefinedImageField<T extends Record<string, unknown>>(
+  t: TFunc,
+  { form, eggImages }: { form: UseFormReturnType<T>; eggImages: Record<string, string> },
+): FieldDef<T> {
+  return {
+    type: 'custom',
+    name: '_predefinedImage',
+    render: (f) => (
+      <Select
+        label={t('pages.admin.servers.tabs.general.page.form.predefinedDockerImages', {})}
+        placeholder={t('pages.admin.servers.tabs.general.page.form.predefinedDockerImagesPlaceholder', {})}
+        data={Object.entries(eggImages).map(([label, value]) => ({ label, value }))}
+        allowDeselect
+        clearable
+        searchable
+        value={
+          Object.entries(eggImages).some(([, value]) => value === form.getValues().image)
+            ? (form.getValues().image as string)
+            : null
+        }
+        onChange={(value) => f.setFieldValue('image', (value || '') as never)}
+      />
+    ),
+  };
+}
+
+interface ServerAssignmentOptions<T extends ServerEggAssignmentFormValues> {
+  mode: ServerFormMode;
+  form: UseFormReturnType<T>;
+  nodes?: SearchableResource<z.infer<typeof adminNodeSchema>>;
+  users: SearchableResource<z.infer<typeof fullUserSchema>>;
+  nests: SearchableResource<z.infer<typeof adminNestSchema>>;
+  eggs: SearchableResource<z.infer<typeof adminEggSchema>>;
+  backupConfigurations: SearchableResource<z.infer<typeof adminBackupConfigurationSchema>>;
+  canReadNodes?: boolean;
   canReadUsers: boolean;
   canReadNests: boolean;
   canReadEggs: boolean;
   canReadBackupConfigurations: boolean;
   selectedNestUuid: string | null;
   setSelectedNestUuid: (uuid: string | null) => void;
-  eggImages: Record<string, string>;
 }
 
-export function useServerCreateFields({
-  form,
-  nodes,
-  users,
-  nests,
-  eggs,
-  backupConfigurations,
-  canReadNodes,
-  canReadUsers,
-  canReadNests,
-  canReadEggs,
-  canReadBackupConfigurations,
-  selectedNestUuid,
-  setSelectedNestUuid,
-  eggImages,
-}: ServerCreateFieldsOptions) {
-  const { t } = useTranslations();
+function buildServerAssignmentFields<T extends ServerEggAssignmentFormValues>(
+  t: TFunc,
+  opts: ServerAssignmentOptions<T>,
+): FieldDef<T>[] {
+  const {
+    mode,
+    form,
+    nodes,
+    users,
+    nests,
+    eggs,
+    backupConfigurations,
+    canReadNodes,
+    canReadUsers,
+    canReadNests,
+    canReadEggs,
+    canReadBackupConfigurations,
+    selectedNestUuid,
+    setSelectedNestUuid,
+  } = opts;
 
-  const basicInfoFields = useMemo(() => buildBasicInfoFields<ServerCreateFormValues>(t), [t]);
-
-  const serverAssignmentFields: FieldDef<ServerCreateFormValues>[] = useMemo(
-    (): FieldDef<ServerCreateFormValues>[] => [
-      {
-        type: 'select',
-        name: 'nodeUuid',
-        label: t('common.form.node', {}),
-        required: true,
-        options: nodes.items.map((node) => ({ label: node.name, value: node.uuid })),
-        props: {
-          searchable: true,
-          searchValue: nodes.search,
-          onSearchChange: nodes.setSearch,
-          disabled: !canReadNodes,
-          loading: nodes.loading,
-        },
-      },
-      {
-        type: 'select',
-        name: 'ownerUuid',
-        label: t('pages.admin.servers.tabs.general.page.form.owner', {}),
-        required: true,
-        options: users.items.map((user) => ({ label: user.username, value: user.uuid })),
-        props: {
-          searchable: true,
-          searchValue: users.search,
-          onSearchChange: users.setSearch,
-          loading: users.loading,
-          disabled: !canReadUsers,
-        },
-      },
-      buildNestSelectField<ServerCreateFormValues>(t, {
-        form,
-        selectedNestUuid,
-        setSelectedNestUuid,
-        nests,
-        canReadNests,
-      }),
-      {
-        type: 'select',
-        name: 'eggUuid',
-        label: t('pages.admin.servers.tabs.general.page.form.egg', {}),
-        required: true,
-        options: eggs.items.map((egg) => ({ label: egg.name, value: egg.uuid })),
-        props: {
-          searchable: true,
-          searchValue: eggs.search,
-          onSearchChange: eggs.setSearch,
-          loading: eggs.loading,
-          disabled: !canReadEggs || !selectedNestUuid,
-        },
-      },
-      {
-        type: 'select',
-        name: 'backupConfigurationUuid',
-        label: t('common.form.backupConfiguration', {}),
-        options: backupConfigurations.items.map((bc) => ({ label: bc.name, value: bc.uuid })),
-        props: {
-          placeholder: t('pages.admin.servers.tabs.general.page.form.backupConfigurationPlaceholder', {}),
-          searchable: true,
-          searchValue: backupConfigurations.search,
-          onSearchChange: backupConfigurations.setSearch,
-          allowDeselect: true,
-          clearable: true,
-          disabled: !canReadBackupConfigurations,
-          loading: backupConfigurations.loading,
-        },
-      },
-    ],
-    [
-      t,
-      nodes,
-      canReadNodes,
-      users,
-      canReadUsers,
-      selectedNestUuid,
-      setSelectedNestUuid,
-      nests,
-      canReadNests,
-      eggs,
-      canReadEggs,
-      backupConfigurations,
-      canReadBackupConfigurations,
-    ],
-  );
-
-  const resourceLimitsFields = useMemo(
-    () => buildResourceLimitsFields<ServerCreateFormValues>(t, { swapAdvanced: true }),
-    [t],
-  );
-
-  const serverConfigFields: FieldDef<ServerCreateFormValues>[] = [
-    {
-      type: 'custom',
-      name: '_predefinedImage',
-      render: (f) => (
-        <Select
-          label={t('pages.admin.servers.tabs.general.page.form.predefinedDockerImages', {})}
-          placeholder={t('pages.admin.servers.tabs.general.page.form.predefinedDockerImagesPlaceholder', {})}
-          data={Object.entries(eggImages).map(([label, value]) => ({ label, value }))}
-          allowDeselect
-          clearable
-          searchable
-          value={
-            Object.entries(eggImages).some(([, value]) => value === form.getValues().image)
-              ? form.getValues().image
-              : null
-          }
-          onChange={(value) => f.setFieldValue('image', value || '')}
-        />
-      ),
+  const nodeField: FieldDef<T> = {
+    type: 'select',
+    name: 'nodeUuid',
+    label: t('common.form.node', {}),
+    required: true,
+    options: (nodes?.items ?? []).map((node) => ({ label: node.name, value: node.uuid })),
+    props: {
+      searchable: true,
+      searchValue: nodes?.search,
+      onSearchChange: nodes?.setSearch,
+      disabled: !canReadNodes,
+      loading: nodes?.loading,
     },
+  };
+
+  const ownerField: FieldDef<T> = {
+    type: 'select',
+    name: 'ownerUuid',
+    label: t('pages.admin.servers.tabs.general.page.form.owner', {}),
+    required: true,
+    options: users.items.map((user) => ({ label: user.username, value: user.uuid })),
+    props: {
+      searchable: true,
+      searchValue: users.search,
+      onSearchChange: users.setSearch,
+      loading: users.loading,
+      disabled: !canReadUsers,
+    },
+  };
+
+  const nestField = buildNestSelectField<T>(t, { form, selectedNestUuid, setSelectedNestUuid, nests, canReadNests });
+
+  const eggField: FieldDef<T> = {
+    type: 'select',
+    name: 'eggUuid',
+    label: t('pages.admin.servers.tabs.general.page.form.egg', {}),
+    required: true,
+    options: eggs.items.map((egg) => ({ label: egg.name, value: egg.uuid })),
+    props: {
+      searchable: true,
+      searchValue: eggs.search,
+      onSearchChange: eggs.setSearch,
+      loading: eggs.loading,
+      disabled: !canReadEggs || !selectedNestUuid,
+    },
+  };
+
+  const backupConfigField: FieldDef<T> = {
+    type: 'select',
+    name: 'backupConfigurationUuid',
+    label: t('common.form.backupConfiguration', {}),
+    options: backupConfigurations.items.map((bc) => ({ label: bc.name, value: bc.uuid })),
+    props: {
+      placeholder: t('pages.admin.servers.tabs.general.page.form.backupConfigurationPlaceholder', {}),
+      searchable: true,
+      searchValue: backupConfigurations.search,
+      onSearchChange: backupConfigurations.setSearch,
+      allowDeselect: true,
+      clearable: true,
+      disabled: !canReadBackupConfigurations,
+      loading: backupConfigurations.loading,
+    },
+  };
+
+  return mode === 'create'
+    ? [nodeField, ownerField, nestField, eggField, backupConfigField]
+    : [ownerField, backupConfigField, nestField, eggField];
+}
+
+function buildServerConfigFields<T extends ServerEggAssignmentFormValues>(
+  t: TFunc,
+  {
+    mode,
+    form,
+    eggs,
+    eggImages,
+  }: {
+    mode: ServerFormMode;
+    form: UseFormReturnType<T>;
+    eggs: SearchableResource<z.infer<typeof adminEggSchema>>;
+    eggImages: Record<string, string>;
+  },
+): FieldDef<T>[] {
+  const timezoneField: FieldDef<T> =
+    mode === 'create'
+      ? {
+          type: 'select',
+          name: 'timezone',
+          label: t('common.form.timezone', {}),
+          options: [{ label: t('common.form.timezoneSystem', {}), value: '' }, ...timezones],
+          props: {
+            placeholder: 'Europe/Amsterdam',
+            searchable: true,
+          },
+        }
+      : {
+          type: 'select',
+          name: 'timezone',
+          label: t('common.form.timezone', {}),
+          options: timezones,
+          props: {
+            placeholder: t('common.form.timezoneSystem', {}),
+            searchable: true,
+            allowDeselect: true,
+            clearable: true,
+          },
+        };
+
+  const createOnlyFields: FieldDef<T>[] =
+    mode === 'create'
+      ? [
+          {
+            type: 'switch',
+            name: 'startOnCompletion',
+            label: t('pages.admin.servers.tabs.general.page.form.startOnCompletion', {}),
+            description: t('pages.admin.servers.tabs.general.page.form.startOnCompletionDescription', {}),
+          },
+          {
+            type: 'switch',
+            name: 'skipInstaller',
+            label: t('pages.admin.servers.tabs.general.page.form.skipInstaller', {}),
+            description: t('pages.admin.servers.tabs.general.page.form.skipInstallerDescription', {}),
+          },
+        ]
+      : [];
+
+  return [
+    buildPredefinedImageField<T>(t, { form, eggImages }),
     {
       type: 'text',
       name: 'image',
@@ -487,29 +538,9 @@ export function useServerCreateFields({
       required: true,
       props: { placeholder: 'ghcr.io/...' },
     },
-    {
-      type: 'select',
-      name: 'timezone',
-      label: t('common.form.timezone', {}),
-      options: [{ label: t('common.form.timezoneSystem', {}), value: '' }, ...timezones],
-      props: {
-        placeholder: 'Europe/Amsterdam',
-        searchable: true,
-      },
-    },
-    buildStartupField<ServerCreateFormValues>(t, { form, eggs }),
-    {
-      type: 'switch',
-      name: 'startOnCompletion',
-      label: t('pages.admin.servers.tabs.general.page.form.startOnCompletion', {}),
-      description: t('pages.admin.servers.tabs.general.page.form.startOnCompletionDescription', {}),
-    },
-    {
-      type: 'switch',
-      name: 'skipInstaller',
-      label: t('pages.admin.servers.tabs.general.page.form.skipInstaller', {}),
-      description: t('pages.admin.servers.tabs.general.page.form.skipInstallerDescription', {}),
-    },
+    timezoneField,
+    buildStartupField<T>(t, { form, eggs }),
+    ...createOnlyFields,
     {
       type: 'switch',
       name: 'hugepagesPassthroughEnabled',
@@ -525,18 +556,17 @@ export function useServerCreateFields({
       advanced: true,
     },
   ];
-
-  const featureLimitsFields = useMemo(() => buildFeatureLimitsFields<ServerCreateFormValues>(t), [t]);
-
-  return { basicInfoFields, serverAssignmentFields, resourceLimitsFields, serverConfigFields, featureLimitsFields };
 }
 
-interface ServerUpdateFieldsOptions {
-  form: UseFormReturnType<ServerUpdateFormValues>;
-  users: ReturnType<typeof useSearchableResource<z.infer<typeof fullUserSchema>>>;
-  nests: ReturnType<typeof useSearchableResource<z.infer<typeof adminNestSchema>>>;
-  eggs: ReturnType<typeof useSearchableResource<z.infer<typeof adminEggSchema>>>;
-  backupConfigurations: ReturnType<typeof useSearchableResource<z.infer<typeof adminBackupConfigurationSchema>>>;
+export interface ServerFormFieldsOptions<T extends ServerEggAssignmentFormValues> {
+  mode: ServerFormMode;
+  form: UseFormReturnType<T>;
+  nodes?: SearchableResource<z.infer<typeof adminNodeSchema>>;
+  users: SearchableResource<z.infer<typeof fullUserSchema>>;
+  nests: SearchableResource<z.infer<typeof adminNestSchema>>;
+  eggs: SearchableResource<z.infer<typeof adminEggSchema>>;
+  backupConfigurations: SearchableResource<z.infer<typeof adminBackupConfigurationSchema>>;
+  canReadNodes?: boolean;
   canReadUsers: boolean;
   canReadNests: boolean;
   canReadEggs: boolean;
@@ -546,157 +576,74 @@ interface ServerUpdateFieldsOptions {
   eggImages: Record<string, string>;
 }
 
-export function useServerUpdateFields({
-  form,
-  users,
-  nests,
-  eggs,
-  backupConfigurations,
-  canReadUsers,
-  canReadNests,
-  canReadEggs,
-  canReadBackupConfigurations,
-  selectedNestUuid,
-  setSelectedNestUuid,
-  eggImages,
-}: ServerUpdateFieldsOptions) {
+export function useServerFormFields<T extends ServerEggAssignmentFormValues>(opts: ServerFormFieldsOptions<T>) {
   const { t } = useTranslations();
+  const {
+    mode,
+    form,
+    nodes,
+    users,
+    nests,
+    eggs,
+    backupConfigurations,
+    canReadNodes,
+    canReadUsers,
+    canReadNests,
+    canReadEggs,
+    canReadBackupConfigurations,
+    selectedNestUuid,
+    setSelectedNestUuid,
+    eggImages,
+  } = opts;
 
-  const basicInfoFields = useMemo(() => buildBasicInfoFields<ServerUpdateFormValues>(t), [t]);
+  const basicInfoFields = useMemo(() => buildBasicInfoFields<T>(t), [t]);
+  const featureLimitsFields = useMemo(() => buildFeatureLimitsFields<T>(t), [t]);
+  const resourceLimitsFields = useMemo(
+    () => buildResourceLimitsFields<T>(t, { swapAdvanced: mode === 'create' }),
+    [t, mode],
+  );
 
-  const serverAssignmentFields: FieldDef<ServerUpdateFormValues>[] = useMemo(
-    (): FieldDef<ServerUpdateFormValues>[] => [
-      {
-        type: 'select',
-        name: 'ownerUuid',
-        label: t('pages.admin.servers.tabs.general.page.form.owner', {}),
-        required: true,
-        options: users.items.map((user) => ({ label: user.username, value: user.uuid })),
-        props: {
-          searchable: true,
-          searchValue: users.search,
-          onSearchChange: users.setSearch,
-          disabled: !canReadUsers,
-          loading: users.loading,
-        },
-      },
-      {
-        type: 'select',
-        name: 'backupConfigurationUuid',
-        label: t('common.form.backupConfiguration', {}),
-        options: backupConfigurations.items.map((bc) => ({ label: bc.name, value: bc.uuid })),
-        props: {
-          placeholder: t('pages.admin.servers.tabs.general.page.form.backupConfigurationPlaceholder', {}),
-          searchable: true,
-          searchValue: backupConfigurations.search,
-          onSearchChange: backupConfigurations.setSearch,
-          allowDeselect: true,
-          clearable: true,
-          disabled: !canReadBackupConfigurations,
-          loading: backupConfigurations.loading,
-        },
-      },
-      buildNestSelectField<ServerUpdateFormValues>(t, {
+  const serverAssignmentFields = useMemo(
+    () =>
+      buildServerAssignmentFields<T>(t, {
+        mode,
         form,
+        nodes,
+        users,
+        nests,
+        eggs,
+        backupConfigurations,
+        canReadNodes,
+        canReadUsers,
+        canReadNests,
+        canReadEggs,
+        canReadBackupConfigurations,
         selectedNestUuid,
         setSelectedNestUuid,
-        nests,
-        canReadNests,
       }),
-      {
-        type: 'select',
-        name: 'eggUuid',
-        label: t('pages.admin.servers.tabs.general.page.form.egg', {}),
-        required: true,
-        options: eggs.items.map((egg) => ({ label: egg.name, value: egg.uuid })),
-        props: {
-          searchable: true,
-          searchValue: eggs.search,
-          onSearchChange: eggs.setSearch,
-          loading: eggs.loading,
-          disabled: !canReadEggs || !selectedNestUuid,
-        },
-      },
-    ],
     [
       t,
-      users,
-      canReadUsers,
-      backupConfigurations,
-      canReadBackupConfigurations,
+      mode,
       form,
+      nodes,
+      users,
+      nests,
+      eggs,
+      backupConfigurations,
+      canReadNodes,
+      canReadUsers,
+      canReadNests,
+      canReadEggs,
+      canReadBackupConfigurations,
       selectedNestUuid,
       setSelectedNestUuid,
-      nests,
-      canReadNests,
-      eggs,
-      canReadEggs,
     ],
   );
 
-  const resourceLimitsFields = useMemo(() => buildResourceLimitsFields<ServerUpdateFormValues>(t), [t]);
-
-  const serverConfigFields: FieldDef<ServerUpdateFormValues>[] = useMemo(
-    (): FieldDef<ServerUpdateFormValues>[] => [
-      {
-        type: 'custom',
-        name: '_predefinedImage',
-        render: (f) => (
-          <Select
-            label={t('pages.admin.servers.tabs.general.page.form.predefinedDockerImages', {})}
-            placeholder={t('pages.admin.servers.tabs.general.page.form.predefinedDockerImagesPlaceholder', {})}
-            data={Object.entries(eggImages).map(([label, value]) => ({ label, value }))}
-            allowDeselect
-            clearable
-            searchable
-            value={
-              Object.entries(eggImages).some(([, value]) => value === form.getValues().image)
-                ? form.getValues().image
-                : null
-            }
-            onChange={(value) => f.setFieldValue('image', value || '')}
-          />
-        ),
-      },
-      {
-        type: 'text',
-        name: 'image',
-        label: t('common.form.dockerImage', {}),
-        required: true,
-        props: { placeholder: 'ghcr.io/...' },
-      },
-      {
-        type: 'select',
-        name: 'timezone',
-        label: t('common.form.timezone', {}),
-        options: timezones,
-        props: {
-          placeholder: t('common.form.timezoneSystem', {}),
-          searchable: true,
-          allowDeselect: true,
-          clearable: true,
-        },
-      },
-      buildStartupField<ServerUpdateFormValues>(t, { form, eggs }),
-      {
-        type: 'switch',
-        name: 'hugepagesPassthroughEnabled',
-        label: t('pages.admin.servers.tabs.general.page.form.hugepagesPassthroughEnabled', {}),
-        description: t('pages.admin.servers.tabs.general.page.form.hugepagesPassthroughEnabledDescription', {}),
-        advanced: true,
-      },
-      {
-        type: 'switch',
-        name: 'kvmPassthroughEnabled',
-        label: t('pages.admin.servers.tabs.general.page.form.kvmPassthroughEnabled', {}),
-        description: t('pages.admin.servers.tabs.general.page.form.kvmPassthroughEnabledDescription', {}),
-        advanced: true,
-      },
-    ],
-    [t, eggImages, form, eggs],
+  const serverConfigFields = useMemo(
+    () => buildServerConfigFields<T>(t, { mode, form, eggs, eggImages }),
+    [t, mode, form, eggs, eggImages],
   );
-
-  const featureLimitsFields = useMemo(() => buildFeatureLimitsFields<ServerUpdateFormValues>(t), [t]);
 
   return { basicInfoFields, serverAssignmentFields, resourceLimitsFields, serverConfigFields, featureLimitsFields };
 }

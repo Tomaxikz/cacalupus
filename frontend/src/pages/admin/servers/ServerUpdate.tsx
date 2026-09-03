@@ -7,7 +7,7 @@ import {
   faWrench,
 } from '@fortawesome/free-solid-svg-icons';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
-import { useEffect, useState } from 'react';
+import { useState } from 'react';
 import { z } from 'zod';
 import getBackupConfigurations from '@/api/admin/backup-configurations/getBackupConfigurations.ts';
 import getEggs from '@/api/admin/nests/eggs/getEggs.ts';
@@ -27,18 +27,23 @@ import { queryKeys } from '@/lib/queryKeys.ts';
 import { adminBackupConfigurationSchema } from '@/lib/schemas/admin/backupConfigurations.ts';
 import { adminEggSchema } from '@/lib/schemas/admin/eggs.ts';
 import { adminNestSchema } from '@/lib/schemas/admin/nests.ts';
-import { adminServerSchema, adminServerUpdateSchema } from '@/lib/schemas/admin/servers.ts';
+import { AdminServer, adminServerUpdateSchema } from '@/lib/schemas/admin/servers.ts';
 import { fullUserSchema } from '@/lib/schemas/user.ts';
 import { useHydrateForm } from '@/plugins/form/useHydrateForm.ts';
 import { useResourceForm } from '@/plugins/resource/useResourceForm.ts';
 import { useSearchableResource } from '@/plugins/resource/useSearchableResource.ts';
 import { useAdminCan } from '@/plugins/usePermissions.ts';
 import { useTranslations } from '@/providers/TranslationProvider.tsx';
-import { serverToFormValues, serverUpdateEmptyFormValues, useServerUpdateFields } from './serverFormValues.tsx';
+import {
+  serverToFormValues,
+  serverUpdateEmptyFormValues,
+  useEggDefaults,
+  useServerFormFields,
+} from './serverFormValues.tsx';
 
 type ServerUpdateFormValues = z.infer<typeof adminServerUpdateSchema>;
 
-export default function ServerUpdate({ contextServer }: { contextServer: z.infer<typeof adminServerSchema> }) {
+export default function ServerUpdate({ contextServer }: { contextServer: AdminServer }) {
   const { t } = useTranslations();
   const canReadUsers = useAdminCan('users.read');
   const canReadNests = useAdminCan('nests.read');
@@ -59,7 +64,7 @@ export default function ServerUpdate({ contextServer }: { contextServer: z.infer
   const [selectedEggUuid, setSelectedEggUuid] = useState(contextServer?.egg.uuid ?? '');
   form.watch('eggUuid', ({ value }) => setSelectedEggUuid(value));
 
-  const { loading, doCreateOrUpdate } = useResourceForm<ServerUpdateFormValues, z.infer<typeof adminServerSchema>>({
+  const { loading, doCreateOrUpdate } = useResourceForm<ServerUpdateFormValues, AdminServer>({
     form,
     updateFn: () => updateServer(contextServer.uuid, form.getValues()),
     doUpdate: true,
@@ -98,22 +103,11 @@ export default function ServerUpdate({ contextServer }: { contextServer: z.infer
 
   const eggImages = eggs.items.find((egg) => egg.uuid === selectedEggUuid)?.dockerImages || {};
 
-  useEffect(() => {
-    if (!selectedEggUuid || selectedEggUuid === contextServer.egg.uuid) {
-      return;
-    }
-
-    const egg = eggs.items.find((egg) => egg.uuid === selectedEggUuid);
-    if (!egg) {
-      return;
-    }
-
-    form.setFieldValue('image', Object.values(egg.dockerImages)[0] ?? '');
-    form.setFieldValue('startup', egg.startupCommands['Default'] || Object.values(egg.startupCommands)[0] || '');
-  }, [selectedEggUuid]);
+  useEggDefaults(form, eggs, selectedEggUuid, { skip: selectedEggUuid === contextServer.egg.uuid });
 
   const { basicInfoFields, serverAssignmentFields, resourceLimitsFields, serverConfigFields, featureLimitsFields } =
-    useServerUpdateFields({
+    useServerFormFields<ServerUpdateFormValues>({
+      mode: 'update',
       form,
       users,
       nests,
