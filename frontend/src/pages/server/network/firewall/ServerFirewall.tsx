@@ -40,10 +40,10 @@ interface DndRule extends DndItem {
   rule: Rule;
 }
 
-const denyAllRule: Rule = { action: 'deny', protocols: [], sources: [], ports: null };
+const denyAllRule: Rule = { action: 'deny', protocols: [], sources: [], ports: null, sourceFile: null };
 
 function isCatchAll(rule: Rule): boolean {
-  return rule.protocols.length === 0 && rule.sources.length === 0 && rule.ports === null;
+  return rule.protocols.length === 0 && rule.sources.length === 0 && rule.sourceFile === null && rule.ports === null;
 }
 
 function shadowedRulePositions(rules: Rule[]): number[] {
@@ -53,8 +53,9 @@ function shadowedRulePositions(rules: Rule[]): number[] {
       if (!later.protocols.every((protocol) => earlier.protocols.includes(protocol))) return false;
     }
 
-    if (earlier.sources.length > 0) {
-      if (later.sources.length === 0) return false;
+    if (earlier.sources.length > 0 || earlier.sourceFile !== null) {
+      if (later.sources.length === 0 && later.sourceFile === null) return false;
+      if (later.sourceFile !== earlier.sourceFile) return false;
       if (!later.sources.every((source) => earlier.sources.includes(source))) return false;
     }
 

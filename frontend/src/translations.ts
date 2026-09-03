@@ -6495,6 +6495,7 @@ const baseTranslations = defineTranslations({
             anySource: 'any source',
             anyProtocol: 'TCP & UDP',
             allAllocations: 'all allocations',
+            sourceFile: 'file {file}',
             summary: '{protocols} from {sources} to {ports}',
             aria: {
               reorder: 'Reorder firewall rule {position}',
@@ -6520,6 +6521,9 @@ const baseTranslations = defineTranslations({
             sources: 'Sources',
             sourcesDescription:
               'IP addresses or networks such as 10.0.0.0/8. A network must have its host bits zeroed. Leave empty to match any source.',
+            sourceFile: 'Source File',
+            sourceFileDescription:
+              'Path of a file in the server directory with one IP address or network per line, lines starting with # are ignored. Its entries are added to the sources above, and the node picks up edits to the file on its own.',
             ports: 'Ports',
             portsDescription:
               'Allocation ports this rule applies to, ranges like 25565-25570 are expanded. Leave empty to match every allocation of the server.',

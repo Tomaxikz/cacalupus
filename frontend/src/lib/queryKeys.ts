@@ -258,6 +258,7 @@ const server = (serverUuid: string) => ({
       ['server', serverUuid, 'files', { browsingDirectory, sortMode }] as const,
     fileRevisions: (path: string) => ['server', serverUuid, 'files', 'revisions', path] as const,
     ignoreMatches: (pattern: string) => ['server', serverUuid, 'files', 'ignore-matches', pattern] as const,
+    pathSuggestions: (directory: string) => ['server', serverUuid, 'files', 'path-suggestions', directory] as const,
   },
   firewall: {
     all: () => ['server', serverUuid, 'firewall'] as const,

@@ -114,7 +114,14 @@ export default function FirewallRuleCard({
                             .join(', ')
                         : t('pages.server.firewall.rule.anyProtocol', {}),
                     sources:
-                      rule.sources.length > 0 ? rule.sources.join(', ') : t('pages.server.firewall.rule.anySource', {}),
+                      rule.sources.length > 0 || rule.sourceFile
+                        ? [
+                            ...rule.sources,
+                            ...(rule.sourceFile
+                              ? [t('pages.server.firewall.rule.sourceFile', { file: rule.sourceFile })]
+                              : []),
+                          ].join(', ')
+                        : t('pages.server.firewall.rule.anySource', {}),
                     ports: rule.ports ? rule.ports.join(', ') : t('pages.server.firewall.rule.allAllocations', {}),
                   })}
                 </Text>
