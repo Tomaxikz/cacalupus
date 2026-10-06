@@ -463,7 +463,7 @@ impl ServerDatabase {
                 }
                 crate::models::database_host::DatabasePool::Postgres(pool) => {
                     sqlx::query(sqlx::AssertSqlSafe(format!(
-                        "DROP DATABASE IF EXISTS \"{}\"",
+                        "DROP DATABASE IF EXISTS \"{}\" WITH (FORCE)",
                         self.name
                     )))
                     .execute(&pool)
@@ -471,6 +471,12 @@ impl ServerDatabase {
                     sqlx::query(sqlx::AssertSqlSafe(format!(
                         "CREATE DATABASE \"{}\" WITH OWNER \"{}\" ENCODING 'UTF8'",
                         self.name, self.username
+                    )))
+                    .execute(&pool)
+                    .await?;
+                    sqlx::query(sqlx::AssertSqlSafe(format!(
+                        "REVOKE ALL ON DATABASE \"{}\" FROM PUBLIC",
+                        self.name
                     )))
                     .execute(&pool)
                     .await?;
@@ -768,6 +774,11 @@ impl CreatableModel for ServerDatabase {
                 )))
                 .execute(&pool)
                 .await?;
+                sqlx::query(sqlx::AssertSqlSafe(format!(
+                    "REVOKE ALL ON DATABASE \"{name}\" FROM PUBLIC"
+                )))
+                .execute(&pool)
+                .await?;
 
                 DatabaseTransaction::Postgres(transaction, pool)
             }
@@ -999,7 +1010,7 @@ impl DeletableModel for ServerDatabase {
                     }
                     crate::models::database_host::DatabasePool::Postgres(pool) => {
                         let database = sqlx::query(sqlx::AssertSqlSafe(format!(
-                            "DROP DATABASE IF EXISTS \"{}\"",
+                            "DROP DATABASE IF EXISTS \"{}\" WITH (FORCE)",
                             database_name
                         )))
                         .execute(&pool)
