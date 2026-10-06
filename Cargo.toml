@@ -3,6 +3,7 @@ resolver = "3"
 members = [
 	"backend",
 	"database-migrator",
+	"embedded-assets",
 	"rule-validator",
 	"shared",
 	"bins/*",
@@ -26,6 +27,7 @@ rule-validator = { path = "rule-validator" }
 shared = { path = "shared" }
 backend = { path = "backend" }
 database-migrator = { path = "database-migrator" }
+embedded-assets = { path = "embedded-assets" }
 schema-extension-core = { path = "schema-extension/core" }
 schema-extension-derive = { path = "schema-extension/derive" }
 tracing = { version = "0.1.41", features = ["max_level_debug"] }

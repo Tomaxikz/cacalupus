@@ -82,8 +82,12 @@ export default defineConfig({
     chunkSizeWarningLimit: 1024,
     target: 'es2022',
     cssCodeSplit: true,
+    reportCompressedSize: usePrecompress,
     rolldownOptions: {
       external: ['monaco-editor'],
+      experimental: {
+        lazyBarrel: true,
+      },
       checks: {
         pluginTimings: false,
       },

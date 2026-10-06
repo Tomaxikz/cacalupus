@@ -2478,6 +2478,16 @@ source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "e079f19b08ca6239f47f8ba8509c11cf3ea30095831f7fed61441475edd8c449"
 
 [[package]]
+name = "embedded-assets"
+version = "1.2.5"
+dependencies = [
+ "database-migrator",
+ "flate2",
+ "include_dir",
+ "shared",
+]
+
+[[package]]
 name = "embedded-io"
 version = "0.4.0"
 source = "registry+https://github.com/rust-lang/crates.io-index"
@@ -5781,6 +5791,7 @@ dependencies = [
  "axum",
  "backend",
  "colored",
+ "embedded-assets",
  "extension-internal-list",
  "futures-util",
  "mimalloc",
@@ -5799,6 +5810,7 @@ dependencies = [
  "axum",
  "backend",
  "colored",
+ "embedded-assets",
  "extension-internal-list",
  "futures-util",
  "mimalloc",
