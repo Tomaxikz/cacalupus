@@ -478,6 +478,30 @@ impl User {
         ))
     }
 
+    /// Atomically records `step` as the last accepted TOTP step. Returns `false` when a code from
+    /// this step or a later one was already accepted, so the caller must reject it as a replay.
+    pub async fn consume_totp_step(
+        &self,
+        database: &crate::database::Database,
+        step: u64,
+    ) -> Result<bool, anyhow::Error> {
+        let result = sqlx::query(
+            r#"
+            UPDATE users
+            SET totp_last_used = NOW(), totp_last_step = $2
+            WHERE users.uuid = $1 AND (users.totp_last_step IS NULL OR users.totp_last_step < $2)
+            "#,
+        )
+        .bind(self.uuid)
+        .bind(step as i64)
+        .execute(database.write())
+        .await?;
+
+        Self::invalidate_cached(database, self.uuid).await;
+
+        Ok(result.rows_affected() == 1)
+    }
+
     /// Rewrites a legacy plaintext seed encrypted once a code has verified against it, so every
     /// active account converges on encryption at rest.
     pub async fn reencrypt_totp_secret(
