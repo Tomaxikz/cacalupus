@@ -219,13 +219,14 @@ impl User {
         name_first: Option<&str>,
         name_last: Option<&str>,
         password: &str,
+        language: &str,
     ) -> Result<uuid::Uuid, crate::database::DatabaseError> {
         let password = BcryptString::hash(password).await?;
 
         let row = sqlx::query(
             r#"
-            INSERT INTO users (username, email, name_first, name_last, password, admin)
-            VALUES ($1, $2, $3, $4, $5, (SELECT COUNT(*) = 0 FROM users))
+            INSERT INTO users (username, email, name_first, name_last, password, language, admin)
+            VALUES ($1, $2, $3, $4, $5, $6, (SELECT COUNT(*) = 0 FROM users))
             RETURNING users.uuid
             "#,
         )
@@ -234,6 +235,7 @@ impl User {
         .bind(name_first)
         .bind(name_last)
         .bind(password)
+        .bind(language)
         .fetch_one(database.write())
         .await?;
 

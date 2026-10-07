@@ -1,5 +1,5 @@
 import { Table, Text, Title, TitleOrder } from '@mantine/core';
-import { Fragment, ReactNode, startTransition, useEffect, useMemo, useState } from 'react';
+import { Fragment, ReactNode, startTransition, useCallback, useEffect, useMemo, useRef, useState } from 'react';
 import Markdown from 'react-markdown';
 import rehypeRaw from 'rehype-raw';
 import rehypeSanitize from 'rehype-sanitize';
@@ -16,7 +16,7 @@ import { $ZodConfig } from 'zod/v4/core';
 import { axiosInstance } from '@/api/axios.ts';
 import Anchor from '@/elements/typography/Anchor.tsx';
 import Code from '@/elements/typography/Code.tsx';
-import { getGlobalStore } from '@/stores/global.ts';
+import { getGlobalStore, useGlobalStore } from '@/stores/global.ts';
 import baseTranslations from '@/translations.ts';
 
 const zodLocaleModules = import.meta.glob('/node_modules/zod/v4/locales/*.js');
@@ -59,6 +59,21 @@ const SafeMarkdownLink = ({ href, children }: { href?: string; children?: ReactN
       {children}
     </Anchor>
   );
+};
+
+const detectBrowserLanguage = (languages: string[]): string | null => {
+  for (const tag of navigator.languages) {
+    if (languages.includes(tag)) return tag;
+
+    try {
+      const base = new Intl.Locale(tag).language;
+      if (languages.includes(base)) return base;
+    } catch {
+      // ignore
+    }
+  }
+
+  return null;
 };
 
 const Header =
@@ -125,10 +140,29 @@ String.prototype.md = function (options?: MarkdownOptions): ReactNode {
 };
 
 const TranslationProvider = ({ children }: { children: ReactNode }) => {
-  const [language, setLanguage] = useState(
+  const [language, setLanguageState] = useState(
     localStorage.getItem('last_language') || getGlobalStore().settings.app.language || 'en',
   );
   const [languageData, setLanguageData] = useState<LanguageData | null>(null);
+  const languages = useGlobalStore((state) => state.languages);
+  const pendingDetection = useRef(
+    !localStorage.getItem('last_language') && getGlobalStore().settings.user.allowChangingLanguage,
+  );
+
+  const setLanguage = useCallback((value: string) => {
+    pendingDetection.current = false;
+    setLanguageState(value);
+  }, []);
+
+  useEffect(() => {
+    if (!pendingDetection.current || languages.length === 0) return;
+    pendingDetection.current = false;
+
+    const detected = detectBrowserLanguage(languages);
+    if (detected) {
+      setLanguageState(detected);
+    }
+  }, [languages]);
 
   const loadZod = async (lang: string) => {
     if (!zodLocaleModules[`/node_modules/zod/v4/locales/${lang}.js`]) {
@@ -209,7 +243,7 @@ const TranslationProvider = ({ children }: { children: ReactNode }) => {
           })
           .catch((err) => {
             if (cancelled) return;
-            setLanguage('en');
+            setLanguageState('en');
             console.error(err);
           });
       }
@@ -349,7 +383,7 @@ const TranslationProvider = ({ children }: { children: ReactNode }) => {
     };
 
     return { language, setLanguage, t, tReact, tItem };
-  }, [language, languageData]);
+  }, [language, languageData, setLanguage]);
 
   setGlobalTranslationHandle(contextValue);
 
