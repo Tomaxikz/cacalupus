@@ -164,8 +164,8 @@ export const databaseAgentTypeDefaultPortMapping: Record<z.infer<typeof database
 };
 
 export const databaseAgentTypeDumpExtensionMapping: Record<z.infer<typeof databaseAgentType>, string> = {
-  postgres: '.sql',
-  mariadb: '.sql',
+  postgres: '.sql,.gz',
+  mariadb: '.sql,.gz',
   mongodb: '.archive',
   redis: '.rdb',
 };
