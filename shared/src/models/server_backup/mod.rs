@@ -2180,7 +2180,7 @@ impl CreatableModel for ServerBackup {
         let backup_disk = backup.disk;
         let database_dump = options
             .database_instance
-            .map(|instance| (instance.uuid, instance.r#type.dump_extension()));
+            .map(|instance| (instance.uuid, instance.r#type.export_extension()));
         let ignored_files_str = options
             .ignored_files
             .iter()
