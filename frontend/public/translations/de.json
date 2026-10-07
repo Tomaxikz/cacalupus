@@ -336,7 +336,8 @@
           "matches": "{count} Treffer",
           "noMatches": "Keine Treffer",
           "exception": "Ausnahme",
-          "tooManyPatterns": "Bei mehr als {max} Mustern werden Treffer nicht automatisch gezählt."
+          "tooManyPatterns": "Bei mehr als {max} Mustern werden Treffer nicht automatisch gezählt.",
+          "unanchoredException": "`{pattern}` trifft in jeder Tiefe zu, verwende `{anchored}`, um nur im Hauptverzeichnis zu treffen."
         },
         "cronInput": {
           "segments": {

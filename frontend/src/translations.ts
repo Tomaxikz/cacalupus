@@ -145,6 +145,8 @@ const baseTranslations = defineTranslations({
           noMatches: 'No matches',
           exception: 'Exception',
           tooManyPatterns: 'Matching is not counted automatically for more than {max} patterns.',
+          unanchoredException:
+            '`{pattern}` matches at any depth, use `{anchored}` to only match it in the root directory.',
         },
         cronInput: {
           segments: {
