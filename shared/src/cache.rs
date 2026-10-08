@@ -12,6 +12,7 @@ use rustis::{
 };
 use serde::{Serialize, de::DeserializeOwned};
 use std::{
+    borrow::Cow,
     collections::HashMap,
     future::Future,
     sync::{
@@ -183,6 +184,7 @@ impl CacheStats {
 
 pub struct Cache {
     client: Option<Arc<Client>>,
+    redis_prefix: Option<compact_str::CompactString>,
     use_internal_cache: bool,
     local: moka::future::Cache<compact_str::CompactString, DataEntry>,
     local_task: tokio::task::JoinHandle<()>,
@@ -268,6 +270,10 @@ impl Cache {
 
         let instance = Arc::new(Self {
             client,
+            redis_prefix: env
+                .redis_key_prefix
+                .as_deref()
+                .map(|prefix| compact_str::format_compact!("{prefix}::")),
             use_internal_cache: env.app_use_internal_cache,
             local,
             local_task,
@@ -295,6 +301,13 @@ impl Cache {
         );
 
         instance
+    }
+
+    fn redis_key<'a>(&self, key: &'a str) -> Cow<'a, str> {
+        match &self.redis_prefix {
+            Some(prefix) => Cow::Owned(format!("{prefix}{key}")),
+            None => Cow::Borrowed(key),
+        }
     }
 
     pub async fn version(&self) -> Result<compact_str::CompactString, rustis::Error> {
@@ -336,7 +349,11 @@ impl Cache {
 
         let remote = match &self.client {
             Some(redis_client) => match redis_client
-                .eval::<(u64, i64)>(RATELIMIT_SCRIPT, [key.as_str()], [limit_window])
+                .eval::<(u64, i64)>(
+                    RATELIMIT_SCRIPT,
+                    [self.redis_key(&key).as_ref()],
+                    [limit_window],
+                )
                 .await
             {
                 Ok((limit_used, ttl)) => Some((limit_used, now + ttl.max(0) as u64)),
@@ -402,7 +419,10 @@ impl Cache {
         );
 
         let remote = match &self.client {
-            Some(redis_client) => match redis_client.get::<Option<u64>>(key.as_str()).await {
+            Some(redis_client) => match redis_client
+                .get::<Option<u64>>(self.redis_key(&key).as_ref())
+                .await
+            {
                 Ok(limit_used) => Some(limit_used.unwrap_or(0)),
                 Err(err) => {
                     tracing::warn!(
@@ -479,7 +499,7 @@ impl Cache {
 
         let redis = RedisLock {
             client: redis_client.clone(),
-            key: compact_str::format_compact!("lock::{}", lock_id),
+            key: self.redis_key(&format!("lock::{lock_id}")).into(),
             token: rand::distr::Alphanumeric
                 .sample_string(&mut rand::rng(), 32)
                 .into(),
@@ -531,6 +551,7 @@ impl Cache {
         }
 
         let client_opt = self.client.clone();
+        let redis_key = self.redis_key(key);
         let outcome = AtomicU8::new(OUTCOME_COALESCED);
 
         let entry = self
@@ -542,7 +563,7 @@ impl Cache {
                     if let Some(client) = &client_opt {
                         tracing::debug!("checking redis cache");
                         let cached_value: Option<BulkString> = client
-                            .get(key)
+                            .get(redis_key.as_ref())
                             .await
                             .map_err(|err| {
                                 tracing::error!("redis get error: {:?}", err);
@@ -574,7 +595,7 @@ impl Cache {
                     if let Some(client) = &client_opt {
                         let _ = client
                             .set_with_options(
-                                key,
+                                redis_key.as_ref(),
                                 BulkStringRef(&serialized_arc),
                                 None,
                                 SetExpiration::Ex(ttl),
@@ -625,7 +646,7 @@ impl Cache {
 
         if let Some(client) = &self.client {
             tracing::debug!("get: checking redis cache");
-            let cached_value: Option<BulkString> = client.get(key).await?;
+            let cached_value: Option<BulkString> = client.get(self.redis_key(key).as_ref()).await?;
 
             if let Some(value) = cached_value {
                 tracing::debug!("get: found in redis cache");
@@ -645,7 +666,7 @@ impl Cache {
 
         if let Some(client) = &self.client {
             tracing::debug!("get_raw: checking redis cache");
-            let cached_value: Option<BulkString> = client.get(key).await?;
+            let cached_value: Option<BulkString> = client.get(self.redis_key(key).as_ref()).await?;
 
             if let Some(value) = cached_value {
                 tracing::debug!("get_raw: found in redis cache");
@@ -684,7 +705,7 @@ impl Cache {
         if let Some(client) = &self.client {
             client
                 .set_with_options(
-                    key,
+                    self.redis_key(key).as_ref(),
                     BulkStringRef(&serialized_arc),
                     None,
                     SetExpiration::Ex(ttl),
@@ -722,7 +743,7 @@ impl Cache {
         if let Some(client) = &self.client {
             client
                 .set_with_options(
-                    key,
+                    self.redis_key(key).as_ref(),
                     BulkStringRef(&serialized_arc),
                     None,
                     SetExpiration::Ex(ttl),
@@ -739,7 +760,7 @@ impl Cache {
         }
 
         if let Some(client) = &self.client {
-            Ok(client.exists(key).await? > 0)
+            Ok(client.exists(self.redis_key(key).as_ref()).await? > 0)
         } else {
             Ok(false)
         }
@@ -750,8 +771,25 @@ impl Cache {
         prefix: &str,
     ) -> Result<Vec<compact_str::CompactString>, anyhow::Error> {
         if let Some(client) = &self.client {
-            let keys = client.keys(format!("{}*", prefix)).await?;
-            Ok(keys)
+            let Some(redis_prefix) = &self.redis_prefix else {
+                return Ok(client.keys(format!("{prefix}*")).await?);
+            };
+
+            let mut pattern = String::with_capacity(redis_prefix.len() + prefix.len() + 1);
+            for c in redis_prefix.chars() {
+                if matches!(c, '*' | '?' | '[' | ']' | '\\') {
+                    pattern.push('\\');
+                }
+                pattern.push(c);
+            }
+            pattern.push_str(prefix);
+            pattern.push('*');
+
+            let keys: Vec<compact_str::CompactString> = client.keys(pattern).await?;
+            Ok(keys
+                .into_iter()
+                .filter_map(|key| key.strip_prefix(redis_prefix.as_str()).map(Into::into))
+                .collect())
         } else {
             let mut keys = Vec::new();
             for (key, _) in self.local.iter() {
@@ -788,7 +826,7 @@ impl Cache {
     pub async fn invalidate(&self, key: &str) -> Result<(), anyhow::Error> {
         self.local.invalidate(key).await;
         if let Some(client) = &self.client {
-            client.del(key).await?;
+            client.del(self.redis_key(key).as_ref()).await?;
         }
 
         Ok(())
@@ -944,6 +982,7 @@ mod tests {
     fn with_client(client: Option<Arc<Client>>) -> Cache {
         Cache {
             client,
+            redis_prefix: None,
             use_internal_cache: true,
             local: moka::future::Cache::builder()
                 .max_capacity(16)
