@@ -1324,25 +1324,27 @@ impl ServerBackup {
             database: bool,
         }
 
-        let token = node.create_jwt(
-            &state.database,
-            &state.jwt,
-            &BackupDownloadJwt {
-                base: BasePayload {
-                    scope: "backup-download".into(),
-                    issuer: "panel".into(),
-                    subject: None,
-                    audience: Vec::new(),
-                    expiration_time: Some(chrono::Utc::now().timestamp() + 900),
-                    not_before: None,
-                    issued_at: Some(chrono::Utc::now().timestamp()),
-                    jwt_id: user.uuid.to_compact_string(),
+        let token = node
+            .create_jwt(
+                &state.database,
+                &state.jwt,
+                &BackupDownloadJwt {
+                    base: BasePayload {
+                        scope: "backup-download".into(),
+                        issuer: "panel".into(),
+                        subject: None,
+                        audience: Vec::new(),
+                        expiration_time: Some(chrono::Utc::now().timestamp() + 900),
+                        not_before: None,
+                        issued_at: Some(chrono::Utc::now().timestamp()),
+                        jwt_id: user.uuid.to_compact_string(),
+                    },
+                    backup_uuid: self.uuid,
+                    unique_id: uuid::Uuid::new_v4(),
+                    database: self.kind == ServerBackupKind::DatabaseInstance,
                 },
-                backup_uuid: self.uuid,
-                unique_id: uuid::Uuid::new_v4(),
-                database: self.kind == ServerBackupKind::DatabaseInstance,
-            },
-        )?;
+            )
+            .await?;
 
         let mut url = node
             .public_url(state, request_host, "/download/backup")

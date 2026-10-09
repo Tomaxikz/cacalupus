@@ -677,7 +677,8 @@
           "restoringBackup": "Restoring Backup",
           "installing": "Installing",
           "installFailed": "Install Failed",
-          "backupRestoreFailed": "Backup Restore Failed"
+          "backupRestoreFailed": "Backup Restore Failed",
+          "resourcesUnavailable": "Resource Usage Unavailable"
         }
       },
       "enum": {

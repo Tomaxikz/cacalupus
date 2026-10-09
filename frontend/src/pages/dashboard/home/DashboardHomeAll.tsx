@@ -28,7 +28,7 @@ import ServerItem from './ServerItem.tsx';
 
 export default function DashboardHomeAll() {
   const { t } = useTranslations();
-  const { setServerGroups } = useUserStore();
+  const setServerGroups = useUserStore((state) => state.setServerGroups);
   const [serverListShowOthers, setServerListShowOthers] = useServerListShowOthers();
   const { addToast } = useToast();
 

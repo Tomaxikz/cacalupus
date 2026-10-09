@@ -1,8 +1,6 @@
 import { Table, Text, Title, TitleOrder } from '@mantine/core';
 import { Fragment, ReactNode, startTransition, useCallback, useEffect, useMemo, useRef, useState } from 'react';
-import Markdown from 'react-markdown';
-import rehypeRaw from 'rehype-raw';
-import rehypeSanitize from 'rehype-sanitize';
+import Markdown, { Components } from 'react-markdown';
 import remarkGfm from 'remark-gfm';
 import {
   getTranslationMapping,
@@ -21,6 +19,23 @@ import baseTranslations from '@/translations.ts';
 
 const zodLocaleModules = import.meta.glob('/node_modules/zod/v4/locales/*.js');
 const monacoNlsModules = import.meta.glob('/node_modules/monaco-editor/esm/nls.messages.*.js');
+const cronstrueLocaleModules: Record<string, () => Promise<unknown>> = {
+  ar: () => import('cronstrue/locales/ar.js'),
+  cs: () => import('cronstrue/locales/cs.js'),
+  da: () => import('cronstrue/locales/da.js'),
+  de: () => import('cronstrue/locales/de.js'),
+  es: () => import('cronstrue/locales/es.js'),
+  fr: () => import('cronstrue/locales/fr.js'),
+  it: () => import('cronstrue/locales/it.js'),
+  ja: () => import('cronstrue/locales/ja.js'),
+  pl: () => import('cronstrue/locales/pl.js'),
+  ro: () => import('cronstrue/locales/ro.js'),
+  ru: () => import('cronstrue/locales/ru.js'),
+  sk: () => import('cronstrue/locales/sk.js'),
+  sv: () => import('cronstrue/locales/sv.js'),
+  tr: () => import('cronstrue/locales/tr.js'),
+  vi: () => import('cronstrue/locales/vi.js'),
+};
 const monacoLocaleAliases: Record<string, string> = { zh: 'zh-cn', pt: 'pt-br' };
 const monacoNlsCache: Record<string, string[] | undefined> = {};
 
@@ -37,13 +52,9 @@ type LanguageData = {
   translations: Record<string, string>;
 };
 
-interface MarkdownOptions {
-  html?: boolean;
-}
-
 declare global {
   interface String {
-    md(options?: MarkdownOptions): ReactNode;
+    md(): ReactNode;
   }
 
   var _VSCODE_NLS_MESSAGES: string[] | undefined;
@@ -80,60 +91,58 @@ const Header =
   ({ order }: { order: TitleOrder }) =>
   (props: React.ComponentProps<typeof Title>) => <Title order={order} {...props} />;
 
-String.prototype.md = function (options?: MarkdownOptions): ReactNode {
+export const markdownComponents: Components = {
+  a: SafeMarkdownLink,
+  p: ({ children }) => (
+    <Text component='span' inherit>
+      {children}
+    </Text>
+  ),
+  h1: Header({ order: 1 }),
+  h2: Header({ order: 2 }),
+  h3: Header({ order: 3 }),
+  h4: Header({ order: 4 }),
+  h5: Header({ order: 5 }),
+  h6: Header({ order: 6 }),
+  pre: ({ children }) => <Fragment>{children}</Fragment>,
+  code: ({ className, children }) => (
+    <Code block={/language-/.test(className ?? '') || String(children).includes('\n')}>{children}</Code>
+  ),
+  table: ({ children }) => (
+    <Table withTableBorder withColumnBorders>
+      {children}
+    </Table>
+  ),
+  thead: ({ children }) => <Table.Thead>{children}</Table.Thead>,
+  tbody: ({ children }) => <Table.Tbody>{children}</Table.Tbody>,
+  tr: ({ children }) => <Table.Tr>{children}</Table.Tr>,
+  th: ({ children }) => <Table.Th>{children}</Table.Th>,
+  td: ({ children }) => <Table.Td>{children}</Table.Td>,
+  strong: ({ children }) => (
+    <Text component='span' fw={700} inherit>
+      {children}
+    </Text>
+  ),
+  em: ({ children }) => (
+    <Text component='span' td='italic' inherit>
+      {children}
+    </Text>
+  ),
+  ins: ({ children }) => (
+    <Text component='span' td='underline' inherit>
+      {children}
+    </Text>
+  ),
+  del: ({ children }) => (
+    <Text component='span' td='line-through' inherit>
+      {children}
+    </Text>
+  ),
+};
+
+String.prototype.md = function (): ReactNode {
   return (
-    <Markdown
-      remarkPlugins={[remarkGfm]}
-      rehypePlugins={options?.html ? [rehypeRaw, rehypeSanitize] : undefined}
-      components={{
-        a: SafeMarkdownLink,
-        p: ({ children }) => (
-          <Text component='span' inherit>
-            {children}
-          </Text>
-        ),
-        h1: Header({ order: 1 }),
-        h2: Header({ order: 2 }),
-        h3: Header({ order: 3 }),
-        h4: Header({ order: 4 }),
-        h5: Header({ order: 5 }),
-        h6: Header({ order: 6 }),
-        pre: ({ children }) => <Fragment>{children}</Fragment>,
-        code: ({ className, children }) => (
-          <Code block={/language-/.test(className ?? '') || String(children).includes('\n')}>{children}</Code>
-        ),
-        table: ({ children }) => (
-          <Table withTableBorder withColumnBorders>
-            {children}
-          </Table>
-        ),
-        thead: ({ children }) => <Table.Thead>{children}</Table.Thead>,
-        tbody: ({ children }) => <Table.Tbody>{children}</Table.Tbody>,
-        tr: ({ children }) => <Table.Tr>{children}</Table.Tr>,
-        th: ({ children }) => <Table.Th>{children}</Table.Th>,
-        td: ({ children }) => <Table.Td>{children}</Table.Td>,
-        strong: ({ children }) => (
-          <Text component='span' fw={700} inherit>
-            {children}
-          </Text>
-        ),
-        em: ({ children }) => (
-          <Text component='span' td='italic' inherit>
-            {children}
-          </Text>
-        ),
-        ins: ({ children }) => (
-          <Text component='span' td='underline' inherit>
-            {children}
-          </Text>
-        ),
-        del: ({ children }) => (
-          <Text component='span' td='line-through' inherit>
-            {children}
-          </Text>
-        ),
-      }}
-    >
+    <Markdown remarkPlugins={[remarkGfm]} components={markdownComponents}>
       {this.toString()}
     </Markdown>
   );
@@ -195,6 +204,10 @@ const TranslationProvider = ({ children }: { children: ReactNode }) => {
     globalThis._VSCODE_NLS_LANGUAGE = locale;
   };
 
+  const loadCronstrue = async (lang: string) => {
+    await cronstrueLocaleModules[lang]?.();
+  };
+
   useEffect(() => {
     let cancelled = false;
 
@@ -205,9 +218,8 @@ const TranslationProvider = ({ children }: { children: ReactNode }) => {
 
         setLanguageData(null);
       } else {
-        axiosInstance
-          .get(`/translations/${language}.json`)
-          .then(({ data }) => {
+        Promise.all([axiosInstance.get(`/translations/${language}.json`), loadCronstrue(language).catch(console.error)])
+          .then(([{ data }]) => {
             if (cancelled) return;
             const result: LanguageData = {
               items: data[''].items,

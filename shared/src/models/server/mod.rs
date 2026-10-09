@@ -601,7 +601,7 @@ impl Server {
 
     /// Get a server by its identifier, ensuring the user has access to it.
     ///
-    /// The server is cached until it is written to; subuser access is checked live.
+    /// The server and the caller's subuser entry are cached until they are written to.
     pub async fn by_user_identifier(
         database: &crate::database::Database,
         user: &super::user::User,
@@ -625,7 +625,7 @@ impl Server {
         }
 
         if let Some((permissions, ignored_files)) =
-            super::server_subuser::ServerSubuser::permissions_by_server_uuid_user_uuid(
+            super::server_subuser::ServerSubuser::permissions_by_server_uuid_user_uuid_cached(
                 database,
                 server.uuid,
                 user.uuid,
@@ -794,7 +794,7 @@ impl Server {
 
         let rows = sqlx::query(sqlx::AssertSqlSafe(format!(
             r#"
-            SELECT DISTINCT ON (servers.uuid, servers.created) {}, server_subusers.permissions, server_subusers.ignored_files, COUNT(*) OVER() AS total_count
+            SELECT {}, server_subusers.permissions, server_subusers.ignored_files, COUNT(*) OVER() AS total_count
             FROM servers
             LEFT JOIN server_allocations ON server_allocations.uuid = servers.allocation_uuid
             LEFT JOIN node_allocations ON node_allocations.uuid = server_allocations.allocation_uuid
@@ -804,9 +804,13 @@ impl Server {
             JOIN nests ON nests.uuid = nest_eggs.nest_uuid
             LEFT JOIN server_subusers ON server_subusers.server_uuid = servers.uuid AND server_subusers.user_uuid = $1
             WHERE
-                (servers.owner_uuid = $1 OR server_subusers.user_uuid = $1)
+                servers.uuid IN (
+                    SELECT owned.uuid FROM servers owned WHERE owned.owner_uuid = $1
+                    UNION ALL
+                    SELECT server_subusers.server_uuid FROM server_subusers WHERE server_subusers.user_uuid = $1
+                )
                 AND {search}
-            ORDER BY servers.created
+            ORDER BY servers.created, servers.uuid
             LIMIT $3 OFFSET $4
             "#,
             Self::columns_sql(None),
@@ -839,11 +843,14 @@ impl Server {
     ) -> Result<Vec<uuid::Uuid>, crate::database::DatabaseError> {
         let rows = sqlx::query(
             r#"
-            SELECT DISTINCT ON (servers.uuid, servers.created) servers.uuid
+            SELECT servers.uuid
             FROM servers
-            LEFT JOIN server_subusers ON server_subusers.server_uuid = servers.uuid AND server_subusers.user_uuid = $2
-            WHERE servers.node_uuid = $1 AND (servers.owner_uuid = $2 OR server_subusers.user_uuid = $2)
-            ORDER BY servers.created
+            WHERE servers.node_uuid = $1 AND servers.uuid IN (
+                SELECT owned.uuid FROM servers owned WHERE owned.owner_uuid = $2
+                UNION ALL
+                SELECT server_subusers.server_uuid FROM server_subusers WHERE server_subusers.user_uuid = $2
+            )
+            ORDER BY servers.created, servers.uuid
             "#
         )
         .bind(node_uuid)
@@ -868,7 +875,7 @@ impl Server {
 
         let rows = sqlx::query(sqlx::AssertSqlSafe(format!(
             r#"
-            SELECT DISTINCT ON (servers.uuid, servers.created) {}, server_subusers.permissions, server_subusers.ignored_files, COUNT(*) OVER() AS total_count
+            SELECT {}, server_subusers.permissions, server_subusers.ignored_files, COUNT(*) OVER() AS total_count
             FROM servers
             LEFT JOIN server_allocations ON server_allocations.uuid = servers.allocation_uuid
             LEFT JOIN node_allocations ON node_allocations.uuid = server_allocations.allocation_uuid
@@ -880,7 +887,7 @@ impl Server {
             WHERE
                 servers.owner_uuid != $1 AND (server_subusers.user_uuid IS NULL OR server_subusers.user_uuid != $1)
                 AND {search}
-            ORDER BY servers.created
+            ORDER BY servers.created, servers.uuid
             LIMIT $3 OFFSET $4
             "#,
             Self::columns_sql(None),
@@ -920,7 +927,7 @@ impl Server {
 
         let rows = sqlx::query(sqlx::AssertSqlSafe(format!(
             r#"
-            SELECT DISTINCT ON (servers.uuid, servers.created) {}, server_subusers.permissions, server_subusers.ignored_files, COUNT(*) OVER() AS total_count
+            SELECT {}, server_subusers.permissions, server_subusers.ignored_files, COUNT(*) OVER() AS total_count
             FROM server_tunnels
             JOIN servers ON servers.uuid = server_tunnels.server_uuid
             LEFT JOIN server_allocations ON server_allocations.uuid = servers.allocation_uuid
@@ -931,13 +938,17 @@ impl Server {
             JOIN nests ON nests.uuid = nest_eggs.nest_uuid
             LEFT JOIN server_subusers ON server_subusers.server_uuid = servers.uuid AND server_subusers.user_uuid = $1
             WHERE
-                (servers.owner_uuid = $1 OR server_subusers.user_uuid = $1)
+                servers.uuid IN (
+                    SELECT owned.uuid FROM servers owned WHERE owned.owner_uuid = $1
+                    UNION ALL
+                    SELECT server_subusers.server_uuid FROM server_subusers WHERE server_subusers.user_uuid = $1
+                )
                 AND servers.uuid != $2
                 AND NOT servers.suspended
                 AND servers.destination_node_uuid IS NULL
                 AND servers.status IS NULL
                 AND {search}
-            ORDER BY servers.created
+            ORDER BY servers.created, servers.uuid
             LIMIT $4 OFFSET $5
             "#,
             Self::columns_sql(None),
@@ -976,7 +987,7 @@ impl Server {
 
         let rows = sqlx::query(sqlx::AssertSqlSafe(format!(
             r#"
-            SELECT DISTINCT ON (servers.uuid, servers.created) {}, server_subusers.permissions, server_subusers.ignored_files, COUNT(*) OVER() AS total_count
+            SELECT {}, server_subusers.permissions, server_subusers.ignored_files, COUNT(*) OVER() AS total_count
             FROM server_tunnels
             JOIN servers ON servers.uuid = server_tunnels.server_uuid
             LEFT JOIN server_allocations ON server_allocations.uuid = servers.allocation_uuid
@@ -993,7 +1004,7 @@ impl Server {
                 AND servers.destination_node_uuid IS NULL
                 AND servers.status IS NULL
                 AND {search}
-            ORDER BY servers.created
+            ORDER BY servers.created, servers.uuid
             LIMIT $4 OFFSET $5
             "#,
             Self::columns_sql(None),
@@ -1643,20 +1654,23 @@ impl Server {
             .await?;
         }
 
-        let token = options.destination_node.create_jwt(
-            &state.database,
-            &state.jwt,
-            &crate::jwt::BasePayload {
-                scope: "transfer".into(),
-                issuer: "panel".into(),
-                subject: Some(self.uuid.to_compact_string()),
-                audience: Vec::new(),
-                expiration_time: Some(chrono::Utc::now().timestamp() + 600),
-                not_before: None,
-                issued_at: Some(chrono::Utc::now().timestamp()),
-                jwt_id: self.node.uuid.to_compact_string(),
-            },
-        )?;
+        let token = options
+            .destination_node
+            .create_jwt(
+                &state.database,
+                &state.jwt,
+                &crate::jwt::BasePayload {
+                    scope: "transfer".into(),
+                    issuer: "panel".into(),
+                    subject: Some(self.uuid.to_compact_string()),
+                    audience: Vec::new(),
+                    expiration_time: Some(chrono::Utc::now().timestamp() + 600),
+                    not_before: None,
+                    issued_at: Some(chrono::Utc::now().timestamp()),
+                    jwt_id: self.node.uuid.to_compact_string(),
+                },
+            )
+            .await?;
 
         let url = options.destination_node.url("/api/transfers");
 

@@ -498,6 +498,7 @@ const baseTranslations = defineTranslations({
           installing: 'Installing',
           installFailed: 'Install Failed',
           backupRestoreFailed: 'Backup Restore Failed',
+          resourcesUnavailable: 'Resource Usage Unavailable',
         },
       },
       enum: {

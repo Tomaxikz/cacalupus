@@ -676,7 +676,8 @@
           "restoringBackup": "Backup wird wiederhergestellt",
           "installing": "Wird installiert",
           "installFailed": "Installation fehlgeschlagen",
-          "backupRestoreFailed": "Backup-Wiederherstellung fehlgeschlagen"
+          "backupRestoreFailed": "Backup-Wiederherstellung fehlgeschlagen",
+          "resourcesUnavailable": "Ressourcennutzung nicht verfügbar"
         }
       },
       "enum": {
