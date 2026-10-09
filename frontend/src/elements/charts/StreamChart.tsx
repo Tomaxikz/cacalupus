@@ -1,6 +1,7 @@
 import { faArrowUp } from '@fortawesome/free-solid-svg-icons';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { AreaChart, ChartTooltip } from '@mantine/charts';
+import { useReducedMotion } from '@mantine/hooks';
 import { PointerEvent, useEffect, useLayoutEffect, useMemo, useRef, useState } from 'react';
 import { makeComponentHookable } from 'shared';
 import { CHART_TICK, CHART_WINDOW, StreamChartProps } from '@/lib/chart.ts';
@@ -11,6 +12,7 @@ const PLOT_INSET = 3;
 const EDGE = CHART_TICK * 1.5;
 const TOOLTIP_GAP = 12;
 const SYNC_TOLERANCE = CHART_TICK * 0.75;
+const CEILING_DURATION = 500;
 
 function formatOffset(at: number, end: number): string {
   const seconds = Math.round((at - end) / 1000);
@@ -30,6 +32,9 @@ function StreamChart({ data, domain, ticks, yMax, series, format, highlighted, l
   const [pointer, setPointer] = useState<{ x: number; y: number } | null>(null);
   const [hoveredAt, setHoveredAt] = useState<number | null>(null);
   const [tooltipSize, setTooltipSize] = useState({ width: 0, height: 0 });
+  const [displayMax, setDisplayMax] = useState(yMax);
+  const displayMaxRef = useRef(yMax);
+  const reducedMotion = useReducedMotion();
 
   const [start, end] = domain;
 
@@ -49,7 +54,32 @@ function StreamChart({ data, domain, ticks, yMax, series, format, highlighted, l
 
   const edgePixels = (size.width * EDGE) / CHART_WINDOW;
   const plotHeight = Math.max(size.height - PLOT_INSET * 2, 0);
-  const toY = (value: number) => PLOT_INSET + (1 - value / yMax) * plotHeight;
+  const toY = (value: number) => PLOT_INSET + (1 - value / displayMax) * plotHeight;
+
+  useEffect(() => {
+    const from = displayMaxRef.current;
+    if (from === yMax) {
+      return;
+    }
+
+    let frame = 0;
+    const startedAt = performance.now();
+    const step = (now: number) => {
+      const progress = reducedMotion || from <= 0 ? 1 : Math.min((now - startedAt) / CEILING_DURATION, 1);
+      const eased = 1 - (1 - progress) ** 3;
+      const value = from + (yMax - from) * eased;
+
+      displayMaxRef.current = value;
+      setDisplayMax(value);
+
+      if (progress < 1) {
+        frame = requestAnimationFrame(step);
+      }
+    };
+    frame = requestAnimationFrame(step);
+
+    return () => cancelAnimationFrame(frame);
+  }, [yMax, reducedMotion]);
 
   useLayoutEffect(() => {
     const from = previousEnd.current;
@@ -186,8 +216,37 @@ function StreamChart({ data, domain, ticks, yMax, series, format, highlighted, l
       });
   }, [ticks, format]);
 
+  const labelsKey = labels.map((tick) => tick.text).join('|');
+  const [previousLabels, setPreviousLabels] = useState({ key: labelsKey, labels });
+  const [leavingLabels, setLeavingLabels] = useState<typeof labels>([]);
+
+  if (previousLabels.key !== labelsKey) {
+    const current = new Set(labels.map((tick) => tick.text));
+    const leaving = [...leavingLabels, ...previousLabels.labels].filter(
+      (tick, index, all) => !current.has(tick.text) && all.findIndex((other) => other.text === tick.text) === index,
+    );
+
+    setPreviousLabels({ key: labelsKey, labels });
+    setLeavingLabels(leaving);
+  }
+
+  useEffect(() => {
+    if (leavingLabels.length === 0) {
+      return;
+    }
+
+    const timeout = setTimeout(() => setLeavingLabels([]), CEILING_DURATION);
+
+    return () => clearTimeout(timeout);
+  }, [leavingLabels]);
+
+  const shownLabels = [
+    ...labels.map((tick) => ({ ...tick, visible: tick.value <= displayMax * 1.001 })),
+    ...leavingLabels.map((tick) => ({ ...tick, visible: false })),
+  ];
+
   const pointerY = pointer ? Math.min(Math.max(pointer.y, PLOT_INSET), PLOT_INSET + plotHeight) : 0;
-  const pointerValue = plotHeight > 0 ? (1 - (pointerY - PLOT_INSET) / plotHeight) * yMax : 0;
+  const pointerValue = plotHeight > 0 ? (1 - (pointerY - PLOT_INSET) / plotHeight) * displayMax : 0;
   const hoveredX = hoveredRow ? ((hoveredRow.t! - start) * size.width) / CHART_WINDOW + edgePixels : 0;
 
   const tooltipLeft = pointer
@@ -202,11 +261,11 @@ function StreamChart({ data, domain, ticks, yMax, series, format, highlighted, l
   return (
     <div className='flex h-full w-full'>
       <div className={compact ? 'hidden' : 'relative w-18 shrink-0'}>
-        {labels.map((tick) => (
+        {shownLabels.map((tick) => (
           <span
             key={tick.text}
-            className='absolute right-2 -translate-y-1/2 whitespace-nowrap text-xs text-(--chart-tick-color) tabular-nums'
-            style={{ top: toY(tick.value) }}
+            className='absolute right-2 -translate-y-1/2 whitespace-nowrap text-xs text-(--chart-tick-color) tabular-nums transition-opacity'
+            style={{ top: toY(tick.value), opacity: tick.visible ? 1 : 0 }}
           >
             {tick.text}
           </span>
@@ -228,18 +287,18 @@ function StreamChart({ data, domain, ticks, yMax, series, format, highlighted, l
         onPointerLeave={compact ? undefined : onPointerLeave}
       >
         {!compact &&
-          labels.map((tick) => (
+          shownLabels.map((tick) => (
             <div
               key={tick.text}
-              className='pointer-events-none absolute inset-x-0 border-t border-(--chart-grid-color)'
-              style={{ top: toY(tick.value) }}
+              className='pointer-events-none absolute inset-x-0 border-t border-(--chart-grid-color) transition-opacity'
+              style={{ top: toY(tick.value), opacity: tick.visible ? 1 : 0 }}
             />
           ))}
 
         {limit !== null && limit !== undefined && limit > 0 && limit <= yMax && (
           <div
             className='pointer-events-none absolute inset-x-0 border-t border-dashed border-(--mantine-color-red-filled)/70'
-            style={{ top: toY(limit) }}
+            style={{ top: Math.max(toY(limit), 0) }}
           >
             <span
               className={`absolute right-1 whitespace-nowrap text-[10px] text-(--mantine-color-red-filled) tabular-nums ${toY(limit) < 16 ? 'top-0.5' : 'bottom-0.5'}`}
@@ -278,7 +337,7 @@ function StreamChart({ data, domain, ticks, yMax, series, format, highlighted, l
                 gridAxis='none'
                 connectNulls={false}
                 xAxisProps={{ type: 'number', domain: [start - EDGE, end + EDGE], allowDataOverflow: true, hide: true }}
-                yAxisProps={{ domain: [0, yMax], allowDataOverflow: true, hide: true }}
+                yAxisProps={{ domain: [0, displayMax], allowDataOverflow: true, hide: true }}
                 areaProps={(entry) => ({
                   isAnimationActive: false,
                   fillOpacity: highlighted && highlighted !== entry.name ? 0 : 1,
@@ -300,7 +359,7 @@ function StreamChart({ data, domain, ticks, yMax, series, format, highlighted, l
                     className='absolute size-2.5 -translate-1/2 rounded-full border-2 border-(--mantine-color-body)'
                     style={{
                       left: hoveredX,
-                      top: toY(Math.min(hoveredRow[item.name]!, yMax)),
+                      top: toY(Math.min(hoveredRow[item.name]!, displayMax)),
                       backgroundColor: item.color,
                       opacity: highlighted && highlighted !== item.name ? 0.3 : 1,
                     }}
