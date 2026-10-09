@@ -579,6 +579,11 @@ const baseTranslations = defineTranslations({
           tebibytes: 'TiB',
           pebibytes: 'PiB',
         },
+        rate: {
+          kilobits: 'Kbps',
+          megabits: 'Mbps',
+          gigabits: 'Gbps',
+        },
       },
       unlimited: 'Unlimited',
       readOnly: 'Read Only',
@@ -3641,6 +3646,13 @@ const baseTranslations = defineTranslations({
                   ioWeight: 'IO Weight',
                   ioWeightDescription: 'The relative IO Weight of the server container compared to other containers.',
                   ioWeightTooltip: '0-1000. May not work on all systems.',
+                  bandwidth: {
+                    upload: 'Upload Limit',
+                    download: 'Download Limit',
+                    description: '0 will not set a limit.',
+                    unavailable: 'The node does not support bandwidth limits.',
+                    disabled: 'Bandwidth limits are disabled in the node configuration.',
+                  },
                   pinnedCpus: 'Pinned CPUs',
                   pinnedCpusDescription: 'The CPU cores this server is pinned to.',
                   pinnedCpusTooltip: 'By index, e.g. 0, 1, 2. Leave empty to allow all cores.',
@@ -5410,6 +5422,7 @@ const baseTranslations = defineTranslations({
             port: 'Port',
             networkIn: 'Network (In)',
             networkOut: 'Network (Out)',
+            networkDetails: '{total} total · {packets} pps',
             normalizeCpuLoad: 'Normalize CPU Load (shifted to max 100%)',
           },
           power: {
