@@ -130,6 +130,7 @@ function FileRevisionDiffComponent() {
     loading,
     getParent,
     layout: () => diffEditorRef.current?.layout(),
+    aboveFooter: true,
     deps: [loading, getParent],
   });
 
@@ -263,7 +264,7 @@ function FileRevisionDiffComponent() {
       ) : (
         <div className='flex flex-col relative mt-4'>
           <div className='relative'>
-            <div ref={editorContainerRef} className='flex max-w-full w-full z-1 absolute'>
+            <div ref={editorContainerRef} className='flex max-w-full w-full z-1'>
               <FileRevisionDiffEditor
                 original={originalContent}
                 modified={modifiedContent}

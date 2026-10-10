@@ -74,7 +74,7 @@ export default function FileEditorContent({
   );
 
   return (
-    <div ref={containerRef} className='flex max-w-full w-full z-1 absolute'>
+    <div ref={containerRef} className='flex max-w-full w-full z-1'>
       {matchedFileEditorAction?.contentType === 'string' ? (
         <matchedFileEditorAction.content
           content={content}

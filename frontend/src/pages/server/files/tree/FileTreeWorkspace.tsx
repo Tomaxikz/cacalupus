@@ -213,6 +213,7 @@ export default function FileTreeWorkspace({
     layout: () => undefined,
     cssVariable: '--file-manager-workspace-height',
     useVisualViewportInset: true,
+    aboveFooter: true,
     deps: [getParent],
   });
 
@@ -657,13 +658,11 @@ export default function FileTreeWorkspace({
 
   return (
     <>
-      {/* The workspace is measured to the viewport bottom, so it is taken out of flow like the file
-          editor's - left in it, its full height would push the page into a permanent short scroll. */}
       <div className='relative w-full min-w-0 self-stretch'>
         <div
           ref={workspaceRef}
           data-file-manager-workspace
-          className='absolute inset-x-0 top-0 max-w-none overflow-x-auto overflow-y-hidden bg-(--mantine-color-body)'
+          className='max-w-none overflow-x-auto overflow-y-hidden bg-(--mantine-color-body)'
         >
           <div
             data-file-manager-workspace-grid

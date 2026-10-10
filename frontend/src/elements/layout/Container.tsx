@@ -24,13 +24,14 @@ function Container({ children, isNormal }: LayoutProps) {
 
   return (
     <div
+      data-layout-container
       className={
         isNormal
           ? 'flex flex-col justify-between min-w-full h-full'
           : 'flex flex-col justify-between h-full overflow-auto'
       }
     >
-      <div>
+      <div data-layout-content>
         {impersonating && (
           <Alert icon={<FontAwesomeIcon icon={faUserCheck} />} color='yellow' className='mt-2 mx-4 lg:mx-6'>
             {t('elements.container.alert.impersonating', {})}
@@ -43,7 +44,7 @@ function Container({ children, isNormal }: LayoutProps) {
 
         {children}
       </div>
-      <div className='my-2 ml-auto mr-4 lg:mr-6 flex flex-col items-end'>
+      <div data-layout-footer className='my-2 ml-auto mr-4 lg:mr-6 flex flex-col items-end'>
         {serverName && (
           <span className='text-xs text-(--mantine-color-dimmed)'>
             {t('elements.container.connectedTo', { name: serverName })}

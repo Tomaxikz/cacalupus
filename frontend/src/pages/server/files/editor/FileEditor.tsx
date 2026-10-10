@@ -280,6 +280,7 @@ function FileEditorComponent() {
     layout: () => editorRef.current?.layout?.(),
     extraObserveRef: contentWrapRef,
     useVisualViewportInset: true,
+    aboveFooter: true,
     deps: [loading, getParent, params.action, fileName],
   });
 
