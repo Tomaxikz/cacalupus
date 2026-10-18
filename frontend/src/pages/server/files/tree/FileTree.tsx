@@ -48,6 +48,8 @@ import { useFileManagerApi, useFileManagerStore } from '@/stores/fileManager.ts'
 import { useServerStore } from '@/stores/server.ts';
 import { fileManagerUndoScope, runLastUndoEntry } from '@/stores/undoHistory.ts';
 
+const DROP_TARGET_CLASSES = ['file-tree-drop-target', 'file-tree-drop-target-span', 'file-tree-root-drop-target'];
+
 function FileTree({
   onOpenFile,
   onCreateFile,
@@ -80,11 +82,12 @@ function FileTree({
   const selectedPathsRef = useRef(new Set<string>());
   const syncingStoreSelectionRef = useRef(false);
   const itemsByPathRef = useRef(new Map<string, TreeSelectionItem>());
-  const highlightedDropTargetRef = useRef<{ element: HTMLElement; target: string } | null>(null);
+  const highlightedDropTargetRef = useRef<HTMLElement[]>([]);
   const clearDropTargetTimerRef = useRef<number | null>(null);
   const searchRequestRef = useRef(0);
   const reloadTreeRef = useRef<() => void>(() => undefined);
   const onOpenFileRef = useRef(onOpenFile);
+  const onCreateFileRef = useRef(onCreateFile);
   const [directories, setDirectories] = useState<Record<string, DirectoryState>>({});
   const [expandedDirectories, setExpandedDirectories] = useState(() => new Set<string>());
   const [selectedPaths, setSelectedPaths] = useState(() => new Set<string>());
@@ -109,7 +112,8 @@ function FileTree({
     selectedPathsRef.current = selectedPaths;
     movingRef.current = moving;
     onOpenFileRef.current = onOpenFile;
-  }, [directories, expandedDirectories, selectedPaths, moving, onOpenFile]);
+    onCreateFileRef.current = onCreateFile;
+  }, [directories, expandedDirectories, selectedPaths, moving, onOpenFile, onCreateFile]);
 
   const clearDropTarget = useCallback(() => {
     if (clearDropTargetTimerRef.current !== null) {
@@ -117,8 +121,10 @@ function FileTree({
       clearDropTargetTimerRef.current = null;
     }
 
-    highlightedDropTargetRef.current?.element.classList.remove('file-tree-drop-target', 'file-tree-root-drop-target');
-    highlightedDropTargetRef.current = null;
+    for (const element of highlightedDropTargetRef.current) {
+      element.classList.remove(...DROP_TARGET_CLASSES);
+    }
+    highlightedDropTargetRef.current = [];
     store.getState().setDraggingTarget(null);
     setHorizontalDragScrollLocked(false);
   }, [setHorizontalDragScrollLocked, store]);
@@ -129,12 +135,26 @@ function FileTree({
       clearDropTargetTimerRef.current = null;
     }
 
-    const current = highlightedDropTargetRef.current;
-    if (current?.target === target && current.element === element) return;
+    const tree = treeRef.current;
+    let elements = [element];
+    if (tree && element !== tree) {
+      const span = Array.from(tree.querySelectorAll<HTMLElement>('[data-file-manager-tree-row]')).filter((row) => {
+        const path = row.dataset.fileTreePath;
+        return path !== undefined && (path === target || path.startsWith(`${target}/`));
+      });
+      if (span.length > 0) elements = span;
+    }
 
-    current?.element.classList.remove('file-tree-drop-target', 'file-tree-root-drop-target');
-    element.classList.add(element === treeRef.current ? 'file-tree-root-drop-target' : 'file-tree-drop-target');
-    highlightedDropTargetRef.current = { element, target };
+    const next = new Set(elements);
+    for (const previous of highlightedDropTargetRef.current) {
+      if (!next.has(previous)) previous.classList.remove(...DROP_TARGET_CLASSES);
+    }
+    for (const current of elements) {
+      if (current === tree) current.classList.add('file-tree-root-drop-target');
+      else if (current.dataset.fileTreePath === target) current.classList.add('file-tree-drop-target');
+      else current.classList.add('file-tree-drop-target-span');
+    }
+    highlightedDropTargetRef.current = elements;
   }, []);
 
   const scheduleDropTargetClear = useCallback(
@@ -604,29 +624,40 @@ function FileTree({
     );
   };
 
-  const prepareCreateTarget = () => {
-    const fileManager = store.getState();
-    syncingStoreSelectionRef.current = true;
-    fileManager.setBrowsingContext({
-      directory: createTarget,
-      ...getDirectoryCapabilities(createTarget),
-      writable: createTargetWritable,
-    });
-    syncingStoreSelectionRef.current = false;
+  const prepareDirectoryTarget = useCallback(
+    (target: string, writable: boolean) => {
+      const fileManager = store.getState();
+      syncingStoreSelectionRef.current = true;
+      fileManager.setBrowsingContext({ directory: target, ...getDirectoryCapabilities(target), writable });
+      syncingStoreSelectionRef.current = false;
 
-    return fileManager;
-  };
+      return fileManager;
+    },
+    [getDirectoryCapabilities, store],
+  );
 
-  const openCreateFile = () => {
-    prepareCreateTarget();
-    onCreateFile(createTarget, getDirectoryCapabilities(createTarget));
-  };
+  const openCreateFileIn = useCallback(
+    (target: string, writable: boolean) => {
+      prepareDirectoryTarget(target, writable);
+      onCreateFileRef.current(target, { ...getDirectoryCapabilities(target), writable });
+    },
+    [getDirectoryCapabilities, prepareDirectoryTarget],
+  );
 
-  const openCreateDirectory = () => {
-    prepareCreateTarget();
-    setSearchParams({ directory: createTarget });
-    store.getState().doOpenModal('nameDirectory');
-  };
+  const openCreateDirectoryIn = useCallback(
+    (target: string, writable: boolean) => {
+      prepareDirectoryTarget(target, writable);
+      setSearchParams({ directory: target });
+      store.getState().doOpenModal('nameDirectory');
+    },
+    [prepareDirectoryTarget, setSearchParams, store],
+  );
+
+  const prepareCreateTarget = () => prepareDirectoryTarget(createTarget, createTargetWritable);
+
+  const openCreateFile = () => openCreateFileIn(createTarget, createTargetWritable);
+
+  const openCreateDirectory = () => openCreateDirectoryIn(createTarget, createTargetWritable);
 
   const openCreateSymlink = () => {
     prepareCreateTarget();
@@ -932,7 +963,7 @@ function FileTree({
     if (!target) return null;
 
     const highlightElement =
-      element.dataset.fileTreeDirectory === target ? element : target === ROOT_DIRECTORY ? treeRef.current : null;
+      target === ROOT_DIRECTORY && element.dataset.fileTreeDirectory !== target ? treeRef.current : element;
 
     return {
       target,
@@ -1133,6 +1164,8 @@ function FileTree({
                 onToggleSelection={toggleItemSelection}
                 onStartDrag={startDrag}
                 onDragEnd={clearDragState}
+                onCreateFileIn={canCreateFiles ? openCreateFileIn : undefined}
+                onCreateDirectoryIn={canCreateFiles ? openCreateDirectoryIn : undefined}
                 onLoadPage={loadPage}
               />
             )}
