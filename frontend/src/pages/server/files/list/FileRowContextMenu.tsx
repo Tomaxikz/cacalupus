@@ -259,6 +259,7 @@ export default function FileRowContextMenu({
         {
           type: 'divider',
           hidden: (!onCreateFile && !onCreateDirectory) || !!upload,
+          canAccess: canCreate,
         },
         {
           type: 'action',

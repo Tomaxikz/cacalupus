@@ -82,7 +82,9 @@ function FileTree({
   const selectedPathsRef = useRef(new Set<string>());
   const syncingStoreSelectionRef = useRef(false);
   const itemsByPathRef = useRef(new Map<string, TreeSelectionItem>());
-  const highlightedDropTargetRef = useRef<HTMLElement[]>([]);
+  const highlightedDropTargetRef = useRef<{ element: HTMLElement; target: string; elements: HTMLElement[] } | null>(
+    null,
+  );
   const clearDropTargetTimerRef = useRef<number | null>(null);
   const searchRequestRef = useRef(0);
   const reloadTreeRef = useRef<() => void>(() => undefined);
@@ -121,10 +123,10 @@ function FileTree({
       clearDropTargetTimerRef.current = null;
     }
 
-    for (const element of highlightedDropTargetRef.current) {
+    for (const element of highlightedDropTargetRef.current?.elements ?? []) {
       element.classList.remove(...DROP_TARGET_CLASSES);
     }
-    highlightedDropTargetRef.current = [];
+    highlightedDropTargetRef.current = null;
     store.getState().setDraggingTarget(null);
     setHorizontalDragScrollLocked(false);
   }, [setHorizontalDragScrollLocked, store]);
@@ -134,6 +136,9 @@ function FileTree({
       window.clearTimeout(clearDropTargetTimerRef.current);
       clearDropTargetTimerRef.current = null;
     }
+
+    const current = highlightedDropTargetRef.current;
+    if (current?.target === target && current.element === element) return;
 
     const tree = treeRef.current;
     let elements = [element];
@@ -146,15 +151,15 @@ function FileTree({
     }
 
     const next = new Set(elements);
-    for (const previous of highlightedDropTargetRef.current) {
+    for (const previous of current?.elements ?? []) {
       if (!next.has(previous)) previous.classList.remove(...DROP_TARGET_CLASSES);
     }
-    for (const current of elements) {
-      if (current === tree) current.classList.add('file-tree-root-drop-target');
-      else if (current.dataset.fileTreePath === target) current.classList.add('file-tree-drop-target');
-      else current.classList.add('file-tree-drop-target-span');
+    for (const highlighted of elements) {
+      if (highlighted === tree) highlighted.classList.add('file-tree-root-drop-target');
+      else if (highlighted.dataset.fileTreePath === target) highlighted.classList.add('file-tree-drop-target');
+      else highlighted.classList.add('file-tree-drop-target-span');
     }
-    highlightedDropTargetRef.current = elements;
+    highlightedDropTargetRef.current = { element, target, elements };
   }, []);
 
   const scheduleDropTargetClear = useCallback(
@@ -1164,8 +1169,8 @@ function FileTree({
                 onToggleSelection={toggleItemSelection}
                 onStartDrag={startDrag}
                 onDragEnd={clearDragState}
-                onCreateFileIn={canCreateFiles ? openCreateFileIn : undefined}
-                onCreateDirectoryIn={canCreateFiles ? openCreateDirectoryIn : undefined}
+                onCreateFileIn={openCreateFileIn}
+                onCreateDirectoryIn={openCreateDirectoryIn}
                 onLoadPage={loadPage}
               />
             )}

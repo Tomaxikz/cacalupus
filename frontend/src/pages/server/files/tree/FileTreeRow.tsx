@@ -346,9 +346,11 @@ function FileTreeRow({
           writableDirectory={parentWritable}
           upload={upload}
           surface='tree'
-          onCreateFile={canCreateInside && onCreateFileIn ? () => onCreateFileIn(row.path, true) : undefined}
+          onCreateFile={
+            canCreateInside && onCreateFileIn ? () => onCreateFileIn(row.path, directoryWritable) : undefined
+          }
           onCreateDirectory={
-            canCreateInside && onCreateDirectoryIn ? () => onCreateDirectoryIn(row.path, true) : undefined
+            canCreateInside && onCreateDirectoryIn ? () => onCreateDirectoryIn(row.path, directoryWritable) : undefined
           }
         >
           {({ openMenu }) => <ContextMenuOpener position={menuPosition} openMenu={openMenu} />}
