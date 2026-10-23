@@ -261,7 +261,7 @@ impl UserSession {
                 search =
                     super::search_sql(2, &["user_sessions.user_agent"], &["user_sessions.uuid"]),
             ),
-            "user_sessions.created DESC",
+            "user_sessions.created DESC, user_sessions.uuid",
         )
         .bind(user_uuid)
         .bind(search)
@@ -469,9 +469,9 @@ impl CreatableModel for UserSession {
                         "session_created",
                         &user,
                         minijinja::context! {
-                            user => user,
-                            ip => options.ip.ip().to_compact_string(),
-                            user_agent => options.user_agent,
+                            user => minijinja::value::Serde(&user),
+                            ip => minijinja::value::Serde(options.ip.ip().to_compact_string()),
+                            user_agent => minijinja::value::Serde(&options.user_agent),
                             sessions_link => format!("{}/account/sessions", settings.app.url),
                         },
                     )

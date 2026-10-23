@@ -128,7 +128,7 @@ pub struct EggConfigStartup {
 
 #[derive(ToSchema, Validate, Serialize, Deserialize, Default, Clone)]
 pub struct EggConfigRoutes {
-    #[garde(length(max = 100))]
+    #[garde(length(max = 100), dive)]
     #[schema(max_length = 100)]
     pub order: Vec<crate::settings::RouteOrderItem>,
 }
@@ -398,6 +398,7 @@ impl BaseModel for EggConfiguration {
         vec![
             compact_str::format_compact!("{}::{}", Self::NAME, self.uuid),
             Self::ALL_CACHE_KEY.into(),
+            crate::icons::REFERENCED_ICONS_CACHE_KEY.into(),
         ]
     }
 }
@@ -424,7 +425,7 @@ impl EggConfiguration {
                     &["egg_configurations.uuid"]
                 ),
             ),
-            "egg_configurations.order_, egg_configurations.created",
+            "egg_configurations.order_, egg_configurations.created, egg_configurations.uuid",
         )
         .bind(search)
         .fetch(database, page, per_page)
@@ -438,7 +439,7 @@ impl EggConfiguration {
             r#"
             SELECT {}
             FROM egg_configurations
-            ORDER BY egg_configurations.order_, egg_configurations.created
+            ORDER BY egg_configurations.order_, egg_configurations.created, egg_configurations.uuid
             "#,
             Self::columns_sql(None)
         )))

@@ -215,7 +215,7 @@ impl ServerSubuser {
                 "#,
                 search = super::search_sql(2, &["users.username"], &["users.uuid"]),
             ),
-            "server_subusers.created",
+            "server_subusers.created, server_subusers.server_uuid, server_subusers.user_uuid",
         )
         .bind(server_uuid)
         .bind(search)
@@ -423,8 +423,8 @@ impl CreatableModel for ServerSubuser {
                 "added_to_server",
                 &user,
                 minijinja::context! {
-                    user => user,
-                    server => options.server,
+                    user => minijinja::value::Serde(&user),
+                    server => minijinja::value::Serde(&options.server),
                     server_link => format!(
                         "{}/server/{:08x}",
                         settings.app.url,
@@ -584,7 +584,7 @@ impl DeletableModel for ServerSubuser {
                 "removed_from_server",
                 &self.user,
                 minijinja::context! {
-                    user => self.user,
+                    user => minijinja::value::Serde(&self.user),
                 },
             )
             .await;

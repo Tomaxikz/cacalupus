@@ -150,7 +150,14 @@ impl EggRepositoryCredentials {
             .unwrap_or(gix::url::Scheme::Https);
 
         match self {
-            EggRepositoryCredentials::None => {}
+            EggRepositoryCredentials::None => {
+                if scheme == gix::url::Scheme::Ssh {
+                    return Err(crate::response::DisplayError::new(
+                        "ssh repositories need credentials, use an https repository url for public repositories",
+                    )
+                    .into());
+                }
+            }
             EggRepositoryCredentials::Password { .. } => {
                 if scheme == gix::url::Scheme::Http {
                     return Err(crate::response::DisplayError::new(
@@ -414,7 +421,7 @@ impl EggRepository {
                 search =
                     super::search_sql(1, &["egg_repositories.name"], &["egg_repositories.uuid"]),
             ),
-            "egg_repositories.created",
+            "egg_repositories.created, egg_repositories.uuid",
         )
         .bind(search)
         .fetch(database, page, per_page)
@@ -429,7 +436,7 @@ impl EggRepository {
             SELECT {}
             FROM egg_repositories
             WHERE egg_repositories.auto_sync
-            ORDER BY egg_repositories.created
+            ORDER BY egg_repositories.created, egg_repositories.uuid
             "#,
             Self::columns_sql(None)
         )))
@@ -536,7 +543,10 @@ impl EggRepository {
                                 Err(_) => continue,
                             }
                         } else {
-                            match serde_norway::from_str(file_content.trim()) {
+                            match serde_saphyr::from_str_with_options(
+                                file_content.trim(),
+                                crate::utils::yaml_deserialize_options(),
+                            ) {
                                 Ok(egg) => egg,
                                 Err(_) => continue,
                             }
